@@ -1,1 +1,261 @@
-<p>footer.component works!</p>
+<footer class="relative bg-gradient-to-br from-stone-900 via-stone-900/20 to-stone-900 text-white overflow-hidden">
+
+
+    <!-- Main Footer Content -->
+    <div class="relative container mx-auto px-4 py-2 lg:py-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+
+            <!-- Brand Section -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                        <i class="fa-solid fa-location-dot text-white text-xl"></i>
+                    </div>
+                    <h3
+                        class="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                        NOQTA
+                    </h3>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    {{ i18n.currentLang === 'ar' ? 'منصتك المتكاملة للتسوق الإلكتروني. نوفر لك أفضل المنتجات بأفضل الأسعار مع توصيل سريع وآمن.' : 'Your complete e-commerce platform. We provide you with the best products at the best prices with fast and secure delivery.' }}
+                </p>
+
+                <!-- Social Media -->
+                <div class="flex items-center gap-3 pt-2">
+                    <a href="#"
+                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
+                        <i class="fab fa-facebook-f text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                    <a href="#"
+                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
+                        <i class="fab fa-twitter text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                    <a href="#"
+                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
+                        <i class="fab fa-instagram text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                    <a href="#"
+                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
+                        <i class="fab fa-linkedin-in text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="space-y-4">
+                <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                    <div class="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                    {{ i18n.currentLang === 'ar' ? 'روابط سريعة' : 'Quick Links' }}
+                </h4>
+                <ul class="space-y-3">
+                    <li>
+                        <a [routerLink]="['/']"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الرئيسية' : 'Home' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a [routerLink]="['/products']"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a [routerLink]="['/about']"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'من نحن' : 'About Us' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a [routerLink]="['/contact']"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'اتصل بنا' : 'Contact Us' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a [routerLink]="['/auth/login']" *ngIf="!isLogged"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'تسجيل الدخول' : 'Login' }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="space-y-4">
+                <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                    <div class="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                    {{ i18n.currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Service' }}
+                </h4>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="#"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'سياسة الاسترجاع' : 'Return Policy' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الأسئلة الشائعة' : 'FAQ' }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#"
+                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الشحن والتوصيل' : 'Shipping & Delivery' }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="space-y-4">
+                <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                    <div class="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                    {{ i18n.currentLang === 'ar' ? 'تواصل معنا' : 'Contact Us' }}
+                </h4>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-location-dot text-pink-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address'
+                                }}</p>
+                            <p class="text-sm text-gray-300">
+                                {{ i18n.currentLang === 'ar'
+                                ? 'المملكة العربية السعودية، الرياض'
+                                : 'Saudi Arabia, Riyadh' }}
+                            </p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-envelope text-purple-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' :
+                                'Email' }}</p>
+                            <a href="mailto:info@noqta.com"
+                                class="text-sm text-gray-300 hover:text-pink-400 transition-colors">
+                                info@noqta.com
+                            </a>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-phone text-pink-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}
+                            </p>
+                            <a href="tel:+966500000000"
+                                class="text-sm text-gray-300 hover:text-pink-400 transition-colors" [dir]="'ltr'">
+                                +966 50 000 0000
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Newsletter Section -->
+    <div class="relative border-t border-white/10">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="text-center md:text-start">
+                    <h4 class="text-lg font-bold text-white mb-2">
+                        {{ i18n.currentLang === 'ar' ? 'اشترك في النشرة البريدية' : 'Subscribe to Newsletter' }}
+                    </h4>
+                    <p class="text-sm text-gray-400">
+                        {{ i18n.currentLang === 'ar'
+                        ? 'احصل على آخر العروض والتحديثات'
+                        : 'Get the latest offers and updates' }}
+                    </p>
+                </div>
+
+                <div class="w-full md:w-auto">
+                    <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto md:mx-0">
+                        <input type="email"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'"
+                            class="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 focus:bg-white/10 transition-all text-sm">
+                        <button
+                            class="px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium text-sm transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/50 whitespace-nowrap">
+                            {{ i18n.currentLang === 'ar' ? 'اشترك الآن' : 'Subscribe Now' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="relative border-t border-white/10">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
+                <p class="text-center md:text-start">
+                    © {{ currentYear }}
+                    <span class="text-pink-400 font-semibold">NOQTA</span>.
+                    {{ i18n.currentLang === 'ar' ? 'جميع الحقوق محفوظة' : 'All rights reserved' }}.
+                </p>
+
+                <!-- Payment Methods -->
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-gray-500">{{ i18n.currentLang === 'ar' ? 'طرق الدفع:' : 'Payment:'
+                        }}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
+                            <i class="fab fa-cc-visa text-blue-400 text-lg"></i>
+                        </div>
+                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
+                            <i class="fab fa-cc-mastercard text-red-400 text-lg"></i>
+                        </div>
+                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
+                            <i class="fab fa-cc-paypal text-blue-400 text-lg"></i>
+                        </div>
+                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
+                            <i class="fab fa-apple-pay text-white text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</footer>

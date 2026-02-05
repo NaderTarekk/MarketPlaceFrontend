@@ -4,23 +4,29 @@ import { NavbarComponent } from './components/navbar.component/navbar.component'
 import { FooterComponent } from './components/footer.component/footer.component';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { AppRoutingModule } from "../app-routing-module";
+import { RouterModule } from '@angular/router';
+import { LoaderComponent } from './components/loader.component/loader.component';
 
 
 
 @NgModule({
   declarations: [
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    LoaderComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
-    TranslateModule
-  ],
+    TranslateModule,
+    RouterModule
+],
   exports: [
     NavbarComponent,
     FooterComponent,
-    TranslateModule
+    TranslateModule,
+    LoaderComponent
   ]
 })
 export class SharedModule { }

@@ -9,6 +9,7 @@ import { SharedModule } from './shared/shared-module';
 import { HomeModule } from './modules/home/home-module';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
+import { ToastrModule } from 'ngx-toastr';
 
 class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) {}
@@ -29,6 +30,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppRoutingModule,
     HttpClientModule,
     SharedModule,
+    ToastrModule.forRoot(),
     HomeModule,
     TranslateModule.forRoot(
       {

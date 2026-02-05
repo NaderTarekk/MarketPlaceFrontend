@@ -2,9 +2,14 @@
     "home":"Home",
     "products":"Products",
     "profile":"Profile",
-    "logout":"Logout",
     "name":"Names",
     "email":"Email",
     "Mobile":"Mobile",
-    "subscribe":"Subscribe Now"
+    "subscribe":"Subscribe Now",
+    "cart":"Cart",
+    
+    "login":"Login",
+    "register":"Register",
+    "logout":"Logout"
+
 }

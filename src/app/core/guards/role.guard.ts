@@ -10,9 +10,9 @@ export class RoleGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree {
     // 1) لازم يكون مسجل دخول
-    if (!this.auth.isLoggedIn()) {
-      return this.router.createUrlTree(['/auth/login']);
-    }
+    // if (!this.auth.isLoggedIn()) {
+    //   return this.router.createUrlTree(['/auth/login']);
+    // }
 
     // 2) لو فيه Roles مطلوبة للRoute
     const allowedRoles = route.data['roles'] as string[] | undefined;

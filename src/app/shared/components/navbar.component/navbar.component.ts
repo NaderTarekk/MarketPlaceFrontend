@@ -1,7 +1,12 @@
+// navbar.component.ts
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { I18nService, Lang } from '../../../core/services/i18n.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../modules/auth/services/auth.service';
 
 export interface NavLink {
   label: string;
@@ -19,15 +24,30 @@ export class NavbarComponent implements OnInit, OnDestroy {
   searchQuery = '';
   currentLang: Lang = 'ar';
   lang: string = '';
-  navLinks: NavLink[] = [];
-
+  navLinks: any[] = [];
+  isLogged: boolean = false;
   private langSub!: Subscription;
+  private authSub!: Subscription;
+  isProfileMenuOpen = false;
+  isSearchOpen = false;
+  cartCount = 0; 
 
-  constructor(public i18n: I18nService, private translate: TranslateService) {
-  }
+  constructor(
+    public i18n: I18nService,
+    private authService: AuthService,
+    private toastr: ToastrService,
+    private router: Router,
+    private translate: TranslateService
+  ) { }
 
   ngOnInit(): void {
     this.lang = localStorage.getItem('lang') || 'en';
+
+    // ✅ Subscribe على الـ auth state
+    this.authSub = this.authService.isLoggedIn$.subscribe(isLogged => {
+      this.isLogged = isLogged;
+      this.updateNavLinks();
+    });
 
     this.langSub = this.i18n.lang$Observable().subscribe(lang => {
       this.currentLang = lang;
@@ -35,11 +55,33 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
+  toggleSearch(): void {
+    this.isSearchOpen = !this.isSearchOpen;
+  }
+
+  handleNavClick(link: any): void {
+    if (link.func === 'logout') {
+      this.logout();
+    }
+  }
+
+  toggleLang(): void {
+    const newLang = this.currentLang === 'ar' ? 'en' : 'ar';
+    this.i18n.switch(newLang as Lang);
+    localStorage.setItem('lang', newLang);
+    document.documentElement.setAttribute('dir', newLang === 'ar' ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', newLang);
+    this.translate.use(newLang);
+  }
+
+
+toggleProfileMenu(): void {
+  this.isProfileMenuOpen = !this.isProfileMenuOpen;
+}
+
   ChangeLag(event: any) {
     const selectedLang = event.target.value;
-
     localStorage.setItem('lang', selectedLang);
-
     this.translate.use(selectedLang);
   }
 
@@ -54,24 +96,43 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.authSub?.unsubscribe();
   }
-
 
   private updateNavLinks(): void {
-    this.navLinks = [
-      { label: 'home', url: '/' },
-      { label: 'products', url: '/about' },
-      { label: 'profile', url: '/contact' },
-      { label: 'logout', url: '/contact' },
-    ];
+    if (this.isLogged) {
+      // ✅ Links للـ logged in users
+      this.navLinks = [
+        { label: 'home', url: '/' },
+        { label: 'products', url: '/products' },
+        { label: 'profile', url: '/profile' },
+        { label: 'logout', func: 'logout' },
+      ];
+    } else {
+      // ✅ Links للـ guests
+      this.navLinks = [
+        { label: 'home', url: '/' },
+        { label: 'products', url: '/products' },
+        { label: 'login', url: '/auth/login' },
+      ];
+    }
   }
 
-  toggleMobileMenu(): void {
+  logout() {
+    this.authService.logout(); // ✅ هيعمل update للـ BehaviorSubject
+    this.toastr.info(this.i18n.currentLang === 'ar' ? 'تم تسجيل الخروج من حسابك' : 'Logged out successfully');
+    this.router.navigate(['/auth/login']);
+  }
+
+  toggleMobileMenu(label?: any): void {
+    if (label === 'logout') {
+      this.logout();
+      return;
+    }
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
   onSearch(): void {
     console.log('Search:', this.searchQuery);
   }
-
 }

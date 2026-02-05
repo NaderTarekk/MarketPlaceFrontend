@@ -1,315 +1,787 @@
 <!-- login.component.html -->
 
-<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900
-            flex items-center justify-center px-4 py-12 relative overflow-hidden">
+<div class="min-h-screen relative flex items-center justify-center px-4 py-12 overflow-hidden">
 
-    <!-- ─── Blobs ─── -->
-    <div class="blob-1"></div>
-    <div class="blob-2"></div>
-    <div class="blob-3"></div>
+  <!-- ═══ Animated Background ═══ -->
+  <div class="animated-bg"></div>
 
-    <!-- ─── Card ─── -->
-    <div class="relative z-10 w-full max-w-md anim-fadeUp">
+  <!-- ═══ Grid Pattern ═══ -->
+  <div class="grid-pattern"></div>
 
-        <!-- Logo -->
-        <div class="flex justify-center mb-6">
-            <img src="noqta logo rm.png" alt="Logo" class="h-12 w-auto object-contain"
-                style="filter: brightness(0) invert(1);" />
-        </div>
+  <!-- ═══ Floating Shapes ═══ -->
+  <div class="shape shape-1"></div>
+  <div class="shape shape-2"></div>
+  <div class="shape shape-3"></div>
+  <div class="shape shape-4"></div>
+  <div class="shape shape-5"></div>
 
-        <!-- Tabs -->
-        <div class="flex bg-gray-800 rounded-t-2xl overflow-hidden border border-gray-700 border-b-0">
-            <button (click)="switchTab('login')" [ngClass]="activeTab === 'login'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-400 hover:text-white'"
-                class="flex-1 py-3.5 text-sm font-bold tracking-wide uppercase transition-all duration-300 cursor-pointer">
-                {{ i18n.t('login') }}
-            </button>
-            <button (click)="switchTab('register')" [ngClass]="activeTab === 'register'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-400 hover:text-white'"
-                class="flex-1 py-3.5 text-sm font-bold tracking-wide uppercase transition-all duration-300 cursor-pointer">
-                {{ i18n.t('register') }}
-            </button>
-        </div>
+  <!-- ═══ Particles ═══ -->
+  <div class="particle particle-1"></div>
+  <div class="particle particle-2"></div>
+  <div class="particle particle-3"></div>
+  <div class="particle particle-4"></div>
+  <div class="particle particle-5"></div>
+  <div class="particle particle-6"></div>
+  <div class="particle particle-7"></div>
+  <div class="particle particle-8"></div>
 
-        <!-- Body -->
-        <div class="bg-white rounded-b-2xl shadow-2xl p-6 sm:p-8 border border-gray-100">
+  <!-- ═══ Sparkles ═══ -->
+  <div class="sparkle sparkle-1"></div>
+  <div class="sparkle sparkle-2"></div>
+  <div class="sparkle sparkle-3"></div>
+  <div class="sparkle sparkle-4"></div>
+  <div class="sparkle sparkle-5"></div>
 
-            <!-- ═══════ LOGIN ═══════ -->
-            <div *ngIf="activeTab === 'login'" class="anim-slideIn flex flex-col gap-4">
+  <!-- ═══ Main Card ═══ -->
+  <div class="relative z-10 w-full max-w-md anim-fadeUp">
 
-                <!-- Email -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('email')
-                        }}</label>
-                    <div class="relative">
-                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
-                            viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round">
-                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                            <path d="M22 7l-10 6L2 7"></path>
-                        </svg>
-                        <input type="email" [(ngModel)]="loginEmail" [placeholder]="i18n.t('email_placeholder')" class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 bg-gray-50
-                     focus:border-gray-900 focus:bg-white focus:ring-4 focus:ring-gray-900/8
-                     transition-all duration-300 outline-none" />
-                    </div>
-                </div>
-
-                <!-- Password -->
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{
-                            i18n.t('password') }}</label>
-                        <button (click)="showForgotModal = true"
-                            class="text-xs text-red-500 hover:text-red-600 font-semibold transition-colors cursor-pointer">
-                            {{ i18n.t('forgot_password') }}
-                        </button>
-                    </div>
-                    <div class="relative">
-                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
-                            viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        <input type="password" [(ngModel)]="loginPassword" [placeholder]="i18n.t('password')" class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 bg-gray-50
-                     focus:border-gray-900 focus:bg-white focus:ring-4 focus:ring-gray-900/8
-                     transition-all duration-300 outline-none" />
-                    </div>
-                </div>
-
-                <!-- Remember -->
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" [(ngModel)]="loginRemember"
-                        class="w-4 h-4 rounded border-gray-300 accent-gray-900 cursor-pointer" />
-                    <span class="text-xs text-gray-500 group-hover:text-gray-700 transition-colors">{{
-                        i18n.t('remember_me') }}</span>
-                </label>
-
-                <!-- Sign In -->
-                <button (click)="onLogin()" class="relative w-full py-3 rounded-xl text-sm font-bold uppercase tracking-widest
-                 bg-gray-900 text-white border-2 border-gray-900 overflow-hidden
-                 active:scale-95 transition-all duration-300 cursor-pointer group/btn">
-                    <span
-                        class="absolute inset-0 bg-red-600 -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-300 ease-out"></span>
-                    <span class="relative z-10">{{ i18n.t('sign_in') }}</span>
-                </button>
-
-                <!-- Divider -->
-                <div class="flex items-center gap-3">
-                    <div class="flex-1 h-px bg-gray-200"></div>
-                    <span class="text-xs text-gray-400 font-medium">{{ i18n.t('or_continue') }}</span>
-                    <div class="flex-1 h-px bg-gray-200"></div>
-                </div>
-
-                <!-- Google -->
-                <button (click)="loginWithGoogle()" class="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl
-                 border-2 border-gray-200 bg-white text-gray-700 text-sm font-semibold
-                 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md
-                 active:scale-95 transition-all duration-300 cursor-pointer">
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path fill="#4285F4"
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853"
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05"
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                        <path fill="#EA4335"
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    {{ i18n.t('sign_in_google') }}
-                </button>
-
-                <!-- Don't have account -->
-                <p class="text-center text-xs text-gray-400 mt-1">
-                    {{ i18n.t('dont_have') }}
-                    <button (click)="switchTab('register')"
-                        class="text-red-500 hover:text-red-600 font-semibold cursor-pointer transition-colors">
-                        {{ i18n.t('register') }}
-                    </button>
-                </p>
-            </div>
-
-            <!-- ═══════ REGISTER ═══════ -->
-            <div *ngIf="activeTab === 'register'" class="anim-slideInLeft flex flex-col gap-4">
-
-                <!-- Name -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('full_name')
-                        }}</label>
-                    <div class="relative">
-                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
-                            viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="8" r="4"></circle>
-                        </svg>
-                        <input type="text" [(ngModel)]="registerName" [placeholder]="i18n.t('name_placeholder')" class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 bg-gray-50
-                     focus:border-gray-900 focus:bg-white focus:ring-4 focus:ring-gray-900/8
-                     transition-all duration-300 outline-none" />
-                    </div>
-                </div>
-
-                <!-- Email -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('email')
-                        }}</label>
-                    <div class="relative">
-                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
-                            viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round">
-                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                            <path d="M22 7l-10 6L2 7"></path>
-                        </svg>
-                        <input type="email" [(ngModel)]="registerEmail" [placeholder]="i18n.t('email_placeholder')"
-                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 bg-gray-50
-                     focus:border-gray-900 focus:bg-white focus:ring-4 focus:ring-gray-900/8
-                     transition-all duration-300 outline-none" />
-                    </div>
-                </div>
-
-                <!-- Password -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('password')
-                        }}</label>
-                    <div class="relative">
-                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
-                            viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        <input type="password" [(ngModel)]="registerPassword" [placeholder]="i18n.t('password')" class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 bg-gray-50
-                     focus:border-gray-900 focus:bg-white focus:ring-4 focus:ring-gray-900/8
-                     transition-all duration-300 outline-none" />
-                    </div>
-                </div>
-
-                <!-- Confirm Password -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{
-                        i18n.t('confirm_password') }}</label>
-                    <div class="relative">
-                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
-                            viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        <input type="password" [(ngModel)]="registerConfirmPassword" [placeholder]="i18n.t('password')"
-                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 bg-gray-50
-                     focus:border-gray-900 focus:bg-white focus:ring-4 focus:ring-gray-900/8
-                     transition-all duration-300 outline-none" />
-                    </div>
-                </div>
-
-                <!-- Create Account -->
-                <button (click)="onRegister()" class="relative w-full py-3 rounded-xl text-sm font-bold uppercase tracking-widest
-                 bg-gray-900 text-white border-2 border-gray-900 overflow-hidden
-                 active:scale-95 transition-all duration-300 cursor-pointer group/btn">
-                    <span
-                        class="absolute inset-0 bg-red-600 -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-300 ease-out"></span>
-                    <span class="relative z-10">{{ i18n.t('create_account') }}</span>
-                </button>
-
-                <!-- Divider -->
-                <div class="flex items-center gap-3">
-                    <div class="flex-1 h-px bg-gray-200"></div>
-                    <span class="text-xs text-gray-400 font-medium">{{ i18n.t('or_continue') }}</span>
-                    <div class="flex-1 h-px bg-gray-200"></div>
-                </div>
-
-                <!-- Google -->
-                <button (click)="loginWithGoogle()" class="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl
-                 border-2 border-gray-200 bg-white text-gray-700 text-sm font-semibold
-                 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md
-                 active:scale-95 transition-all duration-300 cursor-pointer">
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path fill="#4285F4"
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853"
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05"
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                        <path fill="#EA4335"
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    {{ i18n.t('sign_in_google') }}
-                </button>
-
-                <!-- Already have account -->
-                <p class="text-center text-xs text-gray-400 mt-1">
-                    {{ i18n.t('already_have') }}
-                    <button (click)="switchTab('login')"
-                        class="text-red-500 hover:text-red-600 font-semibold cursor-pointer transition-colors">
-                        {{ i18n.t('login') }}
-                    </button>
-                </p>
-            </div>
-        </div>
+    <!-- ═══ Logo ═══ -->
+    <div class="flex justify-center mb-10">
+      <div class="relative glow-ring">
+        <p class="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+          <i class="fa-solid fa-location-dot"></i> NOQTA
+        </p>
+      </div>
     </div>
 
-    <!-- ═══════ FORGOT PASSWORD MODAL ═══════ -->
-    <div *ngIf="showForgotModal" class="modal-overlay" (click)="showForgotModal = false">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 sm:p-8 anim-fadeUp"
-            (click)="$event.stopPropagation()">
+    <!-- ═══ Tabs Container ═══ -->
+    <div class="relative glass-card rounded-t-3xl overflow-hidden shadow-2xl border-b-0" style="border: 0;">
+      <div class="relative flex tab-gradient-bg p-1.5">
 
-            <!-- Not Sent Yet -->
-            <div *ngIf="!forgotSent" class="flex flex-col gap-5">
-                <!-- Icon -->
-                <div class="flex justify-center">
-                    <div class="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ef4444" stroke-width="2"
-                            stroke-linecap="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                    </div>
-                </div>
+        <!-- Tab Buttons -->
+        <button (click)="switchTab('login')"
+          [ngClass]="activeTab === 'login' ? 'text-white' : 'text-gray-400 hover:text-gray-200'"
+          class="relative flex-1 py-4 text-sm font-bold tracking-wider uppercase transition-all duration-300 cursor-pointer z-10">
+          {{ i18n.t('login') }}
+        </button>
 
-                <div class="text-center">
-                    <h3 class="text-lg font-bold text-gray-800">{{ i18n.t('forgot_title') }}</h3>
-                    <p class="text-xs text-gray-400 mt-1">{{ i18n.t('forgot_desc') }}</p>
-                </div>
+        <button (click)="switchTab('register')"
+          [ngClass]="activeTab === 'register' ? 'text-white' : 'text-gray-400 hover:text-gray-200'"
+          class="relative flex-1 py-4 text-sm font-bold tracking-wider uppercase transition-all duration-300 cursor-pointer z-10">
+          {{ i18n.t('register') }}
+        </button>
 
-                <!-- Email Input -->
-                <div class="relative">
-                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
-                        viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round">
-                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                        <path d="M22 7l-10 6L2 7"></path>
-                    </svg>
-                    <input type="email" [(ngModel)]="forgotEmail" [placeholder]="i18n.t('email_placeholder')" class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 bg-gray-50
-                   focus:border-gray-900 focus:bg-white focus:ring-4 focus:ring-gray-900/8
-                   transition-all duration-300 outline-none" />
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex gap-3">
-                    <button (click)="showForgotModal = false" class="flex-1 py-2.5 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-600
-                   hover:border-gray-300 hover:bg-gray-50 active:scale-95 transition-all duration-300 cursor-pointer">
-                        {{ i18n.t('cancel') }}
-                    </button>
-                    <button (click)="onForgot()" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white
-                   bg-red-500 hover:bg-red-600 active:scale-95 transition-all duration-300 cursor-pointer">
-                        {{ i18n.t('send_reset') }}
-                    </button>
-                </div>
-            </div>
-
-            <!-- Sent Success -->
-            <div *ngIf="forgotSent" class="anim-fadeUp flex flex-col items-center gap-4 py-4">
-                <div class="anim-checkIn w-20 h-20 rounded-full bg-green-50 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#22c55e" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                </div>
-                <p class="text-sm font-semibold text-gray-700 text-center">{{ i18n.t('forgot_sent') }}</p>
-            </div>
-        </div>
+        <!-- Sliding Indicator -->
+        <div [ngClass]="activeTab === 'register' ? 'translate-x-full' : 'translate-x-0'"
+          class="absolute bottom-0 left-0 w-1/2 h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 transition-transform duration-300 ease-out"
+          style="box-shadow: 0 0 20px rgba(236, 72, 153, 0.8), 0 0 40px rgba(168, 85, 247, 0.6);"></div>
+      </div>
     </div>
+
+    <!-- ═══ Form Body ═══ -->
+    <div class="glass-card rounded-b-3xl shadow-2xl p-6 sm:p-10">
+
+      <!-- ══════════ LOGIN FORM ══════════ -->
+      <div *ngIf="activeTab === 'login'" class="anim-slideInRight flex flex-col gap-5">
+
+        <!-- Welcome Text -->
+        <div class="text-center mb-3">
+          <h2 class="text-2xl sm:text-3xl font-bold gradient-text">
+            {{ i18n.currentLang === 'ar' ? 'مرحباً بعودتك' : 'Welcome Back' }}
+          </h2>
+          <p class="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 animate-pulse"></span>
+            {{ i18n.currentLang === 'ar' ? 'سجل دخول للمتابعة' : 'Sign in to continue your journey' }}
+            <span class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 animate-pulse"></span>
+          </p>
+        </div>
+
+        <!-- Email -->
+        <div class="group">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+            <svg class="w-4 h-4 text-pink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="M22 7l-10 6L2 7"></path>
+            </svg>
+            {{ i18n.t('email') }}
+          </label>
+          <input type="email" [(ngModel)]="loginEmail" [placeholder]="i18n.t('email_placeholder')" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white/80
+                   focus:border-pink-500 focus:bg-white focus:ring-0 input-glow
+                   transition-all duration-300 outline-none
+                   group-hover:border-gray-300 group-hover:bg-white" />
+        </div>
+
+        <!-- Password -->
+        <div class="group">
+          <div class="flex items-center justify-between mb-2.5">
+            <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider">
+              <svg class="w-4 h-4 text-pink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              {{ i18n.t('password') }}
+            </label>
+            <button (click)="showForgotModal = true"
+              class="text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent hover:from-pink-600 hover:to-purple-600 transition-all cursor-pointer">
+              {{ i18n.t('forgot_password') }}
+            </button>
+          </div>
+          <div class="relative">
+            <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="loginPassword"
+              [placeholder]="i18n.t('password')" class="w-full px-4 py-4 pr-12 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white/80
+                     focus:border-pink-500 focus:bg-white focus:ring-0 input-glow
+                     transition-all duration-300 outline-none
+                     group-hover:border-gray-300 group-hover:bg-white" />
+            <button type="button" (click)="showPassword = !showPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-pink-500 transition-colors cursor-pointer">
+              <svg *ngIf="!showPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg *ngIf="showPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                </path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember Me -->
+        <!-- <label class="flex items-center gap-3 cursor-pointer group/check">
+          <div class="relative">
+            <input type="checkbox" [(ngModel)]="loginRemember"
+              class="w-5 h-5 rounded border-2 border-gray-300 text-pink-500 focus:ring-pink-500 focus:ring-offset-0 cursor-pointer transition-all" />
+          </div>
+          <span class="text-sm text-gray-600 group-hover/check:text-gray-800 font-medium transition-colors">
+            {{ i18n.t('remember_me') }}
+          </span>
+        </label> -->
+
+        <!-- Sign In Button -->
+        <button (click)="onLogin()" class="relative w-full py-4 rounded-xl text-sm font-bold uppercase tracking-widest
+                 bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 text-white
+                 hover:from-pink-600 hover:via-purple-600 hover:to-pink-600
+                 active:scale-98 transition-all duration-300 cursor-pointer
+                 shadow-lg hover:shadow-pink-500/50 btn-shine overflow-hidden"
+          style="background-size: 200% 200%; animation: gradient-shift 3s ease infinite;">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            {{ i18n.t('sign_in') }}
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-4 my-1">
+          <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+          <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+            {{ i18n.t('or_continue') }}
+          </span>
+          <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+        </div>
+
+        <!-- Google Button -->
+        <button (click)="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 py-4 rounded-xl
+                 border-2 border-gray-300 bg-white/80 text-gray-700 text-sm font-bold
+                 hover:border-pink-500 hover:bg-white hover:shadow-lg hover:shadow-pink-500/20
+                 active:scale-98 transition-all duration-300 cursor-pointer group/google">
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          <span class="group-hover/google:translate-x-1 transition-transform duration-300">
+            {{ i18n.t('sign_in_google') }}
+          </span>
+        </button>
+  
+        <!-- <div id="g_id_onload" data-client_id="179993097510-1pbeun6s3dk1oldorf9i1qjg6rotkl22.apps.googleusercontent.com"
+          data-context="use" data-ux_mode="popup" data-login_uri="http://localhost:4200" data-itp_support="true">
+        </div>
+
+        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
+          data-text="signin_with" data-size="large" data-locale="ar" data-logo_alignment="left">
+        </div> -->
+
+        <!-- Register Link -->
+        <p class="text-center text-sm text-gray-500 mt-2">
+          {{ i18n.t('dont_have') }}
+          <button (click)="switchTab('register')"
+            class="font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent hover:from-pink-600 hover:to-purple-600 cursor-pointer transition-all ml-1">
+            {{ i18n.t('register') }}
+          </button>
+        </p>
+      </div>
+
+      <!-- ══════════ REGISTER FORM ══════════ -->
+      <div *ngIf="activeTab === 'register'" class="anim-slideInLeft flex flex-col gap-5">
+
+        <!-- Welcome Text -->
+        <div class="text-center mb-3">
+          <h2 class="text-2xl sm:text-3xl font-bold gradient-text">
+            {{ i18n.currentLang === 'ar' ? 'انضم إلينا' : 'Join Us Today' }}
+          </h2>
+          <p class="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 animate-pulse"></span>
+            {{ i18n.currentLang === 'ar' ? 'أنشئ حسابك الجديد' : 'Create your account and get started' }}
+            <span class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 animate-pulse"></span>
+          </p>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="group">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+            <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            {{ i18n.currentLang === 'ar' ? 'نوع الحساب' : 'Account Type' }}
+          </label>
+
+          <div class="grid grid-cols-3 gap-2">
+            <!-- Customer -->
+            <button type="button" (click)="registerRole = 'Customer'"
+              [ngClass]="registerRole === 'Customer' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-200 bg-white text-gray-600'"
+              class="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:border-purple-300">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span class="text-xs font-bold">{{ i18n.currentLang === 'ar' ? 'عميل' : 'Customer' }}</span>
+            </button>
+
+            <!-- Vendor -->
+            <button type="button" (click)="registerRole = 'Vendor'"
+              [ngClass]="registerRole === 'Vendor' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-200 bg-white text-gray-600'"
+              class="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:border-purple-300">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span class="text-xs font-bold">{{ i18n.currentLang === 'ar' ? 'تاجر' : 'Vendor' }}</span>
+            </button>
+
+            <!-- Delivery Agent -->
+            <button type="button" (click)="registerRole = 'DeliveryAgent'"
+              [ngClass]="registerRole === 'DeliveryAgent' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-200 bg-white text-gray-600'"
+              class="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:border-purple-300">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+              <span class="text-xs font-bold">{{ i18n.currentLang === 'ar' ? 'مندوب' : 'Delivery' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Full Name -->
+        <div class="group">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+            <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="8" r="4"></circle>
+            </svg>
+            {{ i18n.t('full_name') }}
+          </label>
+          <input type="text" [(ngModel)]="registerName" [placeholder]="i18n.t('name_placeholder')" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white/80
+             focus:border-purple-500 focus:bg-white focus:ring-0 input-glow
+             transition-all duration-300 outline-none
+             group-hover:border-gray-300 group-hover:bg-white" />
+        </div>
+
+        <!-- Email -->
+        <div class="group">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+            <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="M22 7l-10 6L2 7"></path>
+            </svg>
+            {{ i18n.t('email') }}
+          </label>
+          <input type="email" [(ngModel)]="registerEmail" [placeholder]="i18n.t('email_placeholder')" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white/80
+             focus:border-purple-500 focus:bg-white focus:ring-0 input-glow
+             transition-all duration-300 outline-none
+             group-hover:border-gray-300 group-hover:bg-white" />
+        </div>
+
+        <!-- Phone -->
+        <div class="group">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+            <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+              </path>
+            </svg>
+            {{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}
+          </label>
+          <input type="tel" [(ngModel)]="registerPhone" placeholder="+966 5XXXXXXXX" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white/80
+             focus:border-purple-500 focus:bg-white focus:ring-0 input-glow
+             transition-all duration-300 outline-none
+             group-hover:border-gray-300 group-hover:bg-white" />
+        </div>
+
+        <!-- Vendor Specific Fields -->
+        <div *ngIf="registerRole === 'Vendor'"
+          class="space-y-5 p-4 bg-purple-50/50 rounded-xl border-2 border-purple-100">
+          <p class="text-xs font-bold text-purple-700 uppercase tracking-wider">
+            {{ i18n.currentLang === 'ar' ? 'بيانات التاجر' : 'Vendor Information' }}
+          </p>
+
+          <!-- Business Name -->
+          <div class="group">
+            <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+              <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              </svg>
+              {{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business Name' }}
+            </label>
+            <input type="text" [(ngModel)]="vendorBusinessName"
+              [placeholder]="i18n.currentLang === 'ar' ? 'اسم المتجر التجاري' : 'Your business name'" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white
+               focus:border-purple-500 focus:ring-0 input-glow transition-all duration-300 outline-none" />
+          </div>
+
+          <!-- Commercial Registration -->
+          <div class="group">
+            <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+              <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              {{ i18n.currentLang === 'ar' ? 'السجل التجاري' : 'Commercial Registration' }}
+            </label>
+            <input type="text" [(ngModel)]="vendorCommercialReg"
+              [placeholder]="i18n.currentLang === 'ar' ? 'رقم السجل التجاري' : 'CR Number'" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white
+               focus:border-purple-500 focus:ring-0 input-glow transition-all duration-300 outline-none" />
+          </div>
+
+          <!-- Tax Number -->
+          <div class="group">
+            <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+              <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              {{ i18n.currentLang === 'ar' ? 'الرقم الضريبي' : 'Tax Number' }}
+            </label>
+            <input type="text" [(ngModel)]="vendorTaxNumber"
+              [placeholder]="i18n.currentLang === 'ar' ? 'الرقم الضريبي' : 'VAT Number'" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white
+               focus:border-purple-500 focus:ring-0 input-glow transition-all duration-300 outline-none" />
+          </div>
+
+          <!-- Business Address -->
+          <div class="group">
+            <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+              <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              {{ i18n.currentLang === 'ar' ? 'عنوان المتجر' : 'Business Address' }}
+            </label>
+            <textarea [(ngModel)]="vendorBusinessAddress" rows="2"
+              [placeholder]="i18n.currentLang === 'ar' ? 'العنوان الكامل للمتجر' : 'Full business address'"
+              class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white
+               focus:border-purple-500 focus:ring-0 input-glow transition-all duration-300 outline-none resize-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="group">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+            <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            {{ i18n.t('password') }}
+          </label>
+          <div class="relative">
+            <input [type]="showRegPassword ? 'text' : 'password'" [(ngModel)]="registerPassword"
+              [placeholder]="i18n.t('password')" class="w-full px-4 py-4 pr-12 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white/80
+               focus:border-purple-500 focus:bg-white focus:ring-0 input-glow
+               transition-all duration-300 outline-none
+               group-hover:border-gray-300 group-hover:bg-white" />
+            <button type="button" (click)="showRegPassword = !showRegPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-purple-500 transition-colors cursor-pointer">
+              <svg *ngIf="!showRegPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg *ngIf="showRegPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                </path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="group">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
+            <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            {{ i18n.t('confirm_password') }}
+          </label>
+          <div class="relative">
+            <input [type]="showConfirmPassword ? 'text' : 'password'" [(ngModel)]="registerConfirmPassword"
+              [placeholder]="i18n.t('password')" class="w-full px-4 py-4 pr-12 rounded-xl border-2 border-gray-200 text-sm text-gray-800 bg-white/80
+               focus:border-purple-500 focus:bg-white focus:ring-0 input-glow
+               transition-all duration-300 outline-none
+               group-hover:border-gray-300 group-hover:bg-white" />
+            <button type="button" (click)="showConfirmPassword = !showConfirmPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-purple-500 transition-colors cursor-pointer">
+              <svg *ngIf="!showConfirmPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg *ngIf="showConfirmPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                </path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Create Account Button -->
+        <button (click)="onRegister()" [disabled]="isLoading" class="relative w-full py-4 rounded-xl text-sm font-bold uppercase tracking-widest
+           bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 text-white
+           hover:from-purple-600 hover:via-pink-600 hover:to-purple-600
+           disabled:opacity-50 disabled:cursor-not-allowed
+           active:scale-98 transition-all duration-300 cursor-pointer
+           shadow-lg hover:shadow-purple-500/50 btn-shine overflow-hidden"
+          style="background-size: 200% 200%; animation: gradient-shift 3s ease infinite;">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            <span *ngIf="!isLoading">{{ i18n.t('create_account') }}</span>
+            <span *ngIf="isLoading">{{ i18n.currentLang === 'ar' ? 'جاري التسجيل...' : 'Registering...' }}</span>
+            <svg *ngIf="!isLoading" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-4 my-1">
+          <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+          <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+            {{ i18n.t('or_continue') }}
+          </span>
+          <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+        </div>
+
+        <!-- Google Button -->
+        <button (click)="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 py-4 rounded-xl
+           border-2 border-gray-300 bg-white/80 text-gray-700 text-sm font-bold
+           hover:border-purple-500 hover:bg-white hover:shadow-lg hover:shadow-purple-500/20
+           active:scale-98 transition-all duration-300 cursor-pointer group/google">
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          <span class="group-hover/google:translate-x-1 transition-transform duration-300">
+            {{ i18n.t('sign_in_google') }}
+          </span>
+        </button>
+
+        <!-- Login Link -->
+        <p class="text-center text-sm text-gray-500 mt-2">
+          {{ i18n.t('already_have') }}
+          <button (click)="switchTab('login')"
+            class="font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent hover:from-purple-600 hover:to-pink-600 cursor-pointer transition-all ml-1">
+            {{ i18n.t('login') }}
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ FORGOT PASSWORD MODAL ══════════ -->
+<div *ngIf="showForgotModal" class="modal-overlay" (click)="closeForgotModal()">
+  <div
+    class="glass-card rounded-3xl w-full max-w-md p-8 relative z-10 bg-gradient-to-br from-gray-900/95 via-purple-900/30 to-gray-900/95 backdrop-blur-xl anim-scaleIn"
+    (click)="$event.stopPropagation()">
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator mb-8" *ngIf="forgotStep !== 4">
+      <div class="progress-dots">
+        <div class="dot" [class.active]="forgotStep === 1" [class.completed]="forgotStep > 1"></div>
+        <div class="line" [class.active]="forgotStep > 1"></div>
+        <div class="dot" [class.active]="forgotStep === 2" [class.completed]="forgotStep > 2"></div>
+        <div class="line" [class.active]="forgotStep > 2"></div>
+        <div class="dot" [class.active]="forgotStep === 3" [class.completed]="forgotStep > 3"></div>
+      </div>
+    </div>
+
+    <!-- Step 1: Email Input -->
+    <div *ngIf="forgotStep === 1" class="step-content">
+      <div class="text-center mb-8">
+        <div class="logo-wrapper mb-6">
+          <div class="logo-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" class="text-white">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-2">
+          {{ i18n.currentLang === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?' }}
+        </h1>
+        <p class="text-white/70 text-sm">
+          {{ i18n.currentLang === 'ar' ? 'أدخل بريدك الإلكتروني وسنرسل لك كود التحقق' : 'Enter your email and we will send you a verification code' }}
+        </p>
+      </div>
+
+      <div class="space-y-5">
+        <div class="relative group">
+          <div
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 group-hover:text-purple-400 transition-all duration-300 group-focus-within:text-purple-400 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+          </div>
+          <input type="email" [(ngModel)]="forgotEmail" 
+            [placeholder]="i18n.currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email Address'"
+            class="w-full py-4 pr-12 pl-4 bg-white/10 border-2 text-center border-white/20 rounded-2xl text-white placeholder:text-white/50 backdrop-blur-xl focus:outline-none focus:border-purple-500/80 focus:bg-white/15 transition-all duration-300 hover:border-white/30">
+        </div>
+
+        <div class="flex gap-3">
+          <button (click)="closeForgotModal()" [disabled]="isLoading"
+            class="flex-1 py-3.5 rounded-xl text-sm font-bold bg-white/10 border-2 border-white/20 text-white hover:bg-white/15 hover:border-white/30 active:scale-98 transition-all duration-300 cursor-pointer disabled:opacity-50">
+            {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+          </button>
+          <button (click)="sendResetCode()" [disabled]="isLoading || !forgotEmail"
+            class="flex-1 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 active:scale-98 transition-all duration-300 cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!isLoading">{{ i18n.currentLang === 'ar' ? 'إرسال الكود' : 'Send Code' }}</span>
+            <span *ngIf="isLoading" class="flex items-center justify-center gap-2">
+              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {{ i18n.currentLang === 'ar' ? 'جاري الإرسال...' : 'Sending...' }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: OTP Verification -->
+    <div *ngIf="forgotStep === 2" class="step-content">
+      <div class="text-center mb-8">
+        <div class="logo-wrapper mb-6">
+          <div class="logo-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" class="text-white">
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+              <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-2">
+          {{ i18n.currentLang === 'ar' ? 'أدخل كود التحقق' : 'Enter Verification Code' }}
+        </h1>
+        <p class="text-white/70 text-sm">
+          {{ i18n.currentLang === 'ar' ? 'تم إرسال الكود إلى' : 'Code sent to' }} {{ forgotEmail }}
+        </p>
+      </div>
+
+      <div class="space-y-5">
+        <div class="otp-container" dir="ltr">
+          <input 
+            #otpInputs 
+            *ngFor="let val of otpValues; let i = index" 
+            type="text" 
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="1"
+            [value]="otpValues[i]"
+            (input)="onOtpInput($event, i)" 
+            (keydown)="onOtpKeydown($event, i)"
+            (paste)="i === 0 ? onOtpPaste($event) : $event.preventDefault()"
+            [class.filled]="otpValues[i]" 
+            class="otp-input"
+            autocomplete="off">
+        </div>
+
+        <div class="text-center">
+          <p class="text-white/70 text-sm mb-2">
+            {{ i18n.currentLang === 'ar' ? 'لم يصلك الكود؟' : "Didn't receive code?" }}
+          </p>
+          <button *ngIf="resendTimer === 0" (click)="resendCode()" [disabled]="isLoading"
+            class="text-purple-400 hover:text-purple-300 font-bold text-sm transition-colors cursor-pointer disabled:opacity-50">
+            {{ i18n.currentLang === 'ar' ? 'إعادة الإرسال' : 'Resend Code' }}
+          </button>
+          <p *ngIf="resendTimer > 0" class="text-white/50 text-sm">
+            {{ i18n.currentLang === 'ar' ? 'إعادة الإرسال بعد' : 'Resend in' }} {{ resendTimer }}{{ i18n.currentLang === 'ar' ? 'ث' : 's' }}
+          </p>
+        </div>
+
+        <div class="flex gap-3">
+          <button (click)="goBackStep()" [disabled]="isLoading"
+            class="flex-1 py-3.5 rounded-xl text-sm font-bold bg-white/10 border-2 border-white/20 text-white hover:bg-white/15 hover:border-white/30 active:scale-98 transition-all duration-300 cursor-pointer disabled:opacity-50">
+            {{ i18n.currentLang === 'ar' ? 'رجوع' : 'Back' }}
+          </button>
+          <button (click)="verifyCode()" [disabled]="!isOtpComplete() || isLoading"
+            class="flex-1 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 active:scale-98 transition-all duration-300 cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!isLoading">{{ i18n.currentLang === 'ar' ? 'تحقق' : 'Verify' }}</span>
+            <span *ngIf="isLoading" class="flex items-center justify-center gap-2">
+              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {{ i18n.currentLang === 'ar' ? 'جاري التحقق...' : 'Verifying...' }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: New Password -->
+    <div *ngIf="forgotStep === 3" class="step-content">
+      <div class="text-center mb-8">
+        <div class="logo-wrapper mb-6">
+          <div class="logo-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" class="text-white">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-2">
+          {{ i18n.currentLang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password' }}
+        </h1>
+        <p class="text-white/70 text-sm">
+          {{ i18n.currentLang === 'ar' ? 'اختر كلمة مرور قوية' : 'Choose a strong password' }}
+        </p>
+      </div>
+
+      <div class="space-y-5">
+        <!-- New Password -->
+        <div class="relative">
+          <input [type]="showNewPassword ? 'text' : 'password'" [(ngModel)]="newPassword"
+            (input)="checkPasswordStrength()"
+            [placeholder]="i18n.currentLang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password'"
+            class="w-full py-4 px-4 pr-12 bg-white/10 border-2 border-white/20 rounded-2xl text-white placeholder:text-white/50 backdrop-blur-xl focus:outline-none focus:border-purple-500/80 focus:bg-white/15 transition-all duration-300">
+          <button type="button" (click)="showNewPassword = !showNewPassword"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors cursor-pointer">
+            <svg *ngIf="!showNewPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showNewPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Password Strength -->
+        <div class="password-strength" *ngIf="newPassword">
+          <div class="strength-bar">
+            <div class="strength-fill" [class]="passwordStrength"></div>
+          </div>
+          <p class="strength-text" [class]="passwordStrength">
+            {{ i18n.currentLang === 'ar' ? 'قوة كلمة المرور: ' : 'Password Strength: ' }}{{ passwordStrengthText }}
+          </p>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="relative">
+          <input [type]="showConfirmNewPassword ? 'text' : 'password'" [(ngModel)]="confirmNewPassword"
+            [placeholder]="i18n.currentLang === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm Password'"
+            class="w-full py-4 px-4 pr-12 bg-white/10 border-2 border-white/20 rounded-2xl text-white placeholder:text-white/50 backdrop-blur-xl focus:outline-none focus:border-purple-500/80 focus:bg-white/15 transition-all duration-300">
+          <button type="button" (click)="showConfirmNewPassword = !showConfirmNewPassword"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors cursor-pointer">
+            <svg *ngIf="!showConfirmNewPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showConfirmNewPassword" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex gap-3">
+          <button (click)="goBackStep()" [disabled]="isLoading"
+            class="flex-1 py-3.5 rounded-xl text-sm font-bold bg-white/10 border-2 border-white/20 text-white hover:bg-white/15 hover:border-white/30 active:scale-98 transition-all duration-300 cursor-pointer disabled:opacity-50">
+            {{ i18n.currentLang === 'ar' ? 'رجوع' : 'Back' }}
+          </button>
+          <button (click)="resetPassword()" [disabled]="isLoading || !newPassword || !confirmNewPassword"
+            class="flex-1 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 active:scale-98 transition-all duration-300 cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!isLoading">{{ i18n.currentLang === 'ar' ? 'تغيير كلمة المرور' : 'Reset Password' }}</span>
+            <span *ngIf="isLoading" class="flex items-center justify-center gap-2">
+              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {{ i18n.currentLang === 'ar' ? 'جاري التغيير...' : 'Resetting...' }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div *ngIf="forgotStep === 4" class="step-content text-center">
+      <div class="success-checkmark mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="3" class="text-white">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-white mb-3">
+        {{ i18n.currentLang === 'ar' ? 'تم بنجاح! 🎉' : 'Success! 🎉' }}
+      </h1>
+      <p class="text-white/70 mb-8">
+        {{ i18n.currentLang === 'ar' ? 'تم تغيير كلمة المرور بنجاح' : 'Password changed successfully' }}
+      </p>
+      <button (click)="closeForgotModal()"
+        class="w-full py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 active:scale-98 transition-all duration-300 cursor-pointer shadow-lg">
+        {{ i18n.currentLang === 'ar' ? 'تسجيل الدخول' : 'Go to Login' }}
+      </button>
+    </div>
+
+  </div>
+</div>
 </div>
