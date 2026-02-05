@@ -1,15 +1,15 @@
 {
-    "home":"Home",
-    "products":"Products",
-    "profile":"Profile",
-    "name":"Names",
-    "email":"Email",
-    "Mobile":"Mobile",
-    "subscribe":"Subscribe Now",
-    "cart":"Cart",
-    
-    "login":"Login",
-    "register":"Register",
-    "logout":"Logout"
-
+    "home": "Home",
+    "products": "Products",
+    "profile": "Profile",
+    "name": "Names",
+    "email": "Email",
+    "Mobile": "Mobile",
+    "subscribe": "Subscribe Now",
+    "cart": "Cart",
+    "fav": "Favorites",
+    "categories": "Categories",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
 }

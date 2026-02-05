@@ -60,6 +60,8 @@
 <!-- ═══════════════════════════════════════════════ -->
 <!-- Mobile Bottom Nav - غير جزء Profile -->
 
+<!-- Replace the mobile bottom nav section with this -->
+
 <nav class="mobile-bottom-nav">
   <!-- Home -->
   <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
@@ -67,10 +69,10 @@
     <span>{{ 'home' | translate }}</span>
   </a>
 
-  <!-- Search -->
-  <button (click)="toggleSearch()" class="bottom-nav-item" [class.active]="isSearchOpen">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span>{{ 'search' | translate }}</span>
+  <!-- Categories -->
+  <button (click)="toggleCategoriesMenu()" class="bottom-nav-item" [class.active]="isCategoriesMenuOpen">
+    <i class="fa-solid fa-list"></i>
+    <span>{{ 'categories' | translate }}</span>
   </button>
 
   <!-- Cart -->
@@ -82,10 +84,10 @@
     <span>{{ 'cart' | translate }}</span>
   </a>
 
-  <!-- Language Toggle -->
-  <button (click)="toggleLang()" class="bottom-nav-item">
-    <i class="fa-solid fa-globe"></i>
-    <span>{{ currentLang === 'ar' ? 'EN' : 'عربي' }}</span>
+  <button class="icon-btn" title="Wishlist" class="bottom-nav-item">
+    <i class="fa-solid fa-heart"></i>
+    <span>{{ 'fav' | translate }}</span>
+
   </button>
 
   <!-- Profile / Login -->
@@ -98,6 +100,40 @@
     <span>{{ 'login' | translate }}</span>
   </a>
 </nav>
+
+<!-- Categories Menu Popup -->
+<div class="categories-menu-overlay" [class.open]="isCategoriesMenuOpen" (click)="toggleCategoriesMenu()">
+  <div class="categories-menu" (click)="$event.stopPropagation()">
+    <div class="categories-menu-header">
+      <h3>{{ 'categories' | translate }}</h3>
+      <button (click)="toggleCategoriesMenu()" class="close-btn">&times;</button>
+    </div>
+    <div class="categories-menu-list">
+      <a *ngFor="let cat of categories" href="#" (click)="toggleCategoriesMenu(); $event.preventDefault()"
+        class="category-menu-item">
+        <span>{{ i18n.currentLang === 'ar' ? cat.nameAr : cat.nameEn }}</span>
+        <svg *ngIf="cat.hasChildren" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Menu Popup -->
+<div class="profile-menu-overlay" [class.open]="isProfileMenuOpen" (click)="toggleProfileMenu()">
+  <div class="profile-menu" (click)="$event.stopPropagation()">
+    <a routerLink="/profile" (click)="toggleProfileMenu()" class="profile-menu-item">
+      <i class="fa-solid fa-user-circle"></i>
+      <span>{{ 'profile' | translate }}</span>
+    </a>
+    <button (click)="logout(); toggleProfileMenu()" class="profile-menu-item logout">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>{{ 'logout' | translate }}</span>
+    </button>
+  </div>
+</div>
 
 <!-- Profile Menu Popup -->
 <div class="profile-menu-overlay" [class.open]="isProfileMenuOpen" (click)="toggleProfileMenu()">
@@ -114,7 +150,7 @@
 </div>
 
 <!-- Mobile Search Overlay -->
-<div class="mobile-search-overlay" [class.open]="isSearchOpen" (click)="toggleSearch()">
+<!-- <div class="mobile-search-overlay" [class.open]="isSearchOpen" (click)="toggleSearch()">
   <div class="mobile-search-container" (click)="$event.stopPropagation()">
     <input type="text" [placeholder]="i18n.t('search_placeholder')" [(ngModel)]="searchQuery"
       (keyup.enter)="onSearch(); toggleSearch()" autofocus />
@@ -122,4 +158,10 @@
       <i class="fa-solid fa-magnifying-glass"></i>
     </button>
   </div>
+</div> -->
+
+<div class="fixed-lang-switcher">
+  <button (click)="toggleLang()">
+    {{ currentLang === 'ar' ? 'EN' : 'عربي' }}
+  </button>
 </div>

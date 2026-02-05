@@ -314,3 +314,106 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* تصغير البانر أكتر في الموبايل - الطول يقل */
+@media (max-width: 640px) {
+  /* استخدم min-height مش height + زود specificity */
+  .group.relative.w-full.rounded-2xl[style*="min-height"] {
+    min-height: 100px !important;
+  }
+  
+  .group.relative.w-full.rounded-2xl {
+    min-height: 30px !important; /* صغرناه من 140px */
+  }
+  
+  /* تصغير النصوص أكتر */
+  .group .text-3xl.sm\:text-4xl {
+    font-size: 1rem !important; /* 16px */
+    line-height: 1.2 !important;
+  }
+  
+  /* تصغير الصورة */
+  .group .relative.z-\[2\].flex-shrink-0 {
+    height: 70px !important; /* كان 90px */
+  }
+  
+  /* تقليل الـ padding أكتر */
+  .group .relative.z-\[2\].flex {
+    padding: 0.75rem !important; /* 12px */
+    gap: 0.5rem !important; /* 8px */
+  }
+  
+  /* تصغير الخط الأبيض */
+  .group .mt-4.w-12 {
+    width: 1.5rem !important; /* 24px */
+    margin-top: 0.25rem !important; /* 4px */
+  }
+  
+  /* تصغير نص "Limited" */
+  .group .text-gray-400.text-sm {
+    font-size: 0.625rem !important; /* 10px */
+    margin-top: 0.25rem !important; /* 4px */
+  }
+  
+  /* الأسهم أصغر */
+  .group button.absolute {
+    width: 1.5rem !important; /* 24px */
+    height: 1.5rem !important;
+  }
+  
+  /* النقاط أصغر */
+  .group .absolute.bottom-3 span {
+    height: 0.3rem !important; /* 5px */
+  }
+
+  .group .absolute.bottom-3 {
+    bottom: 0.5rem !important;
+  }
+}
+
+/* موبايل صغير جداً - تصغير أكبر */
+@media (max-width: 380px) {
+  .group.relative.w-full.rounded-2xl[style*="min-height"] {
+    min-height: 85px !important;
+  }
+  
+  .group.relative.w-full.rounded-2xl {
+    min-height: 30px !important; /* صغرناه من 120px */
+  }
+  
+  .group .text-3xl.sm\:text-4xl {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.2 !important;
+  }
+  
+  .group .relative.z-\[2\].flex-shrink-0 {
+    height: 60px !important; /* كان 75px */
+  }
+  
+  .group .relative.z-\[2\].flex {
+    padding: 0.625rem !important; /* 10px */
+    gap: 0.375rem !important; /* 6px */
+  }
+  
+  /* إخفاء النص الإضافي في الشاشات الصغيرة جداً (اختياري) */
+  .group .text-gray-400.text-sm {
+    font-size: 0.55rem !important; /* 8.8px */
+  }
+  
+  .group button.absolute {
+    width: 1.25rem !important; /* 20px */
+    height: 1.25rem !important;
+  }
+
+  .group .mt-4.w-12 {
+    width: 1.25rem !important;
+  }
+}
+
+/* تحسين التوزيع في الموبايل */
+@media (max-width: 640px) {
+  .group .relative.z-\[2\].flex.flex-col {
+    flex-direction: row !important; /* خلي المحتوى جنب بعض */
+    align-items: center !important;
+  }
+}

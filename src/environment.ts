@@ -4,4 +4,5 @@ const productionApi = 'https://nhc-market-place.runasp.net/api';
 export const environment = {
     production: false,
     authUrl: `${productionApi}/Auth`,
+    categoriesUrl: `${productionApi}/Categories`,
 };

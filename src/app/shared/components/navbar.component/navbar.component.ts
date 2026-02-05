@@ -7,6 +7,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../modules/auth/services/auth.service';
+import { Category } from '../../../models/category';
+import { HomeService } from '../../../modules/home/services/home.service';
 
 export interface NavLink {
   label: string;
@@ -30,6 +32,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private authSub!: Subscription;
   isProfileMenuOpen = false;
   isSearchOpen = false;
+  isCategoriesMenuOpen = false;
+  categories: Category[] = [];
   cartCount = 0; 
 
   constructor(
@@ -37,7 +41,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private toastr: ToastrService,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private homeService: HomeService
   ) { }
 
   ngOnInit(): void {
@@ -53,10 +58,41 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.currentLang = lang;
       this.updateNavLinks();
     });
+
+    // ✅ Load categories
+    this.loadCategories();
+  }
+
+  loadCategories(): void {
+    this.homeService.getCategories(true).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.categories = response.data.map((cat: any) => ({
+            id: cat.id,
+            nameAr: cat.nameAr,
+            nameEn: cat.nameEn,
+            productCount: cat.productCount,
+            hasChildren: cat.productCount > 0
+          }));
+        }
+      },
+      error: (err) => console.error('Error loading categories:', err)
+    });
   }
 
   toggleSearch(): void {
     this.isSearchOpen = !this.isSearchOpen;
+  }
+
+  toggleCategoriesMenu(): void {
+    this.isCategoriesMenuOpen = !this.isCategoriesMenuOpen;
+    
+    // منع scroll على الـ body لما الـ menu مفتوح
+    if (this.isCategoriesMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 
   handleNavClick(link: any): void {
@@ -74,10 +110,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.translate.use(newLang);
   }
 
-
-toggleProfileMenu(): void {
-  this.isProfileMenuOpen = !this.isProfileMenuOpen;
-}
+  toggleProfileMenu(): void {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen;
+    
+    // منع scroll على الـ body لما الـ menu مفتوح
+    if (this.isProfileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
 
   ChangeLag(event: any) {
     const selectedLang = event.target.value;

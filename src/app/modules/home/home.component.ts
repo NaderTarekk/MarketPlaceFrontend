@@ -1,10 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { I18nService } from '../../core/services/i18n.service';
-
-export interface Category {
-  key: string;
-  hasChildren: boolean;
-}
+import { HomeService } from './services/home.service';
+import { Category } from '../../models/category';
+import { Observable } from 'rxjs';
 
 export interface Product {
   id: number;
@@ -35,20 +33,8 @@ export interface Product {
 })
 export class HomeComponent implements OnInit {
   isSidebarOpen = false;
-
-
-  categories: Category[] = [
-    { key: 'cat_womens', hasChildren: true },
-    { key: 'cat_mens', hasChildren: true },
-    { key: 'cat_electronics', hasChildren: true },
-    { key: 'cat_home', hasChildren: false },
-    { key: 'cat_medicine', hasChildren: false },
-    { key: 'cat_sports', hasChildren: false },
-    { key: 'cat_babies', hasChildren: false },
-    { key: 'cat_groceries', hasChildren: false },
-    { key: 'cat_health', hasChildren: false },
-  ];
-
+  categories: Category[] = [];
+  categories$!: Observable<Category[]>;
   products: Product[] = [
     {
       id: 1,
@@ -128,10 +114,29 @@ export class HomeComponent implements OnInit {
   ];
   currentBanner = 0;
 
+  constructor(public i18n: I18nService, private homeService: HomeService, private cdr: ChangeDetectorRef) { }
 
-  constructor(public i18n: I18nService) { }
+  ngOnInit(): void {
+    this.loadCategories();
+  }
 
-  ngOnInit(): void { }
+  loadCategories(): void {
+    this.homeService.getCategories(true).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.categories = response.data.map((cat: any) => ({
+            id: cat.id,
+            nameAr: cat.nameAr,
+            nameEn: cat.nameEn,
+            productCount: cat.productCount,
+            hasChildren: cat.productCount > 0
+          }));
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.error('Error loading categories:', err)
+    });
+  }
 
   toggleWishlist(product: Product): void {
     product.isWishlisted = !product.isWishlisted;
