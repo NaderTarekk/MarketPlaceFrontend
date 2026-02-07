@@ -144,16 +144,13 @@
       <button (click)="toggleAdminMenu()" class="close-btn">&times;</button>
     </div>
     <div class="admin-menu-list">
-      <button 
-        *ngFor="let page of adminPages" 
-        (click)="navigateToAdminPage(page.route)" 
-        class="admin-menu-item">
+      <button *ngFor="let page of adminPages" (click)="navigateToAdminPage(page.route)" class="admin-menu-item">
         <div class="admin-item-content">
           <i class="fa-solid" [class]="page.icon"></i>
           <span>{{ i18n.currentLang === 'ar' ? page.nameAr : page.nameEn }}</span>
         </div>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round">
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       </button>

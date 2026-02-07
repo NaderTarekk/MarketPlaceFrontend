@@ -569,7 +569,10 @@ export class ProductsComponent implements OnInit {
 
   showToast(message: string, type: 'success' | 'error'): void {
     this.toast = { show: true, message, type };
-    setTimeout(() => this.toast.show = false, 3000);
+     setTimeout(() => {
+      this.toast.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 
   onDialogBackdropClick(event: MouseEvent): void {

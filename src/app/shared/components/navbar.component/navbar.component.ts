@@ -1,6 +1,6 @@
 // navbar.component.ts
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { I18nService, Lang } from '../../../core/services/i18n.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -52,24 +52,30 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private router: Router,
     private translate: TranslateService,
-    private homeService: HomeService
+    private homeService: HomeService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    if (localStorage.getItem('NHC_MP_Role') === "Admin") {
-      this.isAdmin = true;
-    }
     this.lang = localStorage.getItem('lang') || 'en';
 
-    // ✅ Subscribe على الـ auth state
     this.authSub = this.authService.isLoggedIn$.subscribe(isLogged => {
       this.isLogged = isLogged;
+
+      if (isLogged) {
+        this.isAdmin = localStorage.getItem('NHC_MP_Role') === 'Admin';
+      } else {
+        this.isAdmin = false;
+      }
+
       this.updateNavLinks();
+      this.cdr.detectChanges();  
     });
 
     this.langSub = this.i18n.lang$Observable().subscribe(lang => {
       this.currentLang = lang;
       this.updateNavLinks();
+      this.cdr.detectChanges();
     });
 
     // ✅ Load categories
@@ -143,7 +149,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleProfileMenu(): void {
     this.isProfileMenuOpen = !this.isProfileMenuOpen;
-
+    console.log('toggleProfileMenu called, isLogged:', this.isLogged);
     // منع scroll على الـ body لما الـ menu مفتوح
     if (this.isProfileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -193,6 +199,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout(); // ✅ هيعمل update للـ BehaviorSubject
+    this.cdr.markForCheck(); // ✅ Force change detection to update the UI immediately
     this.toastr.info(this.i18n.currentLang === 'ar' ? 'تم تسجيل الخروج من حسابك' : 'Logged out successfully');
     this.router.navigate(['/auth/login']);
   }

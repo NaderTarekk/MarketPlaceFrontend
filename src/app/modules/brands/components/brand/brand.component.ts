@@ -167,6 +167,7 @@ export class BrandComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.imagePreview = e.target?.result as string;
+        this.cdr.detectChanges(); 
       };
       reader.readAsDataURL(file);
     }

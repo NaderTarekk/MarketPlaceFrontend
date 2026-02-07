@@ -509,6 +509,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (res.success && res.token && res.role) {
           this.authService.saveToken(res.token, res.role);
           this.toastr.success(res.message || (this.i18n.currentLang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful'));
+          this.cdr.detectChanges(); // ✅ Force change detection to update the UI immediately
           this.router.navigate(['/']);
         } else {
           const message = res.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
