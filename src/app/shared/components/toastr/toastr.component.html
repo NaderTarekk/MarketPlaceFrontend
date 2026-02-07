@@ -1,0 +1,13 @@
+<ng-container *ngIf="toast$ | async as toast">
+  <div class="toast"
+       [class.show]="toast.show"
+       [class.success]="toast.type === 'success'"
+       [class.error]="toast.type === 'error'">
+
+    <i class="fa-solid"
+       [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'">
+    </i>
+
+    <span>{{ toast.message }}</span>
+  </div>
+</ng-container>

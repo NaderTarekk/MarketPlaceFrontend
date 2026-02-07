@@ -1,0 +1,142 @@
+<!-- admin-reviews.component.html -->
+<div class="admin-reviews-page">
+  <div class="header">
+    <h1>{{ i18n.currentLang === 'ar' ? 'إدارة التقييمات' : 'Manage Reviews' }}</h1>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button (click)="filterByStatus('all')" [class.active]="filter.isApproved === undefined">
+      {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
+    </button>
+    <button (click)="filterByStatus('pending')" [class.active]="filter.isApproved === false">
+      {{ i18n.currentLang === 'ar' ? 'قيد المراجعة' : 'Pending' }}
+    </button>
+    <button (click)="filterByStatus('approved')" [class.active]="filter.isApproved === true">
+      {{ i18n.currentLang === 'ar' ? 'مقبول' : 'Approved' }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+  </div>
+
+  <!-- Reviews Table -->
+  <div *ngIf="!isLoading" class="reviews-table">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ i18n.currentLang === 'ar' ? 'المنتج' : 'Product' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'المستخدم' : 'User' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'التقييم' : 'Rating' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'التعليق' : 'Comment' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let review of reviews">
+          <td class="text-center">{{ i18n.currentLang === 'ar' ? review.productNameAr : review.productNameEn }}</td>
+          <td>{{ review.userName }}</td>
+          <td>
+            <div class="stars">
+              <i *ngFor="let s of getStars(review.rating)" 
+                 class="fa-solid fa-star" 
+                 [class.filled]="s === 1"></i>
+            </div>
+          </td>
+          <td class="comment">{{ review.comment }}</td>
+          <td>
+            <span class="badge" [class.approved]="review.isApproved" [class.pending]="!review.isApproved">
+              {{ review.isApproved 
+                ? (i18n.currentLang === 'ar' ? 'مقبول' : 'Approved')
+                : (i18n.currentLang === 'ar' ? 'قيد المراجعة' : 'Pending') }}
+            </span>
+          </td>
+          <td class="actions">
+            <button *ngIf="!review.isApproved" class="btn-approve" (click)="openApproveDialog(review)">
+              <i class="fa-solid fa-check"></i>
+              {{ i18n.currentLang === 'ar' ? 'قبول' : 'Approve' }}
+            </button>
+            <button class="btn-reject" (click)="openRejectDialog(review)">
+              <i class="fa-solid fa-times"></i>
+              {{ i18n.currentLang === 'ar' ? 'رفض' : 'Reject' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="pagination.totalPages > 1">
+    <button (click)="changePage(pagination.currentPage - 1)" [disabled]="pagination.currentPage === 1">
+      {{ i18n.currentLang === 'ar' ? 'السابق' : 'Previous' }}
+    </button>
+    <span>{{ pagination.currentPage }} / {{ pagination.totalPages }}</span>
+    <button (click)="changePage(pagination.currentPage + 1)" [disabled]="pagination.currentPage === pagination.totalPages">
+      {{ i18n.currentLang === 'ar' ? 'التالي' : 'Next' }}
+    </button>
+  </div>
+</div>
+
+<!-- Approve Dialog -->
+<div *ngIf="showApproveDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+  <div class="dialog dialog-sm">
+    <div class="dialog-header approve-header">
+      <div class="approve-icon">
+        <i class="fa-solid fa-check-circle"></i>
+      </div>
+      <h2>{{ i18n.currentLang === 'ar' ? 'قبول التقييم' : 'Approve Review' }}</h2>
+    </div>
+    <div class="dialog-body text-center">
+      <p>
+        {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من قبول تقييم المنتج' : 'Are you sure you want to approve the review for' }}
+        <strong>"{{ getReviewName() }}"</strong>؟
+      </p>
+      <p class="info-text">
+        {{ i18n.currentLang === 'ar' ? 'سيظهر هذا التقييم للعملاء بعد الموافقة' : 'This review will be visible to customers after approval' }}
+      </p>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-approve-confirm" (click)="confirmApprove()" [disabled]="isSubmitting">
+        <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+        <span *ngIf="!isSubmitting">{{ i18n.currentLang === 'ar' ? 'نعم، قبول' : 'Yes, Approve' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Dialog -->
+<div *ngIf="showRejectDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+  <div class="dialog dialog-sm">
+    <div class="dialog-header reject-header">
+      <div class="reject-icon">
+        <i class="fa-solid fa-times-circle"></i>
+      </div>
+      <h2>{{ i18n.currentLang === 'ar' ? 'رفض التقييم' : 'Reject Review' }}</h2>
+    </div>
+    <div class="dialog-body text-center">
+      <p>
+        {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من رفض تقييم المنتج' : 'Are you sure you want to reject the review for' }}
+        <strong>"{{ getReviewName() }}"</strong>؟
+      </p>
+      <p class="warning-text">
+        {{ i18n.currentLang === 'ar' ? 'سيتم حذف هذا التقييم نهائياً ولا يمكن التراجع عن هذا الإجراء' : 'This review will be permanently deleted and this action cannot be undone' }}
+      </p>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-delete" (click)="confirmReject()" [disabled]="isSubmitting">
+        <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+        <span *ngIf="!isSubmitting">{{ i18n.currentLang === 'ar' ? 'نعم، رفض' : 'Yes, Reject' }}</span>
+      </button>
+    </div>
+  </div>
+</div>

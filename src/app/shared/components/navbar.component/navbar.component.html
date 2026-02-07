@@ -37,6 +37,15 @@
         <option value="en">English</option>
       </select>
 
+      <select class="lang-select" (change)="goTo($event)" *ngIf="isAdmin">
+        <option value="all">
+          {{ currentLang === 'ar' ? 'صفحات الأدمن' : 'Admin Pages' }}
+        </option>
+        <option value="/brands">{{'brands' | translate}}</option>
+        <option value="/products">{{'manageProducts' | translate}}</option>
+        <option value="/products/reviews">{{'reviews' | translate}}</option>
+      </select>
+
       <button class="icon-btn" title="Wishlist" routerLink="/wishlist">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path
@@ -58,10 +67,6 @@
 <!-- ═══════════════════════════════════════════════ -->
 <!-- MOBILE BOTTOM NAV BAR -->
 <!-- ═══════════════════════════════════════════════ -->
-<!-- Mobile Bottom Nav - غير جزء Profile -->
-
-<!-- Replace the mobile bottom nav section with this -->
-
 <nav class="mobile-bottom-nav">
   <!-- Home -->
   <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
@@ -75,6 +80,12 @@
     <span>{{ 'categories' | translate }}</span>
   </button>
 
+  <!-- Admin Pages (Only for Admins) -->
+  <button *ngIf="isAdmin" (click)="toggleAdminMenu()" class="bottom-nav-item" [class.active]="isAdminMenuOpen">
+    <i class="fa-solid fa-shield-halved"></i>
+    <span>{{ currentLang === 'ar' ? 'الأدمن' : 'Admin' }}</span>
+  </button>
+
   <!-- Cart -->
   <a routerLink="/cart" routerLinkActive="active" class="bottom-nav-item">
     <div class="relative">
@@ -84,11 +95,11 @@
     <span>{{ 'cart' | translate }}</span>
   </a>
 
-  <button class="icon-btn" title="Wishlist" class="bottom-nav-item">
+  <!-- Wishlist -->
+  <a routerLink="/wishlist" routerLinkActive="active" class="bottom-nav-item">
     <i class="fa-solid fa-heart"></i>
     <span>{{ 'fav' | translate }}</span>
-
-  </button>
+  </a>
 
   <!-- Profile / Login -->
   <button *ngIf="isLogged" (click)="toggleProfileMenu()" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
@@ -101,7 +112,9 @@
   </a>
 </nav>
 
-<!-- Categories Menu Popup -->
+<!-- ═══════════════════════════════════════════════ -->
+<!-- CATEGORIES MENU POPUP -->
+<!-- ═══════════════════════════════════════════════ -->
 <div class="categories-menu-overlay" [class.open]="isCategoriesMenuOpen" (click)="toggleCategoriesMenu()">
   <div class="categories-menu" (click)="$event.stopPropagation()">
     <div class="categories-menu-header">
@@ -109,7 +122,7 @@
       <button (click)="toggleCategoriesMenu()" class="close-btn">&times;</button>
     </div>
     <div class="categories-menu-list">
-      <a *ngFor="let cat of categories" href="#" (click)="toggleCategoriesMenu(); $event.preventDefault()"
+      <a *ngFor="let cat of categories" routerLink="products" (click)="toggleCategoriesMenu(); $event.preventDefault()"
         class="category-menu-item">
         <span>{{ i18n.currentLang === 'ar' ? cat.nameAr : cat.nameEn }}</span>
         <svg *ngIf="cat.hasChildren" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
@@ -121,7 +134,36 @@
   </div>
 </div>
 
-<!-- Profile Menu Popup -->
+<!-- ═══════════════════════════════════════════════ -->
+<!-- ADMIN MENU POPUP -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="admin-menu-overlay" [class.open]="isAdminMenuOpen" (click)="toggleAdminMenu()">
+  <div class="admin-menu" (click)="$event.stopPropagation()">
+    <div class="admin-menu-header">
+      <h3>{{ currentLang === 'ar' ? 'صفحات الأدمن' : 'Admin Pages' }}</h3>
+      <button (click)="toggleAdminMenu()" class="close-btn">&times;</button>
+    </div>
+    <div class="admin-menu-list">
+      <button 
+        *ngFor="let page of adminPages" 
+        (click)="navigateToAdminPage(page.route)" 
+        class="admin-menu-item">
+        <div class="admin-item-content">
+          <i class="fa-solid" [class]="page.icon"></i>
+          <span>{{ i18n.currentLang === 'ar' ? page.nameAr : page.nameEn }}</span>
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PROFILE MENU POPUP -->
+<!-- ═══════════════════════════════════════════════ -->
 <div class="profile-menu-overlay" [class.open]="isProfileMenuOpen" (click)="toggleProfileMenu()">
   <div class="profile-menu" (click)="$event.stopPropagation()">
     <a routerLink="/profile" (click)="toggleProfileMenu()" class="profile-menu-item">
@@ -135,33 +177,22 @@
   </div>
 </div>
 
-<!-- Profile Menu Popup -->
-<div class="profile-menu-overlay" [class.open]="isProfileMenuOpen" (click)="toggleProfileMenu()">
-  <div class="profile-menu" (click)="$event.stopPropagation()">
-    <a routerLink="/profile" (click)="toggleProfileMenu()" class="profile-menu-item">
-      <i class="fa-solid fa-user-circle"></i>
-      <span>{{ 'profile' | translate }}</span>
-    </a>
-    <button (click)="logout(); toggleProfileMenu()" class="profile-menu-item logout">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      <span>{{ 'logout' | translate }}</span>
-    </button>
-  </div>
-</div>
-
-<!-- Mobile Search Overlay -->
-<!-- <div class="mobile-search-overlay" [class.open]="isSearchOpen" (click)="toggleSearch()">
-  <div class="mobile-search-container" (click)="$event.stopPropagation()">
-    <input type="text" [placeholder]="i18n.t('search_placeholder')" [(ngModel)]="searchQuery"
-      (keyup.enter)="onSearch(); toggleSearch()" autofocus />
-    <button (click)="onSearch(); toggleSearch()">
-      <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
-  </div>
-</div> -->
-
-<div class="fixed-lang-switcher">
-  <button (click)="toggleLang()">
-    {{ currentLang === 'ar' ? 'EN' : 'عربي' }}
+<!-- ═══════════════════════════════════════════════ -->
+<!-- FIXED ACTION BUTTON -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="fixed-action-button">
+  <button (click)="toggleActionMenu()" class="main-action-btn">
+    <i class="fa-solid fa-ellipsis-vertical"></i>
   </button>
+
+  <div class="action-menu-popup" [class.open]="isActionMenuOpen">
+    <button (click)="toggleLang(); toggleActionMenu()" class="action-menu-item">
+      <i class="fa-solid fa-language"></i>
+      <span>{{ currentLang === 'ar' ? 'تغيير اللغة' : 'Change Language' }}</span>
+    </button>
+    <button (click)="toggleActionMenu()" class="action-menu-item">
+      <i class="fa-solid fa-headset"></i>
+      <span>{{ currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Support' }}</span>
+    </button>
+  </div>
 </div>

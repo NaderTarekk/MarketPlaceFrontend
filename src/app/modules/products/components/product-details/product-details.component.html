@@ -1,0 +1,392 @@
+<!-- src/app/modules/products/components/product-details/product-details.component.html -->
+
+<div class="product-details-page">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+  </div>
+
+  <div *ngIf="!isLoading && product" class="container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a routerLink="/">{{ i18n.currentLang === 'ar' ? 'الرئيسية' : 'Home' }}</a>
+      <i class="fa-solid fa-chevron-left"></i>
+      <a routerLink="/products">{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</a>
+      <i class="fa-solid fa-chevron-left"></i>
+      <span>{{ getName(product) }}</span>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="product-main">
+      <!-- Gallery Section -->
+      <div class="gallery-section">
+        <!-- Main Image -->
+        <div class="main-image-container">
+          <span *ngIf="getDiscountPercentage()" class="discount-badge">
+            -{{ getDiscountPercentage() }}%
+          </span>
+          <span *ngIf="product.isFeatured" class="featured-badge">
+            <i class="fa-solid fa-star"></i>
+            {{ i18n.currentLang === 'ar' ? 'مميز' : 'Featured' }}
+          </span>
+
+          <button class="nav-btn prev" (click)="prevImage()" *ngIf="allImages.length > 1 && currentImageIndex > 0">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <img [src]="selectedImage" [alt]="getName(product)" class="main-image" />
+
+          <button class="nav-btn next" (click)="nextImage()"
+            *ngIf="allImages.length > 1 && currentImageIndex < allImages.length - 1">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="thumbnails" *ngIf="allImages.length > 1">
+          <button *ngFor="let img of allImages; let i = index" class="thumb" [class.active]="currentImageIndex === i"
+            (click)="selectImage(img, i)">
+            <img [src]="getImageUrl(img)" [alt]="'Image ' + (i + 1)" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Info Section -->
+      <div class="info-section">
+        <!-- Category & Brand -->
+        <div class="meta-info">
+          <span class="category" *ngIf="product.categoryNameAr || product.categoryNameEn">
+            {{ i18n.currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn }}
+          </span>
+          <span class="brand" *ngIf="product.brandNameAr || product.brandNameEn">
+            {{ i18n.currentLang === 'ar' ? product.brandNameAr : product.brandNameEn }}
+          </span>
+        </div>
+
+        <!-- Title -->
+        <h1 class="product-title">{{ getName(product) }}</h1>
+
+        <!-- Rating -->
+        <div class="rating-row">
+          <div class="stars">
+            <i *ngFor="let star of getStars(product.rating)" class="fa-solid fa-star" [class.filled]="star === 1"></i>
+          </div>
+          <span class="rating-text">{{ product.rating.toFixed(1) }}</span>
+          <span class="review-count">({{ product.reviewCount }} {{ i18n.currentLang === 'ar' ? 'تقييم' : 'reviews'
+            }})</span>
+          <span class="separator">|</span>
+          <span class="views">
+            <i class="fa-solid fa-eye"></i>
+            {{ product.viewCount }} {{ i18n.currentLang === 'ar' ? 'مشاهدة' : 'views' }}
+          </span>
+        </div>
+
+        <!-- Price -->
+        <div class="price-section">
+          <span class="current-price">{{ formatPrice(product.price) }}</span>
+          <span *ngIf="product.originalPrice && product.originalPrice > product.price" class="original-price">
+            {{ formatPrice(product.originalPrice) }}
+          </span>
+          <span *ngIf="getDiscountPercentage()" class="discount-text">
+            {{ i18n.currentLang === 'ar' ? 'وفر' : 'Save' }} {{ getDiscountPercentage() }}%
+          </span>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="stock-section">
+          <span class="stock-status" [class.in-stock]="product.stock > 0" [class.out-of-stock]="product.stock === 0">
+            <i class="fa-solid" [ngClass]="product.stock > 0 ? 'fa-check-circle' : 'fa-times-circle'"></i>
+            {{ product.stock > 0
+            ? (i18n.currentLang === 'ar' ? 'متوفر في المخزون' : 'In Stock')
+            : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}
+          </span>
+          <span *ngIf="product.stock > 0 && product.stock <= 10" class="low-stock">
+            {{ i18n.currentLang === 'ar' ? 'باقي' : 'Only' }} {{ product.stock }} {{ i18n.currentLang === 'ar' ? 'فقط' :
+            'left' }}
+          </span>
+        </div>
+
+        <!-- Short Description -->
+        <p class="short-description" *ngIf="getDescription()">
+          {{ getDescription() | slice:0:200 }}{{ getDescription().length > 200 ? '...' : '' }}
+        </p>
+
+        <!-- Quantity & Actions -->
+        <div class="actions-section" *ngIf="product.stock > 0">
+          <!-- Quantity -->
+          <div class="quantity-selector">
+            <span class="label">{{ i18n.currentLang === 'ar' ? 'الكمية' : 'Quantity' }}</span>
+            <div class="quantity-controls">
+              <button (click)="decreaseQuantity()" [disabled]="quantity <= 1">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <input type="number" [(ngModel)]="quantity" [min]="1" [max]="product.stock" readonly />
+              <button (click)="increaseQuantity()" [disabled]="quantity >= product.stock">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="btn-add-cart" (click)="addToCart()">
+              <i class="fa-solid fa-cart-plus"></i>
+              {{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}
+            </button>
+            <button class="btn-buy-now" (click)="buyNow()">
+              <i class="fa-solid fa-bolt"></i>
+              {{ i18n.currentLang === 'ar' ? 'اشتري الآن' : 'Buy Now' }}
+            </button>
+          </div>
+
+          <!-- Secondary Actions -->
+          <div class="secondary-actions">
+            <button class="icon-btn" [class.active]="isInWishlist" (click)="toggleWishlist()">
+              <i [class]="isInWishlist ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+              {{ i18n.currentLang === 'ar' ? 'المفضلة' : 'Wishlist' }}
+            </button>
+            <button class="icon-btn" (click)="shareProduct()">
+              <i class="fa-solid fa-share-nodes"></i>
+              {{ i18n.currentLang === 'ar' ? 'مشاركة' : 'Share' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Out of Stock Message -->
+        <div class="out-of-stock-message" *ngIf="product.stock === 0">
+          <i class="fa-solid fa-bell"></i>
+          <p>{{ i18n.currentLang === 'ar' ? 'هذا المنتج غير متوفر حالياً' : 'This product is currently unavailable' }}
+          </p>
+          <button class="btn-notify">
+            {{ i18n.currentLang === 'ar' ? 'أبلغني عند التوفر' : 'Notify me when available' }}
+          </button>
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-meta">
+          <div class="meta-item">
+            <span class="label">{{ i18n.currentLang === 'ar' ? 'رمز المنتج' : 'SKU' }}:</span>
+            <span class="value">{{ product.sku }}</span>
+          </div>
+          <div class="meta-item" *ngIf="product.vendorName">
+            <span class="label">{{ i18n.currentLang === 'ar' ? 'البائع' : 'Seller' }}:</span>
+            <span class="value vendor">{{ product.vendorName }}</span>
+          </div>
+        </div>
+
+        <!-- Guarantees -->
+        <div class="guarantees">
+          <div class="guarantee-item">
+            <i class="fa-solid fa-truck-fast"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'شحن سريع' : 'Fast Shipping' }}</span>
+          </div>
+          <div class="guarantee-item">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'إرجاع سهل' : 'Easy Returns' }}</span>
+          </div>
+          <div class="guarantee-item">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'ضمان الجودة' : 'Quality Guarantee' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="tabs-section">
+      <div class="tabs-header">
+        <button class="tab-btn" [class.active]="activeTab === 'description'" (click)="activeTab = 'description'">
+          <i class="fa-solid fa-file-lines"></i>
+          {{ i18n.currentLang === 'ar' ? 'الوصف' : 'Description' }}
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'specs'" (click)="activeTab = 'specs'">
+          <i class="fa-solid fa-list-check"></i>
+          {{ i18n.currentLang === 'ar' ? 'المواصفات' : 'Specifications' }}
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="activeTab = 'reviews'">
+          <i class="fa-solid fa-star"></i>
+          {{ i18n.currentLang === 'ar' ? 'التقييمات' : 'Reviews' }}
+          <span class="badge">{{ product.reviewCount }}</span>
+        </button>
+      </div>
+
+      <div class="tabs-content">
+        <!-- Description Tab -->
+        <div class="tab-pane" *ngIf="activeTab === 'description'">
+          <div class="description-content" *ngIf="getDescription(); else noDescription">
+            <p>{{ getDescription() }}</p>
+          </div>
+          <ng-template #noDescription>
+            <div class="empty-tab">
+              <i class="fa-solid fa-file-circle-xmark"></i>
+              <p>{{ i18n.currentLang === 'ar' ? 'لا يوجد وصف متاح' : 'No description available' }}</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Specs Tab -->
+        <div class="tab-pane" *ngIf="activeTab === 'specs'">
+          <div class="specs-table">
+            <div class="spec-row">
+              <span class="spec-label">{{ i18n.currentLang === 'ar' ? 'رمز المنتج' : 'SKU' }}</span>
+              <span class="spec-value">{{ product.sku }}</span>
+            </div>
+            <div class="spec-row" *ngIf="product.categoryNameAr || product.categoryNameEn">
+              <span class="spec-label">{{ i18n.currentLang === 'ar' ? 'التصنيف' : 'Category' }}</span>
+              <span class="spec-value">{{ i18n.currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn
+                }}</span>
+            </div>
+            <div class="spec-row" *ngIf="product.brandNameAr || product.brandNameEn">
+              <span class="spec-label">{{ i18n.currentLang === 'ar' ? 'العلامة التجارية' : 'Brand' }}</span>
+              <span class="spec-value">{{ i18n.currentLang === 'ar' ? product.brandNameAr : product.brandNameEn
+                }}</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">{{ i18n.currentLang === 'ar' ? 'التوفر' : 'Availability' }}</span>
+              <span class="spec-value">{{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock') :
+                (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div class="tab-pane" *ngIf="activeTab === 'reviews'">
+          <!-- Reviews Summary -->
+          <div class="reviews-summary">
+            <div class="average-rating">
+              <span class="big-number">{{ product.rating.toFixed(1) }}</span>
+              <div class="stars">
+                <i *ngFor="let star of getStars(product.rating)" class="fa-solid fa-star"
+                  [class.filled]="star === 1"></i>
+              </div>
+              <span class="total">{{ product.reviewCount }} {{ i18n.currentLang === 'ar' ? 'تقييم' : 'reviews' }}</span>
+            </div>
+            <button class="btn-write-review" (click)="openReviewForm()">
+              <i class="fa-solid fa-pen"></i>
+              {{ i18n.currentLang === 'ar' ? 'اكتب تقييم' : 'Write a Review' }}
+            </button>
+          </div>
+
+          <!-- Reviews List -->
+          <div class="reviews-list" *ngIf="reviews.length > 0">
+            <div class="review-item" *ngFor="let review of reviews">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="avatar">{{ review.userName?.charAt(0) || 'U' }}</div>
+                  <div class="reviewer-details">
+                    <span class="reviewer-name">{{ review.userName }}</span>
+                    <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+                  </div>
+                </div>
+                <div class="review-rating">
+                  <i *ngFor="let s of [1,2,3,4,5]" class="fa-solid fa-star" [class.filled]="s <= review.rating"></i>
+                </div>
+              </div>
+              <p class="review-comment">{{ review.comment }}</p>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-tab" *ngIf="reviews.length === 0 && !isLoadingReviews">
+            <i class="fa-solid fa-comments"></i>
+            <p>{{ i18n.currentLang === 'ar' ? 'لا توجد تقييمات بعد' : 'No reviews yet' }}</p>
+            <button class="btn-write-review" (click)="openReviewForm()">
+              {{ i18n.currentLang === 'ar' ? 'كن أول من يقيم' : 'Be the first to review' }}
+            </button>
+          </div>
+
+          <!-- Loading -->
+          <div class="loading-reviews" *ngIf="isLoadingReviews">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-section" *ngIf="relatedProducts.length > 0">
+      <h2 class="section-title">
+        <i class="fa-solid fa-sparkles"></i>
+        {{ i18n.currentLang === 'ar' ? 'منتجات مشابهة' : 'Related Products' }}
+      </h2>
+
+      <div class="related-grid">
+        <div *ngFor="let item of relatedProducts" class="related-card" (click)="goToProduct(item.id)">
+          <div class="related-image">
+            <img [src]="getImageUrl(item.mainImage)" [alt]="getName(item)" loading="lazy" />
+            <span *ngIf="item.discountPercentage" class="discount-badge">-{{ item.discountPercentage }}%</span>
+          </div>
+          <div class="related-info">
+            <h3>{{ getName(item) }}</h3>
+            <div class="related-rating">
+              <div class="stars">
+                <i *ngFor="let star of getStars(item.rating)" class="fa-solid fa-star" [class.filled]="star === 1"></i>
+              </div>
+              <span>({{ item.reviewCount }})</span>
+            </div>
+            <div class="related-price">
+              <span class="price">{{ formatPrice(item.price) }}</span>
+              <span *ngIf="item.originalPrice" class="old-price">{{ formatPrice(item.originalPrice) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+  [class.error]="toast.type === 'error'">
+  <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+  <span>{{ toast.message }}</span>
+</div>
+
+<!-- Review Form Dialog -->
+<div *ngIf="showReviewForm" class="dialog-overlay" (click)="closeReviewForm()">
+  <div class="dialog review-dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h2>{{ i18n.currentLang === 'ar' ? 'اكتب تقييمك' : 'Write Your Review' }}</h2>
+      <button class="close-btn" (click)="closeReviewForm()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="dialog-body">
+      <!-- Star Rating -->
+      <div class="rating-input">
+        <label>{{ i18n.currentLang === 'ar' ? 'تقييمك' : 'Your Rating' }}</label>
+        <div class="stars-input">
+          <i *ngFor="let s of [1,2,3,4,5]" 
+             class="fa-solid fa-star"
+             [class.filled]="s <= (hoveredRating || reviewForm.rating)"
+             (mouseenter)="hoveredRating = s"
+             (mouseleave)="hoveredRating = 0"
+             (click)="setRating(s)">
+          </i>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'تعليقك' : 'Your Comment' }}</label>
+        <textarea 
+          [(ngModel)]="reviewForm.comment" 
+          rows="4"
+          [placeholder]="i18n.currentLang === 'ar' ? 'شاركنا رأيك في هذا المنتج...' : 'Share your thoughts about this product...'">
+        </textarea>
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeReviewForm()" [disabled]="isSubmittingReview">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-submit" (click)="submitReview()" [disabled]="isSubmittingReview">
+        <i *ngIf="isSubmittingReview" class="fa-solid fa-spinner fa-spin"></i>
+        <span *ngIf="!isSubmittingReview">{{ i18n.currentLang === 'ar' ? 'إرسال' : 'Submit' }}</span>
+      </button>
+    </div>
+  </div>
+</div>

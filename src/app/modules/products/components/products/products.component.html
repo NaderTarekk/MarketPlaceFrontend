@@ -1,0 +1,519 @@
+<!-- src/app/pages/products/products.component.html -->
+
+<div class="products-page">
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'اكتشف مجموعتنا المميزة من المنتجات' : 'Discover our amazing collection'
+                }}</p>
+        </div>
+    </section>
+
+    <div class="main-container">
+        <!-- Mobile Filter Button -->
+        <button class="mobile-filter-btn" (click)="toggleMobileFilters()">
+            <i class="fa-solid fa-sliders"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'الفلاتر' : 'Filters' }}</span>
+            <span *ngIf="getActiveFiltersCount() > 0" class="filter-badge">{{ getActiveFiltersCount() }}</span>
+        </button>
+
+        <div class="content-wrapper">
+            <!-- Sidebar Filters -->
+            <aside class="sidebar" [class.show]="showMobileFilters">
+                <div class="sidebar-header">
+                    <h3>{{ i18n.currentLang === 'ar' ? 'الفلاتر' : 'Filters' }}</h3>
+                    <button class="close-sidebar" (click)="toggleMobileFilters()">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="sidebar-content">
+                    <!-- Categories -->
+                    <div class="filter-section">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'التصنيفات' : 'Categories' }}</h4>
+                        <div class="filter-list">
+                            <label class="filter-item" [class.active]="!filter.categoryId">
+                                <input type="radio" name="category" [checked]="!filter.categoryId"
+                                    (change)="onCategoryChange(null)" />
+                                <span class="radio-custom"></span>
+                                <span class="filter-label">{{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}</span>
+                            </label>
+                            <label *ngFor="let cat of categories" class="filter-item"
+                                [class.active]="filter.categoryId === cat.id">
+                                <input type="radio" name="category" [checked]="filter.categoryId === cat.id"
+                                    (change)="onCategoryChange(cat.id)" />
+                                <span class="radio-custom"></span>
+                                <span class="filter-label">{{ getName(cat) }}</span>
+                                <span class="filter-count">{{ cat.productCount }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Brands -->
+                    <div class="filter-section">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'العلامات التجارية' : 'Brands' }}</h4>
+                        <div class="filter-list">
+                            <label class="filter-item" [class.active]="!filter.brandId">
+                                <input type="radio" name="brand" [checked]="!filter.brandId"
+                                    (change)="onBrandChange(null)" />
+                                <span class="radio-custom"></span>
+                                <span class="filter-label">{{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}</span>
+                            </label>
+                            <label *ngFor="let brand of brands" class="filter-item"
+                                [class.active]="filter.brandId === brand.id">
+                                <input type="radio" name="brand" [checked]="filter.brandId === brand.id"
+                                    (change)="onBrandChange(brand.id)" />
+                                <span class="radio-custom"></span>
+                                <span class="filter-label">{{ getName(brand) }}</span>
+                                <span class="filter-count">{{ brand.productCount }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="filter-section">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'السعر' : 'Price' }}</h4>
+                        <div class="price-inputs">
+                            <input type="number" [(ngModel)]="minPrice"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'من' : 'Min'" />
+                            <span>-</span>
+                            <input type="number" [(ngModel)]="maxPrice"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'إلى' : 'Max'" />
+                            <button class="price-btn" (click)="onPriceFilter()">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- In Stock -->
+                    <div class="filter-section">
+                        <label class="checkbox-filter">
+                            <input type="checkbox" [checked]="filter.inStock" (change)="onInStockChange($event)" />
+                            <span class="checkbox-custom"></span>
+                            <span>{{ i18n.currentLang === 'ar' ? 'متوفر فقط' : 'In Stock Only' }}</span>
+                        </label>
+                    </div>
+
+                    <!-- Clear Filters -->
+                    <button *ngIf="getActiveFiltersCount() > 0" class="clear-filters-btn" (click)="clearFilters()">
+                        <i class="fa-solid fa-trash"></i>
+                        {{ i18n.currentLang === 'ar' ? 'مسح الفلاتر' : 'Clear Filters' }}
+                    </button>
+                </div>
+
+                <!-- Mobile Apply Button -->
+                <div class="sidebar-footer">
+                    <button class="apply-btn" (click)="toggleMobileFilters()">
+                        {{ i18n.currentLang === 'ar' ? 'تطبيق' : 'Apply' }} ({{ totalCount }})
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="sidebar-overlay" [class.show]="showMobileFilters" (click)="toggleMobileFilters()"></div>
+
+            <!-- Products Content -->
+            <main class="products-content">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-right">
+                        <div class="search-box">
+                            <i class="fa-solid fa-search"></i>
+                            <input type="text" [value]="filter.search || ''" (input)="onSearch($event)"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'بحث في المنتجات...' : 'Search products...'" />
+                        </div>
+                        <span class="results-count">{{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products'
+                            }}</span>
+                    </div>
+
+                    <div class="toolbar-left">
+                        <button class="btn-add" (click)="openAddDialog()" *ngIf="isAdmin">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>{{ i18n.currentLang === 'ar' ? 'إضافة منتج' : 'Add Product' }}</span>
+                        </button>
+
+                        <div class="sort-dropdown">
+                            <select [(ngModel)]="selectedSort" (change)="onSortChange(selectedSort)">
+                                <option *ngFor="let opt of sortOptions" [value]="opt.value">
+                                    {{ i18n.currentLang === 'ar' ? opt.label.ar : opt.label.en }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="view-btns">
+                            <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'">
+                                <i class="fa-solid fa-th-large"></i>
+                            </button>
+                            <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">
+                                <i class="fa-solid fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filters Tags -->
+                <div *ngIf="getActiveFiltersCount() > 0" class="active-filters">
+                    <span *ngIf="filter.categoryId" class="filter-tag">
+                        {{ getSelectedCategoryName() }}
+                        <i class="fa-solid fa-times" (click)="onCategoryChange(null)"></i>
+                    </span>
+                    <span *ngIf="filter.brandId" class="filter-tag">
+                        {{ getSelectedBrandName() }}
+                        <i class="fa-solid fa-times" (click)="onBrandChange(null)"></i>
+                    </span>
+                    <span *ngIf="filter.minPrice || filter.maxPrice" class="filter-tag">
+                        {{ filter.minPrice || 0 }} - {{ filter.maxPrice || '∞' }}
+                        <i class="fa-solid fa-times" (click)="clearPriceFilter()"></i>
+                    </span>
+                </div>
+
+                <!-- Loading -->
+                <div *ngIf="isLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+                </div>
+
+                <!-- Empty -->
+                <div *ngIf="!isLoading && products.length === 0" class="empty">
+                    <i class="fa-solid fa-box-open"></i>
+                    <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد منتجات' : 'No products found' }}</h3>
+                    <p>{{ i18n.currentLang === 'ar' ? 'جرب تغيير الفلاتر' : 'Try changing the filters' }}</p>
+                    <button class="btn-primary" (click)="clearFilters()">
+                        {{ i18n.currentLang === 'ar' ? 'مسح الفلاتر' : 'Clear Filters' }}
+                    </button>
+                </div>
+
+                <!-- Grid View -->
+                <div *ngIf="!isLoading && products.length > 0 && viewMode === 'grid'" class="products-grid">
+                    <div *ngFor="let product of products; trackBy: trackByProduct" class="product-card"
+                        [class.inactive]="!product.isActive">
+                        <!-- Inactive Badge -->
+                        <span *ngIf="!product.isActive" class="inactive-badge">
+                            <i class="fa-solid fa-eye-slash"></i>
+                            {{ i18n.currentLang === 'ar' ? 'غير متاح' : 'Inactive' }}
+                        </span>
+
+                        <button class="action-btn approve" *ngIf="isAdmin && product.status === 0"
+                            (click)="approveProduct(product)"
+                            title="{{ i18n.currentLang === 'ar' ? 'قبول المنتج' : 'Approve Product' }}">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+
+                        <!-- Actions -->
+                        <div class="card-actions">
+                            <button class="action-btn edit" *ngIf="isAdmin" (click)="openEditDialog(product)">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="action-btn delete" *ngIf="isAdmin" (click)="openDeleteDialog(product)">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+
+                        <!-- Badges -->
+                        <span *ngIf="product.discountPercentage" class="discount-badge">-{{ product.discountPercentage
+                            }}%</span>
+                        <span *ngIf="product.isFeatured" class="featured-badge"><i class="fa-solid fa-star"></i></span>
+
+                        <!-- Image - Clickable -->
+                        <div class="product-image" (click)="goToProduct(product.id)">
+                            <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" loading="lazy" />
+                            <div class="image-overlay">
+                                <button class="quick-view-btn" (click)="goToProduct(product.id)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Info - Clickable -->
+                        <div class="product-info" (click)="goToProduct(product.id)">
+                            <span class="product-category">{{ getCategoryName(product) }}</span>
+                            <h3 class="product-name">{{ getName(product) }}</h3>
+
+                            <div class="product-rating">
+                                <div class="stars">
+                                    <i *ngFor="let star of getStars(product.rating)" class="fa-solid fa-star"
+                                        [class.filled]="star === 1"></i>
+                                </div>
+                                <span class="review-count">({{ product.reviewCount }})</span>
+                            </div>
+
+                            <div class="product-price">
+                                <span class="current-price">{{ formatPrice(product.price) }}</span>
+                                <span *ngIf="product.originalPrice" class="original-price">{{
+                                    formatPrice(product.originalPrice) }}</span>
+                            </div>
+
+                            <span class="stock-status" [class.in-stock]="product.stock > 0"
+                                [class.out-of-stock]="product.stock === 0">
+                                {{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock') :
+                                (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}
+                            </span>
+                        </div>
+
+                        <!-- Add to Cart -->
+                        <button class="add-to-cart-btn">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>{{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- List View -->
+                <div *ngIf="!isLoading && products.length > 0 && viewMode === 'list'" class="products-list">
+                    <a *ngFor="let product of products; trackBy: trackByProduct"
+                        [routerLink]="['/products', product.id]" class="product-list-item">
+                        <!-- Image -->
+                        <div class="list-image">
+                            <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" loading="lazy" />
+                            <span *ngIf="product.discountPercentage" class="discount-badge">-{{
+                                product.discountPercentage }}%</span>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="list-info">
+                            <span class="product-category">{{ getCategoryName(product) }}</span>
+                            <h3 class="product-name">{{ getName(product) }}</h3>
+
+                            <div class="product-rating">
+                                <div class="stars">
+                                    <i *ngFor="let star of getStars(product.rating)" class="fa-solid fa-star"
+                                        [class.filled]="star === 1"></i>
+                                </div>
+                                <span class="review-count">({{ product.reviewCount }})</span>
+                            </div>
+
+                            <span class="stock-status mx-auto" [class.in-stock]="product.stock > 0">
+                                {{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock') :
+                                (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}
+                            </span>
+                        </div>
+
+                        <!-- Price & Action -->
+                        <div class="list-action">
+                            <div class="product-price">
+                                <span class="current-price">{{ formatPrice(product.price) }}</span>
+                                <span *ngIf="product.originalPrice" class="original-price">{{
+                                    formatPrice(product.originalPrice) }}</span>
+                            </div>
+                            <button class="add-to-cart-btn" (click)="$event.preventDefault(); $event.stopPropagation()">
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Load More -->
+                <div *ngIf="hasMore && !isLoading" class="load-more">
+                    <button (click)="loadMore()" [disabled]="isLoadingMore">
+                        <i *ngIf="isLoadingMore" class="fa-solid fa-spinner fa-spin"></i>
+                        <span *ngIf="!isLoadingMore">{{ i18n.currentLang === 'ar' ? 'تحميل المزيد' : 'Load More'
+                            }}</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- ADD/EDIT PRODUCT DIALOG -->
+<!-- ═══════════════════════════════════════════════ -->
+<div *ngIf="showAddDialog || showEditDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+    <div class="dialog dialog-lg">
+        <div class="dialog-header">
+            <h2>{{ showAddDialog ? (i18n.currentLang === 'ar' ? 'إضافة منتج جديد' : 'Add New Product') :
+                (i18n.currentLang === 'ar' ? 'تعديل المنتج' : 'Edit Product') }}</h2>
+            <button class="close-btn" (click)="closeAllDialogs()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="dialog-body">
+            <div class="form-grid">
+                <!-- الاسم بالعربية -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
+                    <input type="text" [(ngModel)]="productForm.nameAr"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم المنتج بالعربية' : 'Enter Arabic name'" />
+                </div>
+
+                <!-- الاسم بالإنجليزية -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
+                    <input type="text" [(ngModel)]="productForm.nameEn"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم المنتج بالإنجليزية' : 'Enter English name'" />
+                </div>
+
+                <!-- الوصف بالعربية -->
+                <div class="form-group full-width">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالعربية' : 'Arabic Description' }}</label>
+                    <textarea [(ngModel)]="productForm.descriptionAr" rows="3"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'أدخل وصف المنتج بالعربية' : 'Enter Arabic description'"></textarea>
+                </div>
+
+                <!-- الوصف بالإنجليزية -->
+                <div class="form-group full-width">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالإنجليزية' : 'English Description' }}</label>
+                    <textarea [(ngModel)]="productForm.descriptionEn" rows="3"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'أدخل وصف المنتج بالإنجليزية' : 'Enter English description'"></textarea>
+                </div>
+
+                <!-- التصنيف -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'التصنيف' : 'Category' }} *</label>
+                    <select [(ngModel)]="productForm.categoryId">
+                        <option [ngValue]="null">{{ i18n.currentLang === 'ar' ? '-- اختر التصنيف --' : '-- Select
+                            Category --' }}</option>
+                        <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ getName(cat) }}</option>
+                    </select>
+                </div>
+
+                <!-- العلامة التجارية -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'العلامة التجارية' : 'Brand' }}</label>
+                    <select [(ngModel)]="productForm.brandId">
+                        <option [ngValue]="null">{{ i18n.currentLang === 'ar' ? '-- اختر العلامة التجارية --' : '--
+                            Select Brand --' }}</option>
+                        <option *ngFor="let brand of brands" [ngValue]="brand.id">{{ getName(brand) }}</option>
+                    </select>
+                </div>
+
+                <!-- السعر -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'السعر' : 'Price' }} *</label>
+                    <input type="number" [(ngModel)]="productForm.price" min="0" step="0.01" />
+                </div>
+
+                <!-- السعر الأصلي -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'السعر الأصلي (قبل الخصم)' : 'Original Price' }}</label>
+                    <input type="number" [(ngModel)]="productForm.originalPrice" min="0" step="0.01" />
+                </div>
+
+                <!-- سعر التكلفة -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'سعر التكلفة' : 'Cost Price' }}</label>
+                    <input type="number" [(ngModel)]="productForm.costPrice" min="0" step="0.01" />
+                </div>
+
+                <!-- المخزون -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'المخزون' : 'Stock' }}</label>
+                    <input type="number" [(ngModel)]="productForm.stock" min="0" />
+                </div>
+
+                <!-- حد المخزون المنخفض -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'حد المخزون المنخفض' : 'Low Stock Threshold' }}</label>
+                    <input type="number" [(ngModel)]="productForm.lowStockThreshold" min="0" />
+                </div>
+
+                <!-- منتج مميز -->
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="productForm.isFeatured" />
+                        <span class="checkmark"></span>
+                        {{ i18n.currentLang === 'ar' ? 'منتج مميز' : 'Featured Product' }}
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="productForm.isActive" />
+                        <span class="checkmark"></span>
+                        {{ i18n.currentLang === 'ar' ? 'متوفر للبيع' : 'Available for Sale' }}
+                    </label>
+                </div>
+
+                <!-- الصورة الرئيسية -->
+                <div class="form-group full-width">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الصورة الرئيسية' : 'Main Image' }}</label>
+                    <div class="image-upload-area">
+                        <input type="file" id="mainImage" accept="image/*" (change)="onMainImageSelected($event)"
+                            hidden />
+                        <label for="mainImage" class="upload-box" *ngIf="!mainImagePreview">
+                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                            <span>{{ i18n.currentLang === 'ar' ? 'اختر صورة أو اسحبها هنا' : 'Choose or drag image'
+                                }}</span>
+                        </label>
+                        <div class="image-preview-box" *ngIf="mainImagePreview">
+                            <img [src]="mainImagePreview" alt="Main Image" />
+                            <button class="remove-img-btn" (click)="removeMainImage()">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- صور إضافية -->
+                <div class="form-group full-width">
+                    <label>{{ i18n.currentLang === 'ar' ? 'صور إضافية' : 'Additional Images' }}</label>
+                    <div class="multi-image-upload">
+                        <input type="file" id="images" accept="image/*" multiple (change)="onImagesSelected($event)"
+                            hidden />
+                        <label for="images" class="upload-box small">
+                            <i class="fa-solid fa-plus"></i>
+                        </label>
+                        <div class="image-preview-box small" *ngFor="let img of imagesPreview; let i = index">
+                            <img [src]="img" alt="Image" />
+                            <button class="remove-img-btn" (click)="removeImage(i)">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dialog-footer">
+            <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-submit" (click)="showAddDialog ? createProduct() : updateProduct()"
+                [disabled]="isSubmitting">
+                <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+                <span *ngIf="!isSubmitting">{{ showAddDialog ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add') :
+                    (i18n.currentLang === 'ar' ? 'حفظ' : 'Save') }}</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- DELETE DIALOG -->
+<!-- ═══════════════════════════════════════════════ -->
+<div *ngIf="showDeleteDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+    <div class="dialog dialog-sm">
+        <div class="dialog-header delete-header">
+            <div class="delete-icon">
+                <i class="fa-solid fa-trash"></i>
+            </div>
+            <h2>{{ i18n.currentLang === 'ar' ? 'حذف المنتج' : 'Delete Product' }}</h2>
+        </div>
+        <div class="dialog-body text-center">
+            <p>{{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف' : 'Are you sure you want to delete' }}
+                <strong>"{{ selectedProduct ? getName(selectedProduct) : '' }}"</strong>؟
+            </p>
+            <p class="warning-text">{{ i18n.currentLang === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء' : 'This action
+                cannot be undone' }}</p>
+        </div>
+        <div class="dialog-footer">
+            <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-delete" (click)="deleteProduct()" [disabled]="isSubmitting">
+                <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+                <span *ngIf="!isSubmitting">{{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+    <span>{{ toast.message }}</span>
+</div>

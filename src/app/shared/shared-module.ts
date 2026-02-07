@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AppRoutingModule } from "../app-routing-module";
 import { RouterModule } from '@angular/router';
 import { LoaderComponent } from './components/loader.component/loader.component';
+import { ToastrComponent } from './components/toastr/toastr.component';
 
 
 
@@ -14,7 +15,8 @@ import { LoaderComponent } from './components/loader.component/loader.component'
   declarations: [
     NavbarComponent,
     FooterComponent,
-    LoaderComponent
+    LoaderComponent,
+    ToastrComponent
   ],
   imports: [
     CommonModule,
@@ -26,7 +28,8 @@ import { LoaderComponent } from './components/loader.component/loader.component'
     NavbarComponent,
     FooterComponent,
     TranslateModule,
-    LoaderComponent
+    LoaderComponent,
+    ToastrComponent
   ]
 })
 export class SharedModule { }

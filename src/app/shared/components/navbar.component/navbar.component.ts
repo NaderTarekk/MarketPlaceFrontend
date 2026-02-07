@@ -34,7 +34,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isSearchOpen = false;
   isCategoriesMenuOpen = false;
   categories: Category[] = [];
-  cartCount = 0; 
+  cartCount = 0;
+  isActionMenuOpen = false;
+  isAdmin = false;
+  isAdminMenuOpen = false;
+  adminPages = [
+    { nameAr: 'إدارة العلامات التجارية', nameEn: 'Manage Brands', route: '/brands', icon: 'fa-tags' },
+    { nameAr: 'إدارة المنتجات', nameEn: 'Manage Products', route: '/products', icon: 'fa-box' },
+    { nameAr: 'إدارة التقييمات', nameEn: 'Manage Reviews', route: '/products/reviews', icon: 'fa-star' },
+    { nameAr: 'إدارة الطلبات', nameEn: 'Manage Orders', route: '/orders', icon: 'fa-shopping-bag' },
+    { nameAr: 'إدارة المستخدمين', nameEn: 'Manage Users', route: '/users', icon: 'fa-users' },
+  ];
 
   constructor(
     public i18n: I18nService,
@@ -46,6 +56,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    if (localStorage.getItem('NHC_MP_Role') === "Admin") {
+      this.isAdmin = true;
+    }
     this.lang = localStorage.getItem('lang') || 'en';
 
     // ✅ Subscribe على الـ auth state
@@ -63,6 +76,23 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.loadCategories();
   }
 
+  toggleAdminMenu(): void {
+    this.isAdminMenuOpen = !this.isAdminMenuOpen;
+    if (this.isAdminMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  navigateToAdminPage(route: string): void {
+    this.router.navigate([route]);
+    this.toggleAdminMenu();
+  }
+
+  toggleActionMenu(): void {
+    this.isActionMenuOpen = !this.isActionMenuOpen;
+  }
   loadCategories(): void {
     this.homeService.getCategories(true).subscribe({
       next: (response: any) => {
@@ -75,6 +105,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             hasChildren: cat.productCount > 0
           }));
         }
+
       },
       error: (err) => console.error('Error loading categories:', err)
     });
@@ -86,7 +117,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleCategoriesMenu(): void {
     this.isCategoriesMenuOpen = !this.isCategoriesMenuOpen;
-    
+
     // منع scroll على الـ body لما الـ menu مفتوح
     if (this.isCategoriesMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -112,7 +143,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleProfileMenu(): void {
     this.isProfileMenuOpen = !this.isProfileMenuOpen;
-    
+
     // منع scroll على الـ body لما الـ menu مفتوح
     if (this.isProfileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -176,5 +207,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   onSearch(): void {
     console.log('Search:', this.searchQuery);
+  }
+
+  goTo(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    if (value && value !== 'all') {
+      this.router.navigateByUrl(value);
+    }
   }
 }

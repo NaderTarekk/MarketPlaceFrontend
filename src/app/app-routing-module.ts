@@ -14,6 +14,16 @@ const routes: Routes = [
     loadChildren: () =>
       import('./modules/auth/auth-module').then(m => m.AuthModule)
   },
+  {
+    path: 'brands',
+    loadChildren: () =>
+      import('./modules/brands/brands-module').then(m => m.BrandsModule)
+  },
+  {
+    path: 'products',
+    loadChildren: () =>
+      import('./modules/products/products-module').then(m => m.ProductsModule)
+  },
 
   // Admin routes (lazy loaded)
   // {
@@ -25,7 +35,7 @@ const routes: Routes = [
   // },
 
   // Catch-all
-  { path: '**', redirectTo: '' }
+  { path: "**", redirectTo: "", pathMatch: "full" }
 ];
 
 @NgModule({

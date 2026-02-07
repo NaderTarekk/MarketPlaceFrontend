@@ -9,6 +9,9 @@
     "cart": "Cart",
     "fav": "Favorites",
     "categories": "Categories",
+    "brands": "Brands",
+    "reviews": "Reviews",
+    "manageProducts": "Manage Products",
     "login": "Login",
     "register": "Register",
     "logout": "Logout"

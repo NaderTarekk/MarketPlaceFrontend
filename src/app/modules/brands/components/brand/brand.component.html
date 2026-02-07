@@ -1,0 +1,351 @@
+<!-- src/app/pages/brands/brands.component.html -->
+
+<div class="brands-page">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>{{ i18n.currentLang === 'ar' ? 'العلامات التجارية' : 'Brands' }}</h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'إدارة العلامات التجارية' : 'Manage your brands' }}</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-right">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'بحث...' : 'Search...'" />
+                    <button *ngIf="searchQuery" class="clear-btn" (click)="clearSearch()">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="view-btns">
+                    <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'">
+                        <i class="fa-solid fa-th-large"></i>
+                    </button>
+                    <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">
+                        <i class="fa-solid fa-list"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-add" (click)="openCreateDialog()">
+                <i class="fa-solid fa-plus"></i>
+                <span>{{ i18n.currentLang === 'ar' ? 'إضافة علامة' : 'Add Brand' }}</span>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <i class="fa-solid fa-tags"></i>
+                <div>
+                    <span class="stat-number">{{ brands.length }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-check-circle"></i>
+                <div>
+                    <span class="stat-number">{{ activeBrandsCount }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-ban"></i>
+                <div>
+                    <span class="stat-number">{{ inactiveBrandsCount }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="loading">
+            <div class="spinner"></div>
+            <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && filteredBrands.length === 0" class="empty">
+            <i class="fa-solid fa-box-open"></i>
+            <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد علامات تجارية' : 'No brands found' }}</h3>
+            <p>{{ i18n.currentLang === 'ar' ? 'ابدأ بإضافة علامة تجارية جديدة' : 'Start by adding a new brand' }}</p>
+            <button class="btn-primary" (click)="openCreateDialog()">
+                <i class="fa-solid fa-plus"></i>
+                {{ i18n.currentLang === 'ar' ? 'إضافة علامة' : 'Add Brand' }}
+            </button>
+        </div>
+
+        <!-- Grid View -->
+        <div *ngIf="!isLoading && filteredBrands.length > 0 && viewMode === 'grid'" class="grid">
+            <div *ngFor="let brand of filteredBrands; trackBy: trackByBrand" class="card">
+                <div class="card-status" [class.active]="brand.isActive" [class.inactive]="!brand.isActive">
+                    {{ brand.isActive ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active') : (i18n.currentLang === 'ar' ?
+                    'غير نشط' : 'Inactive') }}
+                </div>
+                <div class="card-logo" (click)="openViewDialog(brand)">
+                    <img *ngIf="brand.logo" [src]="getLogoUrl(brand.logo)" [alt]="getName(brand)" />
+                    <i *ngIf="!brand.logo" class="fa-solid fa-building"></i>
+                </div>
+                <h3 (click)="openViewDialog(brand)">{{ getName(brand) }}</h3>
+                <span class="product-count">{{ brand.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products'
+                    }}</span>
+                <div class="card-actions">
+                    <button class="btn-icon view" (click)="openViewDialog(brand)"
+                        [title]="i18n.currentLang === 'ar' ? 'عرض' : 'View'">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    <button class="btn-icon edit" (click)="openEditDialog(brand)"
+                        [title]="i18n.currentLang === 'ar' ? 'تعديل' : 'Edit'">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn-icon delete" (click)="openDeleteDialog(brand)"
+                        [title]="i18n.currentLang === 'ar' ? 'حذف' : 'Delete'">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div *ngIf="!isLoading && filteredBrands.length > 0 && viewMode === 'list'" class="list">
+            <div *ngFor="let brand of filteredBrands; trackBy: trackByBrand" class="list-item">
+                <div class="list-logo" (click)="openViewDialog(brand)">
+                    <img *ngIf="brand.logo" [src]="getLogoUrl(brand.logo)" [alt]="getName(brand)" />
+                    <i *ngIf="!brand.logo" class="fa-solid fa-building"></i>
+                </div>
+                <div class="list-info" (click)="openViewDialog(brand)">
+                    <h3>{{ getName(brand) }}</h3>
+                    <span>{{ brand.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}</span>
+                </div>
+                <div class="list-status" [class.active]="brand.isActive">
+                    {{ brand.isActive ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active') : (i18n.currentLang === 'ar' ?
+                    'غير نشط' : 'Inactive') }}
+                </div>
+                <div class="list-actions">
+                    <button class="btn-icon view" (click)="openViewDialog(brand)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    <button class="btn-icon edit" (click)="openEditDialog(brand)">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn-icon delete" (click)="openDeleteDialog(brand)">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- CREATE DIALOG -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="showCreateDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+        <div class="dialog">
+            <div class="dialog-header">
+                <h2>{{ i18n.currentLang === 'ar' ? 'إضافة علامة تجارية' : 'Add Brand' }}</h2>
+                <button class="close-btn" (click)="closeAllDialogs()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
+                    <input type="text" [(ngModel)]="formData.nameAr"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'أدخل الاسم بالعربية' : 'Enter Arabic name'" />
+                </div>
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
+                    <input type="text" [(ngModel)]="formData.nameEn"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'أدخل الاسم بالإنجليزية' : 'Enter English name'" />
+                </div>
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الشعار' : 'Logo' }}</label>
+                    <div class="file-upload">
+                        <input type="file" id="createLogo" accept="image/*" (change)="onFileSelected($event)" hidden />
+                        <label for="createLogo" class="upload-area" *ngIf="!imagePreview">
+                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                            <span>{{ i18n.currentLang === 'ar' ? 'اختر صورة أو اسحبها هنا' : 'Choose or drag image here'
+                                }}</span>
+                        </label>
+                        <div class="image-preview" *ngIf="imagePreview">
+                            <img [src]="imagePreview" alt="Preview" />
+                            <button class="remove-image" (click)="removeImage()">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-footer">
+                <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">
+                    {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+                </button>
+                <button class="btn-submit" (click)="createBrand()" [disabled]="isSubmitting">
+                    <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+                    <span *ngIf="!isSubmitting">{{ i18n.currentLang === 'ar' ? 'إضافة' : 'Add' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- EDIT DIALOG -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="showEditDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+        <div class="dialog">
+            <div class="dialog-header">
+                <h2>{{ i18n.currentLang === 'ar' ? 'تعديل علامة تجارية' : 'Edit Brand' }}</h2>
+                <button class="close-btn" (click)="closeAllDialogs()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
+                    <input type="text" [(ngModel)]="formData.nameAr" />
+                </div>
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
+                    <input type="text" [(ngModel)]="formData.nameEn" />
+                </div>
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الشعار' : 'Logo' }}</label>
+                    <div class="file-upload">
+                        <input type="file" id="editLogo" accept="image/*" (change)="onFileSelected($event)" hidden />
+                        <label for="editLogo" class="upload-area" *ngIf="!imagePreview">
+                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                            <span>{{ i18n.currentLang === 'ar' ? 'اختر صورة جديدة' : 'Choose new image' }}</span>
+                        </label>
+                        <div class="image-preview" *ngIf="imagePreview">
+                            <img [src]="imagePreview" alt="Preview" />
+                            <button class="remove-image" (click)="removeImage()">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="formData.isActive" />
+                        <span class="checkmark"></span>
+                        {{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}
+                    </label>
+                </div>
+            </div>
+            <div class="dialog-footer">
+                <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">
+                    {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+                </button>
+                <button class="btn-submit" (click)="updateBrand()" [disabled]="isSubmitting">
+                    <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+                    <span *ngIf="!isSubmitting">{{ i18n.currentLang === 'ar' ? 'حفظ التغييرات' : 'Save Changes'
+                        }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- DELETE DIALOG -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="showDeleteDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+        <div class="dialog dialog-sm">
+            <div class="dialog-header delete-header">
+                <div class="delete-icon">
+                    <i class="fa-solid fa-trash"></i>
+                </div>
+                <h2>{{ i18n.currentLang === 'ar' ? 'حذف العلامة التجارية' : 'Delete Brand' }}</h2>
+            </div>
+            <div class="dialog-body text-center">
+                <p>
+                    {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف' : 'Are you sure you want to delete' }}
+                    <strong>"{{ selectedBrand ? getName(selectedBrand) : '' }}"</strong>؟
+                </p>
+                <p class="warning-text">
+                    {{ i18n.currentLang === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء' : 'This action cannot be undone' }}
+                </p>
+            </div>
+            <div class="dialog-footer">
+                <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">
+                    {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+                </button>
+                <button class="btn-delete" (click)="deleteBrand()" [disabled]="isSubmitting">
+                    <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+                    <span *ngIf="!isSubmitting">{{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- VIEW DIALOG -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="showViewDialog && selectedBrand" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
+        <div class="dialog">
+            <div class="dialog-header">
+                <h2>{{ i18n.currentLang === 'ar' ? 'تفاصيل العلامة التجارية' : 'Brand Details' }}</h2>
+                <button class="close-btn" (click)="closeAllDialogs()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <div class="view-logo">
+                    <img *ngIf="selectedBrand.logo" [src]="getLogoUrl(selectedBrand.logo)"
+                        [alt]="getName(selectedBrand)" />
+                    <i *ngIf="!selectedBrand.logo" class="fa-solid fa-building"></i>
+                </div>
+                <div class="view-info">
+                    <div class="info-row">
+                        <span class="info-label">{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name'
+                            }}</span>
+                        <span class="info-value">{{ selectedBrand.nameAr }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name'
+                            }}</span>
+                        <span class="info-value">{{ selectedBrand.nameEn }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">{{ i18n.currentLang === 'ar' ? 'عدد المنتجات' : 'Products Count'
+                            }}</span>
+                        <span class="info-value">{{ selectedBrand.productCount }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</span>
+                        <span class="info-value status-badge" [class.active]="selectedBrand.isActive">
+                            {{ selectedBrand.isActive ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active') :
+                            (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-footer">
+                <button class="btn-cancel" (click)="closeAllDialogs()">
+                    {{ i18n.currentLang === 'ar' ? 'إغلاق' : 'Close' }}
+                </button>
+                <button class="btn-submit" (click)="closeAllDialogs(); openEditDialog(selectedBrand)">
+                    <i class="fa-solid fa-pen"></i>
+                    {{ i18n.currentLang === 'ar' ? 'تعديل' : 'Edit' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- TOAST -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+        [class.error]="toast.type === 'error'">
+        <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+        <span>{{ toast.message }}</span>
+    </div>
+
+
+</div>

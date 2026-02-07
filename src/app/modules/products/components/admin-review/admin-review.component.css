@@ -1,0 +1,613 @@
+/* ===========================
+   Admin Reviews Page Styles
+   =========================== */
+
+.admin-reviews-page {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #f7fafc;
+}
+
+/* Header */
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filters button {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #4a5568;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filters button:hover {
+  border-color: #cbd5e0;
+  background: #f7fafc;
+  transform: translateY(-2px);
+}
+
+.filters button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  color: #667eea;
+  font-size: 2rem;
+}
+
+/* Reviews Table */
+.reviews-table {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.reviews-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reviews-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.reviews-table th {
+  padding: 1.25rem 1rem;
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.reviews-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.reviews-table tbody tr:hover {
+  background: #f7fafc;
+}
+
+.reviews-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.reviews-table td {
+  padding: 1.25rem 1rem;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Stars */
+.stars {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.stars i {
+  font-size: 1.1rem;
+  color: #e2e8f0;
+  transition: color 0.2s;
+}
+
+.stars i.filled {
+  color: #fbbf24;
+}
+
+/* Comment */
+.comment {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge.approved {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+}
+
+.badge.pending {
+  background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%);
+  color: white;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-approve,
+.btn-reject {
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.btn-approve {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+}
+
+.btn-approve:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+}
+
+.btn-reject {
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+  color: white;
+}
+
+.btn-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+}
+
+.btn-approve:active,
+.btn-reject:active {
+  transform: translateY(0);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pagination button {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #4a5568;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-2px);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-weight: 600;
+  color: #2d3748;
+  padding: 0 1rem;
+}
+
+/* ===========================
+   Dialog Styles
+   =========================== */
+
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dialog Container */
+.dialog {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: dialogSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.dialog-sm {
+  max-width: 420px;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Dialog Header */
+.dialog-header {
+  padding: 2.5rem 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.dialog-header h2 {
+  margin: 1rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* Approve Header */
+.approve-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.approve-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.approve-icon i {
+  font-size: 2.5rem;
+  color: #667eea;
+}
+
+/* Reject Header */
+.reject-header {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.reject-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.reject-icon i {
+  font-size: 2.5rem;
+  color: #f5576c;
+}
+
+/* Dialog Body */
+.dialog-body {
+  padding: 2rem 1.5rem;
+}
+
+.dialog-body p {
+  font-size: 1rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+}
+
+.dialog-body p:last-child {
+  margin-bottom: 0;
+}
+
+.dialog-body strong {
+  color: #2d3748;
+  font-weight: 700;
+}
+
+.info-text {
+  font-size: 0.9rem;
+  color: #718096;
+  padding: 0.75rem 1rem;
+  background: #edf2f7;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.warning-text {
+  font-size: 0.9rem;
+  color: #c53030;
+  padding: 0.75rem 1rem;
+  background: #fff5f5;
+  border-radius: 8px;
+  border-left: 4px solid #f56565;
+  font-weight: 600;
+}
+
+/* Dialog Footer */
+.dialog-footer {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.dialog-footer button {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-cancel {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #cbd5e0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-approve-confirm {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-approve-confirm:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.btn-delete:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+}
+
+.dialog-footer button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dialog-footer button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Spinner */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===========================
+   Responsive Design
+   =========================== */
+
+@media (max-width: 1024px) {
+  .reviews-table {
+    overflow-x: auto;
+  }
+
+  .reviews-table table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-reviews-page {
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .filters {
+    gap: 0.5rem;
+  }
+
+  .filters button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .reviews-table th,
+  .reviews-table td {
+    padding: 1rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .comment {
+    max-width: 200px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .btn-approve,
+  .btn-reject {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog {
+    max-width: 100%;
+    margin: 0 0.5rem;
+  }
+
+  .dialog-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .approve-icon,
+  .reject-icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .approve-icon i,
+  .reject-icon i {
+    font-size: 2rem;
+  }
+
+  .dialog-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .dialog-body p {
+    font-size: 0.9rem;
+  }
+
+  .dialog-footer {
+    padding: 0 1rem 1rem;
+    flex-direction: column;
+  }
+
+  .dialog-footer button {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
+
+  .pagination button {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  .filters button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .dialog-header {
+    padding: 2rem 1rem 1rem;
+  }
+
+  .dialog-body {
+    padding: 1.25rem 0.875rem;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .reviews-table th,
+[dir="rtl"] .reviews-table td {
+  text-align: right;
+}
+
+[dir="rtl"] .info-text,
+[dir="rtl"] .warning-text {
+  border-left: none;
+  border-right: 4px solid #667eea;
+}
+
+[dir="rtl"] .warning-text {
+  border-right-color: #f56565;
+}
