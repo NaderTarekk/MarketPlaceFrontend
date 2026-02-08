@@ -5,11 +5,12 @@ const productionBaseApi = 'https://nhc-market-place.runasp.net';
 
 export const environment = {
     production: false,
-    authUrl: `${productionApi}/Auth`,
-    categoriesUrl: `${productionApi}/Categories`,
-    brandsUrl: `${productionApi}/Brands`,
-    productsUrl: `${productionApi}/Products`,
-    wishlistsUrl: `${productionApi}/Wishlist`,
-    reviewsUrl: `${productionApi}/Reviews`,
-    baseApi: `${productionBaseApi}`
+    authUrl: `${localApi}/Auth`,
+    categoriesUrl: `${localApi}/Categories`,
+    brandsUrl: `${localApi}/Brands`,
+    productsUrl: `${localApi}/Products`,
+    wishlistsUrl: `${localApi}/Wishlist`,
+    reviewsUrl: `${localApi}/Reviews`,
+    profileUrl: `${localApi}/Profile`,
+    baseApi: `${localBaseApi}`
 };

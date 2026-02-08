@@ -1,0 +1,336 @@
+<div class="profile-page">
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </section>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-container">
+        <div class="loader">
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading && profile" class="profile-container">
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <!-- Avatar Section -->
+            <div class="avatar-section">
+                <div class="avatar-wrapper">
+                    <div class="avatar" *ngIf="!imagePreview && !profile.profileImage">
+                        <span class="initials">{{ getInitials() }}</span>
+                    </div>
+                    <img *ngIf="imagePreview || profile.profileImage"
+                        [src]="imagePreview || getImageUrl(profile.profileImage)" [alt]="profile.fullName"
+                        class="avatar-img" />
+
+                    <!-- Upload Overlay -->
+                    <label *ngIf="isEditing" class="avatar-upload">
+                        <input type="file" accept="image/*" (change)="onImageSelect($event)" hidden />
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+
+                    <!-- Role Badge -->
+                    <span class="role-badge" [ngClass]="getRoleBadge().class">
+                        {{ getRoleBadge().text }}
+                    </span>
+                </div>
+
+                <!-- Image Upload Actions -->
+                <div *ngIf="imagePreview" class="image-actions">
+                    <button class="btn-upload" (click)="uploadImage()" [disabled]="isUploadingImage">
+                        <i class="fa-solid" [ngClass]="isUploadingImage ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                        {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+                    </button>
+                    <button class="btn-cancel-upload" (click)="cancelImageUpload()">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <h1 class="profile-name">{{ profile.fullName }}</h1>
+                <p class="profile-email">{{ profile.email }}</p>
+
+                <!-- Member Since -->
+                <div class="member-since">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>
+                        {{ i18n.currentLang === 'ar' ? 'عضو منذ' : 'Member for' }}
+                        {{ getMemberSince() }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-item" routerLink="/orders">
+                    <div class="stat-icon orders">
+                        <i class="fa-solid fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.ordersCount }}</span>
+                        <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'طلب' : 'Orders' }}</span>
+                    </div>
+                </div>
+
+                <div class="stat-item" routerLink="/wishlist">
+                    <div class="stat-icon wishlist">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.wishlistCount }}</span>
+                        <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'مفضلة' : 'Wishlist' }}</span>
+                    </div>
+                </div>
+
+                <div class="stat-item" routerLink="/products/my-reviews">
+                    <div class="stat-icon reviews">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.reviewsCount }}</span>
+                        <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'تقييماتي' : 'My Reviews' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="btn-edit" (click)="toggleEdit()">
+                    <i class="fa-solid" [ngClass]="isEditing ? 'fa-times' : 'fa-pen'"></i>
+                    {{ isEditing
+                    ? (i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel')
+                    : (i18n.currentLang === 'ar' ? 'تعديل' : 'Edit Profile')
+                    }}
+                </button>
+                <button class="btn-logout" (click)="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    {{ i18n.currentLang === 'ar' ? 'خروج' : 'Logout' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Details Section -->
+        <div class="details-section">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab" [class.active]="activeTab === 'personal'" (click)="activeTab = 'personal'">
+                    <i class="fa-solid fa-user"></i>
+                    {{ i18n.currentLang === 'ar' ? 'البيانات الشخصية' : 'Personal Info' }}
+                </button>
+                <button class="tab" [class.active]="activeTab === 'address'" (click)="activeTab = 'address'">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}
+                </button>
+                <button *ngIf="profile.role === 'Vendor'" class="tab" [class.active]="activeTab === 'business'"
+                    (click)="activeTab = 'business'">
+                    <i class="fa-solid fa-store"></i>
+                    {{ i18n.currentLang === 'ar' ? 'بيانات المتجر' : 'Business Info' }}
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Personal Info -->
+                <div *ngIf="activeTab === 'personal'" class="info-grid anim-fadeIn">
+                    <!-- Full Name -->
+                    <div class="info-item">
+                        <label>
+                            <i class="fa-solid fa-user"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الاسم الكامل' : 'Full Name' }}
+                        </label>
+                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.fullName"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل الاسم' : 'Enter name'" />
+                        <span *ngIf="!isEditing">{{ profile.fullName }}</span>
+                    </div>
+
+                    <!-- Email (Read Only) -->
+                    <div class="info-item readonly">
+                        <label>
+                            <i class="fa-solid fa-envelope"></i>
+                            {{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email' }}
+                            <span class="badge-readonly">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                        </label>
+                        <span>{{ profile.email }}</span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="info-item">
+                        <label>
+                            <i class="fa-solid fa-phone"></i>
+                            {{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone' }}
+                        </label>
+                        <input *ngIf="isEditing" type="tel" [(ngModel)]="editForm.phoneNumber"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل رقم الهاتف' : 'Enter phone'" />
+                        <span *ngIf="!isEditing">{{ profile.phoneNumber || '-' }}</span>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="info-item">
+                        <label>
+                            <i class="fa-solid fa-cake-candles"></i>
+                            {{ i18n.currentLang === 'ar' ? 'تاريخ الميلاد' : 'Date of Birth' }}
+                        </label>
+                        <input *ngIf="isEditing" type="date" [(ngModel)]="editForm.dateOfBirth" />
+                        <span *ngIf="!isEditing">{{ formatDate(profile.dateOfBirth) }}</span>
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="info-item">
+                        <label>
+                            <i class="fa-solid fa-venus-mars"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الجنس' : 'Gender' }}
+                        </label>
+                        <select *ngIf="isEditing" [(ngModel)]="editForm.gender">
+                            <option value="">{{ i18n.currentLang === 'ar' ? 'اختر' : 'Select' }}</option>
+                            <option value="male">{{ i18n.currentLang === 'ar' ? 'ذكر' : 'Male' }}</option>
+                            <option value="female">{{ i18n.currentLang === 'ar' ? 'أنثى' : 'Female' }}</option>
+                        </select>
+                        <span *ngIf="!isEditing">
+                            {{ profile.gender === 'male'
+                            ? (i18n.currentLang === 'ar' ? 'ذكر' : 'Male')
+                            : profile.gender === 'female'
+                            ? (i18n.currentLang === 'ar' ? 'أنثى' : 'Female')
+                            : '-'
+                            }}
+                        </span>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="info-item full-width">
+                        <label>
+                            <i class="fa-solid fa-quote-right"></i>
+                            {{ i18n.currentLang === 'ar' ? 'نبذة' : 'Bio' }}
+                        </label>
+                        <textarea *ngIf="isEditing" [(ngModel)]="editForm.bio" rows="3"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'اكتب نبذة عنك' : 'Write something about yourself'"></textarea>
+                        <span *ngIf="!isEditing" class="bio-text">{{ profile.bio || '-' }}</span>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div *ngIf="activeTab === 'address'" class="info-grid anim-fadeIn">
+                    <!-- Address -->
+                    <div class="info-item full-width">
+                        <label>
+                            <i class="fa-solid fa-location-dot"></i>
+                            {{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}
+                        </label>
+                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.address"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل العنوان' : 'Enter address'" />
+                        <span *ngIf="!isEditing">{{ profile.address || '-' }}</span>
+                    </div>
+
+                    <!-- City -->
+                    <div class="info-item">
+                        <label>
+                            <i class="fa-solid fa-city"></i>
+                            {{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }}
+                        </label>
+                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.city"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل المدينة' : 'Enter city'" />
+                        <span *ngIf="!isEditing">{{ profile.city || '-' }}</span>
+                    </div>
+
+                    <!-- Country -->
+                    <div class="info-item">
+                        <label>
+                            <i class="fa-solid fa-globe"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الدولة' : 'Country' }}
+                        </label>
+                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.country"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل الدولة' : 'Enter country'" />
+                        <span *ngIf="!isEditing">{{ profile.country || '-' }}</span>
+                    </div>
+                </div>
+
+                <!-- Business Info (Vendor Only) -->
+                <div *ngIf="activeTab === 'business' && profile.role === 'Vendor'" class="info-grid anim-fadeIn">
+                    <!-- Approval Status -->
+                    <div class="info-item full-width">
+                        <div class="approval-status" [class.approved]="profile.isApproved">
+                            <i class="fa-solid" [ngClass]="profile.isApproved ? 'fa-check-circle' : 'fa-clock'"></i>
+                            <span>
+                                {{ profile.isApproved
+                                ? (i18n.currentLang === 'ar' ? 'حساب موثق' : 'Verified Account')
+                                : (i18n.currentLang === 'ar' ? 'في انتظار الموافقة' : 'Pending Approval')
+                                }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Business Name -->
+                    <div class="info-item">
+                        <label>
+                            <i class="fa-solid fa-store"></i>
+                            {{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business Name' }}
+                        </label>
+                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.businessName" />
+                        <span *ngIf="!isEditing">{{ profile.businessName || '-' }}</span>
+                    </div>
+
+                    <!-- Commercial Registration (Read Only) -->
+                    <div class="info-item readonly">
+                        <label>
+                            <i class="fa-solid fa-file-contract"></i>
+                            {{ i18n.currentLang === 'ar' ? 'السجل التجاري' : 'Commercial Reg.' }}
+                            <span class="badge-readonly">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                        </label>
+                        <span>{{ profile.commercialRegistration || '-' }}</span>
+                    </div>
+
+                    <!-- Tax Number (Read Only) -->
+                    <div class="info-item readonly">
+                        <label>
+                            <i class="fa-solid fa-receipt"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الرقم الضريبي' : 'Tax Number' }}
+                            <span class="badge-readonly">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                        </label>
+                        <span>{{ profile.taxNumber || '-' }}</span>
+                    </div>
+
+                    <!-- Business Address -->
+                    <div class="info-item full-width">
+                        <label>
+                            <i class="fa-solid fa-building"></i>
+                            {{ i18n.currentLang === 'ar' ? 'عنوان المتجر' : 'Business Address' }}
+                        </label>
+                        <textarea *ngIf="isEditing" [(ngModel)]="editForm.businessAddress" rows="2"></textarea>
+                        <span *ngIf="!isEditing">{{ profile.businessAddress || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div *ngIf="isEditing" class="save-section">
+                <button class="btn-save" (click)="saveProfile()" [disabled]="isSaving">
+                    <i class="fa-solid" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                    {{ isSaving
+                    ? (i18n.currentLang === 'ar' ? 'جاري الحفظ...' : 'Saving...')
+                    : (i18n.currentLang === 'ar' ? 'حفظ التغييرات' : 'Save Changes')
+                    }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+    <span>{{ toast.message }}</span>
+</div>

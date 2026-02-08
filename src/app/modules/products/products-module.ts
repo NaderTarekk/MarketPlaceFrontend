@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { ProductsRoutingModule } from '../../routing/products-routing.module';
 import { ProductDetailsComponent } from './components/product-details/product-details.component';
 import { AdminReviewComponent } from './components/admin-review/admin-review.component';
+import { WishlistsComponent } from './components/wishlists/wishlists.component';
+import { MyReviewsComponent } from './components/my-reviews/my-reviews.component';
 
 
 
@@ -12,7 +14,9 @@ import { AdminReviewComponent } from './components/admin-review/admin-review.com
   declarations: [
     ProductsComponent,
     ProductDetailsComponent,
-    AdminReviewComponent
+    AdminReviewComponent,
+    WishlistsComponent,
+    MyReviewsComponent
   ],
   imports: [
     CommonModule,

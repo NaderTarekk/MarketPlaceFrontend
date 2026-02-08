@@ -184,7 +184,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.navLinks = [
         { label: 'home', url: '/' },
         { label: 'products', url: '/products' },
-        { label: 'profile', url: '/profile' },
+        { label: 'profile', url: '/auth/profile' },
         { label: 'logout', func: 'logout' },
       ];
     } else {

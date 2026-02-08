@@ -204,4 +204,15 @@ export class ProductsService {
     );
   }
 
+  getMyReviews(): Observable<ApiResponse<ReviewResponse[]>> {
+    return this.http.get<ApiResponse<ReviewResponse[]>>(`${environment.reviewsUrl}/my-reviews`);
+  }
+
+  updateReview(id: number, data: { rating?: number; comment?: string }): Observable<ApiResponse<ReviewResponse>> {
+    return this.http.put<ApiResponse<ReviewResponse>>(`${environment.reviewsUrl}/${id}`, data);
+  }
+
+  deleteReview(id: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${environment.reviewsUrl}/${id}`);
+  }
 }

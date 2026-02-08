@@ -3,8 +3,9 @@ export interface ReviewResponse {
   productId: number;
   productNameAr?: string;
   productNameEn?: string;
+  productImage?: string;
   userId: string;
-  userName: string;
+  userName?: string;
   rating: number;
   comment: string;
   isApproved: boolean;

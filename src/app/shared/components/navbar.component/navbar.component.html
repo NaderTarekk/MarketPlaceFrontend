@@ -4,7 +4,7 @@
   <div class="navbar-container">
 
     <!-- Logo -->
-    <div class="logo">
+    <div class="logo cursor-pointer" routerLink="">
       <img src="noqta logo rm.png" alt="MarketPlace Logo"
         class="logo-image h-20 sm:h-23 lg:h-23 w-auto object-contain" />
     </div>
@@ -46,7 +46,7 @@
         <option value="/products/reviews">{{'reviews' | translate}}</option>
       </select>
 
-      <button class="icon-btn" title="Wishlist" routerLink="/wishlist">
+      <button class="icon-btn" title="Wishlist" routerLink="products/wishlist">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path
             d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
@@ -96,13 +96,14 @@
   </a>
 
   <!-- Wishlist -->
-  <a routerLink="/wishlist" routerLinkActive="active" class="bottom-nav-item">
+  <a routerLink="products/wishlist" routerLinkActive="active" class="bottom-nav-item">
     <i class="fa-solid fa-heart"></i>
     <span>{{ 'fav' | translate }}</span>
   </a>
 
   <!-- Profile / Login -->
-  <button *ngIf="isLogged" (click)="toggleProfileMenu()" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
+  <!-- <button *ngIf="isLogged" (click)="toggleProfileMenu()" class="bottom-nav-item" [class.active]="isProfileMenuOpen"> -->
+  <button *ngIf="isLogged" routerLink="/auth/profile" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
     <i class="fa-solid fa-user"></i>
     <span>{{ 'profile' | translate }}</span>
   </button>

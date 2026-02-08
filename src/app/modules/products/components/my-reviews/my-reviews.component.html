@@ -1,0 +1,271 @@
+<div class="my-reviews-page">
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>
+                <i class="fa-solid fa-star"></i>
+                {{ i18n.currentLang === 'ar' ? 'تقييماتي' : 'My Reviews' }}
+            </h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'إدارة تقييماتك للمنتجات' : 'Manage your product reviews' }}</p>
+        </div>
+    </section>
+
+    <div class="main-container">
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="stat-card total">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats.total }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'إجمالي التقييمات' : 'Total Reviews'
+                        }}</span>
+                </div>
+            </div>
+
+            <div class="stat-card approved">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats.approved }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'معتمدة' : 'Approved' }}</span>
+                </div>
+            </div>
+
+            <div class="stat-card pending">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats.pending }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'في الانتظار' : 'Pending' }}</span>
+                </div>
+            </div>
+
+            <div class="stat-card average">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats.averageRating }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'متوسط التقييم' : 'Avg Rating' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="filter-tabs">
+                <button class="filter-tab" [class.active]="selectedFilter === 'all'" (click)="onFilterChange('all')">
+                    {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
+                    <span class="count">{{ stats.total }}</span>
+                </button>
+                <button class="filter-tab" [class.active]="selectedFilter === 'approved'"
+                    (click)="onFilterChange('approved')">
+                    {{ i18n.currentLang === 'ar' ? 'معتمدة' : 'Approved' }}
+                    <span class="count">{{ stats.approved }}</span>
+                </button>
+                <button class="filter-tab" [class.active]="selectedFilter === 'pending'"
+                    (click)="onFilterChange('pending')">
+                    {{ i18n.currentLang === 'ar' ? 'في الانتظار' : 'Pending' }}
+                    <span class="count">{{ stats.pending }}</span>
+                </button>
+            </div>
+
+            <div class="sort-dropdown">
+                <select [(ngModel)]="selectedSort" (change)="onSortChange()">
+                    <option value="newest">{{ i18n.currentLang === 'ar' ? 'الأحدث' : 'Newest' }}</option>
+                    <option value="oldest">{{ i18n.currentLang === 'ar' ? 'الأقدم' : 'Oldest' }}</option>
+                    <option value="rating-high">{{ i18n.currentLang === 'ar' ? 'الأعلى تقييماً' : 'Highest Rated' }}
+                    </option>
+                    <option value="rating-low">{{ i18n.currentLang === 'ar' ? 'الأقل تقييماً' : 'Lowest Rated' }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="loading">
+            <div class="spinner"></div>
+            <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && reviews.length === 0" class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-regular fa-star"></i>
+            </div>
+            <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد تقييمات' : 'No reviews yet' }}</h3>
+            <p>{{ i18n.currentLang === 'ar' ? 'لم تقم بتقييم أي منتج بعد' : 'You haven\'t reviewed any products yet' }}
+            </p>
+            <button class="btn-shop" routerLink="/products">
+                <i class="fa-solid fa-shopping-bag"></i>
+                {{ i18n.currentLang === 'ar' ? 'تصفح المنتجات' : 'Browse Products' }}
+            </button>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="!isLoading && reviews.length > 0 && filteredReviews.length === 0" class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+            </div>
+            <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد نتائج' : 'No results' }}</h3>
+            <button class="btn-shop" (click)="onFilterChange('all')">
+                {{ i18n.currentLang === 'ar' ? 'عرض الكل' : 'Show All' }}
+            </button>
+        </div>
+
+        <!-- Reviews List -->
+        <div *ngIf="!isLoading && filteredReviews.length > 0" class="reviews-list">
+            <div *ngFor="let review of filteredReviews; trackBy: trackByReview" class="review-card"
+                [class.pending]="!review.isApproved">
+                <!-- Product Info -->
+                <div class="product-section" (click)="goToProduct(review.productId)">
+                    <img [src]="getImageUrl(review.productImage)" [alt]="getProductName(review)"
+                        class="product-image" />
+                    <div class="product-info">
+                        <h3 class="product-name">{{ getProductName(review) }}</h3>
+                        <span class="review-date">
+                            <i class="fa-regular fa-calendar"></i>
+                            {{ formatDate(review.createdAt) }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Review Content -->
+                <div class="review-content">
+                    <!-- Rating -->
+                    <div class="rating-display">
+                        <div class="stars">
+                            <i *ngFor="let star of [1,2,3,4,5]" class="fa-solid fa-star"
+                                [class.filled]="star <= review.rating"></i>
+                        </div>
+                        <span class="rating-text">{{ review.rating }}/5</span>
+                    </div>
+
+                    <!-- Comment -->
+                    <p class="review-comment">{{ review.comment }}</p>
+
+                    <!-- Status Badge -->
+                    <div class="status-badge" [class.approved]="review.isApproved">
+                        <i class="fa-solid" [ngClass]="review.isApproved ? 'fa-check-circle' : 'fa-clock'"></i>
+                        <span>
+                            {{ review.isApproved
+                            ? (i18n.currentLang === 'ar' ? 'معتمد' : 'Approved')
+                            : (i18n.currentLang === 'ar' ? 'في انتظار المراجعة' : 'Pending Review')
+                            }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="review-actions">
+                    <button class="btn-edit" (click)="openEditDialog(review)"
+                        [title]="i18n.currentLang === 'ar' ? 'تعديل' : 'Edit'">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn-delete" (click)="openDeleteDialog(review)"
+                        [title]="i18n.currentLang === 'ar' ? 'حذف' : 'Delete'">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Dialog -->
+<div class="dialog-overlay" [class.show]="showEditDialog" (click)="closeEditDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h3>{{ i18n.currentLang === 'ar' ? 'تعديل التقييم' : 'Edit Review' }}</h3>
+            <button class="close-btn" (click)="closeEditDialog()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="dialog-body" *ngIf="editingReview">
+            <!-- Product Info -->
+            <div class="edit-product-info">
+                <img [src]="getImageUrl(editingReview.productImage)" [alt]="getProductName(editingReview)" />
+                <span>{{ getProductName(editingReview) }}</span>
+            </div>
+
+            <!-- Rating Input -->
+            <div class="rating-input">
+                <label>{{ i18n.currentLang === 'ar' ? 'التقييم' : 'Rating' }}</label>
+                <div class="stars-input">
+                    <i *ngFor="let star of [1,2,3,4,5]" class="fa-solid fa-star"
+                        [class.filled]="star <= (hoveredRating || editForm.rating)"
+                        [class.hovered]="star <= hoveredRating && star > editForm.rating"
+                        (mouseenter)="hoveredRating = star" (mouseleave)="hoveredRating = 0"
+                        (click)="setRating(star)"></i>
+                </div>
+            </div>
+
+            <!-- Comment Input -->
+            <div class="comment-input">
+                <label>{{ i18n.currentLang === 'ar' ? 'التعليق' : 'Comment' }}</label>
+                <textarea [(ngModel)]="editForm.comment" rows="4"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'اكتب تعليقك...' : 'Write your comment...'"></textarea>
+            </div>
+
+            <!-- Note -->
+            <p class="edit-note">
+                <i class="fa-solid fa-info-circle"></i>
+                {{ i18n.currentLang === 'ar'
+                ? 'سيتم مراجعة التقييم بعد التعديل'
+                : 'Review will be pending after edit'
+                }}
+            </p>
+        </div>
+
+        <div class="dialog-footer">
+            <button class="btn-cancel" (click)="closeEditDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-submit" (click)="updateReview()" [disabled]="isUpdating || !editForm.comment.trim()">
+                <i class="fa-solid" [ngClass]="isUpdating ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                {{ isUpdating
+                ? (i18n.currentLang === 'ar' ? 'جاري الحفظ...' : 'Saving...')
+                : (i18n.currentLang === 'ar' ? 'حفظ التغييرات' : 'Save Changes')
+                }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Dialog -->
+<div class="dialog-overlay" [class.show]="showDeleteDialog" (click)="closeDeleteDialog()">
+    <div class="dialog delete-dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-icon">
+            <i class="fa-solid fa-trash"></i>
+        </div>
+        <h3>{{ i18n.currentLang === 'ar' ? 'حذف التقييم' : 'Delete Review' }}</h3>
+        <p>{{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا التقييم؟' : 'Are you sure you want to delete this
+            review?' }}</p>
+
+        <div class="dialog-actions">
+            <button class="btn-cancel" (click)="closeDeleteDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-delete-confirm" (click)="confirmDelete()" [disabled]="isDeleting">
+                <i class="fa-solid" [ngClass]="isDeleting ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+                {{ isDeleting
+                ? (i18n.currentLang === 'ar' ? 'جاري الحذف...' : 'Deleting...')
+                : (i18n.currentLang === 'ar' ? 'حذف' : 'Delete')
+                }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+    <span>{{ toast.message }}</span>
+</div>

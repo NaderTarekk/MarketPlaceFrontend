@@ -5,6 +5,8 @@ import { Injectable } from '@angular/core';
 import { AuthResponse, CompleteGoogleProfileDto, GoogleLoginDto, LoginDto, RegisterDto } from '../../../models/loginDto';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../../environment';
+import { Profile, ProfileStats, UpdateProfile } from '../../../models/profile';
+import { ApiResponse } from '../../../models/products';
 
 @Injectable({
   providedIn: 'root',
@@ -76,4 +78,21 @@ export class AuthService {
     return this.http.post(environment.authUrl + "/reset-password", data);
   }
 
+  getProfile(): Observable<ApiResponse<Profile>> {
+    return this.http.get<ApiResponse<Profile>>(environment.profileUrl);
+  }
+
+  updateProfile(data: UpdateProfile): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(environment.profileUrl, data);
+  }
+
+  uploadImage(file: File): Observable<ApiResponse<string>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<string>>(`${environment.profileUrl}/upload-image`, formData);
+  }
+
+  getProfileStats(): Observable<ApiResponse<ProfileStats>> {
+    return this.http.get<ApiResponse<ProfileStats>>(`${environment.profileUrl}/stats`);
+  }
 }

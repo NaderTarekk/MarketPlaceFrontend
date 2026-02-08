@@ -1,0 +1,280 @@
+<div class="wishlist-page">
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>
+                <i class="fa-solid fa-heart"></i>
+                {{ i18n.currentLang === 'ar' ? 'المفضلة' : 'My Wishlist' }}
+            </h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'منتجاتك المفضلة في مكان واحد' : 'Your favorite products in one place' }}
+            </p>
+        </div>
+    </section>
+
+    <div class="main-container">
+        <!-- Mobile Filter Button -->
+        <button class="mobile-filter-btn" (click)="toggleMobileFilters()">
+            <i class="fa-solid fa-sliders"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'الفلاتر' : 'Filters' }}</span>
+            <span *ngIf="getActiveFiltersCount() > 0" class="filter-badge">{{ getActiveFiltersCount() }}</span>
+        </button>
+
+        <div class="content-wrapper">
+            <!-- Sidebar Filters -->
+            <aside class="sidebar" [class.show]="showMobileFilters">
+                <div class="sidebar-header">
+                    <h3>{{ i18n.currentLang === 'ar' ? 'الفلاتر' : 'Filters' }}</h3>
+                    <button class="close-sidebar" (click)="toggleMobileFilters()">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="sidebar-content">
+                    <!-- Search -->
+                    <div class="filter-section">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'البحث' : 'Search' }}</h4>
+                        <div class="search-input">
+                            <i class="fa-solid fa-search"></i>
+                            <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'ابحث في المفضلة...' : 'Search wishlist...'" />
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="filter-section">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'السعر' : 'Price' }}</h4>
+                        <div class="price-inputs">
+                            <input type="number" [(ngModel)]="minPrice"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'من' : 'Min'" />
+                            <span>-</span>
+                            <input type="number" [(ngModel)]="maxPrice"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'إلى' : 'Max'" />
+                            <button class="price-btn" (click)="onPriceFilter()">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- In Stock -->
+                    <div class="filter-section">
+                        <label class="checkbox-filter">
+                            <input type="checkbox" [(ngModel)]="inStockOnly" (change)="onStockFilter()" />
+                            <span class="checkbox-custom"></span>
+                            <span>{{ i18n.currentLang === 'ar' ? 'متوفر فقط' : 'In Stock Only' }}</span>
+                        </label>
+                    </div>
+
+                    <!-- Clear Filters -->
+                    <button *ngIf="getActiveFiltersCount() > 0" class="clear-filters-btn" (click)="clearFilters()">
+                        <i class="fa-solid fa-trash"></i>
+                        {{ i18n.currentLang === 'ar' ? 'مسح الفلاتر' : 'Clear Filters' }}
+                    </button>
+                </div>
+
+                <!-- Mobile Apply Button -->
+                <div class="sidebar-footer">
+                    <button class="apply-btn" (click)="toggleMobileFilters()">
+                        {{ i18n.currentLang === 'ar' ? 'تطبيق' : 'Apply' }} ({{ filteredItems.length }})
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="sidebar-overlay" [class.show]="showMobileFilters" (click)="toggleMobileFilters()"></div>
+
+            <!-- Main Content -->
+            <main class="wishlist-content">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-right">
+                        <span class="results-count">
+                            <i class="fa-solid fa-heart"></i>
+                            {{ filteredItems.length }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'items' }}
+                        </span>
+                    </div>
+
+                    <div class="toolbar-left">
+                        <button *ngIf="wishlistItems.length > 0" class="btn-clear-all" (click)="clearAllWishlist()">
+                            <i class="fa-solid fa-trash"></i>
+                            <span>{{ i18n.currentLang === 'ar' ? 'مسح الكل' : 'Clear All' }}</span>
+                        </button>
+
+                        <div class="sort-dropdown">
+                            <select [(ngModel)]="selectedSort" (change)="onSortChange()">
+                                <option *ngFor="let opt of sortOptions" [value]="opt.value">
+                                    {{ i18n.currentLang === 'ar' ? opt.label.ar : opt.label.en }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="view-btns">
+                            <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'">
+                                <i class="fa-solid fa-th-large"></i>
+                            </button>
+                            <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">
+                                <i class="fa-solid fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div *ngIf="isLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="!isLoading && wishlistItems.length === 0" class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fa-regular fa-heart"></i>
+                    </div>
+                    <h3>{{ i18n.currentLang === 'ar' ? 'المفضلة فارغة' : 'Your wishlist is empty' }}</h3>
+                    <p>{{ i18n.currentLang === 'ar' ? 'لم تضف أي منتجات للمفضلة بعد' : 'You haven\'t added any products
+                        yet' }}</p>
+                    <button class="btn-shop" routerLink="/products">
+                        <i class="fa-solid fa-shopping-bag"></i>
+                        {{ i18n.currentLang === 'ar' ? 'تصفح المنتجات' : 'Browse Products' }}
+                    </button>
+                </div>
+
+                <!-- No Results -->
+                <div *ngIf="!isLoading && wishlistItems.length > 0 && filteredItems.length === 0" class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-filter-circle-xmark"></i>
+                    </div>
+                    <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد نتائج' : 'No results found' }}</h3>
+                    <p>{{ i18n.currentLang === 'ar' ? 'جرب تغيير الفلاتر' : 'Try changing the filters' }}</p>
+                    <button class="btn-shop" (click)="clearFilters()">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        {{ i18n.currentLang === 'ar' ? 'مسح الفلاتر' : 'Clear Filters' }}
+                    </button>
+                </div>
+
+                <!-- Grid View -->
+                <div *ngIf="!isLoading && filteredItems.length > 0 && viewMode === 'grid'" class="wishlist-grid">
+                    <div *ngFor="let item of filteredItems; trackBy: trackByItem" class="wishlist-card"
+                        [class.out-of-stock]="item.stock === 0">
+                        <!-- Remove Button -->
+                        <button class="remove-btn"
+                            (click)="removeFromWishlist(item.productId); $event.stopPropagation()">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+
+                        <!-- Discount Badge -->
+                        <span *ngIf="getDiscountPercentage(item)" class="discount-badge">
+                            -{{ getDiscountPercentage(item) }}%
+                        </span>
+
+                        <!-- Out of Stock Badge -->
+                        <span *ngIf="item.stock === 0" class="stock-badge">
+                            {{ i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock' }}
+                        </span>
+
+                        <!-- Image -->
+                        <div class="card-image" (click)="goToProduct(item.productId)">
+                            <img [src]="getImageUrl(item.productImage)" [alt]="getName(item)" loading="lazy" />
+                            <div class="image-overlay">
+                                <button class="view-btn">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="card-info" (click)="goToProduct(item.productId)">
+                            <h3 class="product-name">{{ getName(item) }}</h3>
+
+                            <div class="product-price">
+                                <span class="current-price">{{ formatPrice(item.price) }}</span>
+                                <span *ngIf="item.originalPrice && item.originalPrice > item.price"
+                                    class="original-price">
+                                    {{ formatPrice(item.originalPrice) }}
+                                </span>
+                            </div>
+
+                            <span class="stock-status" [class.in-stock]="item.stock > 0">
+                                <i class="fa-solid"
+                                    [ngClass]="item.stock > 0 ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                                {{ item.stock > 0
+                                ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock')
+                                : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock')
+                                }}
+                            </span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="card-actions">
+                            <button class="btn-add-cart" [disabled]="item.stock === 0">
+                                <i class="fa-solid fa-cart-plus"></i>
+                                {{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List View -->
+                <div *ngIf="!isLoading && filteredItems.length > 0 && viewMode === 'list'" class="wishlist-list">
+                    <div *ngFor="let item of filteredItems; trackBy: trackByItem" class="wishlist-list-item"
+                        [class.out-of-stock]="item.stock === 0">
+                        <!-- Image -->
+                        <div class="list-image" (click)="goToProduct(item.productId)">
+                            <img [src]="getImageUrl(item.productImage)" [alt]="getName(item)" loading="lazy" />
+                            <span *ngIf="getDiscountPercentage(item)" class="discount-badge">
+                                -{{ getDiscountPercentage(item) }}%
+                            </span>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="list-info" (click)="goToProduct(item.productId)">
+                            <h3 class="product-name">{{ getName(item) }}</h3>
+
+                            <span class="stock-status" [class.in-stock]="item.stock > 0">
+                                <i class="fa-solid"
+                                    [ngClass]="item.stock > 0 ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                                {{ item.stock > 0
+                                ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock')
+                                : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock')
+                                }}
+                            </span>
+
+                            <p class="added-date">
+                                <i class="fa-regular fa-clock"></i>
+                                {{ i18n.currentLang === 'ar' ? 'أضيف في' : 'Added on' }}
+                                {{ item.addedAt | date:'mediumDate' }}
+                            </p>
+                        </div>
+
+                        <!-- Price & Actions -->
+                        <div class="list-actions">
+                            <div class="product-price">
+                                <span class="current-price">{{ formatPrice(item.price) }}</span>
+                                <span *ngIf="item.originalPrice && item.originalPrice > item.price"
+                                    class="original-price">
+                                    {{ formatPrice(item.originalPrice) }}
+                                </span>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn-add-cart" [disabled]="item.stock === 0">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                </button>
+                                <button class="btn-remove" (click)="removeFromWishlist(item.productId)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+    <span>{{ toast.message }}</span>
+</div>
