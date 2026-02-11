@@ -6,6 +6,7 @@ import { ProductsService } from '../../services/products.service';
 import { environment } from '../../../../../environment';
 import { AuthService } from '../../../auth/services/auth.service';
 import { ReviewFilter, ReviewResponse } from '../../../../models/review';
+import { CartService } from '../../../cart/services/cart.service';
 
 @Component({
   selector: 'app-product-details',
@@ -59,7 +60,8 @@ export class ProductDetailsComponent implements OnInit {
     private router: Router,
     private productService: ProductsService,
     private cdr: ChangeDetectorRef,
-    private authService: AuthService
+    private authService: AuthService,
+    private cartService: CartService
   ) { }
 
   ngOnInit(): void {
@@ -286,16 +288,53 @@ export class ProductDetailsComponent implements OnInit {
 
   addToCart(): void {
     if (!this.product) return;
-    // TODO: Implement cart service
-    this.showToast(
-      this.i18n.currentLang === 'ar' ? 'تم إضافة المنتج للسلة' : 'Product added to cart',
-      'success'
-    );
+
+    if (!this.authService.isLoggedIn()) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
+        'error'
+      );
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.cartService.addItem(this.product.id, this.quantity).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم إضافة المنتج للسلة' : 'Product added to cart',
+            'success'
+          );
+        } else {
+          this.showToast(res.message || 'Error', 'error');
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || 'Error', 'error');
+      }
+    });
   }
 
+
   buyNow(): void {
-    this.addToCart();
-    this.router.navigate(['/cart']);
+    if (!this.product) return;
+
+    if (!this.authService.isLoggedIn()) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
+        'error'
+      );
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.cartService.addItem(this.product.id, this.quantity).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.router.navigate(['/cart']);
+        }
+      }
+    });
   }
 
   shareProduct(): void {

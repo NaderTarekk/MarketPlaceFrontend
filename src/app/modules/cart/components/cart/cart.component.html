@@ -1,0 +1,456 @@
+<div class="cart-page">
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>
+                <i class="fa-solid fa-cart-shopping"></i>
+                {{ i18n.currentLang === 'ar' ? 'سلة التسوق' : 'Shopping Cart' }}
+            </h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'راجع منتجاتك قبل الشراء' : 'Review your items before checkout' }}</p>
+        </div>
+    </section>
+
+    <div class="main-container">
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="loading">
+            <div class="spinner"></div>
+            <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && cartItems.length === 0" class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <h3>{{ i18n.currentLang === 'ar' ? 'السلة فارغة' : 'Your cart is empty' }}</h3>
+            <p>{{ i18n.currentLang === 'ar' ? 'لم تضف أي منتجات للسلة بعد' : 'You haven\'t added any products yet' }}
+            </p>
+            <button class="btn-shop" routerLink="/products">
+                <i class="fa-solid fa-shopping-bag"></i>
+                {{ i18n.currentLang === 'ar' ? 'تصفح المنتجات' : 'Browse Products' }}
+            </button>
+        </div>
+
+        <!-- Cart Content -->
+        <div *ngIf="!isLoading && cartItems.length > 0" class="cart-content">
+            <!-- Cart Items -->
+            <div class="cart-items-section">
+                <!-- Header -->
+                <div class="section-header">
+                    <h2>
+                        <i class="fa-solid fa-box"></i>
+                        {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
+                        <span class="items-count">({{ cartItems.length }})</span>
+                    </h2>
+                    <button class="btn-clear" (click)="openClearDialog()">
+                        <i class="fa-solid fa-trash"></i>
+                        {{ i18n.currentLang === 'ar' ? 'تفريغ السلة' : 'Clear Cart' }}
+                    </button>
+                </div>
+
+                <!-- Items List -->
+                <div class="cart-items">
+                    <div *ngFor="let item of cartItems; trackBy: trackByItem" class="cart-item">
+                        <!-- Product Image -->
+                        <div class="item-image" (click)="goToProduct(item.productId)">
+                            <img [src]="getImageUrl(item.productImage)" [alt]="getName(item)" />
+                            <span *ngIf="getDiscountPercentage(item)" class="discount-badge">
+                                -{{ getDiscountPercentage(item) }}%
+                            </span>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="item-info">
+                            <h3 class="item-name" (click)="goToProduct(item.productId)">{{ getName(item) }}</h3>
+
+                            <div class="item-price">
+                                <span class="current-price">{{ formatPrice(item.price) }}</span>
+                                <span *ngIf="item.originalPrice && item.originalPrice > item.price"
+                                    class="original-price">
+                                    {{ formatPrice(item.originalPrice) }}
+                                </span>
+                            </div>
+
+                            <div class="stock-status" [class.low]="item.stock <= 5">
+                                <i class="fa-solid"
+                                    [ngClass]="item.stock > 0 ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                                <span *ngIf="item.stock > 5">{{ i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock'
+                                    }}</span>
+                                <span *ngIf="item.stock > 0 && item.stock <= 5">
+                                    {{ i18n.currentLang === 'ar' ? 'متبقي ' + item.stock + ' فقط' : 'Only ' + item.stock
+                                    + ' left' }}
+                                </span>
+                                <span *ngIf="item.stock === 0">{{ i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Quantity Controls -->
+                        <div class="item-quantity">
+                            <button class="qty-btn minus" (click)="updateQuantity(item, -1)"
+                                [disabled]="item.quantity <= 1">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <input type="number" [value]="item.quantity" (change)="setQuantity(item, $event)" min="1"
+                                [max]="item.stock" />
+                            <button class="qty-btn plus" (click)="updateQuantity(item, 1)"
+                                [disabled]="item.quantity >= item.stock">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+
+                        <!-- Item Total -->
+                        <div class="item-total">
+                            <span class="total-label">{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+                            <span class="total-value">{{ formatPrice(item.price * item.quantity) }}</span>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <button class="btn-remove" (click)="openDeleteDialog(item)">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h2>{{ i18n.currentLang === 'ar' ? 'ملخص الطلب' : 'Order Summary' }}</h2>
+
+                <!-- Promo Code -->
+                <div class="promo-section">
+                    <div *ngIf="!promoApplied" class="promo-input">
+                        <input type="text" [(ngModel)]="promoCode"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'كود الخصم' : 'Promo Code'" />
+                        <button (click)="applyPromoCode()">
+                            {{ i18n.currentLang === 'ar' ? 'تطبيق' : 'Apply' }}
+                        </button>
+                    </div>
+                    <div *ngIf="promoApplied" class="promo-applied">
+                        <span>
+                            <i class="fa-solid fa-tag"></i>
+                            {{ promoCode }} (-{{ promoDiscount }}%)
+                        </span>
+                        <button (click)="removePromoCode()">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Details -->
+                <div class="summary-details">
+                    <div class="summary-row">
+                        <span>{{ i18n.currentLang === 'ar' ? 'المجموع الفرعي' : 'Subtotal' }}</span>
+                        <span>{{ formatPrice(subtotal) }}</span>
+                    </div>
+
+                    <div *ngIf="discount > 0" class="summary-row discount">
+                        <span>{{ i18n.currentLang === 'ar' ? 'الخصم' : 'Discount' }}</span>
+                        <span>-{{ formatPrice(discount) }}</span>
+                    </div>
+
+                    <div *ngIf="promoApplied" class="summary-row promo">
+                        <span>{{ i18n.currentLang === 'ar' ? 'كود الخصم' : 'Promo Code' }}</span>
+                        <span>-{{ formatPrice(subtotal * promoDiscount / 100) }}</span>
+                    </div>
+
+                    <div class="summary-row shipping">
+                        <span>{{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}</span>
+                        <span *ngIf="shipping > 0">{{ formatPrice(shipping) }}</span>
+                        <span *ngIf="shipping === 0" class="free">
+                            {{ i18n.currentLang === 'ar' ? 'مجاني' : 'Free' }}
+                        </span>
+                    </div>
+
+                    <div *ngIf="shipping > 0" class="free-shipping-note">
+                        <i class="fa-solid fa-truck"></i>
+                        {{ i18n.currentLang === 'ar'
+                        ? 'أضف ' + formatPrice(200 - subtotal) + ' للشحن المجاني'
+                        : 'Add ' + formatPrice(200 - subtotal) + ' for free shipping'
+                        }}
+                    </div>
+                </div>
+
+                <!-- Total -->
+                <div class="summary-total">
+                    <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+                    <span class="total-amount">{{ formatPrice(total) }}</span>
+                </div>
+
+                <!-- Checkout Button -->
+                <button class="btn-checkout" (click)="proceedToCheckout()">
+                    <i class="fa-solid fa-lock"></i>
+                    {{ i18n.currentLang === 'ar' ? 'إتمام الشراء' : 'Proceed to Checkout' }}
+                </button>
+
+                <!-- Continue Shopping -->
+                <a routerLink="/products" class="continue-shopping">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    {{ i18n.currentLang === 'ar' ? 'متابعة التسوق' : 'Continue Shopping' }}
+                </a>
+
+                <!-- Trust Badges -->
+                <div class="trust-badges">
+                    <div class="badge">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>{{ i18n.currentLang === 'ar' ? 'دفع آمن' : 'Secure Payment' }}</span>
+                    </div>
+                    <div class="badge">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>{{ i18n.currentLang === 'ar' ? 'إرجاع سهل' : 'Easy Returns' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بعد Order Summary مباشرة -->
+
+            <!-- Admin Promo Codes Management -->
+            <div *ngIf="isAdmin" class="admin-promo-section">
+                <div class="admin-header">
+                    <h3>
+                        <i class="fa-solid fa-ticket"></i>
+                        {{ i18n.currentLang === 'ar' ? 'إدارة أكواد الخصم' : 'Manage Promo Codes' }}
+                    </h3>
+                    <button class="btn-add-promo" (click)="openPromoDialog()">
+                        <i class="fa-solid fa-plus"></i>
+                        {{ i18n.currentLang === 'ar' ? 'إضافة كود' : 'Add Code' }}
+                    </button>
+                </div>
+
+                <!-- Promo Codes List -->
+                <div class="promo-codes-list">
+                    <div *ngIf="isLoadingPromos" class="loading-mini">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+
+                    <div *ngIf="!isLoadingPromos && promoCodes.length === 0" class="empty-promos">
+                        <p>{{ i18n.currentLang === 'ar' ? 'لا توجد أكواد خصم' : 'No promo codes' }}</p>
+                    </div>
+
+                    <div *ngFor="let promo of promoCodes" class="promo-item" [class.inactive]="!promo.isActive">
+                        <div class="promo-info">
+                            <span class="promo-code-badge">{{ promo.code }}</span>
+                            <span class="promo-value">
+                                {{ promo.type === 'Percentage' ? promo.value + '%' : formatPrice(promo.value) }}
+                            </span>
+                        </div>
+                        <div class="promo-stats">
+                            <span class="usage">
+                                {{ promo.usedCount }}/{{ promo.maxUsageCount || '∞' }}
+                            </span>
+                        </div>
+                        <div class="promo-actions">
+                            <button class="btn-toggle" (click)="togglePromoStatus(promo)"
+                                [class.active]="promo.isActive">
+                                <i class="fa-solid" [ngClass]="promo.isActive ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                            </button>
+                            <button class="btn-delete-promo" (click)="openDeletePromoDialog(promo)">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Promo Dialog -->
+            <div class="dialog-overlay" [class.show]="showPromoDialog" (click)="closePromoDialog()">
+                <div class="dialog promo-dialog" (click)="$event.stopPropagation()">
+                    <div class="dialog-header">
+                        <h3>{{ i18n.currentLang === 'ar' ? 'إضافة كود خصم' : 'Add Promo Code' }}</h3>
+                        <button class="close-btn" (click)="closePromoDialog()">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="dialog-body">
+                        <!-- Code Input -->
+                        <div class="form-group">
+                            <label>{{ i18n.currentLang === 'ar' ? 'كود الخصم' : 'Promo Code' }} *</label>
+                            <input type="text" [(ngModel)]="promoForm.code"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'مثال: SAVE20' : 'e.g. SAVE20'"
+                                maxlength="20" (input)="promoForm.code = promoForm.code.toUpperCase()" />
+                        </div>
+
+                        <!-- Type & Value -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>{{ i18n.currentLang === 'ar' ? 'نوع الخصم' : 'Discount Type' }}</label>
+                                <select [(ngModel)]="promoForm.type">
+                                    <option [value]="0">{{ i18n.currentLang === 'ar' ? '٪ نسبة مئوية' : '% Percentage'
+                                        }}</option>
+                                    <option [value]="1">{{ i18n.currentLang === 'ar' ? '💰 مبلغ ثابت' : '💰 Fixed
+                                        Amount' }}</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>{{ i18n.currentLang === 'ar' ? 'القيمة' : 'Value' }} *</label>
+                                <input type="number" [(ngModel)]="promoForm.value" min="0"
+                                    [placeholder]="promoForm.type == 0 ? '10' : '50'" />
+                            </div>
+                        </div>
+
+                        <!-- Limits -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>{{ i18n.currentLang === 'ar' ? 'أقصى خصم' : 'Max Discount' }}</label>
+                                <input type="number" [(ngModel)]="promoForm.maxDiscount" min="0"
+                                    [placeholder]="i18n.currentLang === 'ar' ? 'بدون حد' : 'No limit'" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>{{ i18n.currentLang === 'ar' ? 'أقل قيمة للطلب' : 'Min Order Amount' }}</label>
+                                <input type="number" [(ngModel)]="promoForm.minOrderAmount" min="0"
+                                    [placeholder]="i18n.currentLang === 'ar' ? 'بدون حد' : 'No minimum'" />
+                            </div>
+                        </div>
+
+                        <!-- Usage Limits -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>{{ i18n.currentLang === 'ar' ? 'عدد الاستخدام الكلي' : 'Total Usage Limit'
+                                    }}</label>
+                                <input type="number" [(ngModel)]="promoForm.maxUsageCount" min="1"
+                                    [placeholder]="i18n.currentLang === 'ar' ? 'غير محدود' : 'Unlimited'" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>{{ i18n.currentLang === 'ar' ? 'لكل مستخدم' : 'Per User Limit' }}</label>
+                                <input type="number" [(ngModel)]="promoForm.maxUsagePerUser" min="1"
+                                    [placeholder]="i18n.currentLang === 'ar' ? 'غير محدود' : 'Unlimited'" />
+                            </div>
+                        </div>
+
+                        <!-- Dates -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>{{ i18n.currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date' }}</label>
+                                <input type="datetime-local" [(ngModel)]="promoForm.startDate" />
+                            </div>
+                            <br>
+                            <div class="form-group w-100">
+                                <label>{{ i18n.currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date' }}</label>
+                                <input type="datetime-local" class="w-100" [(ngModel)]="promoForm.endDate" />
+                            </div>
+                        </div>
+
+                        <!-- Descriptions -->
+                        <div class="form-group">
+                            <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالعربية' : 'Arabic Description' }}</label>
+                            <input type="text" [(ngModel)]="promoForm.descriptionAr"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'خصم خاص...' : 'Special discount...'" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالإنجليزية' : 'English Description' }}</label>
+                            <input type="text" [(ngModel)]="promoForm.descriptionEn"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'Special discount...' : 'Special discount...'" />
+                        </div>
+                    </div>
+
+                    <div class="dialog-footer">
+                        <button class="btn-cancel" (click)="closePromoDialog()">
+                            {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+                        </button>
+                        <button class="btn-save" (click)="savePromoCode()" [disabled]="isSavingPromo">
+                            <i *ngIf="isSavingPromo" class="fa-solid fa-spinner fa-spin"></i>
+                            <i *ngIf="!isSavingPromo" class="fa-solid fa-check"></i>
+                            <span>{{ i18n.currentLang === 'ar' ? 'إنشاء الكود' : 'Create Code' }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Item Dialog -->
+<div class="dialog-overlay" [class.show]="showDeleteDialog" (click)="closeDeleteDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-icon">
+            <i class="fa-solid fa-trash"></i>
+        </div>
+        <h3>{{ i18n.currentLang === 'ar' ? 'حذف المنتج' : 'Remove Item' }}</h3>
+        <p>{{ i18n.currentLang === 'ar' ? 'هل تريد حذف هذا المنتج من السلة؟' : 'Remove this item from your cart?' }}</p>
+
+        <div *ngIf="itemToDelete" class="delete-item-preview">
+            <img [src]="getImageUrl(itemToDelete.productImage)" [alt]="getName(itemToDelete)" />
+            <span>{{ getName(itemToDelete) }}</span>
+        </div>
+
+        <div class="dialog-actions">
+            <button class="btn-cancel" (click)="closeDeleteDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-confirm" (click)="confirmDelete()" [disabled]="isDeleting">
+                <i class="fa-solid" [ngClass]="isDeleting ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+                {{ isDeleting
+                ? (i18n.currentLang === 'ar' ? 'جاري الحذف...' : 'Removing...')
+                : (i18n.currentLang === 'ar' ? 'حذف' : 'Remove')
+                }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Cart Dialog -->
+<div class="dialog-overlay" [class.show]="showClearDialog" (click)="closeClearDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-icon warning">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+        </div>
+        <h3>{{ i18n.currentLang === 'ar' ? 'تفريغ السلة' : 'Clear Cart' }}</h3>
+        <p>{{ i18n.currentLang === 'ar' ? 'هل تريد حذف جميع المنتجات من السلة؟' : 'Remove all items from your cart?' }}
+        </p>
+
+        <div class="dialog-actions">
+            <button class="btn-cancel" (click)="closeClearDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-confirm" (click)="confirmClear()" [disabled]="isClearing">
+                <i class="fa-solid" [ngClass]="isClearing ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+                {{ isClearing
+                ? (i18n.currentLang === 'ar' ? 'جاري التفريغ...' : 'Clearing...')
+                : (i18n.currentLang === 'ar' ? 'تفريغ' : 'Clear All')
+                }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+    <span>{{ toast.message }}</span>
+</div>
+
+<div class="dialog-overlay" [class.show]="showDeletePromoDialog" (click)="closeDeletePromoDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-icon delete-promo">
+            <i class="fa-solid fa-ticket"></i>
+        </div>
+        <h3>{{ i18n.currentLang === 'ar' ? 'حذف كود الخصم' : 'Delete Promo Code' }}</h3>
+        <p>{{ i18n.currentLang === 'ar' ? 'هل تريد حذف هذا الكود؟' : 'Delete this promo code?' }}</p>
+
+        <div *ngIf="promoToDelete" class="delete-promo-preview">
+            <span class="promo-code-badge">{{ promoToDelete.code }}</span>
+            <span class="promo-value">
+                {{ promoToDelete.type === 'Percentage' ? promoToDelete.value + '%' : formatPrice(promoToDelete.value) }}
+            </span>
+        </div>
+
+        <div class="dialog-actions">
+            <button class="btn-cancel" (click)="closeDeletePromoDialog()" [disabled]="isDeletingPromo">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-confirm" (click)="confirmDeletePromo()" [disabled]="isDeletingPromo">
+                <i class="fa-solid" [ngClass]="isDeletingPromo ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+                {{ isDeletingPromo
+                ? (i18n.currentLang === 'ar' ? 'جاري الحذف...' : 'Deleting...')
+                : (i18n.currentLang === 'ar' ? 'حذف' : 'Delete')
+                }}
+            </button>
+        </div>
+    </div>
+</div>

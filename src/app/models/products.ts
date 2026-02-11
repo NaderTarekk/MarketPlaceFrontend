@@ -61,6 +61,7 @@ export interface ProductFilter {
   sortDesc?: boolean;
   page?: number;
   pageSize?: number;
+  status?: number;
 }
 
 export interface ApiResponse<T> {

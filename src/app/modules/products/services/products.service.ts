@@ -66,6 +66,12 @@ export class ProductsService {
     );
   }
 
+  search(query: string): Observable<ApiResponse<ProductList[]>> {
+    return this.http.get<ApiResponse<ProductList[]>>(
+      `${environment.productsUrl}?search=${encodeURIComponent(query)}&pageSize=6`
+    );
+  }
+
   // Categories
   getCategories(isActive?: boolean): Observable<ApiResponse<Category[]>> {
     const params = isActive !== undefined ? `?isActive=${isActive}` : '';

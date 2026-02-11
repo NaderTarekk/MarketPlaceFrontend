@@ -6,6 +6,8 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { ProductsService } from '../../services/products.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../../environment';
+import { AuthService } from '../../../auth/services/auth.service';
+import { CartService } from '../../../cart/services/cart.service';
 
 @Component({
   selector: 'app-products',
@@ -59,10 +61,13 @@ export class ProductsComponent implements OnInit {
   // Filter
   filter: ProductFilter = {
     page: 1,
-    pageSize: 12,
+    pageSize: 8,
     sortBy: 'newest',
     sortDesc: true
   };
+  currentPage = 1;
+  hasPrev = false;
+  hasNext = false;
 
   // Pagination
   totalCount = 0;
@@ -95,7 +100,9 @@ export class ProductsComponent implements OnInit {
     private productService: ProductsService,
     private route: ActivatedRoute,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private cartService: CartService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -111,6 +118,7 @@ export class ProductsComponent implements OnInit {
       if (params['categoryId']) this.filter.categoryId = +params['categoryId'];
       if (params['brandId']) this.filter.brandId = +params['brandId'];
       if (params['search']) this.filter.search = params['search'];
+
       this.loadProducts();
     });
   }
@@ -119,36 +127,24 @@ export class ProductsComponent implements OnInit {
   // DATA LOADING
   // ═══════════════════════════════════════════════
 
-  loadProducts(append = false): void {
-    if (append) {
-      this.isLoadingMore = true;
-    } else {
-      this.isLoading = true;
-      this.filter.page = 1;
-    }
+  loadProducts(): void {
+    this.isLoading = true;
 
     this.productService.getAll(this.filter).subscribe({
       next: (res) => {
-        console.log(res);
-
         if (res.success) {
-          if (append) {
-            this.products = [...this.products, ...res.data];
-          } else {
-            this.products = res.data;
-          }
+          this.products = res.data;
           this.totalCount = res.pagination.totalCount;
           this.totalPages = res.pagination.totalPages;
-          this.hasMore = res.pagination.hasNext;
+          this.currentPage = res.pagination.currentPage;
+          this.hasPrev = res.pagination.hasPrevious;
+          this.hasNext = res.pagination.hasNext;
         }
         this.isLoading = false;
-        this.isLoadingMore = false;
         this.cdr.markForCheck();
-
       },
       error: () => {
         this.isLoading = false;
-        this.isLoadingMore = false;
       }
     });
   }
@@ -174,6 +170,45 @@ export class ProductsComponent implements OnInit {
       }
     });
   }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.filter.page = page;
+    this.loadProducts();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  nextPage(): void {
+    if (this.hasNext) {
+      this.goToPage(this.currentPage + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.hasPrev) {
+      this.goToPage(this.currentPage - 1);
+    }
+  }
+
+  // ✅ Helper لعرض أرقام الصفحات
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+
+    let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(this.totalPages, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
 
   // ═══════════════════════════════════════════════
   // FILTERS
@@ -239,7 +274,7 @@ export class ProductsComponent implements OnInit {
   clearFilters(): void {
     this.filter = {
       page: 1,
-      pageSize: 12,
+      pageSize: 8,
       sortBy: 'newest',
       sortDesc: true
     };
@@ -253,7 +288,7 @@ export class ProductsComponent implements OnInit {
   loadMore(): void {
     if (this.hasMore && !this.isLoadingMore) {
       this.filter.page = (this.filter.page || 1) + 1;
-      this.loadProducts(true);
+      this.loadProducts();
     }
   }
 
@@ -323,6 +358,44 @@ export class ProductsComponent implements OnInit {
 
   trackByProduct(index: number, product: ProductList): number {
     return product.id;
+  }
+
+  addToCart(product: ProductList, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.authService.isLoggedIn()) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
+        'error'
+      );
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    if (product.stock <= 0) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'المنتج غير متوفر' : 'Product out of stock',
+        'error'
+      );
+      return;
+    }
+
+    this.cartService.addItem(product.id, 1).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم إضافة المنتج للسلة' : 'Added to cart',
+            'success'
+          );
+        } else {
+          this.showToast(res.message || 'Error', 'error');
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || 'Error', 'error');
+      }
+    });
   }
 
   openAddDialog(): void {
@@ -569,7 +642,7 @@ export class ProductsComponent implements OnInit {
 
   showToast(message: string, type: 'success' | 'error'): void {
     this.toast = { show: true, message, type };
-     setTimeout(() => {
+    setTimeout(() => {
       this.toast.show = false;
       this.cdr.detectChanges();
     }, 3000);
@@ -586,23 +659,23 @@ export class ProductsComponent implements OnInit {
   }
 
   approveProduct(product: ProductList): void {
-  this.isSubmitting = true;
-  
-  this.productService.updateStatus(product.id, { status: 1 }).subscribe({
-    next: (res) => {
-      if (res.success) {
-        this.showToast(
-          this.i18n.currentLang === 'ar' ? 'تم قبول المنتج بنجاح' : 'Product approved successfully', 
-          'success'
-        );
-        this.loadProducts();
+    this.isSubmitting = true;
+
+    this.productService.updateStatus(product.id, { status: 1 }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم قبول المنتج بنجاح' : 'Product approved successfully',
+            'success'
+          );
+          this.loadProducts();
+        }
+        this.isSubmitting = false;
+      },
+      error: () => {
+        this.showToast('Error', 'error');
+        this.isSubmitting = false;
       }
-      this.isSubmitting = false;
-    },
-    error: () => {
-      this.showToast('Error', 'error');
-      this.isSubmitting = false;
-    }
-  });
-}
+    });
+  }
 }

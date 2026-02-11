@@ -2142,3 +2142,159 @@
 .action-btn.approve:hover {
   box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
 }
+
+/* ═══════════════════════════════════════════════ */
+/* PAGINATION */
+/* ═══════════════════════════════════════════════ */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.page-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.page-btn:disabled,
+.page-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+.page-btn i {
+  font-size: 12px;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-num {
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.page-num:hover:not(.active) {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.page-num.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.dots {
+  padding: 0 8px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+/* Page Info */
+.page-info {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.page-info .separator {
+  margin: 0 10px;
+  color: #d1d5db;
+}
+
+/* ═══════════════════════════════════════════════ */
+/* RESPONSIVE PAGINATION */
+/* ═══════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .pagination {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .page-btn {
+    padding: 10px 16px;
+  }
+
+  .page-btn .btn-text {
+    display: none;
+  }
+
+  .page-btn i {
+    font-size: 14px;
+  }
+
+  .page-num {
+    min-width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .page-numbers {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-num {
+    min-width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
+
+  .dots {
+    padding: 0 4px;
+  }
+}
+
+/* RTL */
+[dir="rtl"] .page-btn.prev i {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .page-btn.next i {
+  transform: rotate(180deg);
+}

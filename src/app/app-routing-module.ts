@@ -24,6 +24,21 @@ const routes: Routes = [
     loadChildren: () =>
       import('./modules/products/products-module').then(m => m.ProductsModule)
   },
+  {
+    path: 'cart',
+    loadChildren: () =>
+      import('./modules/cart/cart-module').then(m => m.CartModule)
+  },
+  {
+    path: 'vendor',
+    loadChildren: () =>
+      import('./modules/vendor/vendor-module').then(m => m.VendorModule)
+  },
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./modules/adamin/adamin-module').then(m => m.AdaminModule)
+  },
 
   // Admin routes (lazy loaded)
   // {

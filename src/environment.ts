@@ -12,5 +12,9 @@ export const environment = {
     wishlistsUrl: `${localApi}/Wishlist`,
     reviewsUrl: `${localApi}/Reviews`,
     profileUrl: `${localApi}/Profile`,
+    cartUrl: `${localApi}/Cart`,
+    vendorUrl: `${localApi}/Vendor`,
+    promoCodeUrl: `${localApi}/PromoCodes`,
+    adminUrl: `${localApi}/AdminReports`,
     baseApi: `${localBaseApi}`
 };

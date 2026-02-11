@@ -51,24 +51,55 @@
 
     <!-- ─── Main Content ─── -->
     <main class="flex-1 min-w-0 flex flex-col gap-6">
-
       <!-- Mobile Header: Search Only -->
       <div class="flex lg:hidden items-center">
-        <!-- Search Input (Mobile Only) -->
-        <div class="flex-1 relative">
-          <input type="text" placeholder="{{ i18n.t('search_placeholder') || 'Search...' }}"
-            [dir]="i18n.currentLang === 'ar' ? 'rtl' : 'ltr'"
-            [class]="i18n.currentLang === 'ar' ? 
-                          'w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 bg-white focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 transition-all duration-200 px-3' :
-                          'w-full px-4 py-2.5 pr-10 rounded-xl border border-gray-200 text-sm text-gray-700 bg-white focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 transition-all duration-200'">
-          <svg [class]="i18n.currentLang === 'ar' ? 
-                        'absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none' :
-                        'absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'"
-            viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-          </svg>
+        <div class="search-wrapper-mobile">
+          <div class="search-input-mobile">
+            <i class="fa-solid fa-search search-icon-mobile mr-5"></i>
+            <input type="text" [placeholder]="i18n.currentLang === 'ar' ? 'ابحث عن منتج...' : 'Search products...'"
+              [(ngModel)]="searchQuery" (input)="onSearchInput($event)" (keyup.enter)="onSearch()"
+              (focus)="searchQuery.length >= 2 && (showSearchDropdown = true)"
+              [dir]="i18n.currentLang === 'ar' ? 'rtl' : 'ltr'" />
+            <button *ngIf="searchQuery" class="clear-btn-mobile" (click)="searchQuery = ''; showSearchDropdown = false">
+              <i class="fa-solid fa-times"></i>
+            </button>
+            <button class="search-btn-mobile" (click)="onSearch()">
+              <i *ngIf="!isSearching" class="fa-solid fa-arrow-left"></i>
+              <i *ngIf="isSearching" class="fa-solid fa-spinner fa-spin"></i>
+            </button>
+          </div>
+
+          <!-- Search Dropdown -->
+          <div class="search-dropdown-mobile" *ngIf="showSearchDropdown">
+            <div class="search-results-mobile" *ngIf="searchResults.length > 0">
+              <a *ngFor="let product of searchResults" class="search-result-item-mobile"
+                (mousedown)="selectSearchResult(product)">
+                <div class="result-image-mobile">
+                  <img [src]="getProductImage(product.mainImage)" [alt]="getProductName(product)"
+                    (error)="$any($event.target).src = 'assets/images/placeholder.png'" />
+                </div>
+                <div class="result-info-mobile">
+                  <span class="result-name-mobile">{{ getProductName(product) }}</span>
+                  <span class="result-price-mobile">{{ product.price | number:'1.0-0' }} {{ i18n.currentLang === 'ar' ?
+                    'ر.س' : 'SAR' }}</span>
+                </div>
+                <i class="fa-solid fa-chevron-left result-arrow-mobile"></i>
+              </a>
+            </div>
+
+            <div class="no-results-mobile"
+              *ngIf="searchResults.length === 0 && !isSearching && searchQuery.length >= 2">
+              <i class="fa-solid fa-search"></i>
+              <p>{{ i18n.currentLang === 'ar' ? 'لا توجد نتائج' : 'No results found' }}</p>
+            </div>
+
+            <button class="view-all-btn-mobile" (mousedown)="onSearch()" *ngIf="searchResults.length > 0">
+              <span>{{ i18n.currentLang === 'ar' ? 'عرض كل النتائج' : 'View All Results' }}</span>
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+          </div>
+
+          <div class="search-backdrop-mobile" *ngIf="showSearchDropdown" (click)="showSearchDropdown = false"></div>
         </div>
       </div>
 

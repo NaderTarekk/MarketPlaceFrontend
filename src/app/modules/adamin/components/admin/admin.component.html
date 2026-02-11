@@ -1,0 +1,742 @@
+<div class="admin-reports">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>
+        <i class="fa-solid fa-chart-line"></i>
+        {{ i18n.currentLang === 'ar' ? 'لوحة التحكم والتقارير' : 'Admin Dashboard & Reports' }}
+      </h1>
+      <p>{{ i18n.currentLang === 'ar' ? 'إدارة شاملة للموقع والمستخدمين والتقارير' : 'Comprehensive site, users & reports management' }}</p>
+    </div>
+  </section>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'نظرة عامة' : 'Overview' }}</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
+        <i class="fa-solid fa-users"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'المستخدمين' : 'Users' }}</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'sales'" (click)="switchTab('sales')">
+        <i class="fa-solid fa-coins"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'المبيعات' : 'Sales' }}</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'inventory'" (click)="switchTab('inventory')">
+        <i class="fa-solid fa-warehouse"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'المخزون' : 'Inventory' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- DASHBOARD TAB -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'dashboard'" class="tab-content">
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div>
+      </div>
+
+      <div *ngIf="!isLoading && dashboard" class="dashboard-content">
+        <!-- Stats Cards Row 1 - Users & Vendors -->
+        <div class="stats-section">
+          <h2 class="section-title">
+            <i class="fa-solid fa-users"></i>
+            {{ i18n.currentLang === 'ar' ? 'المستخدمين والتجار' : 'Users & Vendors' }}
+          </h2>
+          <div class="stats-grid">
+            <div class="stat-card users">
+              <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.totalUsers }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'إجمالي المستخدمين' : 'Total Users' }}</span>
+              </div>
+              <div class="stat-meta">
+                <span class="stat-up">+{{ dashboard.newUsersThisMonth }} {{ i18n.currentLang === 'ar' ? 'هذا الشهر' : 'this month' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card active-users">
+              <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.activeUsers }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'مستخدمين نشطين' : 'Active Users' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card banned">
+              <div class="stat-icon"><i class="fa-solid fa-user-slash"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.bannedUsers }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'محظورين' : 'Banned' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card vendors">
+              <div class="stat-icon"><i class="fa-solid fa-store"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.totalVendors }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'التجار' : 'Vendors' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards Row 2 - Products -->
+        <div class="stats-section">
+          <h2 class="section-title">
+            <i class="fa-solid fa-box"></i>
+            {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
+          </h2>
+          <div class="stats-grid">
+            <div class="stat-card products">
+              <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.totalProducts }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'إجمالي المنتجات' : 'Total Products' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card active-products">
+              <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.activeProducts }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'منتجات نشطة' : 'Active' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card pending-products">
+              <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.pendingProducts }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'قيد المراجعة' : 'Pending' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card out-of-stock">
+              <div class="stat-icon"><i class="fa-solid fa-box-open"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.outOfStockProducts }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'نفذ المخزون' : 'Out of Stock' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards Row 3 - Orders -->
+        <div class="stats-section">
+          <h2 class="section-title">
+            <i class="fa-solid fa-shopping-bag"></i>
+            {{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}
+          </h2>
+          <div class="stats-grid stats-grid-5">
+            <div class="stat-card orders">
+              <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.totalOrders }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card pending-orders">
+              <div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.pendingOrders }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'قيد الانتظار' : 'Pending' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card processing-orders">
+              <div class="stat-icon"><i class="fa-solid fa-cogs"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.processingOrders }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'قيد التجهيز' : 'Processing' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card delivered-orders">
+              <div class="stat-icon"><i class="fa-solid fa-check-double"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.deliveredOrders }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'تم التسليم' : 'Delivered' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card cancelled-orders">
+              <div class="stat-icon"><i class="fa-solid fa-ban"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ dashboard.cancelledOrders }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'ملغية' : 'Cancelled' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Section -->
+        <div class="stats-section">
+          <h2 class="section-title">
+            <i class="fa-solid fa-coins"></i>
+            {{ i18n.currentLang === 'ar' ? 'الإيرادات' : 'Revenue' }}
+          </h2>
+          <div class="stats-grid">
+            <div class="stat-card revenue-total">
+              <div class="stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ formatPrice(dashboard.totalRevenue) }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card revenue-today">
+              <div class="stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ formatPrice(dashboard.revenueToday) }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'اليوم' : 'Today' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card revenue-week">
+              <div class="stat-icon"><i class="fa-solid fa-calendar-week"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ formatPrice(dashboard.revenueThisWeek) }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'هذا الأسبوع' : 'This Week' }}</span>
+              </div>
+            </div>
+
+            <div class="stat-card revenue-month">
+              <div class="stat-icon"><i class="fa-solid fa-calendar-alt"></i></div>
+              <div class="stat-info">
+                <span class="stat-value">{{ formatPrice(dashboard.revenueThisMonth) }}</span>
+                <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'هذا الشهر' : 'This Month' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts & Lists Row -->
+        <div class="charts-row">
+          <!-- Revenue Chart -->
+          <div class="chart-card">
+            <h3>
+              <i class="fa-solid fa-chart-area"></i>
+              {{ i18n.currentLang === 'ar' ? 'الإيرادات (آخر 7 أيام)' : 'Revenue (Last 7 Days)' }}
+            </h3>
+            <div class="simple-chart">
+              <div *ngFor="let item of dashboard.revenueChart" class="chart-bar-container">
+                <div class="chart-bar" [style.height.%]="(item.revenue / (dashboard.totalRevenue || 1)) * 100 * 7">
+                  <span class="chart-value">{{ item.revenue | number:'1.0-0' }}</span>
+                </div>
+                <span class="chart-label">{{ item.date }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Selling Products -->
+          <div class="list-card">
+            <h3>
+              <i class="fa-solid fa-fire"></i>
+              {{ i18n.currentLang === 'ar' ? 'الأكثر مبيعاً' : 'Top Selling' }}
+            </h3>
+            <div class="top-list">
+              <div *ngFor="let product of dashboard.topSellingProducts; let i = index" class="top-item">
+                <span class="top-rank">#{{ i + 1 }}</span>
+                <img [src]="getProductImage(product.mainImage)" [alt]="product.nameEn" />
+                <div class="top-info">
+                  <span class="top-name">{{ i18n.currentLang === 'ar' ? product.nameAr : product.nameEn }}</span>
+                  <span class="top-meta">{{ product.totalSold }} {{ i18n.currentLang === 'ar' ? 'مبيعات' : 'sold' }}</span>
+                </div>
+                <span class="top-value">{{ formatPrice(product.totalRevenue) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Vendors -->
+          <div class="list-card">
+            <h3>
+              <i class="fa-solid fa-award"></i>
+              {{ i18n.currentLang === 'ar' ? 'أفضل التجار' : 'Top Vendors' }}
+            </h3>
+            <div class="top-list">
+              <div *ngFor="let vendor of dashboard.topVendors; let i = index" class="top-item">
+                <span class="top-rank">#{{ i + 1 }}</span>
+                <div class="vendor-avatar">{{ vendor.fullName.charAt(0) }}</div>
+                <div class="top-info">
+                  <span class="top-name">{{ vendor.fullName }}</span>
+                  <span class="top-meta">{{ vendor.totalProducts }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}</span>
+                </div>
+                <span class="top-value">{{ formatPrice(vendor.totalRevenue) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+          <h3>
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            {{ i18n.currentLang === 'ar' ? 'آخر الأنشطة' : 'Recent Activity' }}
+          </h3>
+          <div class="activity-list">
+            <div *ngFor="let activity of dashboard.recentActivities" class="activity-item">
+              <div class="activity-icon" [style.background]="activity.color">
+                <i class="fa-solid" [class]="activity.icon"></i>
+              </div>
+              <div class="activity-info">
+                <p>{{ i18n.currentLang === 'ar' ? activity.messageAr : activity.message }}</p>
+                <span class="activity-time">{{ formatDateTime(activity.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- USERS TAB -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'users'" class="tab-content">
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-box">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" [placeholder]="i18n.currentLang === 'ar' ? 'بحث عن مستخدم...' : 'Search users...'" (input)="onUserSearch($event)" />
+        </div>
+
+        <div class="filter-group">
+          <select [(ngModel)]="userFilter.role" (change)="onUserFilterChange()">
+            <option value="All">{{ i18n.currentLang === 'ar' ? 'كل الأدوار' : 'All Roles' }}</option>
+            <option value="Admin">{{ i18n.currentLang === 'ar' ? 'مدير' : 'Admin' }}</option>
+            <option value="Vendor">{{ i18n.currentLang === 'ar' ? 'تاجر' : 'Vendor' }}</option>
+            <option value="Customer">{{ i18n.currentLang === 'ar' ? 'عميل' : 'Customer' }}</option>
+            <option value="DeliveryAgent">{{ i18n.currentLang === 'ar' ? 'مندوب توصيل' : 'Delivery Agent' }}</option>
+          </select>
+
+          <select [(ngModel)]="userFilter.status" (change)="onUserFilterChange()">
+            <option value="All">{{ i18n.currentLang === 'ar' ? 'كل الحالات' : 'All Status' }}</option>
+            <option value="Active">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</option>
+            <option value="Banned">{{ i18n.currentLang === 'ar' ? 'محظور' : 'Banned' }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="isLoadingUsers" class="loading">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Users Table -->
+      <div *ngIf="!isLoadingUsers" class="users-table-container">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>{{ i18n.currentLang === 'ar' ? 'المستخدم' : 'User' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'البريد/الهاتف' : 'Email/Phone' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الدور' : 'Role' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الإنفاق' : 'Spent' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'تاريخ التسجيل' : 'Joined' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users; trackBy: trackByUser" [class.banned]="user.isBanned">
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar">{{ user.fullName.charAt(0) }}</div>
+                  <span>{{ user.fullName }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="contact-cell">
+                  <span *ngIf="user.email"><i class="fa-solid fa-envelope"></i> {{ user.email }}</span>
+                  <span *ngIf="user.phoneNumber"><i class="fa-solid fa-phone"></i> {{ user.phoneNumber }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [class.active]="!user.isBanned" [class.banned]="user.isBanned">
+                  {{ user.isBanned 
+                    ? (i18n.currentLang === 'ar' ? 'محظور' : 'Banned') 
+                    : (i18n.currentLang === 'ar' ? 'نشط' : 'Active') 
+                  }}
+                </span>
+              </td>
+              <td>{{ user.totalOrders }}</td>
+              <td>{{ formatPrice(user.totalSpent) }}</td>
+              <td>{{ formatDate(user.createdAt) }}</td>
+              <td>
+                <div class="actions-cell">
+                  <button class="action-btn edit" (click)="openUserDialog(user)" title="Edit">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button class="action-btn role" (click)="openRoleDialog(user)" title="Change Role">
+                    <i class="fa-solid fa-user-tag"></i>
+                  </button>
+                  <button *ngIf="!user.isBanned" class="action-btn ban" (click)="openBanDialog(user)" title="Ban">
+                    <i class="fa-solid fa-ban"></i>
+                  </button>
+                  <button *ngIf="user.isBanned" class="action-btn unban" (click)="unbanUser(user)" title="Unban">
+                    <i class="fa-solid fa-user-check"></i>
+                  </button>
+                  <button class="action-btn delete" (click)="openDeleteDialog(user)" title="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div *ngIf="users.length === 0" class="empty-state">
+          <i class="fa-solid fa-users-slash"></i>
+          <p>{{ i18n.currentLang === 'ar' ? 'لا يوجد مستخدمين' : 'No users found' }}</p>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="usersPagination.totalPages > 1" class="pagination">
+          <button [disabled]="!usersPagination.hasPrevious" (click)="goToUserPage(usersPagination.currentPage - 1)">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span>{{ usersPagination.currentPage }} / {{ usersPagination.totalPages }}</span>
+          <button [disabled]="!usersPagination.hasNext" (click)="goToUserPage(usersPagination.currentPage + 1)">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SALES TAB -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'sales'" class="tab-content">
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="date-filters">
+          <div class="date-group">
+            <label>{{ i18n.currentLang === 'ar' ? 'من' : 'From' }}</label>
+            <input type="date" [(ngModel)]="salesFilter.from" (change)="onSalesFilterChange()" />
+          </div>
+          <div class="date-group">
+            <label>{{ i18n.currentLang === 'ar' ? 'إلى' : 'To' }}</label>
+            <input type="date" [(ngModel)]="salesFilter.to" (change)="onSalesFilterChange()" />
+          </div>
+        </div>
+
+        <select [(ngModel)]="salesFilter.groupBy" (change)="onSalesFilterChange()">
+          <option value="day">{{ i18n.currentLang === 'ar' ? 'يومي' : 'Daily' }}</option>
+          <option value="week">{{ i18n.currentLang === 'ar' ? 'أسبوعي' : 'Weekly' }}</option>
+          <option value="month">{{ i18n.currentLang === 'ar' ? 'شهري' : 'Monthly' }}</option>
+        </select>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="isLoadingSales" class="loading">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Sales Report -->
+      <div *ngIf="!isLoadingSales && salesReport" class="sales-content">
+        <!-- Summary Cards -->
+        <div class="sales-summary">
+          <div class="summary-card revenue">
+            <i class="fa-solid fa-coins"></i>
+            <div class="summary-info">
+              <span class="summary-value">{{ formatPrice(salesReport.totalRevenue) }}</span>
+              <span class="summary-label">{{ i18n.currentLang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue' }}</span>
+            </div>
+            <!-- <span class="growth" [class.positive]="salesReport.growthPercentage >= 0" [class.negative]="salesReport.growthPercentage < 0">
+              <i class="fa-solid" [ngClass]="salesReport.growthPercentage >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+              {{ salesReport.growthPercentage | number:'1.1-1' }}%
+            </span> -->
+          </div>
+
+          <div class="summary-card orders">
+            <i class="fa-solid fa-shopping-cart"></i>
+            <div class="summary-info">
+              <span class="summary-value">{{ salesReport.totalOrders }}</span>
+              <span class="summary-label">{{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}</span>
+            </div>
+          </div>
+
+          <div class="summary-card products">
+            <i class="fa-solid fa-box"></i>
+            <div class="summary-info">
+              <span class="summary-value">{{ salesReport.totalProductsSold }}</span>
+              <span class="summary-label">{{ i18n.currentLang === 'ar' ? 'المنتجات المباعة' : 'Products Sold' }}</span>
+            </div>
+          </div>
+
+          <div class="summary-card avg">
+            <i class="fa-solid fa-chart-line"></i>
+            <div class="summary-info">
+              <span class="summary-value">{{ formatPrice(salesReport.averageOrderValue) }}</span>
+              <span class="summary-label">{{ i18n.currentLang === 'ar' ? 'متوسط الطلب' : 'Avg. Order' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="sales-table-container">
+          <table class="sales-table">
+            <thead>
+              <tr>
+                <th>{{ i18n.currentLang === 'ar' ? 'الفترة' : 'Period' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'الإيرادات' : 'Revenue' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'الخصومات' : 'Discounts' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'صافي الإيرادات' : 'Net Revenue' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of salesReport.data">
+                <td>{{ row.period }}</td>
+                <td>{{ row.ordersCount }}</td>
+                <td>{{ row.productsSold }}</td>
+                <td>{{ formatPrice(row.revenue) }}</td>
+                <td class="discount">-{{ formatPrice(row.discount) }}</td>
+                <td class="net">{{ formatPrice(row.netRevenue) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- INVENTORY TAB -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'inventory'" class="tab-content">
+      <!-- Loading -->
+      <div *ngIf="isLoadingInventory" class="loading">
+        <div class="spinner"></div>
+      </div>
+
+      <div *ngIf="!isLoadingInventory && inventoryReport" class="inventory-content">
+        <!-- Summary -->
+        <div class="inventory-summary">
+          <div class="inv-card total">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span class="inv-value">{{ inventoryReport.totalProducts }}</span>
+            <span class="inv-label">{{ i18n.currentLang === 'ar' ? 'إجمالي المنتجات' : 'Total Products' }}</span>
+          </div>
+          <div class="inv-card in-stock">
+            <i class="fa-solid fa-check-circle"></i>
+            <span class="inv-value">{{ inventoryReport.inStockProducts }}</span>
+            <span class="inv-label">{{ i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock' }}</span>
+          </div>
+          <div class="inv-card low-stock">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <span class="inv-value">{{ inventoryReport.lowStockProducts }}</span>
+            <span class="inv-label">{{ i18n.currentLang === 'ar' ? 'مخزون منخفض' : 'Low Stock' }}</span>
+          </div>
+          <div class="inv-card out-of-stock">
+            <i class="fa-solid fa-times-circle"></i>
+            <span class="inv-value">{{ inventoryReport.outOfStockProducts }}</span>
+            <span class="inv-label">{{ i18n.currentLang === 'ar' ? 'نفذ' : 'Out of Stock' }}</span>
+          </div>
+          <div class="inv-card value">
+            <i class="fa-solid fa-sack-dollar"></i>
+            <span class="inv-value">{{ formatPrice(inventoryReport.totalInventoryValue) }}</span>
+            <span class="inv-label">{{ i18n.currentLang === 'ar' ? 'قيمة المخزون' : 'Inventory Value' }}</span>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <div class="search-box">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" [(ngModel)]="inventoryFilter.search" [placeholder]="i18n.currentLang === 'ar' ? 'بحث...' : 'Search...'" />
+          </div>
+          <select [(ngModel)]="inventoryFilter.status">
+            <option value="All">{{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}</option>
+            <option value="InStock">{{ i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock' }}</option>
+            <option value="LowStock">{{ i18n.currentLang === 'ar' ? 'منخفض' : 'Low Stock' }}</option>
+            <option value="OutOfStock">{{ i18n.currentLang === 'ar' ? 'نفذ' : 'Out of Stock' }}</option>
+          </select>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="inventory-table-container">
+          <table class="inventory-table">
+            <thead>
+              <tr>
+                <th>{{ i18n.currentLang === 'ar' ? 'المنتج' : 'Product' }}</th>
+                <th>SKU</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'المخزون' : 'Stock' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'السعر' : 'Price' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'قيمة المخزون' : 'Stock Value' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of getFilteredInventory(); trackBy: trackByItem">
+                <td>
+                  <div class="product-cell">
+                    <img [src]="getProductImage(item.mainImage)" [alt]="item.nameEn" />
+                    <span>{{ i18n.currentLang === 'ar' ? item.nameAr : item.nameEn }}</span>
+                  </div>
+                </td>
+                <td>{{ item.sku || '-' }}</td>
+                <td>
+                  <div class="stock-cell">
+                    <span class="stock-value">{{ item.stock }}</span>
+                    <span class="stock-threshold">/ {{ item.lowStockThreshold }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="inv-status-badge" [ngClass]="getStatusBadgeClass(item.status)">
+                    {{ item.status === 'InStock' 
+                      ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock')
+                      : item.status === 'LowStock'
+                        ? (i18n.currentLang === 'ar' ? 'منخفض' : 'Low')
+                        : (i18n.currentLang === 'ar' ? 'نفذ' : 'Out')
+                    }}
+                  </span>
+                </td>
+                <td>{{ formatPrice(item.price) }}</td>
+                <td>{{ formatPrice(item.stockValue) }}</td>
+                <td>{{ item.vendorName || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- DIALOGS -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Edit User Dialog -->
+<div class="dialog-overlay" [class.show]="showUserDialog" (click)="closeUserDialog()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h3>{{ i18n.currentLang === 'ar' ? 'تعديل المستخدم' : 'Edit User' }}</h3>
+      <button (click)="closeUserDialog()"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div class="dialog-body" *ngIf="selectedUser">
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name' }}</label>
+        <input type="text" [(ngModel)]="selectedUser.fullName" />
+      </div>
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</label>
+        <input type="email" [(ngModel)]="selectedUser.email" />
+      </div>
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone' }}</label>
+        <input type="text" [(ngModel)]="selectedUser.phoneNumber" />
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeUserDialog()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+      <button class="btn-save" (click)="saveUser()" [disabled]="isProcessing">
+        <i *ngIf="isProcessing" class="fa-solid fa-spinner fa-spin"></i>
+        {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Ban User Dialog -->
+<div class="dialog-overlay" [class.show]="showBanDialog" (click)="closeBanDialog()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header warning">
+      <h3><i class="fa-solid fa-ban"></i> {{ i18n.currentLang === 'ar' ? 'حظر المستخدم' : 'Ban User' }}</h3>
+      <button (click)="closeBanDialog()"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div class="dialog-body">
+      <p class="warning-text">
+        {{ i18n.currentLang === 'ar' 
+          ? 'أنت على وشك حظر المستخدم: ' + selectedUser?.fullName 
+          : 'You are about to ban user: ' + selectedUser?.fullName 
+        }}
+      </p>
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'سبب الحظر (إنجليزي)' : 'Ban Reason (English)' }} *</label>
+        <textarea [(ngModel)]="banReason" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'سبب الحظر (عربي)' : 'Ban Reason (Arabic)' }}</label>
+        <textarea [(ngModel)]="banReasonAr" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeBanDialog()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+      <button class="btn-danger" (click)="confirmBan()" [disabled]="isProcessing || !banReason">
+        <i *ngIf="isProcessing" class="fa-solid fa-spinner fa-spin"></i>
+        <i *ngIf="!isProcessing" class="fa-solid fa-ban"></i>
+        {{ i18n.currentLang === 'ar' ? 'حظر' : 'Ban' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete User Dialog -->
+<div class="dialog-overlay" [class.show]="showDeleteDialog" (click)="closeDeleteDialog()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-icon danger">
+      <i class="fa-solid fa-trash"></i>
+    </div>
+    <h3>{{ i18n.currentLang === 'ar' ? 'حذف المستخدم' : 'Delete User' }}</h3>
+    <p>
+      {{ i18n.currentLang === 'ar' 
+        ? 'هل أنت متأكد من حذف المستخدم ' + selectedUser?.fullName + '؟ لا يمكن التراجع عن هذا الإجراء.'
+        : 'Are you sure you want to delete ' + selectedUser?.fullName + '? This action cannot be undone.'
+      }}
+    </p>
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeDeleteDialog()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+      <button class="btn-danger" (click)="confirmDelete()" [disabled]="isProcessing">
+        <i *ngIf="isProcessing" class="fa-solid fa-spinner fa-spin"></i>
+        <i *ngIf="!isProcessing" class="fa-solid fa-trash"></i>
+        {{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Role Dialog -->
+<div class="dialog-overlay" [class.show]="showRoleDialog" (click)="closeRoleDialog()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h3><i class="fa-solid fa-user-tag"></i> {{ i18n.currentLang === 'ar' ? 'تغيير الدور' : 'Change Role' }}</h3>
+      <button (click)="closeRoleDialog()"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div class="dialog-body">
+      <p>{{ i18n.currentLang === 'ar' ? 'تغيير دور المستخدم: ' : 'Change role for: ' }}{{ selectedUser?.fullName }}</p>
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'الدور الجديد' : 'New Role' }}</label>
+        <select [(ngModel)]="selectedRole">
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeRoleDialog()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+      <button class="btn-save" (click)="confirmRoleChange()" [disabled]="isProcessing">
+        <i *ngIf="isProcessing" class="fa-solid fa-spinner fa-spin"></i>
+        {{ i18n.currentLang === 'ar' ? 'تأكيد' : 'Confirm' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+  <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+  <span>{{ toast.message }}</span>
+</div>

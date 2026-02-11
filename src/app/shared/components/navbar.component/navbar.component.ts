@@ -1,7 +1,7 @@
 // navbar.component.ts
 
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
 import { I18nService, Lang } from '../../../core/services/i18n.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../modules/auth/services/auth.service';
 import { Category } from '../../../models/category';
 import { HomeService } from '../../../modules/home/services/home.service';
+import { CartService } from '../../../modules/cart/services/cart.service';
+import { ProductsService } from '../../../modules/products/services/products.service';
 
 export interface NavLink {
   label: string;
@@ -37,13 +39,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
   cartCount = 0;
   isActionMenuOpen = false;
   isAdmin = false;
+  isVendor = false;
   isAdminMenuOpen = false;
+  isVendorMenuOpen = false;
   adminPages = [
     { nameAr: 'إدارة العلامات التجارية', nameEn: 'Manage Brands', route: '/brands', icon: 'fa-tags' },
     { nameAr: 'إدارة المنتجات', nameEn: 'Manage Products', route: '/products', icon: 'fa-box' },
     { nameAr: 'إدارة التقييمات', nameEn: 'Manage Reviews', route: '/products/reviews', icon: 'fa-star' },
     { nameAr: 'إدارة الطلبات', nameEn: 'Manage Orders', route: '/orders', icon: 'fa-shopping-bag' },
     { nameAr: 'إدارة المستخدمين', nameEn: 'Manage Users', route: '/users', icon: 'fa-users' },
+  ];
+
+  searchResults: any[] = [];
+  isSearching = false;
+  showSearchDropdown = false;
+  private searchSubject = new Subject<string>();
+
+  vendorPages = [
+    { nameAr: 'لوحة التحكم', nameEn: 'Dashboard', route: '/vendor', icon: 'fa-chart-line' },
   ];
 
   constructor(
@@ -53,7 +66,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private router: Router,
     private translate: TranslateService,
     private homeService: HomeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private cartService: CartService,
+    private productsService: ProductsService
   ) { }
 
   ngOnInit(): void {
@@ -62,14 +77,50 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.authSub = this.authService.isLoggedIn$.subscribe(isLogged => {
       this.isLogged = isLogged;
 
+      if (localStorage.getItem('NHC_MP_Role') === 'Vendor') {
+        this.isVendor = true;
+      }
       if (isLogged) {
         this.isAdmin = localStorage.getItem('NHC_MP_Role') === 'Admin';
+        this.loadCartCount();
       } else {
         this.isAdmin = false;
       }
 
       this.updateNavLinks();
-      this.cdr.detectChanges();  
+      this.cdr.detectChanges();
+    });
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => {
+        if (query.length < 2) {
+          this.searchResults = [];
+          this.showSearchDropdown = false;
+          return [];
+        }
+        this.isSearching = true;
+        return this.productsService.search(query);
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.isSearching = false;
+        if (res.success) {
+          this.searchResults = res.data.slice(0, 6); // Max 6 results
+          this.showSearchDropdown = this.searchResults.length > 0;
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isSearching = false;
+        this.searchResults = [];
+      }
+    });
+
+    this.cartService.cartCount$.subscribe(count => {
+      this.cartCount = count;
+      this.cdr.detectChanges();
     });
 
     this.langSub = this.i18n.lang$Observable().subscribe(lang => {
@@ -78,13 +129,72 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     });
 
-    // ✅ Load categories
     this.loadCategories();
+  }
+
+  loadCartCount(): void {
+    this.cartService.getCart().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.cartCount = res.data.items.length;
+          this.cdr.detectChanges();
+        }
+      }
+    });
+  }
+
+  onSearchInput(event: Event): void {
+    const query = (event.target as HTMLInputElement).value;
+    this.searchQuery = query;
+    this.searchSubject.next(query);
+  }
+
+  selectSearchResult(product: any): void {
+    this.showSearchDropdown = false;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.router.navigate(['/products', product.id]);
+  }
+
+  onSearch(): void {
+    if (this.searchQuery.trim()) {
+      this.showSearchDropdown = false;
+      this.router.navigate(['/products'], {
+        queryParams: { search: this.searchQuery.trim() }
+      });
+      this.searchQuery = '';
+      this.searchResults = [];
+    }
+  }
+
+  closeSearchDropdown(): void {
+    setTimeout(() => {
+      this.showSearchDropdown = false;
+    }, 200);
+  }
+
+  getProductImage(image: string): string {
+    if (!image) return 'assets/images/placeholder.png';
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `http://localhost:5078${image}`;
+  }
+
+  getProductName(product: any): string {
+    return this.currentLang === 'ar' ? product.nameAr : product.nameEn;
   }
 
   toggleAdminMenu(): void {
     this.isAdminMenuOpen = !this.isAdminMenuOpen;
     if (this.isAdminMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  toggleVendorMenu(): void {
+    this.isVendorMenuOpen = !this.isVendorMenuOpen;
+    if (this.isVendorMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -210,10 +320,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       return;
     }
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-  }
-
-  onSearch(): void {
-    console.log('Search:', this.searchQuery);
   }
 
   goTo(event: Event) {

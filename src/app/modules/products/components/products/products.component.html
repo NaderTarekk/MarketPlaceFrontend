@@ -253,10 +253,12 @@
                         </div>
 
                         <!-- Add to Cart -->
-                        <button class="add-to-cart-btn">
+                        <button class="add-to-cart-btn" (click)="addToCart(product, $event)"
+                            [disabled]="product.stock <= 0">
                             <i class="fa-solid fa-cart-plus"></i>
                             <span>{{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}</span>
                         </button>
+
                     </div>
                 </div>
 
@@ -297,7 +299,10 @@
                                 <span *ngIf="product.originalPrice" class="original-price">{{
                                     formatPrice(product.originalPrice) }}</span>
                             </div>
-                            <button class="add-to-cart-btn" (click)="$event.preventDefault(); $event.stopPropagation()">
+
+                            <!-- في List View -->
+                            <button class="add-to-cart-btn" (click)="addToCart(product, $event)"
+                                [disabled]="product.stock <= 0">
                                 <i class="fa-solid fa-cart-plus"></i>
                             </button>
                         </div>
@@ -305,12 +310,52 @@
                 </div>
 
                 <!-- Load More -->
-                <div *ngIf="hasMore && !isLoading" class="load-more">
-                    <button (click)="loadMore()" [disabled]="isLoadingMore">
-                        <i *ngIf="isLoadingMore" class="fa-solid fa-spinner fa-spin"></i>
-                        <span *ngIf="!isLoadingMore">{{ i18n.currentLang === 'ar' ? 'تحميل المزيد' : 'Load More'
-                            }}</span>
+                <!-- Pagination -->
+                <div *ngIf="!isLoading && products.length > 0 && totalPages > 1" class="pagination">
+                    <!-- Previous Button -->
+                    <button class="page-btn prev" (click)="prevPage()" [disabled]="!hasPrev"
+                        [class.disabled]="!hasPrev">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'السابق' : 'Previous' }}</span>
                     </button>
+
+                    <!-- Page Numbers -->
+                    <div class="page-numbers">
+                        <!-- First Page -->
+                        <button *ngIf="getPageNumbers()[0] > 1" class="page-num" (click)="goToPage(1)">
+                            1
+                        </button>
+                        <span *ngIf="getPageNumbers()[0] > 2" class="dots">...</span>
+
+                        <!-- Visible Pages -->
+                        <button *ngFor="let page of getPageNumbers()" class="page-num"
+                            [class.active]="page === currentPage" (click)="goToPage(page)">
+                            {{ page }}
+                        </button>
+
+                        <!-- Last Page -->
+                        <span *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1"
+                            class="dots">...</span>
+                        <button *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages" class="page-num"
+                            (click)="goToPage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </div>
+
+                    <!-- Next Button -->
+                    <button class="page-btn next" (click)="nextPage()" [disabled]="!hasNext"
+                        [class.disabled]="!hasNext">
+                        <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'التالي' : 'Next' }}</span>
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- Page Info -->
+                <div *ngIf="!isLoading && products.length > 0" class="page-info">
+                    {{ i18n.currentLang === 'ar' ? 'صفحة' : 'Page' }} {{ currentPage }} {{ i18n.currentLang === 'ar' ?
+                    'من' : 'of' }} {{ totalPages }}
+                    <span class="separator">|</span>
+                    {{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
                 </div>
             </main>
         </div>

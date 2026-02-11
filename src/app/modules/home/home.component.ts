@@ -2,7 +2,9 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { I18nService } from '../../core/services/i18n.service';
 import { HomeService } from './services/home.service';
 import { Category } from '../../models/category';
-import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Observable, Subject, switchMap } from 'rxjs';
+import { ProductsService } from '../products/services/products.service';
+import { Router } from '@angular/router';
 
 export interface Product {
   id: number;
@@ -22,14 +24,7 @@ export interface Product {
   selector: 'app-home',
   standalone: false,
   templateUrl: './home.component.html',
-  styles: [`
-    :host {
-      display: block;
-    }
-    app-product-card {
-      display: block;
-    }
-  `]
+    styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
   isSidebarOpen = false;
@@ -114,10 +109,87 @@ export class HomeComponent implements OnInit {
   ];
   currentBanner = 0;
 
-  constructor(public i18n: I18nService, private homeService: HomeService, private cdr: ChangeDetectorRef) { }
+  // Search
+  searchQuery = '';
+  searchResults: any[] = [];
+  isSearching = false;
+  showSearchDropdown = false;
+  private searchSubject = new Subject<string>();
+
+  constructor(public i18n: I18nService, private router: Router, private homeService: HomeService, private cdr: ChangeDetectorRef, private productsService: ProductsService) { }
 
   ngOnInit(): void {
     this.loadCategories();
+    this.setupSearch();
+  }
+
+  setupSearch(): void {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => {
+        if (query.length < 2) {
+          this.searchResults = [];
+          this.showSearchDropdown = false;
+          return [];
+        }
+        this.isSearching = true;
+        return this.productsService.search(query);
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.isSearching = false;
+        if (res.success) {
+          this.searchResults = res.data.slice(0, 6);
+          this.showSearchDropdown = this.searchResults.length > 0 || this.searchQuery.length >= 2;
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isSearching = false;
+        this.searchResults = [];
+      }
+    });
+  }
+
+  onSearchInput(event: Event): void {
+    const query = (event.target as HTMLInputElement).value;
+    this.searchQuery = query;
+    this.searchSubject.next(query);
+  }
+
+  selectSearchResult(product: any): void {
+    this.showSearchDropdown = false;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.router.navigate(['/products', product.id]);
+  }
+
+  onSearch(): void {
+    if (this.searchQuery.trim()) {
+      this.showSearchDropdown = false;
+      this.router.navigate(['/products'], {
+        queryParams: { search: this.searchQuery.trim() }
+      });
+      this.searchQuery = '';
+      this.searchResults = [];
+    }
+  }
+
+  closeSearchDropdown(): void {
+    setTimeout(() => {
+      this.showSearchDropdown = false;
+    }, 200);
+  }
+
+  getProductName(product: any): string {
+    return this.i18n.currentLang === 'ar' ? product.nameAr : product.nameEn;
+  }
+
+  getProductImage(image: string): string {
+    if (!image) return 'assets/images/placeholder.png';
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `http://localhost:5078${image}`;
   }
 
   loadCategories(): void {

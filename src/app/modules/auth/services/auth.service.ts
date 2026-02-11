@@ -83,6 +83,8 @@ export class AuthService {
   }
 
   updateProfile(data: UpdateProfile): Observable<ApiResponse<any>> {
+    console.log(environment.profileUrl, data);
+    
     return this.http.put<ApiResponse<any>>(environment.profileUrl, data);
   }
 
