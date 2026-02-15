@@ -1,0 +1,271 @@
+<div class="categories-page" [dir]="i18n.currentLang === 'ar' ? 'rtl' : 'ltr'">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>
+                <i class="fa-solid fa-layer-group"></i>
+                {{ i18n.currentLang === 'ar' ? 'إدارة الفئات' : 'Categories Management' }}
+            </h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'إضافة وتعديل وحذف فئات المنتجات' : 'Add, edit and delete product
+                categories' }}</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Actions Bar -->
+        <div class="actions-bar">
+            <!-- Search -->
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'البحث عن فئة...' : 'Search categories...'" />
+                <button *ngIf="searchTerm" class="clear-btn" (click)="searchTerm = ''; onSearchChange()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="filter-buttons">
+                <button class="filter-btn" [class.active]="filterStatus === null" (click)="setStatusFilter(null)">
+                    {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
+                </button>
+                <button class="filter-btn active-filter" [class.active]="filterStatus === true"
+                    (click)="setStatusFilter(true)">
+                    {{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}
+                </button>
+                <button class="filter-btn inactive-filter" [class.active]="filterStatus === false"
+                    (click)="setStatusFilter(false)">
+                    {{ i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive' }}
+                </button>
+            </div>
+
+            <!-- Add Button -->
+            <button class="add-btn" (click)="openAddModal()">
+                <i class="fa-solid fa-plus"></i>
+                {{ i18n.currentLang === 'ar' ? 'إضافة فئة' : 'Add Category' }}
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && categories.length === 0" class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد فئات' : 'No categories found' }}</h3>
+            <p>{{ i18n.currentLang === 'ar' ? 'ابدأ بإضافة فئة جديدة' : 'Start by adding a new category' }}</p>
+            <button class="add-btn" (click)="openAddModal()">
+                <i class="fa-solid fa-plus"></i>
+                {{ i18n.currentLang === 'ar' ? 'إضافة فئة' : 'Add Category' }}
+            </button>
+        </div>
+
+        <!-- Categories Table -->
+        <div *ngIf="!isLoading && categories.length > 0" class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }}</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }}</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let category of categories; let i = index">
+                        <td class="row-number">{{ getRowNumber(i) }}</td>
+                        <td class="name-cell">{{ category.nameAr }}</td>
+                        <td class="name-cell name-en">{{ category.nameEn }}</td>
+                        <td>
+                            <span class="product-count">
+                                <i class="fa-solid fa-box"></i>
+                                {{ category.productCount }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="status-toggle" [class.active]="category.isActive"
+                                (click)="toggleStatus(category)"
+                                [title]="i18n.currentLang === 'ar' ? 'تغيير الحالة' : 'Toggle status'">
+                                <span class="toggle-track">
+                                    <span class="toggle-thumb"></span>
+                                </span>
+                                <span class="status-text">
+                                    {{ category.isActive
+                                    ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active')
+                                    : (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive')
+                                    }}
+                                </span>
+                            </button>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit" (click)="openEditModal(category)"
+                                    [title]="i18n.currentLang === 'ar' ? 'تعديل' : 'Edit'">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="action-btn delete" (click)="openDeleteModal(category)"
+                                    [title]="i18n.currentLang === 'ar' ? 'حذف' : 'Delete'">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+            <button class="page-btn" (click)="prevPage()" [disabled]="!hasPrev">
+                <i class="fa-solid" [ngClass]="i18n.currentLang === 'ar' ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+                {{ i18n.currentLang === 'ar' ? 'السابق' : 'Previous' }}
+            </button>
+
+            <div class="page-numbers">
+                <button *ngIf="getPageNumbers()[0] > 1" class="page-num" (click)="goToPage(1)">1</button>
+                <span *ngIf="getPageNumbers()[0] > 2" class="dots">...</span>
+
+                <button *ngFor="let page of getPageNumbers()" class="page-num" [class.active]="page === currentPage"
+                    (click)="goToPage(page)">
+                    {{ page }}
+                </button>
+
+                <span *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1" class="dots">...</span>
+                <button *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages" class="page-num"
+                    (click)="goToPage(totalPages)">
+                    {{ totalPages }}
+                </button>
+            </div>
+
+            <button class="page-btn" (click)="nextPage()" [disabled]="!hasNext">
+                {{ i18n.currentLang === 'ar' ? 'التالي' : 'Next' }}
+                <i class="fa-solid" [ngClass]="i18n.currentLang === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+            </button>
+        </div>
+
+        <!-- Page Info -->
+        <div *ngIf="!isLoading && categories.length > 0" class="page-info">
+            {{ i18n.currentLang === 'ar' ? 'عرض' : 'Showing' }}
+            {{ (currentPage - 1) * pageSize + 1 }} -
+            {{ currentPage * pageSize > totalCount ? totalCount : currentPage * pageSize }}
+            {{ i18n.currentLang === 'ar' ? 'من' : 'of' }}
+            {{ totalCount }}
+            {{ i18n.currentLang === 'ar' ? 'فئة' : 'categories' }}
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" *ngIf="showAddModal || showEditModal" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>
+                <i class="fa-solid" [ngClass]="showAddModal ? 'fa-plus-circle' : 'fa-edit'"></i>
+                {{ showAddModal
+                ? (i18n.currentLang === 'ar' ? 'إضافة فئة جديدة' : 'Add New Category')
+                : (i18n.currentLang === 'ar' ? 'تعديل الفئة' : 'Edit Category')
+                }}
+            </h2>
+            <button class="close-btn" (click)="closeModals()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Arabic Name -->
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }}</label>
+                <input type="text" [(ngModel)]="formData.nameAr" [class.error]="formErrors.nameAr"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم الفئة بالعربي' : 'Enter category name in Arabic'"
+                    dir="rtl" />
+                <span *ngIf="formErrors.nameAr" class="error-msg">{{ formErrors.nameAr }}</span>
+            </div>
+
+            <!-- English Name -->
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }}</label>
+                <input type="text" [(ngModel)]="formData.nameEn" [class.error]="formErrors.nameEn"
+                    placeholder="Enter category name in English" dir="ltr" />
+                <span *ngIf="formErrors.nameEn" class="error-msg">{{ formErrors.nameEn }}</span>
+            </div>
+
+            <!-- Status Toggle (Edit Only) -->
+            <div *ngIf="showEditModal" class="form-group status-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</label>
+                <button type="button" class="status-toggle large" [class.active]="formData.isActive"
+                    (click)="formData.isActive = !formData.isActive">
+                    <span class="toggle-track">
+                        <span class="toggle-thumb"></span>
+                    </span>
+                    <span class="status-text">
+                        {{ formData.isActive
+                        ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active')
+                        : (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive')
+                        }}
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="closeModals()" [disabled]="isSubmitting">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-submit" (click)="showAddModal ? createCategory() : updateCategory()"
+                [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="btn-spinner"></span>
+                <i *ngIf="!isSubmitting" class="fa-solid fa-check"></i>
+                {{ showAddModal
+                ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add')
+                : (i18n.currentLang === 'ar' ? 'تحديث' : 'Update')
+                }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeModals()">
+    <div class="modal delete-modal" (click)="$event.stopPropagation()">
+        <div class="delete-icon">
+            <i class="fa-solid fa-trash"></i>
+        </div>
+        <h3>{{ i18n.currentLang === 'ar' ? 'حذف الفئة' : 'Delete Category' }}</h3>
+        <p>
+            {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف فئة' : 'Are you sure you want to delete' }}
+            <strong>"{{ selectedCategory?.nameAr }}"</strong>؟
+        </p>
+        <p *ngIf="selectedCategory?.productCount && selectedCategory!.productCount > 0" class="warning-text">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            {{ i18n.currentLang === 'ar'
+            ? 'تحذير: هذه الفئة مرتبطة بـ ' + selectedCategory!.productCount + ' منتج'
+            : 'Warning: This category has ' + selectedCategory!.productCount + ' products'
+            }}
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" (click)="closeModals()" [disabled]="isSubmitting">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-delete" (click)="deleteCategory()" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="btn-spinner"></span>
+                <i *ngIf="!isSubmitting" class="fa-solid fa-trash"></i>
+                {{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+    <span>{{ toast.message }}</span>
+</div>

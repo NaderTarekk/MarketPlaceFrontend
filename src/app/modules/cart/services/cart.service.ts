@@ -10,10 +10,10 @@ import { CreatePromoCode, PromoCode, PromoCodeValidation } from '../../../models
   providedIn: 'root',
 })
 export class CartService {
-    private cartCountSubject = new BehaviorSubject<number>(0);
+  private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getCart(): Observable<ApiResponse<CartResponse>> {
     return this.http.get<ApiResponse<CartResponse>>(environment.cartUrl).pipe(
@@ -23,6 +23,10 @@ export class CartService {
         }
       })
     );
+  }
+
+  resetCartState(): void {
+    this.cartCountSubject.next(0);
   }
 
   addItem(productId: number, quantity: number = 1): Observable<ApiResponse<CartResponse>> {

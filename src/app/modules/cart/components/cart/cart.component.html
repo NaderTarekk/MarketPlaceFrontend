@@ -81,7 +81,8 @@
                                     {{ i18n.currentLang === 'ar' ? 'متبقي ' + item.stock + ' فقط' : 'Only ' + item.stock
                                     + ' left' }}
                                 </span>
-                                <span *ngIf="item.stock === 0">{{ i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock' }}</span>
+                                <span *ngIf="item.stock === 0">{{ i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of
+                                    Stock' }}</span>
                             </div>
                         </div>
 
@@ -182,6 +183,14 @@
                     <i class="fa-solid fa-lock"></i>
                     {{ i18n.currentLang === 'ar' ? 'إتمام الشراء' : 'Proceed to Checkout' }}
                 </button>
+
+                <!-- Login Warning -->
+                <p *ngIf="showLoginWarning" class="login-warning">
+                    <i class="fa-solid fa-exclamation-circle"></i>
+                    {{ i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً لإتمام الشراء' : 'Please login first to
+                    checkout' }}
+                    <a routerLink="/auth/login">{{ i18n.currentLang === 'ar' ? 'تسجيل الدخول' : 'Login' }}</a>
+                </p>
 
                 <!-- Continue Shopping -->
                 <a routerLink="/products" class="continue-shopping">
@@ -450,6 +459,111 @@
                 ? (i18n.currentLang === 'ar' ? 'جاري الحذف...' : 'Deleting...')
                 : (i18n.currentLang === 'ar' ? 'حذف' : 'Delete')
                 }}
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Payment Method Dialog -->
+<div class="dialog-overlay" [class.show]="showPaymentDialog" (click)="closePaymentDialog()">
+    <div class="dialog payment-dialog" (click)="$event.stopPropagation()">
+        <!-- Header -->
+        <div class="payment-header">
+            <div class="payment-icon-wrapper">
+                <div class="payment-icon-bg"></div>
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+            <h3>{{ i18n.currentLang === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method' }}</h3>
+            <p class="payment-total">
+                {{ i18n.currentLang === 'ar' ? 'المبلغ المطلوب' : 'Amount Due' }}
+                <strong>{{ formatPrice(total) }}</strong>
+            </p>
+            <button class="close-btn" (click)="closePaymentDialog()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <button class="payment-option" [class.selected]="selectedPayment === 'visa'"
+                (click)="selectedPayment = 'visa'">
+                <div class="option-icon visa-icon">
+                    <i class="fa-brands fa-cc-visa"></i>
+                </div>
+                <div class="option-info">
+                    <span class="option-name">Visa / Mastercard</span>
+                    <span class="option-desc">{{ i18n.currentLang === 'ar' ? 'بطاقة ائتمان أو مدى' : 'Credit or debit
+                        card' }}</span>
+                </div>
+                <div class="option-check">
+                    <i class="fa-solid" [ngClass]="selectedPayment === 'visa' ? 'fa-circle-check' : 'fa-circle'"></i>
+                </div>
+            </button>
+
+            <button class="payment-option" [class.selected]="selectedPayment === 'vodafone'"
+                (click)="selectedPayment = 'vodafone'">
+                <div class="option-icon vodafone-icon">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <div class="option-info">
+                    <span class="option-name">Vodafone Cash</span>
+                    <span class="option-desc">{{ i18n.currentLang === 'ar' ? 'الدفع عبر المحفظة' : 'Pay via mobile
+                        wallet' }}</span>
+                </div>
+                <div class="option-check">
+                    <i class="fa-solid"
+                        [ngClass]="selectedPayment === 'vodafone' ? 'fa-circle-check' : 'fa-circle'"></i>
+                </div>
+            </button>
+
+            <button class="payment-option" [class.selected]="selectedPayment === 'instapay'"
+                (click)="selectedPayment = 'instapay'">
+                <div class="option-icon instapay-icon">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div class="option-info">
+                    <span class="option-name">InstaPay</span>
+                    <span class="option-desc">{{ i18n.currentLang === 'ar' ? 'تحويل بنكي فوري' : 'Instant bank transfer'
+                        }}</span>
+                </div>
+                <div class="option-check">
+                    <i class="fa-solid"
+                        [ngClass]="selectedPayment === 'instapay' ? 'fa-circle-check' : 'fa-circle'"></i>
+                </div>
+            </button>
+
+            <button class="payment-option" [class.selected]="selectedPayment === 'cash'"
+                (click)="selectedPayment = 'cash'">
+                <div class="option-icon cash-icon">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+                <div class="option-info">
+                    <span class="option-name">{{ i18n.currentLang === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery'
+                        }}</span>
+                    <span class="option-desc">{{ i18n.currentLang === 'ar' ? 'ادفع نقداً عند التوصيل' : 'Pay cash when
+                        you receive' }}</span>
+                </div>
+                <div class="option-check">
+                    <i class="fa-solid" [ngClass]="selectedPayment === 'cash' ? 'fa-circle-check' : 'fa-circle'"></i>
+                </div>
+            </button>
+        </div>
+
+        <!-- Secure Badge -->
+        <div class="secure-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            {{ i18n.currentLang === 'ar' ? 'جميع المعاملات مشفرة وآمنة' : 'All transactions are encrypted & secure' }}
+        </div>
+
+        <!-- Actions -->
+        <div class="payment-actions">
+            <button class="btn-cancel" (click)="closePaymentDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-pay" [disabled]="!selectedPayment" (click)="confirmPayment()">
+                <i class="fa-solid fa-lock"></i>
+                {{ i18n.currentLang === 'ar' ? 'ادفع ' + formatPrice(total) : 'Pay ' + formatPrice(total) }}
             </button>
         </div>
     </div>

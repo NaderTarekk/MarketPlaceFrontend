@@ -33,6 +33,11 @@ export class CartComponent implements OnInit {
   itemToDelete: CartItem | null = null;
   isDeleting = false;
 
+  // Payment
+  showPaymentDialog = false;
+  selectedPayment: string | null = null;
+  showLoginWarning = false;
+
   // Clear Cart Dialog
   showClearDialog = false;
   isClearing = false;
@@ -239,12 +244,6 @@ export class CartComponent implements OnInit {
     this.calculateSummary();
   }
 
-  // Checkout
-  proceedToCheckout(): void {
-    if (this.cartItems.length === 0) return;
-    this.router.navigate(['/checkout']);
-  }
-
   // Helpers
   getName(item: CartItem): string {
     return this.i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn;
@@ -382,25 +381,34 @@ export class CartComponent implements OnInit {
     });
   }
 
+  proceedToCheckout(): void {
+    if (this.cartItems.length === 0) return;
 
+    if (!this.authService.isLoggedIn()) {
+      this.showLoginWarning = true;
+      return;
+    }
 
+    this.showLoginWarning = false;
+    this.selectedPayment = null;
+    this.showPaymentDialog = true;
+    document.body.style.overflow = 'hidden';
+  }
 
+  closePaymentDialog(): void {
+    this.showPaymentDialog = false;
+    document.body.style.overflow = '';
+  }
 
+  confirmPayment(): void {
+    if (!this.selectedPayment) return;
+    this.closePaymentDialog();
+    this.router.navigate(['/cart/checkout'], {
+      queryParams: { payment: this.selectedPayment }
+    });
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-   applyPromoCode(): void {
+  applyPromoCode(): void {
     if (!this.promoCode.trim()) {
       this.showToast(this.t('enter_promo'), 'error');
       return;
@@ -422,7 +430,7 @@ export class CartComponent implements OnInit {
       }
     });
   }
-  
+
   // إصلاح عرض الخصم في HTML
   getPromoDisplayValue(): string {
     return this.formatPrice(this.promoDiscount);

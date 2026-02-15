@@ -5,16 +5,17 @@ const productionBaseApi = 'https://nhc-market-place.runasp.net';
 
 export const environment = {
     production: false,
-    authUrl: `${localApi}/Auth`,
-    categoriesUrl: `${localApi}/Categories`,
-    brandsUrl: `${localApi}/Brands`,
-    productsUrl: `${localApi}/Products`,
-    wishlistsUrl: `${localApi}/Wishlist`,
-    reviewsUrl: `${localApi}/Reviews`,
-    profileUrl: `${localApi}/Profile`,
-    cartUrl: `${localApi}/Cart`,
-    vendorUrl: `${localApi}/Vendor`,
-    promoCodeUrl: `${localApi}/PromoCodes`,
-    adminUrl: `${localApi}/AdminReports`,
-    baseApi: `${localBaseApi}`
+    authUrl: `${productionApi}/Auth`,
+    categoriesUrl: `${productionApi}/Categories`,
+    brandsUrl: `${productionApi}/Brands`,
+    productsUrl: `${productionApi}/Products`,
+    wishlistsUrl: `${productionApi}/Wishlist`,
+    reviewsUrl: `${productionApi}/Reviews`,
+    profileUrl: `${productionApi}/Profile`,
+    cartUrl: `${productionApi}/Cart`,
+    vendorUrl: `${productionApi}/Vendor`,
+    promoCodeUrl: `${productionApi}/PromoCodes`,
+    adminUrl: `${productionApi}/AdminReports`,
+    orderUrl: `${productionApi}/Orders`,
+    baseApi: `${productionBaseApi}`
 };

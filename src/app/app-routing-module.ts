@@ -39,6 +39,11 @@ const routes: Routes = [
     loadChildren: () =>
       import('./modules/adamin/adamin-module').then(m => m.AdaminModule)
   },
+  {
+    path: 'categories',
+    loadChildren: () =>
+      import('./modules/categories/categories-module').then(m => m.CategoriesModule)
+  },
 
   // Admin routes (lazy loaded)
   // {

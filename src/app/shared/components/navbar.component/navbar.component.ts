@@ -45,9 +45,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   adminPages = [
     { nameAr: 'إدارة العلامات التجارية', nameEn: 'Manage Brands', route: '/brands', icon: 'fa-tags' },
     { nameAr: 'إدارة المنتجات', nameEn: 'Manage Products', route: '/products', icon: 'fa-box' },
+    { nameAr: 'إدارة الأصناف', nameEn: 'Manage Categories', route: '/categories', icon: 'fa-layer-group' },
     { nameAr: 'إدارة التقييمات', nameEn: 'Manage Reviews', route: '/products/reviews', icon: 'fa-star' },
     { nameAr: 'إدارة الطلبات', nameEn: 'Manage Orders', route: '/orders', icon: 'fa-shopping-bag' },
     { nameAr: 'إدارة المستخدمين', nameEn: 'Manage Users', route: '/users', icon: 'fa-users' },
+    { nameAr: 'صفحة الأدمن', nameEn: 'Admin Dashboard', route: '/admin', icon: 'fa-user-tie' },
   ];
 
   searchResults: any[] = [];
@@ -76,6 +78,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     this.authSub = this.authService.isLoggedIn$.subscribe(isLogged => {
       this.isLogged = isLogged;
+
+      this.isVendor = false;
+      this.isAdmin = false;
 
       if (localStorage.getItem('NHC_MP_Role') === 'Vendor') {
         this.isVendor = true;
