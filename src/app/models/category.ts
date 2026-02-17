@@ -4,6 +4,7 @@ export interface Category {
   nameEn: string;
   isActive: boolean;
   productCount: number;
+  image?: string;
   hasChildren: boolean;
 }
 
@@ -35,12 +36,14 @@ export interface CreateCategoryDto {
   nameAr: string;
   nameEn: string;
   isActive?: boolean;
+  image?: string | null;
 }
 
 export interface UpdateCategoryDto {
   nameAr?: string;
   nameEn?: string;
   isActive?: boolean;
+  image?: string | null;
 }
 
 export interface ApiResponse<T> {

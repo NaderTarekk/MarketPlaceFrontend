@@ -7,8 +7,7 @@
                 <i class="fa-solid fa-layer-group"></i>
                 {{ i18n.currentLang === 'ar' ? 'إدارة الفئات' : 'Categories Management' }}
             </h1>
-            <p>{{ i18n.currentLang === 'ar' ? 'إضافة وتعديل وحذف فئات المنتجات' : 'Add, edit and delete product
-                categories' }}</p>
+            <p>{{ i18n.currentLang === 'ar' ? 'إضافة وتعديل وحذف فئات المنتجات' : 'Add, edit and delete product categories' }}</p>
         </div>
     </section>
 
@@ -72,6 +71,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'الصورة' : 'Image' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</th>
@@ -82,6 +82,13 @@
                 <tbody>
                     <tr *ngFor="let category of categories; let i = index">
                         <td class="row-number">{{ getRowNumber(i) }}</td>
+                        <td class="image-cell">
+                            <div class="category-image">
+                               <img [src]="getImageUrl(category.image)" 
+                                [alt]="category.nameAr"
+                                (error)="$any($event.target).src = 'assets/images/placeholder.png'" />
+                            </div>
+                        </td>
                         <td class="name-cell">{{ category.nameAr }}</td>
                         <td class="name-cell name-en">{{ category.nameEn }}</td>
                         <td>
@@ -197,6 +204,37 @@
                 <span *ngIf="formErrors.nameEn" class="error-msg">{{ formErrors.nameEn }}</span>
             </div>
 
+            <!-- Image Upload -->
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'صورة الفئة' : 'Category Image' }}</label>
+
+                <div class="image-upload-area">
+                    <!-- Preview -->
+                    <div class="image-preview" *ngIf="imagePreview || formData.image">
+                        <img [src]="imagePreview || getImageUrl(formData.image)" alt="Category Image" />
+                        <button type="button" class="remove-image-btn" (click)="removeImage()">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Upload Button -->
+                    <label class="upload-btn" *ngIf="!imagePreview && !formData.image">
+                        <i class="fa-solid fa-cloud-upload-alt"></i>
+                        <span>{{ i18n.currentLang === 'ar' ? 'اختر صورة' : 'Choose Image' }}</span>
+                        <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+                    </label>
+
+                    <!-- Change Button -->
+                    <label class="change-image-btn" *ngIf="imagePreview || formData.image">
+                        <i class="fa-solid fa-camera"></i>
+                        {{ i18n.currentLang === 'ar' ? 'تغيير' : 'Change' }}
+                        <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+                    </label>
+                </div>
+
+                <small class="hint">{{ i18n.currentLang === 'ar' ? 'JPG, PNG, GIF (حد أقصى 5MB)' : 'JPG, PNG, GIF (max 5MB)' }}</small>
+            </div>
+
             <!-- Status Toggle (Edit Only) -->
             <div *ngIf="showEditModal" class="form-group status-group">
                 <label>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</label>
@@ -216,19 +254,20 @@
         </div>
 
         <div class="modal-footer">
-            <button class="btn-cancel" (click)="closeModals()" [disabled]="isSubmitting">
-                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
-            </button>
-            <button class="btn-submit" (click)="showAddModal ? createCategory() : updateCategory()"
-                [disabled]="isSubmitting">
-                <span *ngIf="isSubmitting" class="btn-spinner"></span>
-                <i *ngIf="!isSubmitting" class="fa-solid fa-check"></i>
-                {{ showAddModal
-                ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add')
-                : (i18n.currentLang === 'ar' ? 'تحديث' : 'Update')
-                }}
-            </button>
-        </div>
+  <button class="btn-cancel" (click)="closeModals()" [disabled]="isSubmitting || isUploading">
+    {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+  </button>
+  
+  <!-- ✅ غيّر لـ uploadAndSave() -->
+  <button class="btn-submit" (click)="uploadAndSave()" [disabled]="isSubmitting || isUploading">
+    <span *ngIf="isSubmitting || isUploading" class="btn-spinner"></span>
+    <i *ngIf="!isSubmitting && !isUploading" class="fa-solid fa-check"></i>
+    {{ showAddModal
+      ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add')
+      : (i18n.currentLang === 'ar' ? 'تحديث' : 'Update')
+    }}
+  </button>
+</div>
     </div>
 </div>
 

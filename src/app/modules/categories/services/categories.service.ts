@@ -42,4 +42,10 @@ export class CategoriesService {
   delete(id: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${environment.categoriesUrl}/${id}`);
   }
+
+  uploadImage(file: File): Observable<ApiResponse<string>> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return this.http.post<ApiResponse<string>>(`${environment.categoriesUrl}/upload-image`, formData);
+}
 }

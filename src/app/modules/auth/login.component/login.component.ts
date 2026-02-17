@@ -505,6 +505,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: this.loginPassword
     }).subscribe({
       next: (res) => {
+        if(res.user.isBanned === true){
+          this.isLoading = false;
+          this.toastr.error(this.i18n.currentLang === 'ar' ? 'تم حظر حسابك، يرجى التواصل مع الدعم' : 'Your account has been banned, please contact support');
+          this.cdr.detectChanges();
+          return;
+        }
         this.isLoading = false;
         if (res.success && res.token && res.role) {
           this.authService.saveToken(res.token, res.role);

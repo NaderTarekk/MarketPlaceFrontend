@@ -1,168 +1,257 @@
-<!-- navbar.component.html -->
-
 <header class="navbar">
-  <div class="navbar-container">
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- TOP ROW: Logo + Catalog + Search + Icons -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="navbar-top">
+    <div class="navbar-container">
+      <!-- Logo -->
+      <div class="logo cursor-pointer" routerLink="">
+        <img src="noqta logo rm.png" alt="MarketPlace Logo" class="logo-image" />
+      </div>
 
-    <!-- Logo -->
-    <div class="logo cursor-pointer" routerLink="">
-      <img src="noqta logo rm.png" alt="MarketPlace Logo"
-        class="logo-image h-20 sm:h-23 lg:h-23 w-auto object-contain" />
-    </div>
-
-    <!-- Desktop Nav Links -->
-    <nav class="nav-links desktop-nav">
-      <a *ngFor="let link of navLinks" [routerLink]="link.url" (click)="handleNavClick(link)"
-        class="nav-link cursor-pointer">
-        {{ link.label | translate }}
-      </a>
-    </nav>
-
-    <!-- Desktop Search Bar -->
-    <div class="search-wrapper desktop-search">
-      <div class="search-input-wrapper">
-        <i class="fa-solid fa-search search-icon mr-6"></i>
-        <input type="text" [placeholder]="currentLang === 'ar' ? 'ابحث عن منتج...' : 'Search products...'"
-          [(ngModel)]="searchQuery" (input)="onSearchInput($event)" (keyup.enter)="onSearch()"
-          (focus)="searchQuery.length >= 2 && (showSearchDropdown = true)" />
-        <button *ngIf="searchQuery" class="clear-btn" (click)="searchQuery = ''; showSearchDropdown = false">
-          <i class="fa-solid fa-times"></i>
+      <!-- Catalog Button with Dropdown -->
+      <div class="catalog-dropdown">
+        <button class="catalog-btn" (click)="isCatalogOpen = !isCatalogOpen">
+          <i class="fa-solid" [ngClass]="isCatalogOpen ? 'fa-times' : 'fa-grip'"></i>
+          <span>{{ currentLang === 'ar' ? 'الأقسام' : 'Catalog' }}</span>
         </button>
-        <div class="search-btn" (click)="onSearch()">
-          <i *ngIf="!isSearching" class="fa-solid fa-arrow-left"></i>
-          <i *ngIf="isSearching" class="fa-solid fa-spinner fa-spin"></i>
+
+        <!-- Categories Dropdown - Grid Style with Images -->
+        <div class="catalog-menu" [class.open]="isCatalogOpen">
+          <div class="catalog-header">
+            <h3>{{ currentLang === 'ar' ? 'تصفح الأقسام' : 'Browse Categories' }}</h3>
+            <button class="close-catalog" (click)="isCatalogOpen = false">
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+
+          <div class="catalog-grid">
+            <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.id}"
+              (click)="isCatalogOpen = false" class="catalog-card">
+              <div class="catalog-card-image">
+                <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
+                  (error)="handleImageError($event)" />
+              </div>
+              <span class="catalog-card-name">{{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}</span>
+              <span class="catalog-card-count">{{ cat.productCount }} {{ currentLang === 'ar' ? 'منتج' : 'products'
+                }}</span>
+            </a>
+          </div>
+
+          <a routerLink="/products" (click)="isCatalogOpen = false" class="catalog-view-all">
+            <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>
+            <i class="fa-solid fa-arrow-left"></i>
+          </a>
         </div>
       </div>
 
-      <!-- Search Dropdown -->
-      <div class="search-dropdown" *ngIf="showSearchDropdown && searchResults.length > 0">
-        <div class="dropdown-header">
-          <span>{{ currentLang === 'ar' ? 'نتائج البحث' : 'Search Results' }}</span>
-          <button (click)="showSearchDropdown = false">
+      <!-- Backdrop for Catalog -->
+      <div class="catalog-backdrop" *ngIf="isCatalogOpen" (click)="isCatalogOpen = false"></div>
+
+      <!-- Search Bar - OZON Style -->
+      <div class="search-wrapper-ozon desktop-search">
+        <div class="search-input-ozon">
+          <i class="fa-solid fa-search search-icon-ozon"></i>
+          <input type="text" [placeholder]="currentLang === 'ar' ? 'ابحث في نقطة...' : 'Search on Noqta'"
+            [(ngModel)]="searchQuery" (input)="onSearchInput($event)" (keyup.enter)="onSearch()"
+            (focus)="searchQuery.length >= 2 && (showSearchDropdown = true)" />
+          <button *ngIf="searchQuery" class="clear-btn-ozon" (click)="searchQuery = ''; showSearchDropdown = false">
             <i class="fa-solid fa-times"></i>
+          </button>
+          <button class="search-btn-ozon" (click)="onSearch()">
+            <i *ngIf="!isSearching" class="fa-solid fa-magnifying-glass"></i>
+            <i *ngIf="isSearching" class="fa-solid fa-spinner fa-spin"></i>
           </button>
         </div>
 
-        <div class="search-results">
-          <a *ngFor="let product of searchResults" class="search-result-item" (mousedown)="selectSearchResult(product)">
-            <div class="result-image">
-              <img [src]="getProductImage(product.mainImage)" [alt]="getProductName(product)"
-                (error)="$any($event.target).src = 'assets/images/placeholder.png'" />
-            </div>
-            <div class="result-info">
-              <span class="result-name">{{ getProductName(product) }}</span>
-              <div class="result-meta">
-                <span class="result-price">{{ product.price | number:'1.0-0' }} {{ currentLang === 'ar' ? 'ر.س' : 'SAR'
-                  }}</span>
-                <span class="result-category" *ngIf="product.categoryNameAr">
-                  {{ currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn }}
-                </span>
+        <!-- Search Dropdown -->
+        <div class="search-dropdown" *ngIf="showSearchDropdown && searchResults.length > 0">
+          <div class="dropdown-header">
+            <span>{{ currentLang === 'ar' ? 'نتائج البحث' : 'Search Results' }}</span>
+            <button (click)="showSearchDropdown = false">
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+          <div class="search-results">
+            <a *ngFor="let product of searchResults" class="search-result-item"
+              (mousedown)="selectSearchResult(product)">
+              <div class="result-image">
+                <img [src]="getProductImage(product.mainImage)" [alt]="getProductName(product)"
+                  (error)="handleImageError($event)" />
               </div>
-            </div>
-            <i class="fa-solid fa-chevron-left result-arrow"></i>
+              <div class="result-info">
+                <span class="result-name">{{ getProductName(product) }}</span>
+                <div class="result-meta">
+                  <span class="result-price">{{ product.price | number:'1.0-0' }} {{ currentLang === 'ar' ? 'ر.س' :
+                    'SAR' }}</span>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-left result-arrow"></i>
+            </a>
+          </div>
+          <button class="view-all-btn" (mousedown)="onSearch()">
+            <span>{{ currentLang === 'ar' ? 'عرض كل النتائج' : 'View All Results' }}</span>
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        </div>
+
+        <!-- No Results -->
+        <div class="search-dropdown"
+          *ngIf="showSearchDropdown && searchResults.length === 0 && !isSearching && searchQuery.length >= 2">
+          <div class="no-results">
+            <i class="fa-solid fa-search"></i>
+            <p>{{ currentLang === 'ar' ? 'لا توجد نتائج لـ' : 'No results for' }} "{{ searchQuery }}"</p>
+          </div>
+        </div>
+
+        <!-- Backdrop -->
+        <div class="search-backdrop" *ngIf="showSearchDropdown" (click)="showSearchDropdown = false"></div>
+      </div>
+
+      <!-- Nav Icons - OZON Style -->
+      <div class="nav-icons-ozon desktop-icons">
+        <button class="nav-icon-item" (click)="toggleLang()">
+          <i class="fa-solid fa-globe"></i>
+          <span>{{ currentLang === 'ar' ? 'EN' : 'عربي' }}</span>
+        </button>
+
+        <a *ngIf="!isLogged" routerLink="/auth/login" class="nav-icon-item">
+          <i class="fa-solid fa-user"></i>
+          <span>{{ 'login' | translate }}</span>
+        </a>
+        <a *ngIf="isLogged" routerLink="/auth/profile" class="nav-icon-item">
+          <i class="fa-solid fa-user"></i>
+          <span>{{ 'profile' | translate }}</span>
+        </a>
+
+        <a *ngIf="isLogged" routerLink="/orders" class="nav-icon-item">
+          <i class="fa-solid fa-box"></i>
+          <span>{{ currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
+        </a>
+
+        <a routerLink="products/wishlist" class="nav-icon-item">
+          <i class="fa-solid fa-heart"></i>
+          <span>{{ 'fav' | translate }}</span>
+        </a>
+
+        <a routerLink="/cart" class="nav-icon-item cart-item">
+          <div class="cart-icon-wrapper">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span *ngIf="cartCount > 0" class="cart-badge-ozon">{{ cartCount }}</span>
+          </div>
+          <span>{{ 'cart' | translate }}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- BOTTOM ROW: Navigation Links -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="navbar-bottom desktop-nav">
+    <div class="navbar-container">
+      <nav class="nav-links-ozon">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link-ozon">
+          <i class="fa-solid fa-house"></i>
+          {{ 'home' | translate }}
+        </a>
+        <a routerLink="/products" routerLinkActive="active" class="nav-link-ozon">
+          <i class="fa-solid fa-store"></i>
+          {{ 'products' | translate }}
+        </a>
+
+        <!-- ✅ شريط الأصناف جوه الـ navbar -->
+        <div class="categories-inline-track" *ngIf="categories.length > 0">
+
+          <a *ngFor="let cat of categories"
+          [routerLink]="['/products']"
+          [queryParams]="{category: cat.id}"
+          class="cat-pill-inline"
+          routerLinkActive="cat-pill-inline--active"
+          >
+          <div class="cat-pill-inline-img">
+            <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
+              (error)="handleImageError($event)" />
+          </div>
+          <span class="cat-pill-inline-name">
+            {{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}
+          </span>
           </a>
         </div>
 
-        <button class="view-all-btn" (mousedown)="onSearch()">
-          <span>{{ currentLang === 'ar' ? 'عرض كل النتائج' : 'View All Results' }}</span>
-          <i class="fa-solid fa-arrow-left"></i>
+        <div *ngIf="isAdmin" class="nav-dropdown">
+          <button class="nav-link-ozon dropdown-trigger">
+            <i class="fa-solid fa-shield-halved"></i>
+            {{ currentLang === 'ar' ? 'الأدمن' : 'Admin' }}
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a *ngFor="let page of adminPages" [routerLink]="page.route" class="dropdown-item">
+              <i class="fa-solid" [ngClass]="page.icon"></i>
+              {{ currentLang === 'ar' ? page.nameAr : page.nameEn }}
+            </a>
+          </div>
+        </div>
+
+        <a *ngIf="isVendor" routerLink="/vendor" routerLinkActive="active" class="nav-link-ozon vendor-link">
+          <i class="fa-solid fa-chart-line"></i>
+          {{ 'dashboard' | translate }}
+        </a>
+
+        <button *ngIf="isLogged" (click)="logout()" class="nav-link-ozon logout-link">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          {{ 'logout' | translate }}
         </button>
-      </div>
-
-      <!-- No Results -->
-      <div class="search-dropdown"
-        *ngIf="showSearchDropdown && searchResults.length === 0 && !isSearching && searchQuery.length >= 2">
-        <div class="no-results">
-          <i class="fa-solid fa-search"></i>
-          <p>{{ currentLang === 'ar' ? 'لا توجد نتائج لـ' : 'No results for' }} "{{ searchQuery }}"</p>
-        </div>
-      </div>
-
-      <!-- Backdrop -->
-      <div class="search-backdrop" *ngIf="showSearchDropdown" (click)="showSearchDropdown = false"></div>
-    </div>
-
-    <!-- Desktop Icons + Language Switch -->
-    <div class="nav-icons desktop-icons">
-      <select [value]="currentLang" (change)="switchLang($event)" class="lang-select">
-        <option value="ar">العربية</option>
-        <option value="en">English</option>
-      </select>
-
-      <select class="lang-select" (change)="goTo($event)" *ngIf="isAdmin">
-        <option value="all">
-          {{ currentLang === 'ar' ? 'صفحات الأدمن' : 'Admin Pages' }}
-        </option>
-        <option value="/brands">{{'brands' | translate}}</option>
-        <option value="/products">{{'manageProducts' | translate}}</option>
-        <option value="/products/reviews">{{'reviews' | translate}}</option>
-        <option value="/admin">{{'adminPage' | translate}}</option>
-        <option value="/categories">{{'manageCategories' | translate}}</option>
-      </select>
-
-      <button *ngIf="isVendor" routerLink="/vendor" class="
-    px-6 py-2.5 rounded-xl cursor-pointer
-    bg-gradient-to-r from-blue-500/90 to-purple-500/90
-    backdrop-blur-sm
-    text-white font-medium
-    border border-white/20
-    shadow-md hover:shadow-lg
-    hover:scale-[1.03]
-    transition-all duration-300
-  ">
-        {{ 'dashboard' | translate }}
-      </button>
-
-
-      <button class="icon-btn" title="Wishlist" routerLink="products/wishlist">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-          <path
-            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-          </path>
-        </svg>
-      </button>
-      <button class="icon-btn cart-btn" title="Cart" routerLink="/cart">
-        <div class="cart-icon-wrapper">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-          <span *ngIf="cartCount > 0" class="cart-badge-desktop">{{ cartCount }}</span>
-        </div>
-      </button>
+      </nav>
     </div>
   </div>
 </header>
 
+
+<div class="categories-scroll-bar" *ngIf="categories.length > 0">
+  <div class="categories-scroll-track">
+
+    <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.id}" class="cat-pill"
+      routerLinkActive="cat-pill--active">
+      <div class="cat-pill-img">
+        <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
+          (error)="handleImageError($event)" />
+      </div>
+      <span class="cat-pill-name">
+        {{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}
+      </span>
+    </a>
+  </div>
+</div>
 <!-- ═══════════════════════════════════════════════ -->
 <!-- MOBILE BOTTOM NAV BAR -->
 <!-- ═══════════════════════════════════════════════ -->
 <nav class="mobile-bottom-nav">
-  <!-- Home -->
   <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
     <i class="fa-solid fa-house"></i>
     <span>{{ 'home' | translate }}</span>
   </a>
 
-  <!-- Categories -->
-  <button (click)="toggleCategoriesMenu()" class="bottom-nav-item" [class.active]="isCategoriesMenuOpen">
-    <i class="fa-solid fa-list"></i>
-    <span>{{ 'categories' | translate }}</span>
-  </button>
 
-  <!-- Vendor Dashboard (Only for Vendors) -->
+  <!-- <button (click)="toggleCategoriesMenu()" class="bottom-nav-item categories-nav-btn"
+    [class.active]="isCategoriesMenuOpen">
+    <div class="categories-icon-wrapper">
+      <i class="fa-solid fa-grid-2"></i>
+      <span class="categories-dot" *ngIf="categories.length > 0"></span>
+    </div>
+    <span>{{ 'categories' | translate }}</span>
+  </button> -->
+
   <a *ngIf="isVendor" routerLink="/vendor" routerLinkActive="active" class="bottom-nav-item vendor-item">
     <i class="fa-solid fa-store"></i>
     <span>{{ currentLang === 'ar' ? 'متجري' : 'My Store' }}</span>
   </a>
 
-  <!-- Admin Pages (Only for Admins) -->
   <button *ngIf="isAdmin" (click)="toggleAdminMenu()" class="bottom-nav-item" [class.active]="isAdminMenuOpen">
     <i class="fa-solid fa-shield-halved"></i>
     <span>{{ currentLang === 'ar' ? 'الأدمن' : 'Admin' }}</span>
   </button>
 
-  <!-- Cart -->
   <a routerLink="/cart" routerLinkActive="active" class="bottom-nav-item">
     <div class="relative">
       <i class="fa-solid fa-cart-shopping"></i>
@@ -171,13 +260,11 @@
     <span>{{ 'cart' | translate }}</span>
   </a>
 
-  <!-- Wishlist (Hide if Vendor to save space) -->
-  <a *ngIf="!isVendor" routerLink="products/wishlist" routerLinkActive="active" class="bottom-nav-item">
+  <a *ngIf="!isVendor && !isAdmin" routerLink="products/wishlist" routerLinkActive="active" class="bottom-nav-item">
     <i class="fa-solid fa-heart"></i>
     <span>{{ 'fav' | translate }}</span>
   </a>
 
-  <!-- Profile / Login -->
   <button *ngIf="isLogged" routerLink="/auth/profile" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
     <i class="fa-solid fa-user"></i>
     <span>{{ 'profile' | translate }}</span>
@@ -189,24 +276,31 @@
 </nav>
 
 <!-- ═══════════════════════════════════════════════ -->
-<!-- CATEGORIES MENU POPUP -->
+<!-- CATEGORIES MENU POPUP - MOBILE (Grid with Images) -->
 <!-- ═══════════════════════════════════════════════ -->
 <div class="categories-menu-overlay" [class.open]="isCategoriesMenuOpen" (click)="toggleCategoriesMenu()">
   <div class="categories-menu" (click)="$event.stopPropagation()">
     <div class="categories-menu-header">
-      <h3>{{ 'categories' | translate }}</h3>
+      <h3>{{ currentLang === 'ar' ? 'تصفح الأقسام' : 'Browse Categories' }}</h3>
       <button (click)="toggleCategoriesMenu()" class="close-btn">&times;</button>
     </div>
-    <div class="categories-menu-list">
-      <a *ngFor="let cat of categories" routerLink="products" (click)="toggleCategoriesMenu(); $event.preventDefault()"
-        class="category-menu-item">
-        <span>{{ i18n.currentLang === 'ar' ? cat.nameAr : cat.nameEn }}</span>
-        <svg *ngIf="cat.hasChildren" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+
+    <div class="categories-grid">
+      <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.id}"
+        (click)="toggleCategoriesMenu()" class="category-card">
+        <div class="category-card-image">
+          <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
+            (error)="handleImageError($event)" />
+        </div>
+        <span class="category-card-name">{{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}</span>
+        <span class="category-card-count">{{ cat.productCount }} {{ currentLang === 'ar' ? 'منتج' : 'items' }}</span>
       </a>
     </div>
+
+    <a routerLink="/products" (click)="toggleCategoriesMenu()" class="categories-view-all">
+      <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>
+      <i class="fa-solid fa-arrow-left"></i>
+    </a>
   </div>
 </div>
 
@@ -222,20 +316,17 @@
     <div class="admin-menu-list">
       <button *ngFor="let page of adminPages" (click)="navigateToAdminPage(page.route)" class="admin-menu-item">
         <div class="admin-item-content">
-          <i class="fa-solid" [class]="page.icon"></i>
-          <span>{{ i18n.currentLang === 'ar' ? page.nameAr : page.nameEn }}</span>
+          <i class="fa-solid" [ngClass]="page.icon"></i>
+          <span>{{ currentLang === 'ar' ? page.nameAr : page.nameEn }}</span>
         </div>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <i class="fa-solid fa-chevron-left"></i>
       </button>
     </div>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════ -->
-<!-- Vendor MENU POPUP -->
+<!-- VENDOR MENU POPUP -->
 <!-- ═══════════════════════════════════════════════ -->
 <div class="admin-menu-overlay" [class.open]="isVendorMenuOpen" (click)="toggleVendorMenu()">
   <div class="admin-menu" (click)="$event.stopPropagation()">
@@ -246,13 +337,10 @@
     <div class="admin-menu-list">
       <button *ngFor="let page of vendorPages" (click)="navigateToAdminPage(page.route)" class="admin-menu-item">
         <div class="admin-item-content">
-          <i class="fa-solid" [class]="page.icon"></i>
-          <span>{{ i18n.currentLang === 'ar' ? page.nameAr : page.nameEn }}</span>
+          <i class="fa-solid" [ngClass]="page.icon"></i>
+          <span>{{ currentLang === 'ar' ? page.nameAr : page.nameEn }}</span>
         </div>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <i class="fa-solid fa-chevron-left"></i>
       </button>
     </div>
   </div>
@@ -263,7 +351,7 @@
 <!-- ═══════════════════════════════════════════════ -->
 <div class="profile-menu-overlay" [class.open]="isProfileMenuOpen" (click)="toggleProfileMenu()">
   <div class="profile-menu" (click)="$event.stopPropagation()">
-    <a routerLink="/profile" (click)="toggleProfileMenu()" class="profile-menu-item">
+    <a routerLink="/auth/profile" (click)="toggleProfileMenu()" class="profile-menu-item">
       <i class="fa-solid fa-user-circle"></i>
       <span>{{ 'profile' | translate }}</span>
     </a>

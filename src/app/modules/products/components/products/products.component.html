@@ -11,6 +11,89 @@
         </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- POPULAR BRANDS + BEST SELLERS BANNER          -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="brands-section">
+        <!-- Brands Bar -->
+        <div class="brands-bar">
+            <div class="brands-bar-header">
+                <span class="brands-title">
+                    <i class="fa-solid fa-fire"></i>
+                    {{ i18n.currentLang === 'ar' ? 'البراندات الأكثر شعبية' : 'Popular Brands' }}
+                </span>
+            </div>
+            <div class="brands-scroll-track">
+                <button *ngFor="let brand of brands" class="brand-pill"
+                    [class.brand-pill--active]="selectedBrandId === brand.id" (click)="onBrandBannerSelect(brand)">
+                    <div class="brand-pill-img">
+                        <img [src]="getBrandImage(brand)" [alt]="getName(brand)"
+                            (error)="handleBrandImgError($event)" />
+                    </div>
+                    <span class="brand-pill-name">{{ getName(brand) }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Best Sellers Banner -->
+        <div class="brand-banner" *ngIf="selectedBrand && brandBestSellers.length > 0">
+            <div class="brand-banner-header">
+                <div class="brand-banner-title">
+                    <img [src]="getBrandImage(selectedBrand)" [alt]="getName(selectedBrand)" class="brand-banner-logo"
+                        (error)="handleBrandImgError($event)" />
+                    <div>
+                        <h3>{{ getName(selectedBrand) }}</h3>
+                        <span>{{ i18n.currentLang === 'ar' ? 'الأكثر مبيعاً' : 'Best Sellers' }}</span>
+                    </div>
+                </div>
+
+                <!-- Category Tabs -->
+                <div class="brand-category-tabs">
+                    <button class="brand-cat-tab" [class.active]="!selectedBrandCategoryId"
+                        (click)="onBrandCategorySelect(null)">
+                        {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
+                    </button>
+                    <button *ngFor="let cat of brandCategories" class="brand-cat-tab"
+                        [class.active]="selectedBrandCategoryId === cat.id" (click)="onBrandCategorySelect(cat.id)">
+                        {{ getName(cat) }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Scroll -->
+            <div class="brand-products-track" *ngIf="!isBrandLoading">
+
+                <a *ngFor="let product of brandBestSellers" [routerLink]="['/products', product.id]"
+                    class="brand-product-card">
+                    <div class="brand-product-img">
+                        <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" />
+                        <span *ngIf="product.discountPercentage" class="brand-product-discount">
+                            -{{ product.discountPercentage }}%
+                        </span>
+                    </div>
+                    <div class="brand-product-info">
+                        <p class="brand-product-name">{{ getName(product) }}</p>
+                        <div class="brand-product-price">
+                            <span class="brand-product-current">{{ formatPrice(product.price) }}</span>
+                            <span *ngIf="product.originalPrice" class="brand-product-original">{{
+                                formatPrice(product.originalPrice) }}</span>
+                        </div>
+                        <div class="brand-product-rating">
+                            <i class="fa-solid fa-star"></i>
+                            <span>{{ product.rating | number:'1.1-1' }}</span>
+                            <span class="brand-product-reviews">({{ product.reviewCount }})</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Loading -->
+            <div class="brand-banner-loading" *ngIf="isBrandLoading">
+                <div class="brand-spinner"></div>
+            </div>
+        </div>
+    </section>
+
     <div class="main-container">
         <!-- Mobile Filter Button -->
         <button class="mobile-filter-btn" (click)="toggleMobileFilters()">

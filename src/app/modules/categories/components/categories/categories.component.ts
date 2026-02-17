@@ -3,6 +3,7 @@ import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { Category, CategoryFilterParams, CreateCategoryDto, UpdateCategoryDto } from '../../../../models/category';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { CategoriesService } from '../../services/categories.service';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-categories',
@@ -26,6 +27,10 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   pageSize = 10;
   totalCount = 0;
   totalPages = 0;
+
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+  isUploading = false;
 
   // Filter
   searchTerm = '';
@@ -56,7 +61,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   constructor(
     public i18n: I18nService,
     private categoriesService: CategoriesService,
-    private cdr:ChangeDetectorRef
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -168,8 +173,10 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   // Modal Methods
   openAddModal(): void {
-    this.formData = { nameAr: '', nameEn: '' };
+    this.formData = { nameAr: '', nameEn: '', image: undefined };  // ✅
     this.formErrors = {};
+    this.selectedFile = null;      // ✅ Reset
+    this.imagePreview = null;      // ✅ Reset
     this.showAddModal = true;
   }
 
@@ -178,9 +185,12 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     this.formData = {
       nameAr: category.nameAr,
       nameEn: category.nameEn,
+      image: category.image,  // ✅ أضف الصورة
       isActive: category.isActive
     };
     this.formErrors = {};
+    this.selectedFile = null;      // ✅ Reset
+    this.imagePreview = null;      // ✅ Reset
     this.showEditModal = true;
   }
 
@@ -196,6 +206,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     this.selectedCategory = null;
     this.formData = { nameAr: '', nameEn: '' };
     this.formErrors = {};
+    this.selectedFile = null;      // ✅ أضف ده
+    this.imagePreview = null;      // ✅ أضف ده
   }
 
   // Validation
@@ -223,7 +235,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     const dto: CreateCategoryDto = {
       nameAr: this.formData.nameAr!.trim(),
-      nameEn: this.formData.nameEn!.trim()
+      nameEn: this.formData.nameEn!.trim(),
+      image: this.formData.image  // ✅ أضف الصورة
     };
 
     this.categoriesService.create(dto)
@@ -246,35 +259,36 @@ export class CategoriesComponent implements OnInit, OnDestroy {
       });
   }
 
-  updateCategory(): void {
-    if (!this.selectedCategory || !this.validateForm()) return;
+ updateCategory(): void {
+  if (!this.selectedCategory || !this.validateForm()) return;
 
-    this.isSubmitting = true;
-    const dto: UpdateCategoryDto = {
-      nameAr: this.formData.nameAr?.trim(),
-      nameEn: this.formData.nameEn?.trim(),
-      isActive: (this.formData as UpdateCategoryDto).isActive
-    };
+  this.isSubmitting = true;
+  const dto: UpdateCategoryDto = {
+    nameAr: this.formData.nameAr?.trim(),
+    nameEn: this.formData.nameEn?.trim(),
+    image: this.formData.image,
+    isActive: (this.formData as UpdateCategoryDto).isActive
+  };
 
-    this.categoriesService.update(this.selectedCategory.id, dto)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          this.isSubmitting = false;
-          if (res.success) {
-            this.showToast(this.i18n.currentLang === 'ar' ? 'تم تحديث الفئة بنجاح' : 'Category updated successfully', 'success');
-            this.closeModals();
-            this.loadCategories();
-          } else {
-            this.showToast(res.message || 'Error', 'error');
-          }
-        },
-        error: () => {
-          this.isSubmitting = false;
-          this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'An error occurred', 'error');
+  this.categoriesService.update(this.selectedCategory.id, dto)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        if (res.success) {
+          this.showToast(this.i18n.currentLang === 'ar' ? 'تم تحديث الفئة بنجاح' : 'Category updated successfully', 'success');
+          this.closeModals();
+          this.loadCategories();
+        } else {
+          this.showToast(res.message || 'Error', 'error');
         }
-      });
-  }
+      },
+      error: () => {
+        this.isSubmitting = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'An error occurred', 'error');
+      }
+    });
+}
 
   deleteCategory(): void {
     if (!this.selectedCategory) return;
@@ -342,4 +356,80 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     }, 3000);
   }
 
+  // Image Upload
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Validate
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        this.showToast('نوع الملف غير مدعوم', 'error');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        this.showToast('حجم الملف كبير جداً', 'error');
+        return;
+      }
+
+      this.selectedFile = file;
+
+      // ✅ Preview باستخدام URL.createObjectURL (أسرع وأبسط)
+      this.imagePreview = URL.createObjectURL(file);
+      this.cdr.markForCheck();
+    }
+
+    // ✅ Reset الـ input
+    input.value = '';
+  }
+
+  async uploadAndSave(): Promise<void> {
+    if (this.selectedFile) {
+      this.isUploading = true;
+
+      this.categoriesService.uploadImage(this.selectedFile)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res) => {
+            if (res.success && res.data) {
+              this.formData.image = res.data;
+              this.isUploading = false;
+
+              // Now save the category
+              if (this.showAddModal) {
+                this.createCategory();
+              } else {
+                this.updateCategory();
+              }
+            }
+          },
+          error: () => {
+            this.isUploading = false;
+            this.showToast('فشل في رفع الصورة', 'error');
+          }
+        });
+    } else {
+      // No new image, just save
+      if (this.showAddModal) {
+        this.createCategory();
+      } else {
+        this.updateCategory();
+      }
+    }
+  }
+
+  removeImage(): void {
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.formData.image = undefined;
+    this.formData.image = null;
+  }
+
+  getImageUrl(path: string | null | undefined): string {
+    if (!path) return 'https://placehold.co/150x150/e2e8f0/94a3b8?text=No+Image';
+    if (path.startsWith('http')) return path;
+    return `${environment.baseApi}${path}`;
+  }
 }

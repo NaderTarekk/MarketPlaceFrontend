@@ -51,11 +51,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { nameAr: 'إدارة المستخدمين', nameEn: 'Manage Users', route: '/users', icon: 'fa-users' },
     { nameAr: 'صفحة الأدمن', nameEn: 'Admin Dashboard', route: '/admin', icon: 'fa-user-tie' },
   ];
-
+  // أضف في الـ properties
+  isCatalogOpen = false;
   searchResults: any[] = [];
   isSearching = false;
   showSearchDropdown = false;
   private searchSubject = new Subject<string>();
+  readonly placeholderImage = 'https://placehold.co/150x150/e2e8f0/94a3b8?text=No+Image';
 
   vendorPages = [
     { nameAr: 'لوحة التحكم', nameEn: 'Dashboard', route: '/vendor', icon: 'fa-chart-line' },
@@ -222,14 +224,28 @@ export class NavbarComponent implements OnInit, OnDestroy {
             id: cat.id,
             nameAr: cat.nameAr,
             nameEn: cat.nameEn,
+            image: cat.image,  // ✅ أضف الصورة
             productCount: cat.productCount,
             hasChildren: cat.productCount > 0
           }));
         }
-
       },
       error: (err) => console.error('Error loading categories:', err)
     });
+  }
+
+
+  getCategoryImage(image: string | undefined): string {
+    if (!image) return this.placeholderImage;
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `http://localhost:5078${image}`;  // غيّر حسب الـ API بتاعك
+  }
+
+  handleImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (!img.src.includes('placehold.co')) {
+      img.src = this.placeholderImage;
+    }
   }
 
   toggleSearch(): void {
@@ -333,4 +349,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.router.navigateByUrl(value);
     }
   }
+
+  handleCategoryImageError(event: Event): void {
+  const img = event.target as HTMLImageElement;
+  img.src = 'assets/images/placeholder.png';
+}
 }

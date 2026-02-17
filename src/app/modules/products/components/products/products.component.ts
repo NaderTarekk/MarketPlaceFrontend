@@ -95,6 +95,14 @@ export class ProductsComponent implements OnInit {
 
   selectedSort = 'newest';
 
+  selectedBrand: Brand | null = null;
+  selectedBrandId: number | null = null;
+  selectedBrandCategoryId: number | null = null;
+  brandBestSellers: ProductList[] = [];
+  brandCategories: Category[] = [];
+  isBrandLoading = false;
+  readonly brandPlaceholder = 'https://placehold.co/80x80/f1f5f9/94a3b8?text=Brand';
+
   constructor(
     public i18n: I18nService,
     private productService: ProductsService,
@@ -115,9 +123,22 @@ export class ProductsComponent implements OnInit {
 
     // Read query params
     this.route.queryParams.subscribe(params => {
-      if (params['categoryId']) this.filter.categoryId = +params['categoryId'];
-      if (params['brandId']) this.filter.brandId = +params['brandId'];
-      if (params['search']) this.filter.search = params['search'];
+      // ✅ عدّل هنا - قبول الاتنين category و categoryId
+      if (params['category']) {
+        this.filter.categoryId = +params['category'];
+      } else if (params['categoryId']) {
+        this.filter.categoryId = +params['categoryId'];
+      }
+
+      if (params['brand']) {
+        this.filter.brandId = +params['brand'];
+      } else if (params['brandId']) {
+        this.filter.brandId = +params['brandId'];
+      }
+
+      if (params['search']) {
+        this.filter.search = params['search'];
+      }
 
       this.loadProducts();
     });
@@ -298,9 +319,12 @@ export class ProductsComponent implements OnInit {
 
   updateUrl(): void {
     const queryParams: any = {};
-    if (this.filter.categoryId) queryParams.categoryId = this.filter.categoryId;
-    if (this.filter.brandId) queryParams.brandId = this.filter.brandId;
+
+    // ✅ استخدم category بدل categoryId عشان يتوافق مع الـ navbar
+    if (this.filter.categoryId) queryParams.category = this.filter.categoryId;
+    if (this.filter.brandId) queryParams.brand = this.filter.brandId;
     if (this.filter.search) queryParams.search = this.filter.search;
+
     this.router.navigate(['/products'], { queryParams });
   }
 
@@ -677,5 +701,75 @@ export class ProductsComponent implements OnInit {
         this.isSubmitting = false;
       }
     });
+  }
+
+  onBrandBannerSelect(brand: Brand): void {
+    if (this.selectedBrandId === brand.id) {
+      // toggle off
+      this.selectedBrand = null;
+      this.selectedBrandId = null;
+      this.brandBestSellers = [];
+      this.brandCategories = [];
+      this.selectedBrandCategoryId = null;
+      return;
+    }
+    this.selectedBrand = brand;
+    this.selectedBrandId = brand.id;
+    this.selectedBrandCategoryId = null;
+    this.loadBrandBestSellers();
+  }
+
+  onBrandCategorySelect(categoryId: number | null): void {
+    this.selectedBrandCategoryId = categoryId;
+    this.loadBrandBestSellers();
+  }
+
+  loadBrandBestSellers(): void {
+    if (!this.selectedBrandId) return;
+    this.isBrandLoading = true;
+
+    const filter: ProductFilter = {
+      page: 1,
+      pageSize: 12,
+      sortBy: 'sales',
+      sortDesc: true,
+      brandId: this.selectedBrandId,
+      categoryId: this.selectedBrandCategoryId || undefined
+    };
+
+    this.productService.getAll(filter).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.brandBestSellers = res.data;
+
+          // استخرج الـ categories الموجودة في المنتجات
+          const catMap = new Map<number, Category>();
+          res.data.forEach((p: any) => {
+            if (p.categoryId && p.categoryNameAr) {
+              catMap.set(p.categoryId, {
+                id: p.categoryId,
+                nameAr: p.categoryNameAr,
+                nameEn: p.categoryNameEn || p.categoryNameAr,
+                productCount: 0
+              } as Category);
+            }
+          });
+          this.brandCategories = Array.from(catMap.values());
+        }
+        this.isBrandLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => { this.isBrandLoading = false; }
+    });
+  }
+
+ getBrandImage(brand: Brand): string {
+  if (!brand?.logo) return this.brandPlaceholder;
+  if (brand.logo.startsWith('http') || brand.logo.startsWith('data:')) return brand.logo;
+  return `${environment.baseApi}${brand.logo}`;
+}
+
+  handleBrandImgError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.brandPlaceholder;
   }
 }

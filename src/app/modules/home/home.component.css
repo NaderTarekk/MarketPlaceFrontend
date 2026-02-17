@@ -107,7 +107,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 2px;
 }
 
 /* ─── Banner ─── */
@@ -374,11 +374,11 @@
 /* موبايل صغير جداً - تصغير أكبر */
 @media (max-width: 380px) {
   .group.relative.w-full.rounded-2xl[style*="min-height"] {
-    min-height: 85px !important;
+    min-height: 145px !important;
   }
   
   .group.relative.w-full.rounded-2xl {
-    min-height: 30px !important; /* صغرناه من 120px */
+    min-height: 50px !important; /* صغرناه من 120px */
   }
   
   .group .text-3xl.sm\:text-4xl {
@@ -716,4 +716,23 @@
 .search-results-mobile::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 10px;
+}
+@media (max-width: 640px) {
+  .group .text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  .group .relative.z-\[2\].flex-shrink-0 {
+    height: 120px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .group .text-2xl {
+    font-size: 1.1rem !important;
+  }
+
+  .group .relative.z-\[2\].flex-shrink-0 {
+    height: 100px !important;
+  }
 }
