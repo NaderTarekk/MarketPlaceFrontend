@@ -233,7 +233,7 @@
         </div>
 
         <!-- Role Selection -->
-        <div class="group">
+        <!-- <div class="group">
           <label class="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider mb-2.5">
             <svg class="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2.5" stroke-linecap="round">
@@ -246,7 +246,7 @@
           </label>
 
           <div class="grid grid-cols-3 gap-2">
-            <!-- Customer -->
+             Customer 
             <button type="button" (click)="registerRole = 'Customer'"
               [ngClass]="registerRole === 'Customer' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-200 bg-white text-gray-600'"
               class="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:border-purple-300">
@@ -258,7 +258,7 @@
               <span class="text-xs font-bold">{{ i18n.currentLang === 'ar' ? 'عميل' : 'Customer' }}</span>
             </button>
 
-            <!-- Vendor -->
+             Vendor 
             <button type="button" (click)="registerRole = 'Vendor'"
               [ngClass]="registerRole === 'Vendor' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-200 bg-white text-gray-600'"
               class="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:border-purple-300">
@@ -270,7 +270,7 @@
               <span class="text-xs font-bold">{{ i18n.currentLang === 'ar' ? 'تاجر' : 'Vendor' }}</span>
             </button>
 
-            <!-- Delivery Agent -->
+            Delivery Agent 
             <button type="button" (click)="registerRole = 'DeliveryAgent'"
               [ngClass]="registerRole === 'DeliveryAgent' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-200 bg-white text-gray-600'"
               class="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:border-purple-300">
@@ -284,7 +284,7 @@
               <span class="text-xs font-bold">{{ i18n.currentLang === 'ar' ? 'مندوب' : 'Delivery' }}</span>
             </button>
           </div>
-        </div>
+        </div> -->
 
         <!-- Full Name -->
         <div class="group">

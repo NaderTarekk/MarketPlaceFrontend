@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ApiResponse, PagedResponse, Product, ProductFilter, ProductList } from '../../../models/products';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Brand } from '../../../models/brand';
@@ -72,11 +72,24 @@ export class ProductsService {
     );
   }
 
-  // Categories
-  getCategories(isActive?: boolean): Observable<ApiResponse<Category[]>> {
-    const params = isActive !== undefined ? `?isActive=${isActive}` : '';
-    return this.http.get<ApiResponse<Category[]>>(`${environment.categoriesUrl}${params}`);
+  getCategoriesHierarchy(): Observable<ApiResponse<Category[]>> {
+    return this.http.get<ApiResponse<Category[]>>(`${environment.categoriesUrl}/hierarchy`);
   }
+
+  // Legacy method - keep for compatibility
+  getCategories(activeOnly: boolean = false): Observable<ApiResponse<Category[]>> {
+    let params = new HttpParams();
+    if (activeOnly) {
+      params = params.set('isActive', 'true');
+    }
+    return this.http.get<ApiResponse<Category[]>>(environment.categoriesUrl, { params });
+  }
+
+  // Categories
+  // getCategories(isActive?: boolean): Observable<ApiResponse<Category[]>> {
+  //   const params = isActive !== undefined ? `?isActive=${isActive}` : '';
+  //   return this.http.get<ApiResponse<Category[]>>(`${environment.categoriesUrl}${params}`);
+  // }
 
   // Brands
   getBrands(isActive?: boolean): Observable<ApiResponse<Brand[]>> {

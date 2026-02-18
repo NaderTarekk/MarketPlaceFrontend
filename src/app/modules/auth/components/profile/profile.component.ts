@@ -215,7 +215,7 @@ export class ProfileComponent implements OnInit {
 
   formatDate(date: string | null): string {
     if (!date) return '-';
-    return new Date(date).toLocaleDateString(this.i18n.currentLang === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Date(date).toLocaleDateString(this.i18n.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'

@@ -1,3 +1,4 @@
+// products.component.ts
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ProductFilter, ProductList } from '../../../../models/products';
 import { Category } from '../../../../models/category';
@@ -8,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../../environment';
 import { AuthService } from '../../../auth/services/auth.service';
 import { CartService } from '../../../cart/services/cart.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -49,9 +51,13 @@ export class ProductsComponent implements OnInit {
 
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
-
   products: ProductList[] = [];
-  categories: Category[] = [];
+
+  // 🆕 Categories - الهرمية
+  categories: Category[] = [];           // الأصناف الرئيسية مع أبنائها
+  allCategories: Category[] = [];        // كل الأصناف (flat) للـ dropdown
+  expandedCategories: Set<number> = new Set(); // الأصناف المفتوحة في الـ sidebar
+
   brands: Brand[] = [];
 
   isLoading = true;
@@ -61,7 +67,7 @@ export class ProductsComponent implements OnInit {
   // Filter
   filter: ProductFilter = {
     page: 1,
-    pageSize: 8,
+    pageSize: 9,
     sortBy: 'newest',
     sortDesc: true
   };
@@ -102,7 +108,8 @@ export class ProductsComponent implements OnInit {
   brandCategories: Category[] = [];
   isBrandLoading = false;
   readonly brandPlaceholder = 'https://placehold.co/80x80/f1f5f9/94a3b8?text=Brand';
-
+ selectedParentCategory: Category | null = null;
+ 
   constructor(
     public i18n: I18nService,
     private productService: ProductsService,
@@ -118,16 +125,20 @@ export class ProductsComponent implements OnInit {
       this.isAdmin = true;
     }
 
-    this.loadCategories();
+    this.loadCategoriesHierarchy();
     this.loadBrands();
 
     // Read query params
     this.route.queryParams.subscribe(params => {
-      // ✅ عدّل هنا - قبول الاتنين category و categoryId
       if (params['category']) {
         this.filter.categoryId = +params['category'];
+        // 🆕 Auto-expand parent if subcategory is selected
+        this.expandParentOfCategory(+params['category']);
+        console.log(1);
       } else if (params['categoryId']) {
         this.filter.categoryId = +params['categoryId'];
+        console.log(2);
+        this.expandParentOfCategory(+params['categoryId']);
       }
 
       if (params['brand']) {
@@ -170,16 +181,56 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  loadCategories(): void {
-    this.productService.getCategories(true).subscribe({
+  // 🆕 Load categories with hierarchy
+  loadCategoriesHierarchy(): void {
+    this.productService.getCategoriesHierarchy().subscribe({
       next: (res) => {
-
         if (res.success) {
           this.categories = res.data;
+          // 🆕 Create flat list for dropdowns
+          this.allCategories = this.flattenCategories(res.data);
+
+          // ✅ فتح كل الأصناف الرئيسية تلقائياً
+          this.expandAllCategories();
+
           this.cdr.markForCheck();
         }
       }
     });
+  }
+
+  // ✅ أضف هذا الـ method الجديد
+  expandAllCategories(): void {
+    for (const category of this.categories) {
+      if (this.hasChildren(category)) {
+        this.expandedCategories.add(category.id);
+      }
+    }
+  }
+
+  // 🆕 Flatten categories for dropdown
+  flattenCategories(categories: Category[], parentName: string = ''): Category[] {
+    let result: Category[] = [];
+
+    for (const cat of categories) {
+      // Add prefix for subcategories
+      const displayCat = {
+        ...cat,
+        displayName: parentName ? `${parentName} > ${this.getName(cat)}` : this.getName(cat)
+      };
+      result.push(displayCat);
+
+      if (cat.children && cat.children.length > 0) {
+        result = result.concat(this.flattenCategories(cat.children, this.getName(cat)));
+      }
+    }
+
+    return result;
+  }
+
+  // Legacy method for compatibility
+  loadCategories(): void {
+    this.loadCategoriesHierarchy();
   }
 
   loadBrands(): void {
@@ -191,6 +242,97 @@ export class ProductsComponent implements OnInit {
       }
     });
   }
+
+  // ═══════════════════════════════════════════════
+  // 🆕 CATEGORY HIERARCHY HELPERS
+  // ═══════════════════════════════════════════════
+
+  // Toggle category expansion in sidebar
+  toggleCategoryExpand(categoryId: number, event: Event): void {
+    event.stopPropagation();
+    if (this.expandedCategories.has(categoryId)) {
+      this.expandedCategories.delete(categoryId);
+    } else {
+      this.expandedCategories.add(categoryId);
+    }
+  }
+
+  isCategoryExpanded(categoryId: number): boolean {
+    return this.expandedCategories.has(categoryId);
+  }
+
+  // Check if category has children
+  hasChildren(category: Category): boolean {
+    return category.children !== undefined && category.children.length > 0;
+  }
+
+  // Check if category is selected (or its parent)
+  isCategorySelected(categoryId: number): boolean {
+    return this.filter.categoryId === categoryId;
+  }
+
+  // Check if any child of this category is selected
+  isChildSelected(category: Category): boolean {
+    if (!category.children) return false;
+    return category.children.some(child => this.filter.categoryId === child.id);
+  }
+
+  // Auto-expand parent when subcategory is selected
+  expandParentOfCategory(categoryId: number): void {
+    for (const parent of this.categories) {
+      console.log(parent);
+      console.log(this.categories);
+      
+      if (parent.children) {
+        const found = parent.children.find(child => child.id === categoryId);
+        if (found) {
+          this.expandedCategories.add(parent.id);
+          break;
+        }
+      }
+    }
+  }
+
+  // Get total products count for category (including children)
+  getTotalProductCount(category: Category): number {
+    let total = category.productCount || 0;
+    if (category.children) {
+      for (const child of category.children) {
+        total += child.productCount || 0;
+      }
+    }
+    return total;
+  }
+
+  // Get selected category info
+  getSelectedCategoryInfo(): { name: string; isChild: boolean; parentName?: string } | null {
+    if (!this.filter.categoryId) return null;
+
+    // Check in parent categories
+    for (const parent of this.categories) {
+      if (parent.id === this.filter.categoryId) {
+        return { name: this.getName(parent), isChild: false };
+      }
+
+      // Check in children
+      if (parent.children) {
+        const child = parent.children.find(c => c.id === this.filter.categoryId);
+        if (child) {
+          return {
+            name: this.getName(child),
+            isChild: true,
+            parentName: this.getName(parent)
+          };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  // ═══════════════════════════════════════════════
+  // PAGINATION
+  // ═══════════════════════════════════════════════
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
@@ -211,7 +353,6 @@ export class ProductsComponent implements OnInit {
     }
   }
 
-  // ✅ Helper لعرض أرقام الصفحات
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisible = 5;
@@ -230,7 +371,6 @@ export class ProductsComponent implements OnInit {
     return pages;
   }
 
-
   // ═══════════════════════════════════════════════
   // FILTERS
   // ═══════════════════════════════════════════════
@@ -238,17 +378,103 @@ export class ProductsComponent implements OnInit {
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.filter.search = input.value;
+    this.filter.page = 1;
     this.loadProducts();
   }
 
   onCategoryChange(categoryId: number | null): void {
     this.filter.categoryId = categoryId || undefined;
+    this.filter.page = 1;
     this.updateUrl();
     this.loadProducts();
   }
 
+  // 🆕 Select parent category (includes all children products)
+  // في products.component.ts
+
+// ═══════════════════════════════════════════════
+// 🆕 CATEGORY HIERARCHY HELPERS
+// ═══════════════════════════════════════════════
+
+onParentCategorySelect(category: Category): void {
+  this.filter.categoryId = category.id;
+  this.filter.page = 1;
+  
+  // Expand to show children
+  if (this.hasChildren(category)) {
+    this.expandedCategories.add(category.id);
+  }
+  
+  this.updateUrl();
+  this.loadProducts(); // ✅ الـ Backend هيتعامل مع الـ children تلقائياً
+}
+
+onChildCategorySelect(child: Category, event: Event): void {
+  event.stopPropagation();
+  this.filter.categoryId = child.id;
+  this.filter.page = 1;
+  this.updateUrl();
+  this.loadProducts();
+}
+
+  // ✅ Method جديدة تجيب الـ products من الـ parent + children
+  loadProductsWithChildren(category: Category): void {
+    this.isLoading = true;
+
+    // ✅ اجمع كل الـ requests
+    const requests = [
+      this.productService.getAll({ ...this.filter, categoryId: category.id })
+    ];
+
+    // ✅ لو فيه children، اعمل request لكل child
+    if (category.children && category.children.length > 0) {
+      category.children.forEach(child => {
+        requests.push(
+          this.productService.getAll({ ...this.filter, categoryId: child.id })
+        );
+      });
+    }
+
+    // ✅ استنى كل الـ requests تخلص
+    forkJoin(requests).subscribe({
+      next: (responses) => {
+        // ✅ اجمع كل الـ products من كل الـ responses
+        let allProducts: ProductList[] = [];
+        let totalCount = 0;
+
+        responses.forEach((res: any) => {
+          if (res.success) {
+            allProducts = allProducts.concat(res.data);
+            totalCount += res.pagination.totalCount;
+          }
+        });
+
+        // ✅ امسح الـ duplicates لو موجودة
+        const uniqueProducts = Array.from(
+          new Map(allProducts.map(p => [p.id, p])).values()
+        );
+
+        this.products = uniqueProducts;
+        this.totalCount = totalCount;
+
+        // ✅ احسب الـ pagination يدوياً
+        this.totalPages = Math.ceil(totalCount / (this.filter.pageSize || 9));
+        this.currentPage = this.filter.page || 1;
+        this.hasPrev = this.currentPage > 1;
+        this.hasNext = this.currentPage < this.totalPages;
+
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
   onBrandChange(brandId: number | null): void {
     this.filter.brandId = brandId || undefined;
+    this.filter.page = 1;
     this.updateUrl();
     this.loadProducts();
   }
@@ -256,6 +482,7 @@ export class ProductsComponent implements OnInit {
   onPriceFilter(): void {
     this.filter.minPrice = this.minPrice || undefined;
     this.filter.maxPrice = this.maxPrice || undefined;
+    this.filter.page = 1;
     this.loadProducts();
   }
 
@@ -283,12 +510,14 @@ export class ProductsComponent implements OnInit {
         this.filter.sortDesc = true;
         break;
     }
+    this.filter.page = 1;
     this.loadProducts();
   }
 
   onInStockChange(event: Event): void {
     const checkbox = event.target as HTMLInputElement;
     this.filter.inStock = checkbox.checked || undefined;
+    this.filter.page = 1;
     this.loadProducts();
   }
 
@@ -302,6 +531,7 @@ export class ProductsComponent implements OnInit {
     this.minPrice = null;
     this.maxPrice = null;
     this.selectedSort = 'newest';
+    this.expandedCategories.clear();
     this.router.navigate(['/products']);
     this.loadProducts();
   }
@@ -320,7 +550,6 @@ export class ProductsComponent implements OnInit {
   updateUrl(): void {
     const queryParams: any = {};
 
-    // ✅ استخدم category بدل categoryId عشان يتوافق مع الـ navbar
     if (this.filter.categoryId) queryParams.category = this.filter.categoryId;
     if (this.filter.brandId) queryParams.brand = this.filter.brandId;
     if (this.filter.search) queryParams.search = this.filter.search;
@@ -330,6 +559,10 @@ export class ProductsComponent implements OnInit {
 
   getName(item: any): string {
     return this.i18n.currentLang === 'ar' ? item.nameAr : item.nameEn;
+  }
+
+  getDescription(item: any): string {
+    return this.i18n.currentLang === 'ar' ? item.descriptionAr : item.descriptionEn;
   }
 
   getCategoryName(item: ProductList): string {
@@ -347,7 +580,7 @@ export class ProductsComponent implements OnInit {
   }
 
   formatPrice(price: number): string {
-    return price.toLocaleString() + ' ' + (this.i18n.currentLang === 'ar' ? 'ر.س' : 'SAR');
+    return price.toLocaleString() + ' ' + (this.i18n.currentLang === 'ar' ? 'ج.م' : 'EGP');
   }
 
   toggleMobileFilters(): void {
@@ -356,8 +589,9 @@ export class ProductsComponent implements OnInit {
   }
 
   getSelectedCategoryName(): string {
-    const cat = this.categories.find(c => c.id === this.filter.categoryId);
-    return cat ? this.getName(cat) : '';
+    const info = this.getSelectedCategoryInfo();
+    if (!info) return '';
+    return info.isChild ? `${info.parentName} > ${info.name}` : info.name;
   }
 
   getSelectedBrandName(): string {
@@ -383,6 +617,14 @@ export class ProductsComponent implements OnInit {
   trackByProduct(index: number, product: ProductList): number {
     return product.id;
   }
+
+  trackByCategory(index: number, category: Category): number {
+    return category.id;
+  }
+
+  // ═══════════════════════════════════════════════
+  // CART
+  // ═══════════════════════════════════════════════
 
   addToCart(product: ProductList, event: Event): void {
     event.preventDefault();
@@ -422,6 +664,10 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  // ═══════════════════════════════════════════════
+  // DIALOGS
+  // ═══════════════════════════════════════════════
+
   openAddDialog(): void {
     this.resetForm();
     this.showAddDialog = true;
@@ -429,7 +675,6 @@ export class ProductsComponent implements OnInit {
 
   openEditDialog(product: ProductList): void {
     this.selectedProduct = product;
-    // Load full product details
     this.productService.getById(product.id).subscribe({
       next: (res) => {
         if (res.success) {
@@ -452,7 +697,7 @@ export class ProductsComponent implements OnInit {
             images: p.images || []
           };
           this.mainImagePreview = p.mainImage ? this.getImageUrl(p.mainImage) : null;
-          this.imagesPreview = p.images?.map(img => this.getImageUrl(img)) || [];
+          this.imagesPreview = p.images?.map((img: string) => this.getImageUrl(img)) || [];
           this.showEditDialog = true;
           this.cdr.detectChanges();
         }
@@ -509,7 +754,7 @@ export class ProductsComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.mainImagePreview = e.target?.result as string;
-        this.cdr.detectChanges(); // أضف هنا جوا الـ callback
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
@@ -525,7 +770,7 @@ export class ProductsComponent implements OnInit {
           const reader = new FileReader();
           reader.onload = (e) => {
             this.imagesPreview.push(e.target?.result as string);
-            this.cdr.detectChanges(); // أضف هنا جوا الـ callback
+            this.cdr.detectChanges();
           };
           reader.readAsDataURL(file);
         }
@@ -550,7 +795,6 @@ export class ProductsComponent implements OnInit {
     this.isSubmitting = true;
 
     try {
-      // Upload main image first
       let mainImageUrl = this.productForm.mainImage;
       if (this.selectedMainImage) {
         const res = await this.productService.uploadImage(this.selectedMainImage).toPromise();
@@ -559,7 +803,6 @@ export class ProductsComponent implements OnInit {
         }
       }
 
-      // Upload additional images
       const imageUrls: string[] = [];
       for (const file of this.selectedImages) {
         const res = await this.productService.uploadImage(file).toPromise();
@@ -703,9 +946,12 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  // ═══════════════════════════════════════════════
+  // BRAND BANNER
+  // ═══════════════════════════════════════════════
+
   onBrandBannerSelect(brand: Brand): void {
     if (this.selectedBrandId === brand.id) {
-      // toggle off
       this.selectedBrand = null;
       this.selectedBrandId = null;
       this.brandBestSellers = [];
@@ -742,7 +988,6 @@ export class ProductsComponent implements OnInit {
         if (res.success) {
           this.brandBestSellers = res.data;
 
-          // استخرج الـ categories الموجودة في المنتجات
           const catMap = new Map<number, Category>();
           res.data.forEach((p: any) => {
             if (p.categoryId && p.categoryNameAr) {
@@ -763,11 +1008,11 @@ export class ProductsComponent implements OnInit {
     });
   }
 
- getBrandImage(brand: Brand): string {
-  if (!brand?.logo) return this.brandPlaceholder;
-  if (brand.logo.startsWith('http') || brand.logo.startsWith('data:')) return brand.logo;
-  return `${environment.baseApi}${brand.logo}`;
-}
+  getBrandImage(brand: Brand): string {
+    if (!brand?.logo) return this.brandPlaceholder;
+    if (brand.logo.startsWith('http') || brand.logo.startsWith('data:')) return brand.logo;
+    return `${environment.baseApi}${brand.logo}`;
+  }
 
   handleBrandImgError(event: Event): void {
     (event.target as HTMLImageElement).src = this.brandPlaceholder;

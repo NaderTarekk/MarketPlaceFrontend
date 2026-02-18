@@ -62,7 +62,6 @@
 
             <!-- Products Scroll -->
             <div class="brand-products-track" *ngIf="!isBrandLoading">
-
                 <a *ngFor="let product of brandBestSellers" [routerLink]="['/products', product.id]"
                     class="brand-product-card">
                     <div class="brand-product-img">
@@ -75,8 +74,9 @@
                         <p class="brand-product-name">{{ getName(product) }}</p>
                         <div class="brand-product-price">
                             <span class="brand-product-current">{{ formatPrice(product.price) }}</span>
-                            <span *ngIf="product.originalPrice" class="brand-product-original">{{
-                                formatPrice(product.originalPrice) }}</span>
+                            <span *ngIf="product.originalPrice" class="brand-product-original">
+                                {{ formatPrice(product.originalPrice) }}
+                            </span>
                         </div>
                         <div class="brand-product-rating">
                             <i class="fa-solid fa-star"></i>
@@ -113,30 +113,87 @@
                 </div>
 
                 <div class="sidebar-content">
-                    <!-- Categories -->
+                    <!-- 🆕 Categories with Hierarchy -->
                     <div class="filter-section">
-                        <h4>{{ i18n.currentLang === 'ar' ? 'التصنيفات' : 'Categories' }}</h4>
-                        <div class="filter-list">
-                            <label class="filter-item" [class.active]="!filter.categoryId">
-                                <input type="radio" name="category" [checked]="!filter.categoryId"
-                                    (change)="onCategoryChange(null)" />
-                                <span class="radio-custom"></span>
-                                <span class="filter-label">{{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}</span>
-                            </label>
-                            <label *ngFor="let cat of categories" class="filter-item"
-                                [class.active]="filter.categoryId === cat.id">
-                                <input type="radio" name="category" [checked]="filter.categoryId === cat.id"
-                                    (change)="onCategoryChange(cat.id)" />
-                                <span class="radio-custom"></span>
-                                <span class="filter-label">{{ getName(cat) }}</span>
-                                <span class="filter-count">{{ cat.productCount }}</span>
-                            </label>
+                        <h4>
+                            <i class="fa-solid fa-layer-group"></i>
+                            {{ i18n.currentLang === 'ar' ? 'التصنيفات' : 'Categories' }}
+                        </h4>
+
+                        <div class="category-tree">
+                            <!-- All Categories Option -->
+                            <div class="category-item" [class.active]="!filter.categoryId"
+                                (click)="onCategoryChange(null)">
+                                <span class="category-radio">
+                                    <span class="radio-dot" *ngIf="!filter.categoryId"></span>
+                                </span>
+                                <span class="category-name">
+                                    {{ i18n.currentLang === 'ar' ? 'جميع التصنيفات' : 'All Categories' }}
+                                </span>
+                            </div>
+
+                            <!-- Parent Categories -->
+                            <ng-container *ngFor="let category of categories; trackBy: trackByCategory">
+                                <div class="category-parent">
+                                    <!-- Parent Item -->
+                                    <div class="category-item parent-item"
+                                        [class.active]="isCategorySelected(category.id)"
+                                        [class.has-active-child]="isChildSelected(category)"
+                                        (click)="onParentCategorySelect(category)">
+
+                                        <!-- Expand/Collapse Button -->
+                                        <button *ngIf="hasChildren(category)" class="expand-btn"
+                                            [class.expanded]="isCategoryExpanded(category.id)"
+                                            (click)="toggleCategoryExpand(category.id, $event)">
+                                            <i class="fa-solid"
+                                                [ngClass]="isCategoryExpanded(category.id) ? 'fa-chevron-down' : 'fa-chevron-left'"></i>
+                                        </button>
+                                        <span class="no-expand" *ngIf="!hasChildren(category)"></span>
+
+                                        <!-- Radio -->
+                                        <span class="category-radio">
+                                            <span class="radio-dot" *ngIf="isCategorySelected(category.id)"></span>
+                                        </span>
+
+                                        <!-- Icon & Name -->
+                                        <i class="fa-solid fa-folder category-icon"></i>
+                                        <span class="category-name">{{ getName(category) }}</span>
+
+                                        <!-- Count -->
+                                        <span class="category-count">{{ getTotalProductCount(category) }}</span>
+                                    </div>
+
+                                    <!-- Children (Subcategories) -->
+                                    <div class="category-children" *ngIf="hasChildren(category)"
+                                        [class.expanded]="isCategoryExpanded(category.id)">
+
+                                        <div *ngFor="let child of category.children" class="category-item child-item"
+                                            [class.active]="isCategorySelected(child.id)"
+                                            (click)="onChildCategorySelect(child, $event)">
+
+                                            <span class="child-indent">
+                                                <i class="fa-solid fa-turn-up fa-rotate-90"></i>
+                                            </span>
+
+                                            <span class="category-radio">
+                                                <span class="radio-dot" *ngIf="isCategorySelected(child.id)"></span>
+                                            </span>
+
+                                            <span class="category-name">{{ getName(child) }}</span>
+                                            <span class="category-count">{{ child.productCount }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
                         </div>
                     </div>
 
                     <!-- Brands -->
                     <div class="filter-section">
-                        <h4>{{ i18n.currentLang === 'ar' ? 'العلامات التجارية' : 'Brands' }}</h4>
+                        <h4>
+                            <i class="fa-solid fa-tag"></i>
+                            {{ i18n.currentLang === 'ar' ? 'العلامات التجارية' : 'Brands' }}
+                        </h4>
                         <div class="filter-list">
                             <label class="filter-item" [class.active]="!filter.brandId">
                                 <input type="radio" name="brand" [checked]="!filter.brandId"
@@ -157,7 +214,10 @@
 
                     <!-- Price Range -->
                     <div class="filter-section">
-                        <h4>{{ i18n.currentLang === 'ar' ? 'السعر' : 'Price' }}</h4>
+                        <h4>
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            {{ i18n.currentLang === 'ar' ? 'السعر' : 'Price' }}
+                        </h4>
                         <div class="price-inputs">
                             <input type="number" [(ngModel)]="minPrice"
                                 [placeholder]="i18n.currentLang === 'ar' ? 'من' : 'Min'" />
@@ -207,8 +267,9 @@
                             <input type="text" [value]="filter.search || ''" (input)="onSearch($event)"
                                 [placeholder]="i18n.currentLang === 'ar' ? 'بحث في المنتجات...' : 'Search products...'" />
                         </div>
-                        <span class="results-count">{{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products'
-                            }}</span>
+                        <span class="results-count">
+                            {{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
+                        </span>
                     </div>
 
                     <div class="toolbar-left">
@@ -236,17 +297,25 @@
                     </div>
                 </div>
 
-                <!-- Active Filters Tags -->
+                <!-- 🆕 Active Filters Tags (Updated with hierarchy support) -->
                 <div *ngIf="getActiveFiltersCount() > 0" class="active-filters">
-                    <span *ngIf="filter.categoryId" class="filter-tag">
+                    <!-- Category Filter Tag -->
+                    <span *ngIf="filter.categoryId" class="filter-tag category-tag">
+                        <i class="fa-solid fa-folder"></i>
                         {{ getSelectedCategoryName() }}
                         <i class="fa-solid fa-times" (click)="onCategoryChange(null)"></i>
                     </span>
-                    <span *ngIf="filter.brandId" class="filter-tag">
+
+                    <!-- Brand Filter Tag -->
+                    <span *ngIf="filter.brandId" class="filter-tag brand-tag">
+                        <i class="fa-solid fa-tag"></i>
                         {{ getSelectedBrandName() }}
                         <i class="fa-solid fa-times" (click)="onBrandChange(null)"></i>
                     </span>
-                    <span *ngIf="filter.minPrice || filter.maxPrice" class="filter-tag">
+
+                    <!-- Price Filter Tag -->
+                    <span *ngIf="filter.minPrice || filter.maxPrice" class="filter-tag price-tag">
+                        <i class="fa-solid fa-money-bill"></i>
                         {{ filter.minPrice || 0 }} - {{ filter.maxPrice || '∞' }}
                         <i class="fa-solid fa-times" (click)="clearPriceFilter()"></i>
                     </span>
@@ -295,9 +364,12 @@
                         </div>
 
                         <!-- Badges -->
-                        <span *ngIf="product.discountPercentage" class="discount-badge">-{{ product.discountPercentage
-                            }}%</span>
-                        <span *ngIf="product.isFeatured" class="featured-badge"><i class="fa-solid fa-star"></i></span>
+                        <span *ngIf="product.discountPercentage" class="discount-badge">
+                            -{{ product.discountPercentage }}%
+                        </span>
+                        <span *ngIf="product.isFeatured" class="featured-badge">
+                            <i class="fa-solid fa-star"></i>
+                        </span>
 
                         <!-- Image - Clickable -->
                         <div class="product-image" (click)="goToProduct(product.id)">
@@ -313,6 +385,7 @@
                         <div class="product-info" (click)="goToProduct(product.id)">
                             <span class="product-category">{{ getCategoryName(product) }}</span>
                             <h3 class="product-name">{{ getName(product) }}</h3>
+                            <h3 class="product-description">{{ getDescription(product) }}</h3>
 
                             <div class="product-rating">
                                 <div class="stars">
@@ -324,14 +397,17 @@
 
                             <div class="product-price">
                                 <span class="current-price">{{ formatPrice(product.price) }}</span>
-                                <span *ngIf="product.originalPrice" class="original-price">{{
-                                    formatPrice(product.originalPrice) }}</span>
+                                <span *ngIf="product.originalPrice" class="original-price">
+                                    {{ formatPrice(product.originalPrice) }}
+                                </span>
                             </div>
 
-                            <span class="stock-status" [class.in-stock]="product.stock > 0"
+                            <span class="stock-status w-max" [class.in-stock]="product.stock > 0"
                                 [class.out-of-stock]="product.stock === 0">
-                                {{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock') :
-                                (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}
+                                {{ product.stock > 0
+                                ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock')
+                                : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock')
+                                }}
                             </span>
                         </div>
 
@@ -341,7 +417,6 @@
                             <i class="fa-solid fa-cart-plus"></i>
                             <span>{{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}</span>
                         </button>
-
                     </div>
                 </div>
 
@@ -352,8 +427,9 @@
                         <!-- Image -->
                         <div class="list-image">
                             <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" loading="lazy" />
-                            <span *ngIf="product.discountPercentage" class="discount-badge">-{{
-                                product.discountPercentage }}%</span>
+                            <span *ngIf="product.discountPercentage" class="discount-badge">
+                                -{{ product.discountPercentage }}%
+                            </span>
                         </div>
 
                         <!-- Info -->
@@ -370,8 +446,10 @@
                             </div>
 
                             <span class="stock-status mx-auto" [class.in-stock]="product.stock > 0">
-                                {{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock') :
-                                (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}
+                                {{ product.stock > 0
+                                ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock')
+                                : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock')
+                                }}
                             </span>
                         </div>
 
@@ -379,11 +457,11 @@
                         <div class="list-action">
                             <div class="product-price">
                                 <span class="current-price">{{ formatPrice(product.price) }}</span>
-                                <span *ngIf="product.originalPrice" class="original-price">{{
-                                    formatPrice(product.originalPrice) }}</span>
+                                <span *ngIf="product.originalPrice" class="original-price">
+                                    {{ formatPrice(product.originalPrice) }}
+                                </span>
                             </div>
 
-                            <!-- في List View -->
                             <button class="add-to-cart-btn" (click)="addToCart(product, $event)"
                                 [disabled]="product.stock <= 0">
                                 <i class="fa-solid fa-cart-plus"></i>
@@ -392,31 +470,23 @@
                     </a>
                 </div>
 
-                <!-- Load More -->
                 <!-- Pagination -->
                 <div *ngIf="!isLoading && products.length > 0 && totalPages > 1" class="pagination">
-                    <!-- Previous Button -->
                     <button class="page-btn prev" (click)="prevPage()" [disabled]="!hasPrev"
                         [class.disabled]="!hasPrev">
                         <i class="fa-solid fa-chevron-right"></i>
                         <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'السابق' : 'Previous' }}</span>
                     </button>
 
-                    <!-- Page Numbers -->
                     <div class="page-numbers">
-                        <!-- First Page -->
-                        <button *ngIf="getPageNumbers()[0] > 1" class="page-num" (click)="goToPage(1)">
-                            1
-                        </button>
+                        <button *ngIf="getPageNumbers()[0] > 1" class="page-num" (click)="goToPage(1)">1</button>
                         <span *ngIf="getPageNumbers()[0] > 2" class="dots">...</span>
 
-                        <!-- Visible Pages -->
                         <button *ngFor="let page of getPageNumbers()" class="page-num"
                             [class.active]="page === currentPage" (click)="goToPage(page)">
                             {{ page }}
                         </button>
 
-                        <!-- Last Page -->
                         <span *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1"
                             class="dots">...</span>
                         <button *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages" class="page-num"
@@ -425,7 +495,6 @@
                         </button>
                     </div>
 
-                    <!-- Next Button -->
                     <button class="page-btn next" (click)="nextPage()" [disabled]="!hasNext"
                         [class.disabled]="!hasNext">
                         <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'التالي' : 'Next' }}</span>
@@ -435,8 +504,8 @@
 
                 <!-- Page Info -->
                 <div *ngIf="!isLoading && products.length > 0" class="page-info">
-                    {{ i18n.currentLang === 'ar' ? 'صفحة' : 'Page' }} {{ currentPage }} {{ i18n.currentLang === 'ar' ?
-                    'من' : 'of' }} {{ totalPages }}
+                    {{ i18n.currentLang === 'ar' ? 'صفحة' : 'Page' }} {{ currentPage }}
+                    {{ i18n.currentLang === 'ar' ? 'من' : 'of' }} {{ totalPages }}
                     <span class="separator">|</span>
                     {{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
                 </div>
@@ -451,8 +520,10 @@
 <div *ngIf="showAddDialog || showEditDialog" class="dialog-overlay" (click)="onDialogBackdropClick($event)">
     <div class="dialog dialog-lg">
         <div class="dialog-header">
-            <h2>{{ showAddDialog ? (i18n.currentLang === 'ar' ? 'إضافة منتج جديد' : 'Add New Product') :
-                (i18n.currentLang === 'ar' ? 'تعديل المنتج' : 'Edit Product') }}</h2>
+            <h2>{{ showAddDialog
+                ? (i18n.currentLang === 'ar' ? 'إضافة منتج جديد' : 'Add New Product')
+                : (i18n.currentLang === 'ar' ? 'تعديل المنتج' : 'Edit Product')
+                }}</h2>
             <button class="close-btn" (click)="closeAllDialogs()">
                 <i class="fa-solid fa-times"></i>
             </button>
@@ -488,13 +559,29 @@
                         [placeholder]="i18n.currentLang === 'ar' ? 'أدخل وصف المنتج بالإنجليزية' : 'Enter English description'"></textarea>
                 </div>
 
-                <!-- التصنيف -->
+                <!-- 🆕 التصنيف - Updated with hierarchy -->
                 <div class="form-group">
-                    <label>{{ i18n.currentLang === 'ar' ? 'التصنيف' : 'Category' }} *</label>
-                    <select [(ngModel)]="productForm.categoryId">
-                        <option [ngValue]="null">{{ i18n.currentLang === 'ar' ? '-- اختر التصنيف --' : '-- Select
-                            Category --' }}</option>
-                        <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ getName(cat) }}</option>
+                    <label>
+                        <i class="fa-solid fa-folder"></i>
+                        {{ i18n.currentLang === 'ar' ? 'التصنيف' : 'Category' }} *
+                    </label>
+                    <select [(ngModel)]="productForm.categoryId" class="category-select">
+                        <option [ngValue]="null">
+                            {{ i18n.currentLang === 'ar' ? '-- اختر التصنيف --' : '-- Select Category --' }}
+                        </option>
+
+                        <!-- 🆕 Hierarchical options -->
+                        <ng-container *ngFor="let cat of categories">
+                            <!-- Parent Category -->
+                            <option [ngValue]="cat.id" class="parent-option">
+                                📁 {{ getName(cat) }}
+                            </option>
+
+                            <!-- Child Categories -->
+                            <option *ngFor="let child of cat.children" [ngValue]="child.id" class="child-option">
+                                &nbsp;&nbsp;&nbsp;└ {{ getName(child) }}
+                            </option>
+                        </ng-container>
                     </select>
                 </div>
 
@@ -502,8 +589,9 @@
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'العلامة التجارية' : 'Brand' }}</label>
                     <select [(ngModel)]="productForm.brandId">
-                        <option [ngValue]="null">{{ i18n.currentLang === 'ar' ? '-- اختر العلامة التجارية --' : '--
-                            Select Brand --' }}</option>
+                        <option [ngValue]="null">
+                            {{ i18n.currentLang === 'ar' ? '-- اختر العلامة التجارية --' : '-- Select Brand --' }}
+                        </option>
                         <option *ngFor="let brand of brands" [ngValue]="brand.id">{{ getName(brand) }}</option>
                     </select>
                 </div>
@@ -602,8 +690,12 @@
             <button class="btn-submit" (click)="showAddDialog ? createProduct() : updateProduct()"
                 [disabled]="isSubmitting">
                 <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
-                <span *ngIf="!isSubmitting">{{ showAddDialog ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add') :
-                    (i18n.currentLang === 'ar' ? 'حفظ' : 'Save') }}</span>
+                <span *ngIf="!isSubmitting">
+                    {{ showAddDialog
+                    ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add')
+                    : (i18n.currentLang === 'ar' ? 'حفظ' : 'Save')
+                    }}
+                </span>
             </button>
         </div>
     </div>
@@ -621,11 +713,13 @@
             <h2>{{ i18n.currentLang === 'ar' ? 'حذف المنتج' : 'Delete Product' }}</h2>
         </div>
         <div class="dialog-body text-center">
-            <p>{{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف' : 'Are you sure you want to delete' }}
+            <p>
+                {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف' : 'Are you sure you want to delete' }}
                 <strong>"{{ selectedProduct ? getName(selectedProduct) : '' }}"</strong>؟
             </p>
-            <p class="warning-text">{{ i18n.currentLang === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء' : 'This action
-                cannot be undone' }}</p>
+            <p class="warning-text">
+                {{ i18n.currentLang === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء' : 'This action cannot be undone' }}
+            </p>
         </div>
         <div class="dialog-footer">
             <button class="btn-cancel" (click)="closeAllDialogs()" [disabled]="isSubmitting">

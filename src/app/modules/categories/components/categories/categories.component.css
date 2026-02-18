@@ -1219,3 +1219,496 @@
     padding: 6px 8px !important;
   }
 }
+
+/* ============================================
+   🆕 Subcategories / Hierarchy Styles
+   ============================================ */
+
+/* Type Filter Buttons */
+.type-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn.parent-filter.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.filter-btn.child-filter.active {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+/* Add Buttons Container */
+.add-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add-btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.add-btn.secondary {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.add-btn.secondary:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+/* Parent Filter Bar */
+.parent-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.parent-filter-bar label {
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.parent-filter-bar select {
+  flex: 1;
+  max-width: 300px;
+  padding: 0.625rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.parent-filter-bar select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Table Expand Column */
+.expand-col {
+  width: 40px;
+  text-align: center;
+}
+
+.expand-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f1f5f9;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+  background: #e2e8f0;
+}
+
+.expand-btn.expanded {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.expand-btn i {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+/* Row Styles */
+.parent-row {
+  background: #fff;
+}
+
+.parent-row.has-children {
+  background: #fafbfc;
+}
+
+.child-row {
+  background: #f8fafc;
+}
+
+.expanded-child {
+  background: #f1f5f9 !important;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subcategory Indent */
+.subcategory-indent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.indent-icon {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+/* Type Badge */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.type-badge.main {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+}
+
+.type-badge.sub {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+}
+
+.type-badge i {
+  font-size: 0.625rem;
+}
+
+/* Parent Cell */
+.parent-cell {
+  min-width: 120px;
+}
+
+.parent-name {
+  color: #6366f1;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.children-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.children-count i {
+  color: #8b5cf6;
+}
+
+.no-children {
+  color: #cbd5e1;
+}
+
+/* Add Subcategory Button */
+.action-btn.add-sub {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.action-btn.add-sub:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-2px);
+}
+
+/* Small Image in Expanded Rows */
+.category-image.small {
+  width: 36px;
+  height: 36px;
+}
+
+.category-image.small img {
+  width: 36px;
+  height: 36px;
+}
+
+/* Parent Select in Modal */
+.parent-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.parent-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.parent-select option {
+  padding: 0.5rem;
+}
+
+/* Form Group with Icon in Label */
+.form-group label i {
+  margin-inline-end: 0.5rem;
+  color: #6366f1;
+}
+
+/* Hint Text */
+.hint {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+/* RTL Adjustments */
+[dir="rtl"] .indent-icon {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .subcategory-indent {
+  padding-right: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .add-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .add-buttons .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .type-filters {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .parent-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .parent-filter-bar select {
+    max-width: 100%;
+  }
+  
+  .expand-col {
+    display: none;
+  }
+  
+  .type-badge {
+    font-size: 0.6875rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+/* Actions Bar Responsive */
+@media (max-width: 1024px) {
+  .actions-bar {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .search-box {
+    order: 1;
+    flex: 1 1 100%;
+  }
+  
+  .type-filters {
+    order: 2;
+  }
+  
+  .filter-buttons:not(.type-filters) {
+    order: 3;
+  }
+  
+  .add-buttons {
+    order: 4;
+    flex: 1 1 100%;
+  }
+}
+
+/* ═══════════════════════════════════════════════ */
+/* PAGINATION */
+/* ═══════════════════════════════════════════════ */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.page-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.page-btn:disabled,
+.page-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-num {
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.page-num:hover:not(.active) {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.page-num.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.dots {
+  padding: 0 8px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.page-info {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pagination {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .page-btn {
+    padding: 10px 16px;
+  }
+
+  .page-btn .btn-text {
+    display: none;
+  }
+
+  .page-numbers {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-num {
+    min-width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+}
+
+/* RTL */
+[dir="rtl"] .page-btn.prev i {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .page-btn.next i {
+  transform: rotate(180deg);
+}
+
+/* ── تأكد إن الـ pagination ظاهرة ── */
+.pagination {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 100px;
+  justify-content: center;
+}
+
+.page-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

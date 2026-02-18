@@ -173,7 +173,7 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   formatDate(date: string): string {
-    return new Date(date).toLocaleDateString(this.i18n.currentLang === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Date(date).toLocaleDateString(this.i18n.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -379,7 +379,7 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   formatPrice(price: number): string {
-    return price.toLocaleString() + ' ' + (this.i18n.currentLang === 'ar' ? 'ر.س' : 'SAR');
+    return price.toLocaleString() + ' ' + (this.i18n.currentLang === 'ar' ? 'ج.م' : 'EGP');
   }
 
   getDiscountPercentage(): number | null {

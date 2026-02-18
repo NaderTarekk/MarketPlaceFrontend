@@ -1,3 +1,5 @@
+// models/category.ts
+
 export interface Category {
   id: number;
   nameAr: string;
@@ -5,38 +7,40 @@ export interface Category {
   isActive: boolean;
   productCount: number;
   image?: string;
-  hasChildren: boolean;
+  createdAt?: string;
+  
+  // 🆕 Hierarchy Fields
+  parentId?: number | null;
+  parentNameAr?: string;
+  parentNameEn?: string;
+  children?: Category[];
+  
+  // 🆕 Computed (from backend)
+  isParent?: boolean;
+  childrenCount?: number;
+  hasChildren?: boolean;
 }
-
-export interface CategoryResponse {
-  success: boolean;
-  message: string;
-  data: CategoryDto[];
-  pagination?: any;
-}
-
-export interface CategoryDto {
-  id: number;
-  nameAr: string;
-  nameEn: string;
-  isActive: boolean;
-  createdAt: string;
-  productCount: number;
-}
-
 
 export interface CategoryFilterParams {
   pageNumber: number;
   pageSize: number;
   searchTerm?: string;
   isActive?: boolean | null;
+  
+  // 🆕 Hierarchy Filters
+  parentOnly?: boolean;      // Main categories only
+  childrenOnly?: boolean;    // Subcategories only
+  parentId?: number;         // Children of specific parent
+  includeChildren?: boolean; // Include children in response
 }
 
 export interface CreateCategoryDto {
   nameAr: string;
   nameEn: string;
-  isActive?: boolean;
   image?: string | null;
+  
+  // 🆕 Parent ID (null = main category)
+  parentId?: number | null;
 }
 
 export interface UpdateCategoryDto {
@@ -44,6 +48,10 @@ export interface UpdateCategoryDto {
   nameEn?: string;
   isActive?: boolean;
   image?: string | null;
+  
+  // 🆕 Can change parent
+  parentId?: number | null;
+  removeParent?: boolean; // Flag to make it main category
 }
 
 export interface ApiResponse<T> {

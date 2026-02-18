@@ -220,11 +220,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.homeService.getCategories(true).subscribe({
       next: (response: any) => {
         if (response.success) {
-          this.categories = response.data.map((cat: any) => ({
+           this.categories = response.data
+          .filter((cat: any) => !cat.parentId)  
+          .map((cat: any) => ({
             id: cat.id,
             nameAr: cat.nameAr,
             nameEn: cat.nameEn,
-            image: cat.image,  // ✅ أضف الصورة
+            image: cat.image,  
             productCount: cat.productCount,
             hasChildren: cat.productCount > 0
           }));

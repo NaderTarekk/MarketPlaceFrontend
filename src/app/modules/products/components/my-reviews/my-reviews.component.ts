@@ -222,7 +222,7 @@ export class MyReviewsComponent implements OnInit {
 
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString(
-      this.i18n.currentLang === 'ar' ? 'ar-SA' : 'en-US',
+      this.i18n.currentLang === 'ar' ? 'ar-EG' : 'en-US',
       { year: 'numeric', month: 'long', day: 'numeric' }
     );
   }

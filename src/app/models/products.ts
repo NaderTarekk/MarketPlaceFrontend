@@ -35,6 +35,8 @@ export interface ProductList {
   id: number;
   nameAr: string;
   nameEn: string;
+  descriptionAr: string | null;
+  descriptionEn: string | null;
   price: number;
   originalPrice: number | null;
   discountPercentage: number | null;

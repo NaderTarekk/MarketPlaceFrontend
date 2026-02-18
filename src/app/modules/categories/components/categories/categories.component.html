@@ -7,7 +7,7 @@
                 <i class="fa-solid fa-layer-group"></i>
                 {{ i18n.currentLang === 'ar' ? 'إدارة الفئات' : 'Categories Management' }}
             </h1>
-            <p>{{ i18n.currentLang === 'ar' ? 'إضافة وتعديل وحذف فئات المنتجات' : 'Add, edit and delete product categories' }}</p>
+            <p>{{ i18n.currentLang === 'ar' ? 'إضافة وتعديل وحذف فئات المنتجات الرئيسية والفرعية' : 'Add, edit and delete main and sub categories' }}</p>
         </div>
     </section>
 
@@ -25,26 +25,59 @@
                 </button>
             </div>
 
-            <!-- Filter Buttons -->
-            <div class="filter-buttons">
-                <button class="filter-btn" [class.active]="filterStatus === null" (click)="setStatusFilter(null)">
+            <!-- 🆕 Type Filter (All/Parents/Children) -->
+            <div class="filter-buttons type-filters">
+                <button class="filter-btn" [class.active]="filterType === 'all'" (click)="setTypeFilter('all')">
+                    <i class="fa-solid fa-list"></i>
                     {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
                 </button>
+                <button class="filter-btn parent-filter" [class.active]="filterType === 'parents'"
+                    (click)="setTypeFilter('parents')">
+                    <i class="fa-solid fa-folder"></i>
+                    {{ i18n.currentLang === 'ar' ? 'الرئيسية' : 'Main' }}
+                </button>
+                <button class="filter-btn child-filter" [class.active]="filterType === 'children'"
+                    (click)="setTypeFilter('children')">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    {{ i18n.currentLang === 'ar' ? 'الفرعية' : 'Sub' }}
+                </button>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="filter-buttons">
                 <button class="filter-btn active-filter" [class.active]="filterStatus === true"
-                    (click)="setStatusFilter(true)">
+                    (click)="setStatusFilter(filterStatus === true ? null : true)">
                     {{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}
                 </button>
                 <button class="filter-btn inactive-filter" [class.active]="filterStatus === false"
-                    (click)="setStatusFilter(false)">
+                    (click)="setStatusFilter(filterStatus === false ? null : false)">
                     {{ i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive' }}
                 </button>
             </div>
 
-            <!-- Add Button -->
-            <button class="add-btn" (click)="openAddModal()">
-                <i class="fa-solid fa-plus"></i>
-                {{ i18n.currentLang === 'ar' ? 'إضافة فئة' : 'Add Category' }}
-            </button>
+            <!-- Add Buttons -->
+            <div class="add-buttons">
+                <button class="add-btn primary" (click)="openAddModal(null)">
+                    <i class="fa-solid fa-plus"></i>
+                    {{ i18n.currentLang === 'ar' ? 'فئة رئيسية' : 'Main Category' }}
+                </button>
+                <button class="add-btn secondary" (click)="openAddModal(null)" *ngIf="parentCategories.length > 0">
+                    <i class="fa-solid fa-folder-plus"></i>
+                    {{ i18n.currentLang === 'ar' ? 'فئة فرعية' : 'Subcategory' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- 🆕 Parent Filter Dropdown (when viewing children) -->
+        <div class="parent-filter-bar" *ngIf="filterType === 'children' && parentCategories.length > 0">
+            <label>{{ i18n.currentLang === 'ar' ? 'فلترة حسب الفئة الرئيسية:' : 'Filter by parent:' }}</label>
+            <select [(ngModel)]="filterParentId" (ngModelChange)="filterByParent($event)">
+                <option [ngValue]="null">{{ i18n.currentLang === 'ar' ? 'جميع الفئات الفرعية' : 'All subcategories' }}
+                </option>
+                <option *ngFor="let parent of parentCategories" [ngValue]="parent.id">
+                    {{ getName(parent) }}
+                </option>
+            </select>
         </div>
 
         <!-- Loading -->
@@ -59,7 +92,7 @@
             </div>
             <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد فئات' : 'No categories found' }}</h3>
             <p>{{ i18n.currentLang === 'ar' ? 'ابدأ بإضافة فئة جديدة' : 'Start by adding a new category' }}</p>
-            <button class="add-btn" (click)="openAddModal()">
+            <button class="add-btn" (click)="openAddModal(null)">
                 <i class="fa-solid fa-plus"></i>
                 {{ i18n.currentLang === 'ar' ? 'إضافة فئة' : 'Add Category' }}
             </button>
@@ -70,72 +103,189 @@
             <table class="data-table">
                 <thead>
                     <tr>
+                        <th class="expand-col"></th>
                         <th>#</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'الصورة' : 'Image' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }}</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'النوع' : 'Type' }}</th>
+                        <th>{{ i18n.currentLang === 'ar' ? 'الفئة الرئيسية' : 'Parent' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
                         <th>{{ i18n.currentLang === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let category of categories; let i = index">
-                        <td class="row-number">{{ getRowNumber(i) }}</td>
-                        <td class="image-cell">
-                            <div class="category-image">
-                               <img [src]="getImageUrl(category.image)" 
-                                [alt]="category.nameAr"
-                                (error)="$any($event.target).src = 'assets/images/placeholder.png'" />
-                            </div>
-                        </td>
-                        <td class="name-cell">{{ category.nameAr }}</td>
-                        <td class="name-cell name-en">{{ category.nameEn }}</td>
-                        <td>
-                            <span class="product-count">
-                                <i class="fa-solid fa-box"></i>
-                                {{ category.productCount }}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="status-toggle" [class.active]="category.isActive"
-                                (click)="toggleStatus(category)"
-                                [title]="i18n.currentLang === 'ar' ? 'تغيير الحالة' : 'Toggle status'">
-                                <span class="toggle-track">
-                                    <span class="toggle-thumb"></span>
+                    <ng-container *ngFor="let category of categories; let i = index">
+                        <!-- Main Row -->
+                        <tr [class.parent-row]="!isSubcategory(category)" [class.child-row]="isSubcategory(category)"
+                            [class.has-children]="hasChildren(category)">
+
+                            <!-- Expand Button -->
+                            <td class="expand-col">
+                                <button *ngIf="hasChildren(category)" class="expand-btn"
+                                    (click)="toggleRowExpand(category.id)"
+                                    [class.expanded]="isRowExpanded(category.id)">
+                                    <i class="fa-solid"
+                                        [ngClass]="isRowExpanded(category.id) ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                                </button>
+                            </td>
+
+                            <td class="row-number">{{ getRowNumber(i) }}</td>
+
+                            <td class="image-cell">
+                                <div class="category-image">
+                                    <img [src]="getImageUrl(category.image)" [alt]="category.nameAr"
+                                        (error)="$any($event.target).src = 'https://placehold.co/150x150/e2e8f0/94a3b8?text=No+Image'" />
+                                </div>
+                            </td>
+
+                            <td class="name-cell">
+                                <span [class.subcategory-indent]="isSubcategory(category)">
+                                    <i *ngIf="isSubcategory(category)"
+                                        class="fa-solid fa-turn-up fa-rotate-90 indent-icon"></i>
+                                    {{ category.nameAr }}
                                 </span>
-                                <span class="status-text">
-                                    {{ category.isActive
-                                    ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active')
-                                    : (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive')
+                            </td>
+
+                            <td class="name-cell name-en">{{ category.nameEn }}</td>
+
+                            <!-- 🆕 Type Badge -->
+                            <td>
+                                <span class="type-badge" [class.main]="!isSubcategory(category)"
+                                    [class.sub]="isSubcategory(category)">
+                                    <i class="fa-solid"
+                                        [ngClass]="isSubcategory(category) ? 'fa-folder-tree' : 'fa-folder'"></i>
+                                    {{ isSubcategory(category)
+                                    ? (i18n.currentLang === 'ar' ? 'فرعية' : 'Sub')
+                                    : (i18n.currentLang === 'ar' ? 'رئيسية' : 'Main')
                                     }}
                                 </span>
-                            </button>
-                        </td>
-                        <td>
-                            <div class="actions">
-                                <button class="action-btn edit" (click)="openEditModal(category)"
-                                    [title]="i18n.currentLang === 'ar' ? 'تعديل' : 'Edit'">
-                                    <i class="fa-solid fa-pen"></i>
+                            </td>
+
+                            <!-- 🆕 Parent Name -->
+                            <td class="parent-cell">
+                                <span *ngIf="isSubcategory(category)" class="parent-name">
+                                    {{ getParentName(category) }}
+                                </span>
+                                <span *ngIf="!isSubcategory(category) && hasChildren(category)" class="children-count">
+                                    <i class="fa-solid fa-sitemap"></i>
+                                    {{ getChildrenCount(category) }} {{ i18n.currentLang === 'ar' ? 'فرعية' : 'sub' }}
+                                </span>
+                                <span *ngIf="!isSubcategory(category) && !hasChildren(category)"
+                                    class="no-children">-</span>
+                            </td>
+
+                            <td>
+                                <span class="product-count">
+                                    <i class="fa-solid fa-box"></i>
+                                    {{ category.productCount }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <button class="status-toggle" [class.active]="category.isActive"
+                                    (click)="toggleStatus(category)"
+                                    [title]="i18n.currentLang === 'ar' ? 'تغيير الحالة' : 'Toggle status'">
+                                    <span class="toggle-track">
+                                        <span class="toggle-thumb"></span>
+                                    </span>
+                                    <span class="status-text">
+                                        {{ category.isActive
+                                        ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active')
+                                        : (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive')
+                                        }}
+                                    </span>
                                 </button>
-                                <button class="action-btn delete" (click)="openDeleteModal(category)"
-                                    [title]="i18n.currentLang === 'ar' ? 'حذف' : 'Delete'">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+
+                            <td>
+                                <div class="actions">
+                                    <!-- 🆕 Add Subcategory Button (only for parent categories) -->
+                                    <button *ngIf="!isSubcategory(category)" class="action-btn add-sub"
+                                        (click)="openAddModal(category.id)"
+                                        [title]="i18n.currentLang === 'ar' ? 'إضافة فئة فرعية' : 'Add subcategory'">
+                                        <i class="fa-solid fa-folder-plus"></i>
+                                    </button>
+                                    <button class="action-btn edit" (click)="openEditModal(category)"
+                                        [title]="i18n.currentLang === 'ar' ? 'تعديل' : 'Edit'">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button class="action-btn delete" (click)="openDeleteModal(category)"
+                                        [title]="i18n.currentLang === 'ar' ? 'حذف' : 'Delete'">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 🆕 Expanded Children Rows -->
+                        <ng-container *ngIf="isRowExpanded(category.id) && category.children">
+                            <tr *ngFor="let child of category.children" class="child-row expanded-child">
+                                <td class="expand-col"></td>
+                                <td class="row-number">-</td>
+                                <td class="image-cell">
+                                    <div class="category-image small">
+                                        <img [src]="getImageUrl(child.image)" [alt]="child.nameAr" />
+                                    </div>
+                                </td>
+                                <td class="name-cell">
+                                    <span class="subcategory-indent">
+                                        <i class="fa-solid fa-turn-up fa-rotate-90 indent-icon"></i>
+                                        {{ child.nameAr }}
+                                    </span>
+                                </td>
+                                <td class="name-cell name-en">{{ child.nameEn }}</td>
+                                <td>
+                                    <span class="type-badge sub">
+                                        <i class="fa-solid fa-folder-tree"></i>
+                                        {{ i18n.currentLang === 'ar' ? 'فرعية' : 'Sub' }}
+                                    </span>
+                                </td>
+                                <td class="parent-cell">
+                                    <span class="parent-name">{{ getName(category) }}</span>
+                                </td>
+                                <td>
+                                    <span class="product-count">
+                                        <i class="fa-solid fa-box"></i>
+                                        {{ child.productCount }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="status-toggle" [class.active]="child.isActive"
+                                        (click)="toggleStatus(child)">
+                                        <span class="toggle-track">
+                                            <span class="toggle-thumb"></span>
+                                        </span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="action-btn edit" (click)="openEditModal(child)">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="action-btn delete" (click)="openDeleteModal(child)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
-        <div *ngIf="!isLoading && totalPages > 1" class="pagination">
-            <button class="page-btn" (click)="prevPage()" [disabled]="!hasPrev">
-                <i class="fa-solid" [ngClass]="i18n.currentLang === 'ar' ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
-                {{ i18n.currentLang === 'ar' ? 'السابق' : 'Previous' }}
+        <!-- Pagination -->
+        <div *ngIf="!isLoading && totalPages > 0" class="pagination">
+            <!-- Previous Button -->
+            <button class="page-btn prev" (click)="prevPage()" [disabled]="!hasPrev" [class.disabled]="!hasPrev">
+                <i class="fa-solid fa-chevron-right"></i>
+                <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'السابق' : 'Previous' }}</span>
             </button>
 
+            <!-- Page Numbers -->
             <div class="page-numbers">
                 <button *ngIf="getPageNumbers()[0] > 1" class="page-num" (click)="goToPage(1)">1</button>
                 <span *ngIf="getPageNumbers()[0] > 2" class="dots">...</span>
@@ -152,9 +302,10 @@
                 </button>
             </div>
 
-            <button class="page-btn" (click)="nextPage()" [disabled]="!hasNext">
-                {{ i18n.currentLang === 'ar' ? 'التالي' : 'Next' }}
-                <i class="fa-solid" [ngClass]="i18n.currentLang === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+            <!-- Next Button -->
+            <button class="page-btn next" (click)="nextPage()" [disabled]="!hasNext" [class.disabled]="!hasNext">
+                <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'التالي' : 'Next' }}</span>
+                <i class="fa-solid fa-chevron-left"></i>
             </button>
         </div>
 
@@ -163,8 +314,7 @@
             {{ i18n.currentLang === 'ar' ? 'عرض' : 'Showing' }}
             {{ (currentPage - 1) * pageSize + 1 }} -
             {{ currentPage * pageSize > totalCount ? totalCount : currentPage * pageSize }}
-            {{ i18n.currentLang === 'ar' ? 'من' : 'of' }}
-            {{ totalCount }}
+            {{ i18n.currentLang === 'ar' ? 'من' : 'of' }} {{ totalCount }}
             {{ i18n.currentLang === 'ar' ? 'فئة' : 'categories' }}
         </div>
     </div>
@@ -177,7 +327,9 @@
             <h2>
                 <i class="fa-solid" [ngClass]="showAddModal ? 'fa-plus-circle' : 'fa-edit'"></i>
                 {{ showAddModal
-                ? (i18n.currentLang === 'ar' ? 'إضافة فئة جديدة' : 'Add New Category')
+                ? (formData.parentId
+                ? (i18n.currentLang === 'ar' ? 'إضافة فئة فرعية' : 'Add Subcategory')
+                : (i18n.currentLang === 'ar' ? 'إضافة فئة رئيسية' : 'Add Main Category'))
                 : (i18n.currentLang === 'ar' ? 'تعديل الفئة' : 'Edit Category')
                 }}
             </h2>
@@ -187,9 +339,31 @@
         </div>
 
         <div class="modal-body">
+            <!-- 🆕 Parent Category Dropdown -->
+            <div class="form-group">
+                <label>
+                    <i class="fa-solid fa-sitemap"></i>
+                    {{ i18n.currentLang === 'ar' ? 'الفئة الرئيسية' : 'Parent Category' }}
+                </label>
+                <select [(ngModel)]="formData.parentId" class="parent-select">
+                    <option [ngValue]="null">
+                        {{ i18n.currentLang === 'ar' ? '-- بدون (فئة رئيسية) --' : '-- None (Main Category) --' }}
+                    </option>
+                    <option *ngFor="let parent of getAvailableParents()" [ngValue]="parent.id">
+                        {{ getName(parent) }}
+                    </option>
+                </select>
+                <small class="hint">
+                    {{ formData.parentId
+                    ? (i18n.currentLang === 'ar' ? 'سيتم إضافتها كفئة فرعية' : 'Will be added as subcategory')
+                    : (i18n.currentLang === 'ar' ? 'سيتم إضافتها كفئة رئيسية' : 'Will be added as main category')
+                    }}
+                </small>
+            </div>
+
             <!-- Arabic Name -->
             <div class="form-group">
-                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }}</label>
+                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }} *</label>
                 <input type="text" [(ngModel)]="formData.nameAr" [class.error]="formErrors.nameAr"
                     [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم الفئة بالعربي' : 'Enter category name in Arabic'"
                     dir="rtl" />
@@ -198,7 +372,7 @@
 
             <!-- English Name -->
             <div class="form-group">
-                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }}</label>
+                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }} *</label>
                 <input type="text" [(ngModel)]="formData.nameEn" [class.error]="formErrors.nameEn"
                     placeholder="Enter category name in English" dir="ltr" />
                 <span *ngIf="formErrors.nameEn" class="error-msg">{{ formErrors.nameEn }}</span>
@@ -232,7 +406,8 @@
                     </label>
                 </div>
 
-                <small class="hint">{{ i18n.currentLang === 'ar' ? 'JPG, PNG, GIF (حد أقصى 5MB)' : 'JPG, PNG, GIF (max 5MB)' }}</small>
+                <small class="hint">{{ i18n.currentLang === 'ar' ? 'JPG, PNG, GIF (حد أقصى 5MB)' : 'JPG, PNG, GIF (max
+                    5MB)' }}</small>
             </div>
 
             <!-- Status Toggle (Edit Only) -->
@@ -254,20 +429,19 @@
         </div>
 
         <div class="modal-footer">
-  <button class="btn-cancel" (click)="closeModals()" [disabled]="isSubmitting || isUploading">
-    {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
-  </button>
-  
-  <!-- ✅ غيّر لـ uploadAndSave() -->
-  <button class="btn-submit" (click)="uploadAndSave()" [disabled]="isSubmitting || isUploading">
-    <span *ngIf="isSubmitting || isUploading" class="btn-spinner"></span>
-    <i *ngIf="!isSubmitting && !isUploading" class="fa-solid fa-check"></i>
-    {{ showAddModal
-      ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add')
-      : (i18n.currentLang === 'ar' ? 'تحديث' : 'Update')
-    }}
-  </button>
-</div>
+            <button class="btn-cancel" (click)="closeModals()" [disabled]="isSubmitting || isUploading">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+
+            <button class="btn-submit" (click)="uploadAndSave()" [disabled]="isSubmitting || isUploading">
+                <span *ngIf="isSubmitting || isUploading" class="btn-spinner"></span>
+                <i *ngIf="!isSubmitting && !isUploading" class="fa-solid fa-check"></i>
+                {{ showAddModal
+                ? (i18n.currentLang === 'ar' ? 'إضافة' : 'Add')
+                : (i18n.currentLang === 'ar' ? 'تحديث' : 'Update')
+                }}
+            </button>
+        </div>
     </div>
 </div>
 
@@ -282,6 +456,17 @@
             {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف فئة' : 'Are you sure you want to delete' }}
             <strong>"{{ selectedCategory?.nameAr }}"</strong>؟
         </p>
+
+        <!-- Warning: Has Children -->
+        <p *ngIf="selectedCategory && hasChildren(selectedCategory)" class="warning-text">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            {{ i18n.currentLang === 'ar'
+            ? 'تحذير: هذه الفئة لديها ' + getChildrenCount(selectedCategory!) + ' فئة فرعية'
+            : 'Warning: This category has ' + getChildrenCount(selectedCategory!) + ' subcategories'
+            }}
+        </p>
+
+        <!-- Warning: Has Products -->
         <p *ngIf="selectedCategory?.productCount && selectedCategory!.productCount > 0" class="warning-text">
             <i class="fa-solid fa-exclamation-triangle"></i>
             {{ i18n.currentLang === 'ar'
@@ -289,6 +474,7 @@
             : 'Warning: This category has ' + selectedCategory!.productCount + ' products'
             }}
         </p>
+
         <div class="modal-actions">
             <button class="btn-cancel" (click)="closeModals()" [disabled]="isSubmitting">
                 {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}

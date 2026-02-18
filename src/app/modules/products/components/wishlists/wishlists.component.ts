@@ -212,7 +212,7 @@ export class WishlistsComponent implements OnInit {
   }
 
   formatPrice(price: number): string {
-    return price.toLocaleString() + ' ' + (this.i18n.currentLang === 'ar' ? 'ر.س' : 'SAR');
+    return price.toLocaleString() + ' ' + (this.i18n.currentLang === 'ar' ? 'ج.م' : 'EGP');
   }
 
   getDiscountPercentage(item: WishlistItem): number | null {
