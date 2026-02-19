@@ -63,6 +63,9 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  upgradeToVendor(data: any): Observable<any> {
+  return this.http.post(`${environment.authUrl}/upgrade-to-vendor`, data);
+}
   // ✅ جديد - نسيت كلمة المرور
   ForgotPassword(email: string): Observable<any> {
     return this.http.post(environment.authUrl + "/forgot-password", { email });

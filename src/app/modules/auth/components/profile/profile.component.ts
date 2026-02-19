@@ -24,7 +24,13 @@ export class ProfileComponent implements OnInit {
   };
   // Edit Form
   editForm: UpdateProfile = {};
-
+  showUpgradeModal = false;
+  upgradeRole: 'Vendor' | 'DeliveryAgent' = 'Vendor';
+  vendorBusinessName = '';
+  vendorCommercialReg = '';
+  vendorTaxNumber = '';
+  vendorBusinessAddress = '';
+  isUpgrading = false;
   // Image Upload
   selectedImage: File | null = null;
   imagePreview: string | null = null;
@@ -46,8 +52,97 @@ export class ProfileComponent implements OnInit {
       this.router.navigate(['/auth/login']);
       return;
     }
+
+    if (localStorage.getItem('NHC_MP_Role') === "Admin") {
+    }
     this.loadProfile();
     this.loadStats();
+  }
+
+  // ✅ NEW: Helper methods for upgrade button visibility
+  isCustomer(): boolean {
+    
+    if (!this.profile?.role) return false;
+    return this.profile.role.toLowerCase() === 'customer';
+  }
+
+  hasBusinessName(): boolean {
+    if (!this.profile?.businessName) return false;
+    return this.profile.businessName.trim().length > 0;
+  }
+
+  canUpgradeToVendor(): boolean {
+    // Show upgrade button if:
+    // 1. User is a customer
+    // 2. User doesn't have a business name (hasn't submitted upgrade request)
+    return this.isCustomer() && !this.hasBusinessName();
+  }
+
+  toggleUpgradeModal(): void {
+    this.showUpgradeModal = !this.showUpgradeModal;
+
+    // ✅ خلي الـ navbar تختفي لما الـ modal يفتح
+    if (this.showUpgradeModal) {
+      document.body.style.overflow = 'hidden';
+      const navbar = document.querySelector('.mobile-bottom-nav') as HTMLElement;
+      if (navbar) navbar.style.display = 'none';
+    } else {
+      document.body.style.overflow = '';
+      const navbar = document.querySelector('.mobile-bottom-nav') as HTMLElement;
+      if (navbar) navbar.style.display = '';
+    }
+  }
+
+  upgradeAccount(): void {
+    if (!this.vendorBusinessName || !this.vendorCommercialReg ||
+      !this.vendorTaxNumber || !this.vendorBusinessAddress) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields',
+        'error'
+      );
+      return;
+    }
+
+    this.isUpgrading = true;
+
+    const payload = {
+      role: 'Vendor', // ✅ بس مش هيتطبق إلا بعد موافقة الأدمن
+      businessName: this.vendorBusinessName,
+      commercialRegistration: this.vendorCommercialReg,
+      taxNumber: this.vendorTaxNumber,
+      businessAddress: this.vendorBusinessAddress
+    };
+
+    this.profileService.upgradeToVendor(payload).subscribe({
+      next: (res) => {
+        this.isUpgrading = false;
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? 'تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة. ستبقى كعميل حتى تتم الموافقة.'
+              : 'Request submitted! You will remain as Customer until admin approval.',
+            'success'
+          );
+          this.showUpgradeModal = false;
+
+          // ✅ ارجع للبروفايل - مش logout
+          setTimeout(() => {
+            this.loadProfile(); // ✅ حمل البروفايل من جديد
+            this.vendorBusinessName = '';
+            this.vendorCommercialReg = '';
+            this.vendorTaxNumber = '';
+            this.vendorBusinessAddress = '';
+          }, 2000);
+        }
+      },
+      error: (err) => {
+        this.isUpgrading = false;
+        this.showToast(
+          err.error?.message || (this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error occurred'),
+          'error'
+        );
+      }
+    });
   }
 
   loadStats(): void {
@@ -67,7 +162,13 @@ export class ProfileComponent implements OnInit {
     this.profileService.getProfile().subscribe({
       next: (res) => {
         if (res.success) {
+          console.log('✅ Profile loaded:', res.data);
+          console.log('✅ Role:', res.data.role);
+          console.log('✅ Business Name:', res.data.businessName);
+          console.log('✅ Can upgrade?', this.canUpgradeToVendor());
+
           this.profile = res.data;
+          this.cdr.detectChanges();
           this.initEditForm();
         }
         this.isLoading = false;
@@ -201,12 +302,15 @@ export class ProfileComponent implements OnInit {
   }
 
   getRoleBadge(): { text: string; class: string } {
-    switch (this.profile?.role) {
-      case 'Admin':
+    // ✅ Handle case-insensitive role comparison
+    const role = this.profile?.role?.toLowerCase();
+
+    switch (role) {
+      case 'admin':
         return { text: this.i18n.currentLang === 'ar' ? 'مدير' : 'Admin', class: 'admin' };
-      case 'Vendor':
+      case 'vendor':
         return { text: this.i18n.currentLang === 'ar' ? 'تاجر' : 'Vendor', class: 'vendor' };
-      case 'DeliveryAgent':
+      case 'deliveryagent':
         return { text: this.i18n.currentLang === 'ar' ? 'مندوب' : 'Delivery', class: 'delivery' };
       default:
         return { text: this.i18n.currentLang === 'ar' ? 'عميل' : 'Customer', class: 'customer' };

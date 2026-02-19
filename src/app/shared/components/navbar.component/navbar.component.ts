@@ -30,6 +30,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   lang: string = '';
   navLinks: any[] = [];
   isLogged: boolean = false;
+  isLoading: boolean = false;
   private langSub!: Subscription;
   private authSub!: Subscription;
   isProfileMenuOpen = false;
@@ -217,6 +218,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isActionMenuOpen = !this.isActionMenuOpen;
   }
   loadCategories(): void {
+    this.isLoading = true;
     this.homeService.getCategories(true).subscribe({
       next: (response: any) => {
         if (response.success) {
@@ -231,8 +233,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
             hasChildren: cat.productCount > 0
           }));
         }
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error loading categories:', err)
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error loading categories:', err);
+      }
     });
   }
 

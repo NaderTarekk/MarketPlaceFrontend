@@ -1,3 +1,5 @@
+<app-loader-component *ngIf="isLoading"></app-loader-component>
+
 <header class="navbar">
   <!-- ═══════════════════════════════════════════════ -->
   <!-- TOP ROW: Logo + Catalog + Search + Icons -->
@@ -124,7 +126,7 @@
           <span>{{ 'profile' | translate }}</span>
         </a>
 
-        <a *ngIf="isLogged" routerLink="/orders" class="nav-icon-item">
+        <a *ngIf="isLogged" routerLink="/cart/my-orders" class="nav-icon-item">
           <i class="fa-solid fa-box"></i>
           <span>{{ currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
         </a>

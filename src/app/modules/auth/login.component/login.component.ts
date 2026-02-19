@@ -557,7 +557,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: this.registerPassword,
       confirmPassword: this.registerConfirmPassword,
       phoneNumber: this.registerPhone,
-      role: this.registerRole
+      role: 'Customer'
     };
 
     if (this.registerRole === 'Vendor') {

@@ -218,6 +218,64 @@
           </div>
         </div>
 
+        <!-- Pending Vendor Requests Section -->
+<div class="stats-section" *ngIf="pendingVendorRequests.length > 0">
+  <h2 class="section-title">
+    <i class="fa-solid fa-hourglass-half"></i>
+    {{ i18n.currentLang === 'ar' ? 'طلبات الترقية المعلقة' : 'Pending Vendor Requests' }}
+    <span class="badge-count">{{ pendingVendorRequests.length }}</span>
+  </h2>
+
+  <!-- Loading -->
+  <div *ngIf="isLoadingPendingVendors" class="loading-inline">
+    <div class="spinner-sm"></div>
+  </div>
+
+  <!-- Pending Requests Table -->
+  <div *ngIf="!isLoadingPendingVendors" class="pending-vendors-table">
+    <table class="modern-table">
+      <thead>
+        <tr>
+          <th>{{ i18n.currentLang === 'ar' ? 'المستخدم' : 'User' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business Name' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'السجل التجاري' : 'Commercial Reg.' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'الرقم الضريبي' : 'Tax Number' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'تاريخ الطلب' : 'Request Date' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let request of pendingVendorRequests">
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{ request.fullName.charAt(0) }}</div>
+              <span>{{ request.fullName }}</span>
+            </div>
+          </td>
+          <td>{{ request.email }}</td>
+          <td><strong>{{ request.businessName }}</strong></td>
+          <td>{{ request.commercialRegistration }}</td>
+          <td>{{ request.taxNumber }}</td>
+          <td>{{ formatDate(request.createdAt) }}</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn approve" (click)="approveVendor(request.id)" 
+                      [title]="i18n.currentLang === 'ar' ? 'قبول' : 'Approve'">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <button class="action-btn reject" (click)="rejectVendor(request.id)" 
+                      [title]="i18n.currentLang === 'ar' ? 'رفض' : 'Reject'">
+                <i class="fa-solid fa-times"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
         <!-- Charts & Lists Row -->
         <div class="charts-row">
           <!-- Revenue Chart -->

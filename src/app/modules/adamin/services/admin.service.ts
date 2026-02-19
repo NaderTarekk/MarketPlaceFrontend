@@ -11,7 +11,7 @@ import { AdminDashboard, AdminUser, ApiResponse, InventoryReport, PagedResponse,
 })
 export class AdminReportsService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Dashboard
   getDashboard(): Observable<ApiResponse<AdminDashboard>> {
@@ -55,6 +55,20 @@ export class AdminReportsService {
 
   changeUserRole(id: string, role: string): Observable<ApiResponse<any>> {
     return this.http.put<ApiResponse<any>>(`${environment.adminUrl}/users/${id}/role`, { role });
+  }
+
+  getPendingVendorRequests(): Observable<any> {
+    return this.http.get(`${environment.adminUrl}/pending-vendor-requests`);
+  }
+
+  // Approve Vendor Upgrade
+  approveVendorUpgrade(userId: string): Observable<any> {
+    return this.http.post(`${environment.adminUrl}/approve-vendor/${userId}`, {});
+  }
+
+  // Reject Vendor Upgrade
+  rejectVendorUpgrade(userId: string): Observable<any> {
+    return this.http.post(`${environment.adminUrl}/reject-vendor/${userId}`, {});
   }
 
   // Sales Report

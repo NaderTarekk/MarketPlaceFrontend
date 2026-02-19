@@ -7,6 +7,7 @@ import { CartRoutingModule } from '../../routing/cart-routing.module';
 import { OrderComponent } from './components/order/order.component';
 import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
 import { PaymentCancelComponent } from './components/payment-cancel/payment-cancel.component';
+import { MyOrdersComponent } from './components/my-orders/my-orders.component';
 
 
 
@@ -15,7 +16,8 @@ import { PaymentCancelComponent } from './components/payment-cancel/payment-canc
     CartComponent,
     OrderComponent,
     PaymentSuccessComponent,
-    PaymentCancelComponent
+    PaymentCancelComponent,
+    MyOrdersComponent
   ],
   imports: [
     CommonModule,

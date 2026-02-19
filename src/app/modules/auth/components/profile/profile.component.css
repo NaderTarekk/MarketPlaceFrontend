@@ -781,3 +781,319 @@
   right: auto;
   left: 0;
 }
+
+/* profile.component.css - أضف */
+
+.upgrade-section {
+  margin-top: 1rem;
+}
+
+.btn-upgrade {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.btn-upgrade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+/* profile.component.css - استبدل الـ Modal styles بالكود ده */
+
+.upgrade-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-upgrade {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.btn-upgrade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.upgrade-modal {
+  background: white;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 500px;
+  padding: 32px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideUp 0.3s ease;
+  z-index: 100000;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 24px;
+}
+
+.role-selection {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.role-option {
+  padding: 20px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.role-option:hover {
+  border-color: #a855f7;
+  transform: translateY(-2px);
+}
+
+.role-option.active {
+  border-color: #a855f7;
+  background: #faf5ff;
+}
+
+.role-option i {
+  font-size: 28px;
+  color: #6b7280;
+  transition: color 0.3s;
+}
+
+.role-option.active i {
+  color: #a855f7;
+}
+
+.role-option span {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.vendor-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.vendor-fields input,
+.vendor-fields textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #1a1a2e;
+  background: white;
+  transition: all 0.3s;
+  outline: none;
+}
+
+.vendor-fields input:focus,
+.vendor-fields textarea:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+}
+
+.vendor-fields textarea {
+  resize: none;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-modal {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-cancel {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: white;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .upgrade-modal {
+    padding: 24px 16px;
+    max-width: calc(100% - 32px);
+  }
+
+  .modal-title {
+    font-size: 20px;
+  }
+
+  .role-selection {
+    gap: 8px;
+  }
+
+  .role-option {
+    padding: 16px 12px;
+  }
+
+  .role-option i {
+    font-size: 24px;
+  }
+
+  .role-option span {
+    font-size: 12px;
+  }
+}
+
+/* ═══════════════════════════════════════════════ */
+/* MODAL Z-INDEX FIX - FORCE ABOVE NAVBAR */
+/* ═══════════════════════════════════════════════ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999 !important; /* ✅ أعلى من أي حاجة */
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.upgrade-modal {
+  background: white;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 500px;
+  padding: 32px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideUp 0.3s ease;
+  position: relative;
+  z-index: 9999999 !important; /* ✅ أعلى من الـ overlay */
+}
+
+/* ✅ أهم حاجة - خلي الـ navbar تحت */
+::ng-deep .mobile-bottom-nav,
+::ng-deep app-navbar,
+::ng-deep .navbar {
+  z-index: 998 !important;
+}
+
+/* في profile.component.css */
+.pending-request {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  text-align: center;
+  justify-content: center;
+}
+
+.pending-request i {
+  font-size: 18px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

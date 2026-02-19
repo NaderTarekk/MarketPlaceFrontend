@@ -115,6 +115,68 @@
                     {{ i18n.currentLang === 'ar' ? 'خروج' : 'Logout' }}
                 </button>
             </div>
+
+            <!-- ✅ FIXED: Pending Request Status -->
+            <div *ngIf="isCustomer() && hasBusinessName() && !profile.isApproved"
+                class="upgrade-section">
+                <div class="pending-request">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>
+                        {{ i18n.currentLang === 'ar'
+                        ? 'طلب الترقية قيد المراجعة'
+                        : 'Upgrade request pending review' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- ✅ FIXED: Upgrade Button - More robust conditions -->
+            <div *ngIf="canUpgradeToVendor()" class="upgrade-section">
+                <button class="btn-upgrade" (click)="toggleUpgradeModal()">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    {{ i18n.currentLang === 'ar' ? 'ترقية إلى تاجر' : 'Upgrade to Vendor' }}
+                </button>
+            </div>
+
+            <!-- Modal -->
+            <div *ngIf="showUpgradeModal" class="modal-overlay" (click)="toggleUpgradeModal()">
+                <div class="upgrade-modal" (click)="$event.stopPropagation()">
+
+                    <h2 class="modal-title">
+                        {{ i18n.currentLang === 'ar' ? 'ترقية الحساب إلى تاجر' : 'Upgrade to Vendor Account' }}
+                    </h2>
+
+                    <!-- Vendor Fields -->
+                    <div class="vendor-fields">
+                        <input type="text" [(ngModel)]="vendorBusinessName"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business Name'" />
+
+                        <input type="text" [(ngModel)]="vendorCommercialReg"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'السجل التجاري' : 'Commercial Registration'" />
+
+                        <input type="text" [(ngModel)]="vendorTaxNumber"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'الرقم الضريبي' : 'Tax Number'" />
+
+                        <textarea [(ngModel)]="vendorBusinessAddress" rows="3"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'عنوان المتجر' : 'Business Address'"></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="modal-actions">
+                        <button class="btn-modal btn-cancel" (click)="toggleUpgradeModal()">
+                            {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+                        </button>
+
+                        <button class="btn-modal btn-submit" (click)="upgradeAccount()" [disabled]="isUpgrading">
+                            <span *ngIf="!isUpgrading">
+                                {{ i18n.currentLang === 'ar' ? 'إرسال الطلب' : 'Submit Request' }}
+                            </span>
+                            <span *ngIf="isUpgrading">
+                                {{ i18n.currentLang === 'ar' ? 'جاري الإرسال...' : 'Submitting...' }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Details Section -->

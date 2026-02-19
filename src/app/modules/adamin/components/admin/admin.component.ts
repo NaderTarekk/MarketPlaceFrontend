@@ -18,6 +18,8 @@ export class AdminComponent implements OnInit {
   isLoadingUsers = false;
   isLoadingSales = false;
   isLoadingInventory = false;
+  pendingVendorRequests: any[] = [];
+  isLoadingPendingVendors = false;
 
   // Dashboard Data
   dashboard: AdminDashboard | null = null;
@@ -77,18 +79,86 @@ export class AdminComponent implements OnInit {
     public i18n: I18nService,
     private adminService: AdminReportsService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadDashboard();
+    this.loadPendingVendorRequests();
   }
 
+  loadPendingVendorRequests(): void {
+    this.isLoadingPendingVendors = true;
+    this.adminService.getPendingVendorRequests().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.pendingVendorRequests = res.data;
+        }
+        this.isLoadingPendingVendors = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingPendingVendors = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ في تحميل الطلبات' : 'Error loading requests',
+          'error'
+        );
+      }
+    });
+  }
+
+  // Approve Vendor
+  approveVendor(userId: string): void {
+    this.adminService.approveVendorUpgrade(userId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم قبول الطلب بنجاح' : 'Request approved',
+            'success'
+          );
+          this.loadPendingVendorRequests();
+          this.loadDashboard();
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error approving request',
+          'error'
+        );
+      }
+    });
+  }
+
+  // Reject Vendor
+  rejectVendor(userId: string): void {
+    if (!confirm(this.i18n.currentLang === 'ar' ? 'هل أنت متأكد من رفض الطلب؟' : 'Reject this request?')) {
+      return;
+    }
+
+    this.adminService.rejectVendorUpgrade(userId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم رفض الطلب' : 'Request rejected',
+            'success'
+          );
+          this.loadPendingVendorRequests();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error rejecting request',
+          'error'
+        );
+      }
+    });
+  }
   // ═══════════════════════════════════════════════
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
   switchTab(tab: 'dashboard' | 'users' | 'sales' | 'inventory'): void {
     this.activeTab = tab;
-    
+
     switch (tab) {
       case 'dashboard':
         if (!this.dashboard) this.loadDashboard();

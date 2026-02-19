@@ -23,3 +23,15 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #2563eb, #7c3aed);
 }
+
+/* في الملف العام */
+app-navbar,
+.navbar,
+.mobile-bottom-nav,
+.categories-scroll-bar {
+  z-index: 998 !important;
+}
+
+.modal-overlay {
+  z-index: 999999 !important;
+}
