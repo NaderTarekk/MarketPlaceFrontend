@@ -1,0 +1,143 @@
+<div class="support-dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Waiting Sessions -->
+    <div class="sidebar-section">
+      <div class="section-header">
+        <h3>
+          <i class="fa fa-clock"></i>
+          المحادثات المنتظرة
+        </h3>
+        <span class="count" [class.has-items]="waitingSessions.length > 0">
+          {{ waitingSessions.length }}
+        </span>
+      </div>
+      
+      <div class="sessions-list">
+        @for (session of waitingSessions; track session.id) {
+          <div class="session-card waiting" (click)="joinSession(session)">
+            <div class="avatar">👤</div>
+            <div class="info">
+              <h4>{{ session.customerName }}</h4>
+              <p class="code">{{ session.sessionCode }}</p>
+              <p class="time">{{ formatTime(session.createdAt) }}</p>
+            </div>
+            <button class="join-btn">
+              <i class="fa fa-sign-in"></i>
+              انضمام
+            </button>
+          </div>
+        } @empty {
+          <div class="empty-state">
+            <i class="fa fa-check-circle"></i>
+            <p>لا توجد محادثات منتظرة</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="sidebar-section">
+      <div class="section-header">
+        <h3>
+          <i class="fa fa-comments"></i>
+          محادثاتي النشطة
+        </h3>
+        <span class="count active">{{ activeSessions.length }}</span>
+      </div>
+      
+      <div class="sessions-list">
+        @for (session of activeSessions; track session.id) {
+          <div class="session-card" 
+               [class.selected]="currentSession?.id === session.id"
+               (click)="selectSession(session)">
+            <div class="avatar">👤</div>
+            <div class="info">
+              <h4>{{ session.customerName }}</h4>
+              <p class="last-message">
+                {{ session.messages[session.messages.length - 1]?.content | slice:0:25 }}...
+              </p>
+            </div>
+            <span class="time">{{ formatTime(session.lastMessageAt) }}</span>
+          </div>
+        } @empty {
+          <div class="empty-state small">
+            <p>لا توجد محادثات نشطة</p>
+          </div>
+        }
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Chat Area -->
+  <main class="chat-area">
+    @if (!currentSession) {
+      <div class="no-session">
+        <div class="icon">💬</div>
+        <h2>اختر محادثة للبدء</h2>
+        <p>اختر محادثة من القائمة الجانبية أو انتظر محادثات جديدة</p>
+      </div>
+    } @else {
+      <div class="active-chat">
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <div class="customer-info">
+            <div class="avatar">👤</div>
+            <div class="details">
+              <h3>{{ currentSession.customerName }}</h3>
+              <span class="code">{{ currentSession.sessionCode }}</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="action-btn close" (click)="closeCurrentSession()">
+              <i class="fa fa-times"></i>
+              إنهاء المحادثة
+            </button>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages-container" #messagesContainer>
+          @for (message of currentSession.messages; track message.id) {
+            <div class="message" 
+                 [class.agent]="message.senderType === MessageSenderType.Agent"
+                 [class.customer]="message.senderType === MessageSenderType.Customer"
+                 [class.system]="message.senderType === MessageSenderType.Bot">
+              <div class="bubble">
+                <div class="sender">{{ message.senderName }}</div>
+                <div class="content">{{ message.content }}</div>
+                <div class="time">{{ formatTime(message.createdAt) }}</div>
+              </div>
+            </div>
+          }
+
+          @if (customerTyping) {
+            <div class="typing">
+              <span>العميل يكتب</span>
+              <div class="dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Input -->
+        <div class="input-area">
+          <input
+            type="text"
+            [(ngModel)]="newMessage"
+            (keydown)="onKeyDown($event)"
+            placeholder="اكتب ردك..."
+            [disabled]="!isConnected"
+          />
+          <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim() || !isConnected">
+            <i class="fa fa-paper-plane"></i>
+            إرسال
+          </button>
+        </div>
+      </div>
+    }
+  </main>
+</div>

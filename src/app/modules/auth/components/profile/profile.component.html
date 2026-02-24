@@ -99,6 +99,16 @@
                         <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'تقييماتي' : 'My Reviews' }}</span>
                     </div>
                 </div>
+
+                <div class="stat-item" routerLink="/complaints">
+                    <div class="stat-icon complaints">
+                        <i class="fa-solid fa-flag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.complaintsCount || 0 }}</span>
+                        <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'شكاوي' : 'Complaints' }}</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Quick Actions -->
@@ -117,8 +127,7 @@
             </div>
 
             <!-- ✅ FIXED: Pending Request Status -->
-            <div *ngIf="isCustomer() && hasBusinessName() && !profile.isApproved"
-                class="upgrade-section">
+            <div *ngIf="isCustomer() && hasBusinessName() && !profile.isApproved" class="upgrade-section">
                 <div class="pending-request">
                     <i class="fa-solid fa-clock"></i>
                     <span>

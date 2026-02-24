@@ -7,6 +7,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../../environment';
 import { Profile, ProfileStats, UpdateProfile } from '../../../models/profile';
 import { ApiResponse } from '../../../models/products';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -99,5 +100,31 @@ export class AuthService {
 
   getProfileStats(): Observable<ApiResponse<ProfileStats>> {
     return this.http.get<ApiResponse<ProfileStats>>(`${environment.profileUrl}/stats`);
+  }
+
+  getUserId(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.uid || decoded.sub || decoded.nameid || null;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+
+  // ✅ جديد - جلب User Info من الـ Token
+  getUserInfo(): any {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
   }
 }

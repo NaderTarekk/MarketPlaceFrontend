@@ -492,45 +492,47 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
-  onLogin(): void {
-    if (!this.loginEmail || !this.loginPassword) {
-      this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields');
-      return;
-    }
-
-    this.isLoading = true;
-
-    this.authService.login({
-      email: this.loginEmail,
-      password: this.loginPassword
-    }).subscribe({
-      next: (res) => {
-        if(res.user.isBanned === true){
-          this.isLoading = false;
-          this.toastr.error(this.i18n.currentLang === 'ar' ? 'تم حظر حسابك، يرجى التواصل مع الدعم' : 'Your account has been banned, please contact support');
-          this.cdr.detectChanges();
-          return;
-        }
-        this.isLoading = false;
-        if (res.success && res.token && res.role) {
-          this.authService.saveToken(res.token, res.role);
-          this.toastr.success(res.message || (this.i18n.currentLang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful'));
-          this.cdr.detectChanges(); // ✅ Force change detection to update the UI immediately
-          this.router.navigate(['/']);
-        } else {
-          const message = res.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
-          this.toastr.error(message);
-        }
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.error('Login error:', err);
-        const message = err.error?.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
-        this.toastr.error(message);
-      }
-    });
+ onLogin(): void {
+  if (!this.loginEmail || !this.loginPassword) {
+    this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields');
+    return;
   }
 
+  this.isLoading = true;
+
+  this.authService.login({
+    email: this.loginEmail,
+    password: this.loginPassword
+  }).subscribe({
+    next: (res: any) => {
+      // ✅ تحقق من الحظر
+      if (res.user?.isBanned === true) {
+        this.toastr.error(this.i18n.currentLang === 'ar' ? 'تم حظر حسابك، يرجى التواصل مع الدعم' : 'Your account has been banned, please contact support');
+        return; // ← الـ isLoading هيتعمله false في finally
+      }
+
+      // ✅ نجاح تسجيل الدخول
+      if (res.success && res.token && res.role) {
+        this.authService.saveToken(res.token, res.role);
+        this.toastr.success(res.message || (this.i18n.currentLang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful'));
+        this.router.navigate(['/']);
+      } else {
+        const message = res.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
+        this.toastr.error(message);
+      }
+    },
+    error: (err) => {
+      console.error('Login error:', err);
+      const message = err.error?.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
+      this.toastr.error(message);
+    },
+    complete: () => {
+      // ✅ هنا بس اعمل isLoading = false
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
   onRegister(): void {
     if (!this.registerName || !this.registerEmail || !this.registerPassword || !this.registerConfirmPassword) {
       this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields');

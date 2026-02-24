@@ -224,6 +224,11 @@
   color: white;
 }
 
+.role-badge.customer-service {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
 .role-badge.delivery {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
@@ -1096,4 +1101,8 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.stat-icon.complaints {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }

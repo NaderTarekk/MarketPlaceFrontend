@@ -3,6 +3,8 @@ import { Brand } from '../../../../models/brand';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { BrandService } from '../../services/brand.service';
 import { environment } from '../../../../../environment';
+import Swal from 'sweetalert2';
+import { ComplaintsService } from '../../../complaints/services/complaints.service';
 
 @Component({
   selector: 'app-brand',
@@ -41,7 +43,8 @@ export class BrandComponent implements OnInit {
   constructor(
     public i18n: I18nService,
     private brandService: BrandService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private complaintService: ComplaintsService,
   ) { }
 
   ngOnInit(): void {
@@ -120,6 +123,10 @@ export class BrandComponent implements OnInit {
 
   openViewDialog(brand: Brand): void {
     this.selectedBrand = brand;
+    console.log(brand);
+    
+    console.log(this.selectedBrand);
+    
     this.showViewDialog = true;
   }
 
@@ -167,7 +174,7 @@ export class BrandComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.imagePreview = e.target?.result as string;
-        this.cdr.detectChanges(); 
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
@@ -310,5 +317,81 @@ export class BrandComponent implements OnInit {
     if ((event.target as HTMLElement).classList.contains('dialog-overlay')) {
       this.closeAllDialogs();
     }
+  }
+
+  blockBrand(brand: Brand): void {
+    Swal.fire({
+      title: this.i18n.currentLang === 'ar' ? 'حظر البراند' : 'Block Brand',
+      input: 'textarea',
+      inputLabel: this.i18n.currentLang === 'ar' ? 'سبب الحظر' : 'Block Reason',
+      inputPlaceholder: this.i18n.currentLang === 'ar' ? 'اكتب سبب الحظر...' : 'Enter block reason...',
+      showCancelButton: true,
+      confirmButtonText: this.i18n.currentLang === 'ar' ? 'حظر' : 'Block',
+      cancelButtonText: this.i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel',
+      inputValidator: (value) => {
+        if (!value) {
+          return this.i18n.currentLang === 'ar' ? 'يجب كتابة السبب' : 'Reason is required';
+        }
+        return null;
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        this.complaintService.blockBrand({
+          brandId: brand.id,
+          reason: result.value
+        }).subscribe({
+          next: () => {
+            Swal.fire(
+              this.i18n.currentLang === 'ar' ? 'تم الحظر' : 'Blocked',
+              this.i18n.currentLang === 'ar' ? 'تم حظر البراند بنجاح' : 'Brand blocked successfully',
+              'success'
+            );
+            this.loadBrands();
+          },
+          error: (err) => {
+            Swal.fire(
+              this.i18n.currentLang === 'ar' ? 'خطأ' : 'Error',
+              err.error?.message || (this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'An error occurred'),
+              'error'
+            );
+          }
+        });
+      }
+    });
+  }
+
+  unblockBrand(brand: Brand): void {
+    Swal.fire({
+      title: this.i18n.currentLang === 'ar' ? 'إلغاء الحظر' : 'Unblock Brand',
+      text: this.i18n.currentLang === 'ar' ? 'هل تريد إلغاء حظر هذا البراند؟' : 'Do you want to unblock this brand?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.i18n.currentLang === 'ar' ? 'نعم' : 'Yes',
+      cancelButtonText: this.i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.complaintService.unblockBrand(brand.id).subscribe({
+          next: () => {
+            Swal.fire(
+              this.i18n.currentLang === 'ar' ? 'تم إلغاء الحظر' : 'Unblocked',
+              this.i18n.currentLang === 'ar' ? 'تم إلغاء حظر البراند بنجاح' : 'Brand unblocked successfully',
+              'success'
+            );
+            this.loadBrands();
+          },
+          error: () => {
+            Swal.fire(
+              this.i18n.currentLang === 'ar' ? 'خطأ' : 'Error',
+              this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'An error occurred',
+              'error'
+            );
+          }
+        });
+      }
+    });
+  }
+
+  get blockedBrandsCount(): number {
+    return this.brands.filter(b => b.isBlocked).length;
   }
 }

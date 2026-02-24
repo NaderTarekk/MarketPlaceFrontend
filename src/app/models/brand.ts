@@ -5,8 +5,19 @@ export interface Brand {
   logo: string | null;
   isActive: boolean;
   productCount: number;
+  complaintsCount: number;
+  isBlocked: boolean;
+  blockReason?: string;
+  blockCount: number;
+  blockHistory: BlockHistory[];
 }
 
+export interface BlockHistory {
+  id: number;
+  reason: string;
+  createdAt: string;
+  isActive: boolean;
+}
 export interface ApiResponse<T> {
   success: boolean;
   message: string;

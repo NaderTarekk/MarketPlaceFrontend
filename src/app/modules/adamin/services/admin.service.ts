@@ -53,9 +53,12 @@ export class AdminReportsService {
     return this.http.delete<ApiResponse<any>>(`${environment.adminUrl}/users/${id}`);
   }
 
-  changeUserRole(id: string, role: string): Observable<ApiResponse<any>> {
-    return this.http.put<ApiResponse<any>>(`${environment.adminUrl}/users/${id}/role`, { role });
-  }
+ changeUserRole(id: string, payload: { role: string }): Observable<ApiResponse<any>> {
+  return this.http.put<ApiResponse<any>>(
+    `${environment.adminUrl}/users/${id}/role`, 
+    payload // ← object مش string
+  );
+}
 
   getPendingVendorRequests(): Observable<any> {
     return this.http.get(`${environment.adminUrl}/pending-vendor-requests`);

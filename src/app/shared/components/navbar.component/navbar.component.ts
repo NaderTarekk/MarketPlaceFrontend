@@ -11,6 +11,7 @@ import { Category } from '../../../models/category';
 import { HomeService } from '../../../modules/home/services/home.service';
 import { CartService } from '../../../modules/cart/services/cart.service';
 import { ProductsService } from '../../../modules/products/services/products.service';
+import { environment } from '../../../../environment';
 
 export interface NavLink {
   label: string;
@@ -43,14 +44,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isVendor = false;
   isAdminMenuOpen = false;
   isVendorMenuOpen = false;
+  role: string | null = null;
   adminPages = [
+    { nameAr: 'صفحة الأدمن', nameEn: 'Admin Dashboard', route: '/admin', icon: 'fa-user-tie' },
     { nameAr: 'إدارة العلامات التجارية', nameEn: 'Manage Brands', route: '/brands', icon: 'fa-tags' },
     { nameAr: 'إدارة المنتجات', nameEn: 'Manage Products', route: '/products', icon: 'fa-box' },
     { nameAr: 'إدارة الأصناف', nameEn: 'Manage Categories', route: '/categories', icon: 'fa-layer-group' },
     { nameAr: 'إدارة التقييمات', nameEn: 'Manage Reviews', route: '/products/reviews', icon: 'fa-star' },
-    { nameAr: 'إدارة الطلبات', nameEn: 'Manage Orders', route: '/orders', icon: 'fa-shopping-bag' },
-    { nameAr: 'إدارة المستخدمين', nameEn: 'Manage Users', route: '/users', icon: 'fa-users' },
-    { nameAr: 'صفحة الأدمن', nameEn: 'Admin Dashboard', route: '/admin', icon: 'fa-user-tie' },
+    // { nameAr: 'إدارة الطلبات', nameEn: 'Manage Orders', route: '/orders', icon: 'fa-shopping-bag' },
+    { nameAr: 'الشكاوي', nameEn: 'Complaints', route: '/admin/complaints', icon: 'fa-exclamation-triangle' },
   ];
   // أضف في الـ properties
   isCatalogOpen = false;
@@ -78,7 +80,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.lang = localStorage.getItem('lang') || 'en';
-
+    this.role = localStorage.getItem('NHC_MP_Role');
+    
     this.authSub = this.authService.isLoggedIn$.subscribe(isLogged => {
       this.isLogged = isLogged;
 
@@ -184,7 +187,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   getProductImage(image: string): string {
     if (!image) return 'assets/images/placeholder.png';
     if (image.startsWith('http') || image.startsWith('data:')) return image;
-    return `http://localhost:5078${image}`;
+    return `${environment.baseApi}${image}`;
   }
 
   getProductName(product: any): string {
@@ -222,16 +225,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.homeService.getCategories(true).subscribe({
       next: (response: any) => {
         if (response.success) {
-           this.categories = response.data
-          .filter((cat: any) => !cat.parentId)  
-          .map((cat: any) => ({
-            id: cat.id,
-            nameAr: cat.nameAr,
-            nameEn: cat.nameEn,
-            image: cat.image,  
-            productCount: cat.productCount,
-            hasChildren: cat.productCount > 0
-          }));
+          this.categories = response.data
+            .filter((cat: any) => !cat.parentId)
+            .map((cat: any) => ({
+              id: cat.id,
+              nameAr: cat.nameAr,
+              nameEn: cat.nameEn,
+              image: cat.image,
+              productCount: cat.productCount,
+              hasChildren: cat.productCount > 0
+            }));
         }
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -247,7 +250,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   getCategoryImage(image: string | undefined): string {
     if (!image) return this.placeholderImage;
     if (image.startsWith('http') || image.startsWith('data:')) return image;
-    return `http://localhost:5078${image}`;  // غيّر حسب الـ API بتاعك
+    return `${environment.baseApi}${image}`;  // غيّر حسب الـ API بتاعك
   }
 
   handleImageError(event: Event): void {
@@ -360,7 +363,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   handleCategoryImageError(event: Event): void {
-  const img = event.target as HTMLImageElement;
-  img.src = 'assets/images/placeholder.png';
-}
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/images/placeholder.png';
+  }
 }

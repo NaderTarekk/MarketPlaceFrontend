@@ -1,0 +1,200 @@
+<div class="admin-complaints-container">
+
+    <!-- Header -->
+    <div class="header">
+        <h2>إدارة الشكاوي</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <span class="number">{{ complaints.length }}</span>
+                <span class="label">إجمالي الشكاوي</span>
+            </div>
+            <div class="stat-card pending">
+                <span class="number">{{ getPendingCount() }}</span>
+                <span class="label">قيد الانتظار</span>
+            </div>
+            <div class="stat-card resolved">
+                <span class="number">{{ getResolvedCount() }}</span>
+                <span class="label">تم الحل</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="filter-group">
+            <label>الحالة:</label>
+            <select [(ngModel)]="filterStatus" (change)="onFilterChange()" class="filter-select">
+                <option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                </option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>النوع:</label>
+            <select [(ngModel)]="filterType" (change)="onFilterChange()" class="filter-select">
+                <option *ngFor="let option of typeOptions" [value]="option.value">
+                    {{ option.label }}
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Complaints Table -->
+   <div class="table-container">
+    <div class="table-wrapper">
+        <table class="complaints-table">
+            <thead>
+                <tr>
+                    <th class="col-id">رقم</th>
+                    <th class="col-customer">العميل</th>
+                    <th class="col-title">العنوان</th>
+                    <th class="col-type">النوع</th>
+                    <th class="col-status">الحالة</th>
+                    <th class="col-date">التاريخ</th>
+                    <th class="col-actions">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let complaint of filteredComplaints" [class.highlighted]="complaint.status === 'Pending'">
+                    <td class="col-id">{{ complaint.id }}</td>
+                    <td class="col-customer">{{ complaint.customerName || complaint.customerId }}</td>
+                    <td class="col-title">{{ complaint.title }}</td>
+                    <td class="col-type">
+                        <span class="type-badge">{{ complaint.type }}</span>
+                    </td>
+                    <td class="col-status">
+                        <span class="status" [ngClass]="getStatusClass(complaint.status)">
+                            {{ getStatusLabel(complaint.status) }}
+                        </span>
+                    </td>
+                    <td class="col-date">{{ complaint.createdAt | date: 'dd/MM/yyyy' }}</td>
+                    <td class="col-actions">
+                        <div class="actions">
+                            <button class="btn-action view" (click)="openResponseModal(complaint)" title="عرض/رد">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button *ngIf="complaint.brandId" class="btn-action block"
+                                (click)="openBlockBrandModal(complaint.brandId)" title="حظر البراند">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                            <button class="btn-action delete" (click)="deleteComplaint(complaint.id)" title="حذف">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="filteredComplaints.length === 0" class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>لا توجد شكاوي</p>
+    </div>
+</div>
+
+    <!-- Blocked Brands Section -->
+    <div class="blocked-brands-section">
+        <h3>البراندات المحظورة</h3>
+        <div class="blocked-brands-list">
+            <div *ngFor="let block of blockedBrands" class="blocked-brand-card">
+                <div class="brand-info">
+                    <h4>{{ block.brand?.name }}</h4>
+                    <p>{{ block.reason }}</p>
+                    <span class="block-date">
+                        <i class="fas fa-clock"></i> {{ block.blockedAt | date: 'dd/MM/yyyy' }}
+                    </span>
+                </div>
+                <button class="btn-unblock" (click)="unblockBrand(block.brandId)">
+                    إلغاء الحظر
+                </button>
+            </div>
+
+            <div *ngIf="blockedBrands.length === 0" class="empty-state">
+                <p>لا توجد براندات محظورة</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Response Modal -->
+<div class="modal" *ngIf="showResponseModal" (click)="showResponseModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>الرد على الشكوى</h3>
+            <button class="close-btn" (click)="showResponseModal = false">&times;</button>
+        </div>
+
+        <div class="complaint-details">
+            <h4>{{ selectedComplaint?.title }}</h4>
+            <p>{{ selectedComplaint?.description }}</p>
+            <div class="meta-info">
+                <span *ngIf="selectedComplaint?.productName">
+                    <strong>المنتج:</strong> {{ selectedComplaint.productName }}
+                </span>
+                <span *ngIf="selectedComplaint?.brandName">
+                    <strong>البراند:</strong> {{ selectedComplaint.brandName }}
+                </span>
+            </div>
+        </div>
+
+        <form [formGroup]="responseForm" (ngSubmit)="submitResponse()">
+            <div class="form-group">
+                <label>الحالة *</label>
+                <select formControlName="status" class="form-control">
+                    <option [value]="1">قيد الانتظار</option>
+                    <option [value]="2">قيد المراجعة</option>
+                    <option [value]="3">تم الحل</option>
+                    <option [value]="4">مرفوضة</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>الرد *</label>
+                <textarea formControlName="adminResponse" class="form-control" rows="4"
+                    placeholder="اكتب ردك على الشكوى..." maxlength="500"></textarea>
+                <small class="char-count">
+                    {{ responseForm.value.adminResponse?.length || 0 }} / 500
+                </small>
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-primary" [disabled]="responseForm.invalid || loading">
+                    حفظ
+                </button>
+                <button type="button" class="btn-secondary" (click)="showResponseModal = false">
+                    إلغاء
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Block Brand Modal -->
+<div class="modal" *ngIf="showBlockModal" (click)="showBlockModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>حظر البراند</h3>
+            <button class="close-btn" (click)="showBlockModal = false">&times;</button>
+        </div>
+
+        <form [formGroup]="blockBrandForm" (ngSubmit)="blockBrand()">
+            <div class="form-group">
+                <label>سبب الحظر *</label>
+                <textarea formControlName="reason" class="form-control" rows="4"
+                    placeholder="اشرح سبب حظر هذا البراند..." maxlength="500"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-danger" [disabled]="blockBrandForm.invalid || loading">
+                    حظر البراند
+                </button>
+                <button type="button" class="btn-secondary" (click)="showBlockModal = false">
+                    إلغاء
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

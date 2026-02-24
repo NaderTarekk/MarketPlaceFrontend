@@ -49,6 +49,9 @@ export interface ProductList {
   categoryNameAr: string | null;
   categoryNameEn: string | null;
   isFeatured: boolean;
+  brandId: number | null;
+  brandNameAr: string | null;
+  brandNameEn: string | null;
 }
 
 export interface ProductFilter {

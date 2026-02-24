@@ -1056,3 +1056,47 @@
     }
 }
 
+.block-history {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.block-item {
+    padding: 12px;
+    border-radius: 8px;
+    background: #f5f5f5;
+    border-left: 4px solid #ccc;
+}
+
+.block-item.current {
+    background: #fff3cd;
+    border-left-color: #ff9800;
+}
+
+.block-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.block-header i {
+    font-size: 16px;
+}
+
+.block-item.current i {
+    color: #ff9800;
+}
+
+.block-status {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+.block-reason {
+    margin: 0;
+    color: #555;
+}

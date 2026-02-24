@@ -7,6 +7,7 @@ import { environment } from '../../../../../environment';
 import { AuthService } from '../../../auth/services/auth.service';
 import { ReviewFilter, ReviewResponse } from '../../../../models/review';
 import { CartService } from '../../../cart/services/cart.service';
+import { ComplaintsService } from '../../../complaints/services/complaints.service';
 
 @Component({
   selector: 'app-product-details',
@@ -42,6 +43,15 @@ export class ProductDetailsComponent implements OnInit {
   selectedImage: string = '';
   currentImageIndex = 0;
 
+  // Complaint
+  showComplaintForm = false;
+  complaintForm = {
+    title: '',
+    type: 1,
+    description: ''
+  };
+  isSubmittingComplaint = false;
+
   // Quantity
   quantity = 1;
 
@@ -61,7 +71,8 @@ export class ProductDetailsComponent implements OnInit {
     private productService: ProductsService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private cartService: CartService
+    private cartService: CartService,
+    private complaintsService: ComplaintsService
   ) { }
 
   ngOnInit(): void {
@@ -129,6 +140,72 @@ export class ProductDetailsComponent implements OnInit {
     this.showReviewForm = false;
     this.reviewForm = { rating: 5, comment: '' };
   }
+
+  openComplaintForm(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
+        'error'
+      );
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    this.showComplaintForm = true;
+    this.complaintForm = {
+      title: '',
+      type: 1,
+      description: ''
+    };
+  }
+
+  submitComplaint(): void {
+    if (!this.product) return;
+
+    if (!this.complaintForm.title.trim()) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يرجى كتابة العنوان' : 'Please write a title',
+        'error'
+      );
+      return;
+    }
+
+    if (!this.complaintForm.description.trim()) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يرجى كتابة الشكوى' : 'Please write your complaint',
+        'error'
+      );
+      return;
+    }
+
+    this.isSubmittingComplaint = true;
+
+    this.complaintsService.createComplaint({
+      title: this.complaintForm.title,
+      type: this.complaintForm.type,
+      productId: this.product.id,
+      description: this.complaintForm.description
+    }).subscribe({
+      next: (res) => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'تم إرسال الشكوى بنجاح' : 'Complaint submitted successfully',
+          'success'
+        );
+        this.closeComplaintForm();
+        this.isSubmittingComplaint = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || 'Error', 'error');
+        this.isSubmittingComplaint = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closeComplaintForm(): void {
+  this.showComplaintForm = false;
+  this.complaintForm = { title: '', type: 1, description: '' };
+}
 
   setRating(rating: number): void {
     this.reviewForm.rating = rating;

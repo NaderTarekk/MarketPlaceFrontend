@@ -108,8 +108,8 @@ export class ProductsComponent implements OnInit {
   brandCategories: Category[] = [];
   isBrandLoading = false;
   readonly brandPlaceholder = 'https://placehold.co/80x80/f1f5f9/94a3b8?text=Brand';
- selectedParentCategory: Category | null = null;
- 
+  selectedParentCategory: Category | null = null;
+
   constructor(
     public i18n: I18nService,
     private productService: ProductsService,
@@ -165,7 +165,11 @@ export class ProductsComponent implements OnInit {
     this.productService.getAll(this.filter).subscribe({
       next: (res) => {
         if (res.success) {
-          this.products = res.data;
+          this.products = res.data.filter((p: ProductList) => {
+            const brand = this.brands.find(b => b.id === p.brandId);
+            return !brand || !brand.isBlocked;
+          });
+
           this.totalCount = res.pagination.totalCount;
           this.totalPages = res.pagination.totalPages;
           this.currentPage = res.pagination.currentPage;
@@ -237,7 +241,7 @@ export class ProductsComponent implements OnInit {
     this.productService.getBrands(true).subscribe({
       next: (res) => {
         if (res.success) {
-          this.brands = res.data;
+          this.brands = res.data.filter((b: Brand) => !b.isBlocked);
         }
       }
     });
@@ -282,7 +286,7 @@ export class ProductsComponent implements OnInit {
     for (const parent of this.categories) {
       console.log(parent);
       console.log(this.categories);
-      
+
       if (parent.children) {
         const found = parent.children.find(child => child.id === categoryId);
         if (found) {
@@ -392,30 +396,30 @@ export class ProductsComponent implements OnInit {
   // 🆕 Select parent category (includes all children products)
   // في products.component.ts
 
-// ═══════════════════════════════════════════════
-// 🆕 CATEGORY HIERARCHY HELPERS
-// ═══════════════════════════════════════════════
+  // ═══════════════════════════════════════════════
+  // 🆕 CATEGORY HIERARCHY HELPERS
+  // ═══════════════════════════════════════════════
 
-onParentCategorySelect(category: Category): void {
-  this.filter.categoryId = category.id;
-  this.filter.page = 1;
-  
-  // Expand to show children
-  if (this.hasChildren(category)) {
-    this.expandedCategories.add(category.id);
+  onParentCategorySelect(category: Category): void {
+    this.filter.categoryId = category.id;
+    this.filter.page = 1;
+
+    // Expand to show children
+    if (this.hasChildren(category)) {
+      this.expandedCategories.add(category.id);
+    }
+
+    this.updateUrl();
+    this.loadProducts(); // ✅ الـ Backend هيتعامل مع الـ children تلقائياً
   }
-  
-  this.updateUrl();
-  this.loadProducts(); // ✅ الـ Backend هيتعامل مع الـ children تلقائياً
-}
 
-onChildCategorySelect(child: Category, event: Event): void {
-  event.stopPropagation();
-  this.filter.categoryId = child.id;
-  this.filter.page = 1;
-  this.updateUrl();
-  this.loadProducts();
-}
+  onChildCategorySelect(child: Category, event: Event): void {
+    event.stopPropagation();
+    this.filter.categoryId = child.id;
+    this.filter.page = 1;
+    this.updateUrl();
+    this.loadProducts();
+  }
 
   // ✅ Method جديدة تجيب الـ products من الـ parent + children
   loadProductsWithChildren(category: Category): void {

@@ -23,6 +23,7 @@ export interface ProfileStats {
   ordersCount: number;
   wishlistCount: number;
   reviewsCount: number;
+   complaintsCount?: number;
 }
 
 export interface UpdateProfile {

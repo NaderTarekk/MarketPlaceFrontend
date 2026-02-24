@@ -20,7 +20,8 @@ export class ProfileComponent implements OnInit {
   stats: ProfileStats = {
     ordersCount: 0,
     wishlistCount: 0,
-    reviewsCount: 0
+    reviewsCount: 0,
+    complaintsCount: 0
   };
   // Edit Form
   editForm: UpdateProfile = {};
@@ -312,6 +313,8 @@ export class ProfileComponent implements OnInit {
         return { text: this.i18n.currentLang === 'ar' ? 'تاجر' : 'Vendor', class: 'vendor' };
       case 'deliveryagent':
         return { text: this.i18n.currentLang === 'ar' ? 'مندوب' : 'Delivery', class: 'delivery' };
+      case 'customerservice':
+        return { text: this.i18n.currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Service', class: 'customer-service' };
       default:
         return { text: this.i18n.currentLang === 'ar' ? 'عميل' : 'Customer', class: 'customer' };
     }

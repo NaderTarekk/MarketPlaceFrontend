@@ -46,7 +46,7 @@
                 <i class="fa-solid fa-tags"></i>
                 <div>
                     <span class="stat-number">{{ brands.length }}</span>
-                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'إجمالي' : 'Total' }}</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -59,8 +59,8 @@
             <div class="stat-card">
                 <i class="fa-solid fa-ban"></i>
                 <div>
-                    <span class="stat-number">{{ inactiveBrandsCount }}</span>
-                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</span>
+                    <span class="stat-number">{{ blockedBrandsCount }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'محظور' : 'Blocked' }}</span>
                 </div>
             </div>
         </div>
@@ -85,6 +85,13 @@
         <!-- Grid View -->
         <div *ngIf="!isLoading && filteredBrands.length > 0 && viewMode === 'grid'" class="grid">
             <div *ngFor="let brand of filteredBrands; trackBy: trackByBrand" class="card">
+                <span *ngIf="brand.isBlocked" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide
+             rounded-md bg-gradient-to-r from-red-500 to-rose-600 text-white
+             shadow-sm shadow-red-500/30">
+                    <i class="fa-solid fa-ban text-[10px]"></i>
+                    {{ i18n.currentLang === 'ar' ? 'محظور' : 'Blocked' }}
+                </span>
+
                 <div class="card-status" [class.active]="brand.isActive" [class.inactive]="!brand.isActive">
                     {{ brand.isActive ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active') : (i18n.currentLang === 'ar' ?
                     'غير نشط' : 'Inactive') }}
@@ -96,20 +103,42 @@
                 <h3 (click)="openViewDialog(brand)">{{ getName(brand) }}</h3>
                 <span class="product-count">{{ brand.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products'
                     }}</span>
-                <div class="card-actions">
-                    <button class="btn-icon view" (click)="openViewDialog(brand)"
-                        [title]="i18n.currentLang === 'ar' ? 'عرض' : 'View'">
-                        <i class="fa-solid fa-eye"></i>
+                <div class="card-actions flex flex-wrap items-center gap-2 sm:gap-2.5">
+                    <button (click)="openViewDialog(brand)" [title]="i18n.currentLang === 'ar' ? 'عرض' : 'View'" class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg
+           bg-slate-100 text-slate-600 hover:bg-slate-200
+           transition-all duration-200 shadow-sm hover:shadow-md active:scale-95">
+                        <i class="fa-solid fa-eye text-sm sm:text-base"></i>
                     </button>
-                    <button class="btn-icon edit" (click)="openEditDialog(brand)"
-                        [title]="i18n.currentLang === 'ar' ? 'تعديل' : 'Edit'">
-                        <i class="fa-solid fa-pen"></i>
+
+                    <button (click)="openEditDialog(brand)" [title]="i18n.currentLang === 'ar' ? 'تعديل' : 'Edit'"
+                        class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg
+           bg-indigo-100 text-indigo-600 hover:bg-indigo-500 hover:text-white
+           transition-all duration-200 shadow-sm hover:shadow-md active:scale-95">
+                        <i class="fa-solid fa-pen text-sm sm:text-base"></i>
                     </button>
-                    <button class="btn-icon delete" (click)="openDeleteDialog(brand)"
-                        [title]="i18n.currentLang === 'ar' ? 'حذف' : 'Delete'">
-                        <i class="fa-solid fa-trash"></i>
+
+                    <button (click)="openDeleteDialog(brand)" [title]="i18n.currentLang === 'ar' ? 'حذف' : 'Delete'"
+                        class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg
+           bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white
+           transition-all duration-200 shadow-sm hover:shadow-md active:scale-95">
+                        <i class="fa-solid fa-trash text-sm sm:text-base"></i>
+                    </button>
+
+                    <button *ngIf="!brand.isBlocked" (click)="blockBrand(brand)"
+                        [title]="i18n.currentLang === 'ar' ? 'حظر' : 'Block'" class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg
+           bg-red-100 text-red-600 hover:bg-red-500 hover:text-white
+           transition-all duration-200 shadow-sm hover:shadow-md active:scale-95">
+                        <i class="fa-solid fa-ban text-sm sm:text-base"></i>
+                    </button>
+
+                    <button *ngIf="brand.isBlocked" (click)="unblockBrand(brand)"
+                        [title]="i18n.currentLang === 'ar' ? 'إلغاء الحظر' : 'Unblock'" class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg
+           bg-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white
+           transition-all duration-200 shadow-sm hover:shadow-md active:scale-95">
+                        <i class="fa-solid fa-check-circle text-sm sm:text-base"></i>
                     </button>
                 </div>
+
             </div>
         </div>
 
@@ -137,6 +166,14 @@
                     </button>
                     <button class="btn-icon delete" (click)="openDeleteDialog(brand)">
                         <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button class="btn-icon block" (click)="blockBrand(brand)" *ngIf="!brand.isBlocked"
+                        [title]="i18n.currentLang === 'ar' ? 'حظر' : 'Block'">
+                        <i class="fa-solid fa-ban"></i>
+                    </button>
+                    <button class="btn-icon unblock" (click)="unblockBrand(brand)" *ngIf="brand.isBlocked"
+                        [title]="i18n.currentLang === 'ar' ? 'إلغاء الحظر' : 'Unblock'">
+                        <i class="fa-solid fa-check-circle"></i>
                     </button>
                 </div>
             </div>
@@ -206,6 +243,7 @@
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
+
             <div class="dialog-body">
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
@@ -323,6 +361,35 @@
                             {{ selectedBrand.isActive ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active') :
                             (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive') }}
                         </span>
+                    </div>
+
+                    <div class="info-row" *ngIf="selectedBrand.isBlocked && selectedBrand.blockHistory.length > 0">
+                        <span class="info-label">{{ i18n.currentLang === 'ar' ? 'سجل الحظر' : 'Block History' }}</span>
+                        <div class="block-history">
+                            <div *ngFor="let block of selectedBrand.blockHistory" class="block-item"
+                                [class.current]="block.isActive">
+                                <div class="block-header">
+                                    <i class="fa-solid fa-ban" *ngIf="block.isActive"></i>
+                                    <i class="fa-solid fa-check-circle" *ngIf="!block.isActive"></i>
+                                    <span class="block-date">{{ block.createdAt | date:'short' }}</span>
+                                    <span class="block-status" *ngIf="block.isActive">
+                                        {{ i18n.currentLang === 'ar' ? '(حالي)' : '(Current)' }}
+                                    </span>
+                                </div>
+                                <p class="block-reason">{{ block.reason }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ✅ هنا ضيف الكود الجديد -->
+                    <!-- <div class="info-row" *ngIf="selectedBrand.isBlocked">
+                        <span class="info-label">{{ i18n.currentLang === 'ar' ? 'سبب الحظر' : 'Block Reason' }}</span>
+                        <span class="info-value">{{ selectedBrand.blockReason }}</span>
+                    </div> -->
+                    <div class="info-row" *ngIf="selectedBrand.isBlocked">
+                        <span class="info-label">{{ i18n.currentLang === 'ar' ? 'عدد مرات الحظر' : 'Block Count'
+                            }}</span>
+                        <span class="info-value">{{ selectedBrand.blockCount }}</span>
                     </div>
                 </div>
             </div>

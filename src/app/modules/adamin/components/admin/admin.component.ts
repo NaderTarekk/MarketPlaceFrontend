@@ -73,7 +73,7 @@ export class AdminComponent implements OnInit {
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
   // Roles
-  roles = ['Admin', 'Vendor', 'Customer', 'DeliveryAgent'];
+  roles = ['Admin', 'Vendor', 'Customer', 'DeliveryAgent', 'CustomerService'];
 
   constructor(
     public i18n: I18nService,
@@ -367,24 +367,35 @@ export class AdminComponent implements OnInit {
   }
 
   confirmRoleChange(): void {
-    if (!this.selectedUser || !this.selectedRole) return;
+  if (!this.selectedUser || !this.selectedRole) return;
 
-    this.isProcessing = true;
-    this.adminService.changeUserRole(this.selectedUser.id, this.selectedRole).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.showToast(this.i18n.currentLang === 'ar' ? 'تم تغيير الدور' : 'Role changed', 'success');
-          this.loadUsers();
-          this.closeRoleDialog();
-        }
-        this.isProcessing = false;
-      },
-      error: () => {
-        this.isProcessing = false;
-        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error changing role', 'error');
+  this.isProcessing = true;
+  
+  // ✅ بعت object مش string
+  const payload = { role: this.selectedRole };
+  
+  this.adminService.changeUserRole(this.selectedUser.id, payload).subscribe({
+    next: (res) => {
+      if (res.success) {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'تم تغيير الدور' : 'Role changed', 
+          'success'
+        );
+        this.loadUsers();
+        this.closeRoleDialog();
       }
-    });
-  }
+      this.isProcessing = false;
+    },
+    error: (err) => {
+      this.isProcessing = false;
+      console.error('Role change error:', err); // ← شوف الـ error details
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error changing role', 
+        'error'
+      );
+    }
+  });
+}
 
   // ═══════════════════════════════════════════════
   // SALES REPORT

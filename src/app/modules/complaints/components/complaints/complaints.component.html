@@ -1,0 +1,146 @@
+<div class="complaints-container">
+    <div class="header">
+        <h2>الشكاوي والمقترحات</h2>
+        <button class="btn-primary" (click)="showForm = !showForm">
+            <i class="fas fa-plus"></i> إضافة شكوى جديدة
+        </button>
+    </div>
+
+    <!-- نموذج إضافة شكوى -->
+    <div class="complaint-form" *ngIf="showForm">
+        <h3>تقديم شكوى</h3>
+        <form [formGroup]="complaintForm" (ngSubmit)="submitComplaint()">
+
+            <div class="form-group">
+                <label>نوع الشكوى *</label>
+                <select formControlName="type" class="form-control" (change)="onTypeChange($event)">
+                    <option *ngFor="let type of complaintTypes" [value]="type.value">
+                        {{ type.label }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- اختيار المنتج -->
+          <div class="form-group" *ngIf="complaintForm.value.type == 1">
+  <label>المنتج</label>
+  <select formControlName="productId" class="form-control">
+    <option [value]="null">-- اختر المنتج --</option>
+    <option *ngFor="let product of products" [value]="product.id">
+      {{ getName(product) }}
+    </option>
+  </select>
+</div>
+
+<!-- اختيار البراند -->
+<div class="form-group" *ngIf="complaintForm.value.type == 2">
+  <label>البراند</label>
+  <select formControlName="brandId" class="form-control">
+    <option [value]="null">-- اختر البراند --</option>
+    <option *ngFor="let brand of brands" [value]="brand.id">
+      {{ getName(brand) }}
+    </option>
+  </select>
+</div>
+
+            <!-- اختيار التاجر -->
+            <!-- <div class="form-group" *ngIf="complaintForm.value.type == 3">
+                <label>التاجر</label>
+                <select formControlName="sellerId" class="form-control">
+                    <option [value]="null">-- اختر التاجر --</option>
+                    <option *ngFor="let seller of sellers" [value]="seller.id">
+                        {{ seller.storeName }}
+                    </option>
+                </select>
+            </div> -->
+
+            <div class="form-group">
+                <label>عنوان الشكوى *</label>
+                <input type="text" formControlName="title" class="form-control" placeholder="اكتب عنوان مختصر للشكوى"
+                    maxlength="200" />
+                <small class="error" *ngIf="complaintForm.get('title')?.invalid && complaintForm.get('title')?.touched">
+                    العنوان مطلوب (حد أقصى 200 حرف)
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label>تفاصيل الشكوى *</label>
+                <textarea formControlName="description" class="form-control" rows="5"
+                    placeholder="اشرح المشكلة بالتفصيل..." maxlength="1000"></textarea>
+                <small class="char-count">
+                    {{ complaintForm.value.description?.length || 0 }} / 1000
+                </small>
+                <small class="error"
+                    *ngIf="complaintForm.get('description')?.invalid && complaintForm.get('description')?.touched">
+                    الوصف مطلوب (حد أقصى 1000 حرف)
+                </small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary" [disabled]="complaintForm.invalid || loading">
+                    <span *ngIf="!loading">إرسال الشكوى</span>
+                    <span *ngIf="loading">جاري الإرسال...</span>
+                </button>
+                <button type="button" class="btn-secondary" (click)="showForm = false">
+                    إلغاء
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- قائمة الشكاوي -->
+    <div class="complaints-list">
+        <h3>شكاويك السابقة</h3>
+
+        <div *ngIf="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> جاري التحميل...
+        </div>
+
+        <div *ngIf="!loading && myComplaints.length === 0" class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>لا توجد شكاوي حتى الآن</p>
+        </div>
+
+        <div class="complaint-card" *ngFor="let complaint of myComplaints">
+            <div class="complaint-header">
+                <div>
+                    <h4>{{ complaint.title }}</h4>
+                    <span class="complaint-type">{{ complaint.type }}</span>
+                </div>
+                <span class="status" [ngClass]="getStatusClass(complaint.status)">
+                    {{ getStatusLabel(complaint.status) }}
+                </span>
+            </div>
+
+            <div class="complaint-body">
+                <p>{{ complaint.description }}</p>
+
+                <div class="complaint-meta">
+                    <span *ngIf="complaint.productName">
+                        <i class="fas fa-box"></i> منتج: {{ complaint.productName }}
+                    </span>
+                    <span *ngIf="complaint.brandName">
+                        <i class="fas fa-tag"></i> براند: {{ complaint.brandName }}
+                    </span>
+                    <span *ngIf="complaint.sellerName">
+                        <i class="fas fa-store"></i> تاجر: {{ complaint.sellerName }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="complaint-footer">
+                <span class="date">
+                    <i class="fas fa-clock"></i>
+                    {{ complaint.createdAt | date: 'dd/MM/yyyy - hh:mm a' }}
+                </span>
+            </div>
+
+            <div class="admin-response" *ngIf="complaint.adminResponse">
+                <h5><i class="fas fa-reply"></i> رد الإدارة:</h5>
+                <p>{{ complaint.adminResponse }}</p>
+                <span class="response-date">
+                    {{ complaint.responsedAt | date: 'dd/MM/yyyy - hh:mm a' }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
