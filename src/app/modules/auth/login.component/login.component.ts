@@ -79,6 +79,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   emailForm: FormGroup;
   otpForm: FormGroup;
+  lang: string = '';
 
   // Loading
   isLoading = false;
@@ -107,6 +108,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.lang = localStorage.getItem('lang') || 'en';
+
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/']);
       return;
@@ -492,115 +495,133 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
- onLogin(): void {
-  if (!this.loginEmail || !this.loginPassword) {
-    this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields');
-    return;
-  }
-
-  this.isLoading = true;
-
-  this.authService.login({
-    email: this.loginEmail,
-    password: this.loginPassword
-  }).subscribe({
-    next: (res: any) => {
-      // ✅ تحقق من الحظر
-      if (res.user?.isBanned === true) {
-        this.toastr.error(this.i18n.currentLang === 'ar' ? 'تم حظر حسابك، يرجى التواصل مع الدعم' : 'Your account has been banned, please contact support');
-        return; // ← الـ isLoading هيتعمله false في finally
-      }
-
-      // ✅ نجاح تسجيل الدخول
-      if (res.success && res.token && res.role) {
-        this.authService.saveToken(res.token, res.role);
-        this.toastr.success(res.message || (this.i18n.currentLang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful'));
-        this.router.navigate(['/']);
-      } else {
-        const message = res.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
-        this.toastr.error(message);
-      }
-    },
-    error: (err) => {
-      console.error('Login error:', err);
-      const message = err.error?.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
-      this.toastr.error(message);
-    },
-    complete: () => {
-      // ✅ هنا بس اعمل isLoading = false
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
-  });
-}
-  onRegister(): void {
-    if (!this.registerName || !this.registerEmail || !this.registerPassword || !this.registerConfirmPassword) {
+  onLogin(): void {
+    if (!this.loginEmail || !this.loginPassword) {
       this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields');
       return;
     }
 
-    if (this.registerPassword !== this.registerConfirmPassword) {
-      this.toastr.error(this.i18n.currentLang === 'ar' ? 'كلمة المرور غير متطابقة' : 'Passwords do not match');
-      return;
-    }
-
-    if (this.registerRole === 'Vendor') {
-      if (!this.vendorBusinessName || !this.vendorCommercialReg || !this.vendorTaxNumber || !this.vendorBusinessAddress) {
-        this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع بيانات التاجر' : 'Please fill all vendor information');
-        return;
-      }
-    }
-
     this.isLoading = true;
 
-    const payload: any = {
-      fullName: this.registerName,
-      email: this.registerEmail,
-      password: this.registerPassword,
-      confirmPassword: this.registerConfirmPassword,
-      phoneNumber: this.registerPhone,
-      role: 'Customer'
-    };
+    this.authService.login({
+      email: this.loginEmail,
+      password: this.loginPassword
+    }).subscribe({
+      next: (res: any) => {
+        // ✅ تحقق من الحظر
+        if (res.user?.isBanned === true) {
+          this.toastr.error(this.i18n.currentLang === 'ar' ? 'تم حظر حسابك، يرجى التواصل مع الدعم' : 'Your account has been banned, please contact support');
+          return; // ← الـ isLoading هيتعمله false في finally
+        }
 
-    if (this.registerRole === 'Vendor') {
-      payload.businessName = this.vendorBusinessName;
-      payload.commercialRegistration = this.vendorCommercialReg;
-      payload.taxNumber = this.vendorTaxNumber;
-      payload.businessAddress = this.vendorBusinessAddress;
-    }
-
-    this.authService.register(payload).subscribe({
-      next: (res) => {
-        this.isLoading = false;
-        if (res.success) {
-          if (this.registerRole === 'Vendor') {
-            this.toastr.success(this.i18n.currentLang === 'ar'
-              ? 'تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة'
-              : 'Your request has been submitted! It will be reviewed by admin');
-            this.switchTab('login');
-          } else {
-            if (res.token && res.role) {
-              this.authService.saveToken(res.token, res.role);
-              this.toastr.success(res.message || (this.i18n.currentLang === 'ar' ? 'تم إنشاء الحساب بنجاح' : 'Account created successfully'));
-              this.router.navigate(['/']);
-            }
-          }
+        // ✅ نجاح تسجيل الدخول
+        if (res.success && res.token && res.role) {
+          this.authService.saveToken(res.token, res.role);
+          this.toastr.success(res.message || (this.i18n.currentLang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful'));
+          this.authService.saveToken(res.token, res.role);
+          this.router.navigate(['/']);
+        } else {
+          const message = res.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
+          this.toastr.error(message);
         }
       },
       error: (err) => {
-        this.isLoading = false;
-        console.error('Register error:', err);
-        const message = err.error?.message || (this.i18n.currentLang === 'ar' ? 'خطأ في إنشاء الحساب' : 'Registration failed');
+        console.error('Login error:', err);
+        const message = err.error?.message || (this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login failed');
         this.toastr.error(message);
+      },
+      complete: () => {
+        // ✅ هنا بس اعمل isLoading = false
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
+ onRegister(): void {
+  if (!this.registerName || !this.registerPassword || !this.registerConfirmPassword) {
+    this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields');
+    return;
+  }
+
+  if (this.registerPassword !== this.registerConfirmPassword) {
+    this.toastr.error(this.i18n.currentLang === 'ar' ? 'كلمة المرور غير متطابقة' : 'Passwords do not match');
+    return;
+  }
+
+  if (this.registerRole === 'Vendor') {
+    if (!this.vendorBusinessName || !this.vendorCommercialReg || !this.vendorTaxNumber || !this.vendorBusinessAddress) {
+      this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع بيانات التاجر' : 'Please fill all vendor information');
+      return;
+    }
+  }
+
+  this.isLoading = true;
+
+  const payload: any = {
+    fullName: this.registerName,
+    email: this.registerEmail,
+    password: this.registerPassword,
+    confirmPassword: this.registerConfirmPassword,
+    phoneNumber: this.registerPhone,
+    role: 'Customer'
+  };
+
+  if (this.registerRole === 'Vendor') {
+    payload.businessName = this.vendorBusinessName;
+    payload.commercialRegistration = this.vendorCommercialReg;
+    payload.taxNumber = this.vendorTaxNumber;
+    payload.businessAddress = this.vendorBusinessAddress;
+  }
+
+  this.authService.register(payload).subscribe({
+    next: (res) => {
+      if (res.success) {
+        if (this.registerRole === 'Vendor') {
+          this.toastr.success(this.i18n.currentLang === 'ar'
+            ? 'تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة'
+            : 'Your request has been submitted! It will be reviewed by admin');
+          this.switchTab('login');
+        } else {
+          if (res.token && res.role) {
+            this.authService.saveToken(res.token, res.role);
+            this.toastr.success(res.message || (this.i18n.currentLang === 'ar' ? 'تم إنشاء الحساب بنجاح' : 'Account created successfully'));
+            this.router.navigate(['/']);
+          }
+        }
+      } else {
+        // ✅ لو الـ API رجع success = false
+        this.toastr.error(res.message || (this.i18n.currentLang === 'ar' ? 'خطأ في إنشاء الحساب' : 'Registration failed'));
+      }
+    },
+    error: (err) => {
+      console.error('Register error:', err);
+      const message = err.error?.message || (this.i18n.currentLang === 'ar' ? 'خطأ في إنشاء الحساب' : 'Registration failed');
+      this.toastr.error(message);
+      this.isLoading = false; // ✅ في حالة الـ error
+      this.cdr.detectChanges();
+    },
+    complete: () => {
+      this.isLoading = false; // ✅ في حالة الـ next (success أو fail)
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   loginWithGoogle(): void {
     if (typeof google !== 'undefined') {
       google.accounts.id.prompt();
     } else {
       this.toastr.error(this.i18n.currentLang === 'ar' ? 'خطأ في تحميل Google Sign-In' : 'Failed to load Google Sign-In');
+    }
+  }
+
+  onPhoneInput() {
+    // يشيل أي حاجة غير أرقام
+    this.registerPhone = this.registerPhone.replace(/\D/g, '');
+
+    // يقف عند 11 رقم
+    if (this.registerPhone.length > 11) {
+      this.registerPhone = this.registerPhone.slice(0, 11);
     }
   }
 

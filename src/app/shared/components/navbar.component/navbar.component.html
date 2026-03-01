@@ -162,25 +162,42 @@
           {{ 'products' | translate }}
         </a>
 
-        <!-- ✅ شريط الأصناف جوه الـ navbar -->
-        <div class="categories-inline-track" *ngIf="categories.length > 0">
+        <!-- CustomerService Chat -->
+        <a routerLink="/chat/agent-dashboard" *ngIf="role == 'CustomerService'" routerLinkActive="active"
+          class="nav-link-ozon">
+          <i class="fa-brands fa-rocketchat"></i>
+          {{ 'chat' | translate }}
+        </a>
 
-          <a *ngFor="let cat of categories"
-          [routerLink]="['/products']"
-          [queryParams]="{category: cat.id}"
-          class="cat-pill-inline"
-          routerLinkActive="cat-pill-inline--active"
-          >
-          <div class="cat-pill-inline-img">
-            <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
-              (error)="handleImageError($event)" />
-          </div>
-          <span class="cat-pill-inline-name">
-            {{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}
-          </span>
+        <!-- ✅ Shipping Employee -->
+        <a *ngIf="isShippingEmployee || isAdmin" routerLink="/shipping/employee" routerLinkActive="active"
+          class="nav-link-ozon shipping-link">
+          <i class="fa-solid fa-truck-fast"></i>
+          {{ currentLang === 'ar' ? 'الشحنات' : 'Shipping' }}
+        </a>
+
+        <!-- ✅ Delivery Agent -->
+        <a *ngIf="isDeliveryAgent" routerLink="/shipping/agent" routerLinkActive="active"
+          class="nav-link-ozon agent-link">
+          <i class="fa-solid fa-motorcycle"></i>
+          {{ currentLang === 'ar' ? 'مهامي' : 'My Tasks' }}
+        </a>
+
+        <!-- Categories Inline -->
+        <div class="categories-inline-track" *ngIf="categories.length > 0">
+          <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.id}"
+            class="cat-pill-inline" routerLinkActive="cat-pill-inline--active">
+            <div class="cat-pill-inline-img">
+              <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
+                (error)="handleImageError($event)" />
+            </div>
+            <span class="cat-pill-inline-name">
+              {{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}
+            </span>
           </a>
         </div>
 
+        <!-- Admin Dropdown -->
         <div *ngIf="isAdmin" class="nav-dropdown">
           <button class="nav-link-ozon dropdown-trigger">
             <i class="fa-solid fa-shield-halved"></i>
@@ -195,11 +212,19 @@
           </div>
         </div>
 
+        <!-- Vendor Dashboard -->
         <a *ngIf="isVendor" routerLink="/vendor" routerLinkActive="active" class="nav-link-ozon vendor-link">
           <i class="fa-solid fa-chart-line"></i>
           {{ 'dashboard' | translate }}
         </a>
 
+        <!-- ✅ Vendor Shipping -->
+        <a *ngIf="isVendor" routerLink="/shipping/vendor" routerLinkActive="active" class="nav-link-ozon">
+          <i class="fa-solid fa-boxes-packing"></i>
+          {{ currentLang === 'ar' ? 'الشحن' : 'Shipping' }}
+        </a>
+
+        <!-- Logout -->
         <button *ngIf="isLogged" (click)="logout()" class="nav-link-ozon logout-link">
           <i class="fa-solid fa-right-from-bracket"></i>
           {{ 'logout' | translate }}
@@ -234,26 +259,31 @@
     <span>{{ 'home' | translate }}</span>
   </a>
 
-
-  <!-- <button (click)="toggleCategoriesMenu()" class="bottom-nav-item categories-nav-btn"
-    [class.active]="isCategoriesMenuOpen">
-    <div class="categories-icon-wrapper">
-      <i class="fa-solid fa-grid-2"></i>
-      <span class="categories-dot" *ngIf="categories.length > 0"></span>
-    </div>
-    <span>{{ 'categories' | translate }}</span>
-  </button> -->
-
+  <!-- Vendor -->
   <a *ngIf="isVendor" routerLink="/vendor" routerLinkActive="active" class="bottom-nav-item vendor-item">
     <i class="fa-solid fa-store"></i>
     <span>{{ currentLang === 'ar' ? 'متجري' : 'My Store' }}</span>
   </a>
 
+  <!-- ✅ Shipping Employee -->
+  <a *ngIf="isShippingEmployee" routerLink="/shipping/employee" routerLinkActive="active" class="bottom-nav-item">
+    <i class="fa-solid fa-truck-fast"></i>
+    <span>{{ currentLang === 'ar' ? 'الشحنات' : 'Shipping' }}</span>
+  </a>
+
+  <!-- ✅ Delivery Agent -->
+  <a *ngIf="isDeliveryAgent" routerLink="/shipping/agent" routerLinkActive="active" class="bottom-nav-item">
+    <i class="fa-solid fa-motorcycle"></i>
+    <span>{{ currentLang === 'ar' ? 'مهامي' : 'Tasks' }}</span>
+  </a>
+
+  <!-- Admin -->
   <button *ngIf="isAdmin" (click)="toggleAdminMenu()" class="bottom-nav-item" [class.active]="isAdminMenuOpen">
     <i class="fa-solid fa-shield-halved"></i>
     <span>{{ currentLang === 'ar' ? 'الأدمن' : 'Admin' }}</span>
   </button>
 
+  <!-- Cart -->
   <a routerLink="/cart" routerLinkActive="active" class="bottom-nav-item">
     <div class="relative">
       <i class="fa-solid fa-cart-shopping"></i>
@@ -262,15 +292,20 @@
     <span>{{ 'cart' | translate }}</span>
   </a>
 
-  <a *ngIf="!isVendor && !isAdmin" routerLink="products/wishlist" routerLinkActive="active" class="bottom-nav-item">
+  <!-- Wishlist (للعملاء العاديين فقط) -->
+  <a *ngIf="!isVendor && !isAdmin && !isShippingEmployee && !isDeliveryAgent" routerLink="products/wishlist"
+    routerLinkActive="active" class="bottom-nav-item">
     <i class="fa-solid fa-heart"></i>
     <span>{{ 'fav' | translate }}</span>
   </a>
 
+  <!-- Profile -->
   <button *ngIf="isLogged" routerLink="/auth/profile" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
     <i class="fa-solid fa-user"></i>
     <span>{{ 'profile' | translate }}</span>
   </button>
+
+  <!-- Login -->
   <a *ngIf="!isLogged" routerLink="/auth/login" routerLinkActive="active" class="bottom-nav-item">
     <i class="fa-solid fa-right-to-bracket"></i>
     <span>{{ 'login' | translate }}</span>
@@ -377,13 +412,30 @@
       <i class="fa-solid fa-language"></i>
       <span>{{ currentLang === 'ar' ? 'تغيير اللغة' : 'Change Language' }}</span>
     </button>
-    <button (click)="toggleActionMenu()" class="action-menu-item">
+    <button (click)="toggleActionMenu()" class="action-menu-item" routerLink="/chat" *ngIf="role === 'Customer'">
       <i class="fa-solid fa-headset"></i>
       <span>{{ currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Support' }}</span>
     </button>
     <button routerLink="/complaints" *ngIf="role === 'Customer'" class="action-menu-item">
       <i class="fa-solid fa-exclamation-triangle"></i>
       <span>{{ currentLang === 'ar' ? 'إضافة شكوى' : 'Add Complaint' }}</span>
+    </button>
+    <button routerLink="/chat/agent-dashboard" *ngIf="role === 'CustomerService'" class="action-menu-item">
+      <i class="fa-solid fa-headset"></i>
+      <span>{{ currentLang === 'ar' ? 'دردشة العملاء' : 'Customers Chat' }}</span>
+    </button>
+
+    <!-- ✅ Vendor Shipping -->
+    <button routerLink="/shipping/vendor" *ngIf="isVendor" class="action-menu-item" (click)="toggleActionMenu()">
+      <i class="fa-solid fa-boxes-packing"></i>
+      <span>{{ currentLang === 'ar' ? 'طلبات الشحن' : 'Shipping Orders' }}</span>
+    </button>
+
+    <!-- ✅ Track Shipment (للعملاء) -->
+    <button routerLink="/cart/my-orders" *ngIf="role === 'Customer'" class="action-menu-item"
+      (click)="toggleActionMenu()">
+      <i class="fa-solid fa-truck"></i>
+      <span>{{ currentLang === 'ar' ? 'تتبع شحنتي' : 'Track My Order' }}</span>
     </button>
   </div>
 </div>

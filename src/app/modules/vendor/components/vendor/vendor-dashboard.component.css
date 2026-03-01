@@ -1517,3 +1517,44 @@
 [dir="rtl"] .report-table td {
   text-align: right;
 }
+
+
+.new-order {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+}
+
+.new-badge {
+  background: #f97316;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+[dir="rtl"] .new-badge {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.btn-view {
+  background: #dbeafe;
+  color: #2563eb;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-view:hover {
+  background: #2563eb;
+  color: white;
+}

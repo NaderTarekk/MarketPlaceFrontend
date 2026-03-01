@@ -1,3 +1,7 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- FILE: src/app/modules/cart/components/order/order.component.html (UPDATED) -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
 <div class="checkout-page">
     <section class="hero">
         <div class="hero-bg"></div>
@@ -23,71 +27,144 @@
                     <i class="fa-solid fa-house"></i>
                     {{ i18n.currentLang === 'ar' ? 'الرئيسية' : 'Home' }}
                 </button>
+                <button class="btn-secondary" (click)="goToOrders()">
+                    <i class="fa-solid fa-box"></i>
+                    {{ i18n.currentLang === 'ar' ? 'طلباتي' : 'My Orders' }}
+                </button>
             </div>
         </div>
 
         <!-- Checkout Form -->
-        <div *ngIf="!orderSuccess" class="checkout-form">
-            <h2>
-                <i class="fa-solid fa-truck"></i>
-                {{ i18n.currentLang === 'ar' ? 'بيانات الشحن' : 'Shipping Details' }}
-            </h2>
+        <div *ngIf="!orderSuccess" class="checkout-content">
+            <!-- Shipping Form -->
+            <div class="checkout-form">
+                <h2>
+                    <i class="fa-solid fa-truck"></i>
+                    {{ i18n.currentLang === 'ar' ? 'بيانات الشحن' : 'Shipping Details' }}
+                </h2>
 
-            <!-- Payment Method Badge -->
-            <div class="payment-badge">
-                <i class="fa-solid fa-credit-card"></i>
-                <span>{{ i18n.currentLang === 'ar' ? 'طريقة الدفع:' : 'Payment:' }}</span>
-                <strong>{{ getPaymentLabel() }}</strong>
-                <button (click)="router.navigate(['/cart'])">
-                    {{ i18n.currentLang === 'ar' ? 'تغيير' : 'Change' }}
-                </button>
-            </div>
-
-            <div class="form-group">
-                <label>{{ i18n.currentLang === 'ar' ? 'الاسم الكامل' : 'Full Name' }} *</label>
-                <input type="text" [(ngModel)]="form.shippingName"
-                    [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسمك' : 'Enter your name'" />
-            </div>
-
-            <div class="form-group">
-                <label>{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }} *</label>
-                <input type="tel" [(ngModel)]="form.shippingPhone"
-                    [placeholder]="i18n.currentLang === 'ar' ? '01xxxxxxxxx' : '01xxxxxxxxx'" />
-            </div>
-
-            <div class="form-group">
-                <label>{{ i18n.currentLang === 'ar' ? 'العنوان بالتفصيل' : 'Full Address' }} *</label>
-                <textarea [(ngModel)]="form.shippingAddress" rows="3"
-                    [placeholder]="i18n.currentLang === 'ar' ? 'الشارع، المبنى، الشقة...' : 'Street, building, apt...'"></textarea>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>{{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }}</label>
-                    <input type="text" [(ngModel)]="form.shippingCity"
-                        [placeholder]="i18n.currentLang === 'ar' ? 'المدينة' : 'City'" />
+                <!-- Payment Method Badge -->
+                <div class="payment-badge">
+                    <i class="fa-solid fa-credit-card"></i>
+                    <span>{{ i18n.currentLang === 'ar' ? 'طريقة الدفع:' : 'Payment:' }}</span>
+                    <strong>{{ getPaymentLabel() }}</strong>
+                    <button (click)="router.navigate(['/cart'])">
+                        {{ i18n.currentLang === 'ar' ? 'تغيير' : 'Change' }}
+                    </button>
                 </div>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'الاسم الكامل' : 'Full Name' }} *</label>
+                    <input type="text" [(ngModel)]="form.shippingName"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسمك' : 'Enter your name'" />
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }} *</label>
+                    <input type="tel" [(ngModel)]="form.shippingPhone"
+                        [placeholder]="i18n.currentLang === 'ar' ? '01xxxxxxxxx' : '01xxxxxxxxx'" />
+                </div>
+
+                <!-- ✅ NEW: Governorate Selector -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'المحافظة' : 'Governorate' }} *</label>
+                    <div class="select-wrapper">
+                        <select [(ngModel)]="selectedGovernorateId" (change)="onGovernorateChange()"
+                                [disabled]="isLoadingGovernorates">
+                            <option [ngValue]="null">
+                                {{ isLoadingGovernorates 
+                                    ? (i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...') 
+                                    : (i18n.currentLang === 'ar' ? '-- اختر المحافظة --' : '-- Select Governorate --') 
+                                }}
+                            </option>
+                            <option *ngFor="let gov of governorates" [ngValue]="gov.id">
+                                {{ getGovernorateName(gov) }} 
+                                ({{ getShippingLabel(gov) }})
+                            </option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'العنوان بالتفصيل' : 'Full Address' }} *</label>
+                    <textarea [(ngModel)]="form.shippingAddress" rows="3"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'الشارع، المبنى، الشقة...' : 'Street, building, apt...'"></textarea>
+                </div>
+
+                <!-- Notes -->
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'ملاحظات' : 'Notes' }}</label>
                     <input type="text" [(ngModel)]="form.shippingNotes"
-                        [placeholder]="i18n.currentLang === 'ar' ? 'ملاحظات إضافية' : 'Additional notes'" />
+                        [placeholder]="i18n.currentLang === 'ar' ? 'ملاحظات إضافية (اختياري)' : 'Additional notes (optional)'" />
+                </div>
+
+                <!-- Error -->
+                <div *ngIf="errorMessage" class="error-msg">
+                    <i class="fa-solid fa-exclamation-circle"></i>
+                    {{ errorMessage }}
                 </div>
             </div>
 
-            <!-- Error -->
-            <div *ngIf="errorMessage" class="error-msg">
-                <i class="fa-solid fa-exclamation-circle"></i>
-                {{ errorMessage }}
-            </div>
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h2>{{ i18n.currentLang === 'ar' ? 'ملخص الطلب' : 'Order Summary' }}</h2>
 
-            <!-- Submit -->
-            <button class="btn-submit" (click)="submitOrder()" [disabled]="isSubmitting">
-                <i class="fa-solid" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                {{ isSubmitting
-                    ? (i18n.currentLang === 'ar' ? 'جاري الإرسال...' : 'Submitting...')
-                    : (i18n.currentLang === 'ar' ? 'تأكيد الطلب' : 'Confirm Order')
-                }}
-            </button>
+                <div class="summary-details">
+                    <!-- Subtotal -->
+                    <div class="summary-row">
+                        <span>{{ i18n.currentLang === 'ar' ? 'المجموع الفرعي' : 'Subtotal' }}</span>
+                        <span>{{ formatPrice(subtotal) }}</span>
+                    </div>
+
+                    <!-- Shipping -->
+                    <div class="summary-row shipping">
+                        <span>{{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}</span>
+                        <span *ngIf="shippingCost > 0">{{ formatPrice(shippingCost) }}</span>
+                        <span *ngIf="shippingCost === 0 && selectedGovernorateId" class="free-badge">
+                            {{ i18n.currentLang === 'ar' ? 'مجاني' : 'Free' }}
+                        </span>
+                        <span *ngIf="!selectedGovernorateId" class="pending">
+                            {{ i18n.currentLang === 'ar' ? 'اختر المحافظة' : 'Select governorate' }}
+                        </span>
+                    </div>
+
+                    <!-- Promo Discount -->
+                    <div *ngIf="promoDiscount > 0" class="summary-row discount">
+                        <span>
+                            <i class="fa-solid fa-tag"></i>
+                            {{ i18n.currentLang === 'ar' ? 'خصم الكود' : 'Promo Discount' }}
+                            <small *ngIf="promoCode">({{ promoCode }})</small>
+                        </span>
+                        <span>-{{ formatPrice(promoDiscount) }}</span>
+                    </div>
+                </div>
+
+                <!-- Total -->
+                <div class="summary-total">
+                    <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+                    <span class="total-amount">{{ formatPrice(total) }}</span>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="btn-submit" (click)="submitOrder()" 
+                        [disabled]="isSubmitting || !selectedGovernorateId">
+                    <i class="fa-solid" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                    {{ isSubmitting
+                        ? (i18n.currentLang === 'ar' ? 'جاري الإرسال...' : 'Submitting...')
+                        : (i18n.currentLang === 'ar' ? 'تأكيد الطلب' : 'Confirm Order')
+                    }}
+                </button>
+
+                <!-- Security Note -->
+                <div class="security-note">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    {{ i18n.currentLang === 'ar' ? 'بياناتك محمية وآمنة' : 'Your data is secure' }}
+                </div>
+            </div>
         </div>
     </div>
 </div>

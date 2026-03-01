@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Injectable, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
@@ -68,7 +68,7 @@ export class ChatService implements OnDestroy {
   private agentJoined$ = new Subject<ChatSession>();
   private connectionState$ = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private ngZone: NgZone) { }
 
   async startConnection(): Promise<void> {
     const token = localStorage.getItem('NHC_MP_Token');
@@ -113,49 +113,68 @@ export class ChatService implements OnDestroy {
     return this.waitingSessionsUpdate$.asObservable();
   }
 
-  private registerHubEvents(): void {
+   private registerHubEvents(): void {
     this.hubConnection.on('ReceiveMessage', (message: ChatHubMessage) => {
-      this.messageReceived$.next(message);
-    });
-    this.hubConnection.on('WaitingSessionsUpdate', (sessions: ChatSession[]) => {
-      this.waitingSessionsUpdate$.next(sessions);
+      this.ngZone.run(() => {  // ✅ لف بـ ngZone
+        this.messageReceived$.next(message);
+      });
     });
 
-    // أضف getter
+    this.hubConnection.on('WaitingSessionsUpdate', (sessions: ChatSession[]) => {
+      this.ngZone.run(() => {
+        this.waitingSessionsUpdate$.next(sessions);
+      });
+    });
 
     this.hubConnection.on('UserTyping', (userId: string) => {
-      this.userTyping$.next(userId);
+      this.ngZone.run(() => {
+        this.userTyping$.next(userId);
+      });
     });
 
     this.hubConnection.on('UserStoppedTyping', (userId: string) => {
-      this.userStoppedTyping$.next(userId);
+      this.ngZone.run(() => {
+        this.userStoppedTyping$.next(userId);
+      });
     });
 
     this.hubConnection.on('SessionClosed', (sessionId: number) => {
-      this.sessionClosed$.next(sessionId);
+      this.ngZone.run(() => {
+        this.sessionClosed$.next(sessionId);
+      });
     });
 
     this.hubConnection.on('AgentJoined', (session: ChatSession) => {
-      this.agentJoined$.next(session);
+      this.ngZone.run(() => {
+        this.agentJoined$.next(session);
+      });
     });
 
     this.hubConnection.on('Connected', (connectionId: string) => {
-      console.log('Connected with ID:', connectionId);
+      this.ngZone.run(() => {
+        console.log('Connected with ID:', connectionId);
+      });
     });
 
     this.hubConnection.onreconnecting(() => {
-      console.log('SignalR Reconnecting...');
-      this.connectionState$.next(false);
+      this.ngZone.run(() => {
+        console.log('SignalR Reconnecting...');
+        this.connectionState$.next(false);
+      });
     });
 
     this.hubConnection.onreconnected(() => {
-      console.log('SignalR Reconnected');
-      this.connectionState$.next(true);
+      this.ngZone.run(() => {
+        console.log('SignalR Reconnected');
+        this.connectionState$.next(true);
+      });
     });
 
     this.hubConnection.onclose(() => {
-      console.log('SignalR Disconnected');
-      this.connectionState$.next(false);
+      this.ngZone.run(() => {
+        console.log('SignalR Disconnected');
+        this.connectionState$.next(false);
+      });
     });
   }
 

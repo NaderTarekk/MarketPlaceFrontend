@@ -234,4 +234,27 @@ export class ProductsService {
   deleteReview(id: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${environment.reviewsUrl}/${id}`);
   }
+
+  getPendingProducts(page: number = 1, pageSize: number = 10): Observable<PagedResponse<ProductList[]>> {
+    return this.http.get<PagedResponse<ProductList[]>>(
+      `${environment.productsUrl}/pending?page=${page}&pageSize=${pageSize}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  approveProduct(id: number): Observable<ApiResponse<Product>> {
+    return this.http.patch<ApiResponse<Product>>(
+      `${environment.productsUrl}/${id}/status`,
+      { status: 1 }, // ProductStatus.Approved = 1
+      { headers: this.getHeaders() }
+    );
+  }
+
+  rejectProduct(id: number): Observable<ApiResponse<Product>> {
+    return this.http.patch<ApiResponse<Product>>(
+      `${environment.productsUrl}/${id}/status`,
+      { status: 2 }, // ProductStatus.Rejected = 2
+      { headers: this.getHeaders() }
+    );
+  }
 }

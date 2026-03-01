@@ -1,0 +1,297 @@
+<div class="shipping-employee-page">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>
+        <i class="fa-solid fa-truck-fast"></i>
+        {{ i18n.currentLang === 'ar' ? 'إدارة الشحنات' : 'Shipping Management' }}
+      </h1>
+      <p>{{ i18n.currentLang === 'ar' ? 'توزيع المناديب ومتابعة الشحنات' : 'Assign agents and track shipments' }}</p>
+    </div>
+  </section>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
+      <i class="fa-solid fa-clock"></i>
+      {{ i18n.currentLang === 'ar' ? 'طلبات منتظرة' : 'Pending Orders' }}
+      <span class="badge">{{ pendingOrders.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'shipments'" (click)="activeTab = 'shipments'">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      {{ i18n.currentLang === 'ar' ? 'الشحنات' : 'Shipments' }}
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'agents'" (click)="activeTab = 'agents'">
+      <i class="fa-solid fa-users"></i>
+      {{ i18n.currentLang === 'ar' ? 'المناديب' : 'Agents' }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading" class="main-content">
+
+    <!-- Pending Orders Tab -->
+    <div *ngIf="activeTab === 'pending'" class="tab-content">
+      <!-- Actions Bar -->
+      <div class="actions-bar" *ngIf="pendingOrders.length > 0">
+        <label class="select-all">
+          <input type="checkbox" [checked]="selectedOrders.length === pendingOrders.length" (change)="selectAllOrders()">
+          {{ i18n.currentLang === 'ar' ? 'تحديد الكل' : 'Select All' }}
+        </label>
+        <button class="btn-assign" [disabled]="selectedOrders.length === 0" (click)="openAssignModal()">
+          <i class="fa-solid fa-user-plus"></i>
+          {{ i18n.currentLang === 'ar' ? 'تعيين مندوب' : 'Assign Agent' }}
+          <span *ngIf="selectedOrders.length > 0">({{ selectedOrders.length }})</span>
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="pendingOrders.length === 0" class="empty-state">
+        <i class="fa-solid fa-check-circle"></i>
+        <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات منتظرة' : 'No pending orders' }}</h3>
+      </div>
+
+      <!-- Orders Grid -->
+      <div class="orders-grid">
+        <div *ngFor="let order of pendingOrders" class="order-card" [class.selected]="isOrderSelected(order.id)">
+          <div class="card-header">
+            <label class="checkbox-wrapper">
+              <input type="checkbox" [checked]="isOrderSelected(order.id)" (change)="toggleOrderSelection(order.id)">
+            </label>
+            <span class="barcode">{{ order.vendorOrderBarcode }}</span>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+              {{ order.statusAr }}
+            </span>
+          </div>
+
+          <div class="card-body">
+            <div class="info-row">
+              <i class="fa-solid fa-store"></i>
+              <span>{{ order.vendorName }}</span>
+            </div>
+            <div class="info-row" *ngIf="order.vendorPhone">
+              <i class="fa-solid fa-phone"></i>
+              <span>{{ order.vendorPhone }}</span>
+            </div>
+            <div class="info-row" *ngIf="order.vendorAddress">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>{{ order.vendorAddress }}</span>
+            </div>
+            <div class="info-row items">
+              <i class="fa-solid fa-box"></i>
+              <span>{{ order.items.length }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}</span>
+              <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+            </div>
+          </div>
+
+          <!-- Items Preview -->
+          <div class="items-preview">
+            <div *ngFor="let item of order.items.slice(0, 3)" class="item-mini">
+              <img [src]="item.productImage" [alt]="item.productNameAr">
+              <span>x{{ item.quantity }}</span>
+            </div>
+            <div *ngIf="order.items.length > 3" class="more-items">
+              +{{ order.items.length - 3 }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipments Tab -->
+    <div *ngIf="activeTab === 'shipments'" class="tab-content">
+      <div *ngIf="shipments.length === 0" class="empty-state">
+        <i class="fa-solid fa-box-open"></i>
+        <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد شحنات' : 'No shipments' }}</h3>
+      </div>
+
+      <div class="shipments-grid">
+        <div *ngFor="let shipment of shipments" class="shipment-card" (click)="viewShipmentDetails(shipment)">
+          <div class="shipment-header">
+            <span class="barcode">{{ shipment.shipmentBarcode }}</span>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(shipment.status)">
+              {{ shipment.statusAr }}
+            </span>
+          </div>
+
+          <div class="shipment-body">
+            <div class="customer-info">
+              <i class="fa-solid fa-user"></i>
+              <span>{{ shipment.customerName }}</span>
+            </div>
+            <div class="address-info">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>{{ shipment.shippingAddress }}</span>
+            </div>
+            <div class="progress-info">
+              <span>{{ shipment.completedVendorOrders }}/{{ shipment.vendorOrdersCount }}</span>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="(shipment.completedVendorOrders / shipment.vendorOrdersCount) * 100"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="shipment-footer">
+            <span *ngIf="shipment.isReadyForPickup" class="ready-badge">
+              <i class="fa-solid fa-check"></i>
+              {{ i18n.currentLang === 'ar' ? 'جاهز للاستلام' : 'Ready for Pickup' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agents Tab -->
+    <div *ngIf="activeTab === 'agents'" class="tab-content">
+      <div class="agents-grid">
+        <div *ngFor="let agent of deliveryAgents" class="agent-card">
+          <div class="agent-avatar">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="agent-info">
+            <h4>{{ agent.fullName }}</h4>
+            <p *ngIf="agent.phoneNumber">{{ agent.phoneNumber }}</p>
+          </div>
+          <div class="agent-stats">
+            <div class="stat">
+              <span class="value">{{ agent.activeTasksCount }}</span>
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'مهام نشطة' : 'Active' }}</span>
+            </div>
+            <div class="stat">
+              <span class="value">{{ agent.completedTasksToday }}</span>
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'اليوم' : 'Today' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Modal -->
+<div class="modal-overlay" [class.show]="showAssignModal" (click)="closeAssignModal()">
+  <div class="modal assign-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fa-solid fa-user-plus"></i>
+        {{ i18n.currentLang === 'ar' ? 'تعيين مندوب' : 'Assign Delivery Agent' }}
+      </h3>
+      <button class="close-btn" (click)="closeAssignModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="selected-count">
+        {{ i18n.currentLang === 'ar' ? 'تم تحديد' : 'Selected' }}
+        <strong>{{ selectedOrders.length }}</strong>
+        {{ i18n.currentLang === 'ar' ? 'طلب' : 'orders' }}
+      </p>
+
+      <!-- Select Agent -->
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'اختر المندوب' : 'Select Agent' }}</label>
+        <select [(ngModel)]="selectedAgent">
+          <option value="">{{ i18n.currentLang === 'ar' ? '-- اختر --' : '-- Select --' }}</option>
+          <option *ngFor="let agent of deliveryAgents" [value]="agent.id">
+            {{ agent.fullName }} ({{ agent.activeTasksCount }} {{ i18n.currentLang === 'ar' ? 'مهام' : 'tasks' }})
+          </option>
+        </select>
+      </div>
+
+      <!-- Delivery Type -->
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'نوع التوصيل' : 'Delivery Type' }}</label>
+        <div class="radio-group">
+          <label class="radio-option" [class.selected]="selectedDeliveryType === DeliveryType.ToWarehouse">
+            <input type="radio" [value]="DeliveryType.ToWarehouse" [(ngModel)]="selectedDeliveryType">
+            <i class="fa-solid fa-warehouse"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'إحضار للمخزن' : 'To Warehouse' }}</span>
+          </label>
+          <label class="radio-option" [class.selected]="selectedDeliveryType === DeliveryType.DirectToCustomer">
+            <input type="radio" [value]="DeliveryType.DirectToCustomer" [(ngModel)]="selectedDeliveryType">
+            <i class="fa-solid fa-truck"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'توصيل مباشر للعميل' : 'Direct to Customer' }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeAssignModal()">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-confirm" (click)="confirmAssignment()" [disabled]="isAssigning || !selectedAgent">
+        <i class="fa-solid" [ngClass]="isAssigning ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ isAssigning 
+          ? (i18n.currentLang === 'ar' ? 'جاري التعيين...' : 'Assigning...') 
+          : (i18n.currentLang === 'ar' ? 'تأكيد' : 'Confirm') 
+        }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Shipment Details Modal -->
+<div class="modal-overlay" [class.show]="showShipmentModal" (click)="closeShipmentModal()">
+  <div class="modal shipment-modal" (click)="$event.stopPropagation()" *ngIf="selectedShipment">
+    <div class="modal-header">
+      <h3>{{ selectedShipment.shipmentBarcode }}</h3>
+      <button class="close-btn" (click)="closeShipmentModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Customer Info -->
+      <div class="section">
+        <h4><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'بيانات العميل' : 'Customer Info' }}</h4>
+        <p><strong>{{ selectedShipment.customerName }}</strong></p>
+        <p>{{ selectedShipment.customerPhone }}</p>
+        <p>{{ selectedShipment.shippingAddress }}</p>
+      </div>
+
+      <!-- Vendor Orders -->
+      <div class="section">
+        <h4><i class="fa-solid fa-store"></i> {{ i18n.currentLang === 'ar' ? 'طلبات التجار' : 'Vendor Orders' }}</h4>
+        <div *ngFor="let vo of selectedShipment.vendorOrders" class="vendor-order-item">
+          <div class="vo-header">
+            <span>{{ vo.vendorName }}</span>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(vo.status)">{{ vo.statusAr }}</span>
+          </div>
+          <div class="vo-agent" *ngIf="vo.deliveryAgentName">
+            <i class="fa-solid fa-motorcycle"></i>
+            {{ vo.deliveryAgentName }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-action" *ngIf="selectedShipment.status === ShipmentStatus.PartiallyPicked || 
+                                        (selectedShipment.status === ShipmentStatus.Processing && 
+                                         selectedShipment.completedVendorOrders === selectedShipment.vendorOrders.length)"
+              (click)="markAsReadyForPickup(selectedShipment.id)">
+        <i class="fa-solid fa-box"></i>
+        {{ i18n.currentLang === 'ar' ? 'جاهز للاستلام' : 'Mark Ready' }}
+      </button>
+      <button class="btn-action success" *ngIf="selectedShipment.isReadyForPickup && selectedShipment.status !== ShipmentStatus.Delivered"
+              (click)="markAsDelivered(selectedShipment.id)">
+        <i class="fa-solid fa-check"></i>
+        {{ i18n.currentLang === 'ar' ? 'تم التسليم' : 'Mark Delivered' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+  <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+  <span>{{ toast.message }}</span>
+</div>

@@ -1,7 +1,7 @@
 // navbar.component.ts
 
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
 import { I18nService, Lang } from '../../../core/services/i18n.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -45,6 +45,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isAdminMenuOpen = false;
   isVendorMenuOpen = false;
   role: string | null = null;
+  isShippingEmployee = false;
+  isDeliveryAgent = false;
   adminPages = [
     { nameAr: 'صفحة الأدمن', nameEn: 'Admin Dashboard', route: '/admin', icon: 'fa-user-tie' },
     { nameAr: 'إدارة العلامات التجارية', nameEn: 'Manage Brands', route: '/brands', icon: 'fa-tags' },
@@ -53,7 +55,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { nameAr: 'إدارة التقييمات', nameEn: 'Manage Reviews', route: '/products/reviews', icon: 'fa-star' },
     // { nameAr: 'إدارة الطلبات', nameEn: 'Manage Orders', route: '/orders', icon: 'fa-shopping-bag' },
     { nameAr: 'الشكاوي', nameEn: 'Complaints', route: '/admin/complaints', icon: 'fa-exclamation-triangle' },
+    { nameAr: 'إدارة الشحنات', nameEn: 'Shipping Management', route: '/shipping/employee', icon: 'fa-truck-fast' },
   ];
+
+  vendorPages = [
+    { nameAr: 'لوحة التحكم', nameEn: 'Dashboard', route: '/vendor', icon: 'fa-chart-line' },
+    { nameAr: 'طلبات الشحن', nameEn: 'Shipping Orders', route: '/shipping/vendor', icon: 'fa-boxes-packing' }, // ✅ أضف ده
+  ];
+
   // أضف في الـ properties
   isCatalogOpen = false;
   searchResults: any[] = [];
@@ -61,10 +70,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   showSearchDropdown = false;
   private searchSubject = new Subject<string>();
   readonly placeholderImage = 'https://placehold.co/150x150/e2e8f0/94a3b8?text=No+Image';
-
-  vendorPages = [
-    { nameAr: 'لوحة التحكم', nameEn: 'Dashboard', route: '/vendor', icon: 'fa-chart-line' },
-  ];
 
   constructor(
     public i18n: I18nService,
@@ -80,22 +85,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.lang = localStorage.getItem('lang') || 'en';
-    this.role = localStorage.getItem('NHC_MP_Role');
-    
-    this.authSub = this.authService.isLoggedIn$.subscribe(isLogged => {
+
+    combineLatest([
+      this.authService.isLoggedIn$,
+      this.authService.role$
+    ]).subscribe(([isLogged, role]) => {
+      console.log('🧭 Navbar received:', { isLogged, role });
       this.isLogged = isLogged;
+      this.role = role;
 
-      this.isVendor = false;
-      this.isAdmin = false;
+      this.isVendor = role === 'Vendor';
+      this.isAdmin = role === 'Admin';
+      this.isShippingEmployee = role === 'ShippingEmployee';
+      this.isDeliveryAgent = role === 'DeliveryAgent';
 
-      if (localStorage.getItem('NHC_MP_Role') === 'Vendor') {
-        this.isVendor = true;
-      }
       if (isLogged) {
-        this.isAdmin = localStorage.getItem('NHC_MP_Role') === 'Admin';
         this.loadCartCount();
       } else {
-        this.isAdmin = false;
+        this.cartCount = 0;
       }
 
       this.updateNavLinks();
@@ -152,6 +159,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  // Method للتحقق من الـ Role
+  hasRole(roles: string[]): boolean {
+    return roles.includes(this.role || '');
   }
 
   onSearchInput(event: Event): void {

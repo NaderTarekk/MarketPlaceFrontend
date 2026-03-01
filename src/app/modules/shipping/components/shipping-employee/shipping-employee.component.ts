@@ -1,0 +1,396 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ShippingService } from '../../services/shipping.service';
+import { I18nService } from '../../../../core/services/i18n.service';
+import {
+  VendorOrder,
+  DeliveryAgent,
+  VendorOrderStatus,
+  DeliveryType,
+  ShipmentListItem,
+  ShipmentStatus
+} from '../../../../models/shipping';
+
+@Component({
+  selector: 'app-shipping-employee',
+  standalone: false,
+  templateUrl: './shipping-employee.component.html',
+  styleUrl: './shipping-employee.component.css'
+})
+export class ShippingEmployeeComponent implements OnInit {
+  // Data
+  pendingOrders: VendorOrder[] = [];
+  shipments: ShipmentListItem[] = [];
+  deliveryAgents: DeliveryAgent[] = [];
+
+  // UI State
+  isLoading = true;
+  activeTab: 'pending' | 'shipments' | 'agents' = 'pending';
+
+  // Assignment
+  selectedOrders: number[] = [];
+  selectedAgent: string = '';
+  selectedDeliveryType: DeliveryType = DeliveryType.ToWarehouse;
+  isAssigning = false;
+
+  // Modal
+  showAssignModal = false;
+  showShipmentModal = false;
+  selectedShipment: any = null;
+
+  // Toast
+  toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
+
+  // Enums
+  VendorOrderStatus = VendorOrderStatus;
+  DeliveryType = DeliveryType;
+  ShipmentStatus = ShipmentStatus;
+
+  constructor(
+    public i18n: I18nService,
+    private shippingService: ShippingService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.loadData();
+    this.loadFailureReasons();
+    this.loadDeliveryOptions();
+  }
+
+  loadData(): void {
+    this.isLoading = true;
+
+    // Load pending orders
+    this.shippingService.getPendingVendorOrders().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.pendingOrders = res.data;
+        }
+        this.cdr.detectChanges();
+      }
+    });
+
+    // Load shipments
+    this.shippingService.getAllShipments({ page: 1, pageSize: 50 }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.shipments = res.data;
+        }
+        this.cdr.detectChanges();
+      }
+    });
+
+    // Load delivery agents
+    this.shippingService.getAvailableDeliveryAgents().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.deliveryAgents = res.data;
+        }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Selection
+  toggleOrderSelection(orderId: number): void {
+    const index = this.selectedOrders.indexOf(orderId);
+    if (index > -1) {
+      this.selectedOrders.splice(index, 1);
+    } else {
+      this.selectedOrders.push(orderId);
+    }
+  }
+
+  isOrderSelected(orderId: number): boolean {
+    return this.selectedOrders.includes(orderId);
+  }
+
+  selectAllOrders(): void {
+    if (this.selectedOrders.length === this.pendingOrders.length) {
+      this.selectedOrders = [];
+    } else {
+      this.selectedOrders = this.pendingOrders.map(o => o.id);
+    }
+  }
+
+  // Assignment Modal
+  openAssignModal(): void {
+    if (this.selectedOrders.length === 0) {
+      this.showToast(this.t('select_orders_first'), 'error');
+      return;
+    }
+    this.showAssignModal = true;
+  }
+
+  closeAssignModal(): void {
+    this.showAssignModal = false;
+    this.selectedAgent = '';
+    this.selectedDeliveryType = DeliveryType.ToWarehouse;
+  }
+
+  confirmAssignment(): void {
+    if (!this.selectedAgent) {
+      this.showToast(this.t('select_agent'), 'error');
+      return;
+    }
+
+    this.isAssigning = true;
+
+    if (this.selectedOrders.length === 1) {
+      // Single assignment
+      this.shippingService.assignDeliveryAgent({
+        vendorOrderId: this.selectedOrders[0],
+        deliveryAgentId: this.selectedAgent,
+        deliveryType: this.selectedDeliveryType
+      }).subscribe({
+        next: (res) => this.handleAssignmentResult(res),
+        error: () => this.handleAssignmentError()
+      });
+    } else {
+      // Bulk assignment
+      this.shippingService.bulkAssignDeliveryAgent({
+        vendorOrderIds: this.selectedOrders,
+        deliveryAgentId: this.selectedAgent,
+        deliveryType: this.selectedDeliveryType
+      }).subscribe({
+        next: (res) => this.handleAssignmentResult(res),
+        error: () => this.handleAssignmentError()
+      });
+    }
+  }
+
+  private handleAssignmentResult(res: any): void {
+    this.isAssigning = false;
+    if (res.success) {
+      this.showToast(res.message || this.t('assignment_success'), 'success');
+      this.closeAssignModal();
+      this.selectedOrders = [];
+      this.loadData();
+    } else {
+      this.showToast(res.message || this.t('assignment_failed'), 'error');
+    }
+  }
+
+  private handleAssignmentError(): void {
+    this.isAssigning = false;
+    this.showToast(this.t('assignment_failed'), 'error');
+  }
+
+  // Shipment Details
+  viewShipmentDetails(shipment: ShipmentListItem): void {
+    this.shippingService.getShipmentById(shipment.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedShipment = res.data;
+          this.showShipmentModal = true;
+        }
+      }
+    });
+  }
+
+  closeShipmentModal(): void {
+    this.showShipmentModal = false;
+    this.selectedShipment = null;
+  }
+
+  markAsReadyForPickup(shipmentId: number): void {
+    this.shippingService.markReadyForPickup(shipmentId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(this.t('ready_for_pickup'), 'success');
+          this.loadData();
+          this.closeShipmentModal();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      }
+    });
+  }
+
+  markAsDelivered(shipmentId: number): void {
+    this.shippingService.markShipmentDelivered(shipmentId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(this.t('delivered_success'), 'success');
+          this.loadData();
+          this.closeShipmentModal();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      }
+    });
+  }
+
+  // Helpers
+  getStatusBadgeClass(status: VendorOrderStatus | ShipmentStatus): string {
+    const statusMap: { [key: number]: string } = {
+      0: 'pending',
+      1: 'processing',
+      2: 'partial',
+      3: 'ready',
+      4: 'out-for-delivery',
+      5: 'delivered',
+      6: 'cancelled'
+    };
+    return statusMap[status] || 'pending';
+  }
+
+  showToast(message: string, type: 'success' | 'error'): void {
+    this.toast = { show: true, message, type };
+    setTimeout(() => {
+      this.toast.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
+  }
+
+
+
+  showFailureModal = false;
+  selectedOrderForFailure: any = null;
+  failureReasons: { value: number; labelAr: string; labelEn: string }[] = [];
+  selectedFailureReason: number | null = null;
+  otherReason = '';
+  isReportingFailure = false;
+
+  // Customer Choice Modal
+  showCustomerChoiceModal = false;
+  selectedFailureForChoice: any = null;
+  deliveryOptions: { value: number; labelAr: string; labelEn: string }[] = [];
+  selectedDeliveryOption: number | null = null;
+  customerNotes = '';
+  isSettingChoice = false;
+
+  loadFailureReasons(): void {
+    this.failureReasons = [
+      { value: 0, labelAr: 'العميل غير موجود', labelEn: 'Customer Not Available' },
+      { value: 1, labelAr: 'العنوان غير صحيح', labelEn: 'Wrong Address' },
+      { value: 2, labelAr: 'العميل رفض الاستلام', labelEn: 'Customer Refused' },
+      { value: 3, labelAr: 'العميل طلب التأجيل', labelEn: 'Customer Requested Delay' },
+      { value: 4, labelAr: 'الهاتف لا يرد', labelEn: 'Phone Not Answered' },
+      { value: 5, labelAr: 'المنطقة يصعب الوصول إليها', labelEn: 'Area Not Accessible' },
+      { value: 99, labelAr: 'سبب آخر', labelEn: 'Other' }
+    ];
+  }
+
+  loadDeliveryOptions(): void {
+    this.deliveryOptions = [
+      { value: 0, labelAr: 'استلام من المنزل', labelEn: 'Home Delivery' },
+      { value: 1, labelAr: 'استلام من شركة الشحن', labelEn: 'Pickup from Company' }
+    ];
+  }
+
+  // Report Failure
+  openFailureModal(order: any): void {
+    this.selectedOrderForFailure = order;
+    this.selectedFailureReason = null;
+    this.otherReason = '';
+    this.showFailureModal = true;
+  }
+
+  closeFailureModal(): void {
+    this.showFailureModal = false;
+    this.selectedOrderForFailure = null;
+  }
+
+  reportDeliveryFailure(): void {
+    if (this.selectedFailureReason === null) {
+      this.showToast(this.t('select_reason'), 'error');
+      return;
+    }
+
+    this.isReportingFailure = true;
+
+    const dto = {
+      orderId: this.selectedOrderForFailure.orderId,
+      reason: this.selectedFailureReason,
+      otherReason: this.selectedFailureReason === 99 ? this.otherReason : undefined
+    };
+
+    this.shippingService.reportDeliveryFailure(dto).subscribe({
+      next: (res) => {
+        this.isReportingFailure = false;
+        if (res.success) {
+          this.showToast(this.t('failure_reported'), 'success');
+          this.closeFailureModal();
+          this.loadData();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      },
+      error: () => {
+        this.isReportingFailure = false;
+        this.showToast(this.t('error'), 'error');
+      }
+    });
+  }
+
+  // Set Customer Choice
+  openCustomerChoiceModal(failure: any): void {
+    this.selectedFailureForChoice = failure;
+    this.selectedDeliveryOption = null;
+    this.customerNotes = '';
+    this.showCustomerChoiceModal = true;
+  }
+
+  closeCustomerChoiceModal(): void {
+    this.showCustomerChoiceModal = false;
+    this.selectedFailureForChoice = null;
+  }
+
+  setCustomerChoice(): void {
+    if (this.selectedDeliveryOption === null) {
+      this.showToast(this.t('select_option'), 'error');
+      return;
+    }
+
+    this.isSettingChoice = true;
+
+    const dto = {
+      failureId: this.selectedFailureForChoice.id,
+      customerChoice: this.selectedDeliveryOption,
+      customerNotes: this.customerNotes || undefined
+    };
+
+    this.shippingService.setCustomerChoice(dto).subscribe({
+      next: (res) => {
+        this.isSettingChoice = false;
+        if (res.success) {
+          this.showToast(this.t('choice_saved'), 'success');
+          this.closeCustomerChoiceModal();
+          this.loadData();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      },
+      error: () => {
+        this.isSettingChoice = false;
+        this.showToast(this.t('error'), 'error');
+      }
+    });
+  }
+
+  getReasonLabel(reason: { labelAr: string; labelEn: string }): string {
+    return this.i18n.currentLang === 'ar' ? reason.labelAr : reason.labelEn;
+  }
+
+  t(key: string): string {
+    const translations: { [key: string]: { ar: string; en: string } } = {
+      'select_orders_first': { ar: 'اختر طلبات أولاً', en: 'Select orders first' },
+      'select_agent': { ar: 'اختر مندوب', en: 'Select delivery agent' },
+      'assignment_success': { ar: 'تم تعيين المندوب بنجاح', en: 'Agent assigned successfully' },
+      'assignment_failed': { ar: 'فشل في تعيين المندوب', en: 'Failed to assign agent' },
+      'ready_for_pickup': { ar: 'الشحنة جاهزة للاستلام', en: 'Shipment ready for pickup' },
+      'delivered_success': { ar: 'تم تسليم الشحنة', en: 'Shipment delivered' },
+      'select_reason': { ar: 'اختر سبب الفشل', en: 'Select failure reason' },
+      'failure_reported': { ar: 'تم تسجيل فشل التوصيل', en: 'Delivery failure reported' },
+      'select_option': { ar: 'اختر طريقة الاستلام', en: 'Select delivery option' },
+      'choice_saved': { ar: 'تم حفظ اختيار العميل', en: 'Customer choice saved' },
+      'error': { ar: 'حدث خطأ', en: 'An error occurred' }
+    };
+    return translations[key]?.[this.i18n.currentLang] || key;
+  }
+}

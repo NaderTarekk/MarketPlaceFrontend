@@ -126,6 +126,13 @@
                 </button>
             </div>
 
+            <div class="support-section" *ngIf="role == 'Customer'">
+                <button class="btn-support" routerLink="/chat">
+                    <i class="fa fa-headset"></i>
+                    <span>تواصل مع خدمة العملاء</span>
+                </button>
+            </div>
+
             <!-- ✅ FIXED: Pending Request Status -->
             <div *ngIf="isCustomer() && hasBusinessName() && !profile.isApproved" class="upgrade-section">
                 <div class="pending-request">

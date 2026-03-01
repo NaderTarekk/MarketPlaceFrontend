@@ -9,6 +9,7 @@ import { ProductsService } from '../../../products/services/products.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../environment';
+import { OrderService } from '../../../cart/services/order.service';
 
 @Component({
   selector: 'app-vendor',
@@ -101,7 +102,8 @@ export class VendorDashboardComponent implements OnInit {
     private productsService: ProductsService,
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private orderService: OrderService
   ) { }
 
   ngOnInit(): void {
@@ -118,6 +120,57 @@ export class VendorDashboardComponent implements OnInit {
     this.loadCategories();
     this.loadBrands();
     this.loadSalesReport();
+  }
+
+  viewOrderDetails(order: any): void {
+    // Mark as seen when vendor views the order
+    if (!order.isVendorSeen) {
+      this.orderService.markAsVendorSeen(order.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            order.isVendorSeen = true;
+            // Update pending orders count
+            if (this.dashboard) {
+              this.dashboard.pendingOrders = Math.max(0, this.dashboard.pendingOrders - 1);
+            }
+            this.cdr.detectChanges();
+          }
+        }
+      });
+    }
+
+    // Open order details modal or navigate
+    this.selectedOrderId = order.id;
+    this.showOrderModal = true;
+    this.loadOrderDetails(order.id);
+  }
+
+  // Order Details Modal
+  selectedOrderId: number | null = null;
+  showOrderModal = false;
+  orderDetails: any = null;
+  isLoadingOrder = false;
+
+  loadOrderDetails(orderId: number): void {
+    this.isLoadingOrder = true;
+    this.orderService.getOrderById(orderId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.orderDetails = res.data;
+        }
+        this.isLoadingOrder = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingOrder = false;
+      }
+    });
+  }
+
+  closeOrderModal(): void {
+    this.showOrderModal = false;
+    this.orderDetails = null;
+    this.selectedOrderId = null;
   }
 
   // ═══════════════════════════════════════════════

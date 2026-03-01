@@ -1,0 +1,190 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- FILE: src/app/modules/admin/components/governorates/governorates.component.html -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<div class="governorates-page">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-info">
+            <h1>
+                <i class="fa-solid fa-map-location-dot"></i>
+                {{ i18n.currentLang === 'ar' ? 'إدارة المحافظات' : 'Governorates Management' }}
+            </h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'إدارة المحافظات وتكاليف الشحن' : 'Manage governorates and shipping costs' }}</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-seed" (click)="seedGovernorates()" [disabled]="isSeeding" *ngIf="governorates.length === 0">
+                <i class="fa-solid" [ngClass]="isSeeding ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+                {{ i18n.currentLang === 'ar' ? 'إضافة المحافظات المصرية' : 'Add Egyptian Governorates' }}
+            </button>
+            <button class="btn-add" (click)="openAddDialog()">
+                <i class="fa-solid fa-plus"></i>
+                {{ i18n.currentLang === 'ar' ? 'إضافة محافظة' : 'Add Governorate' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && governorates.length === 0" class="empty-state">
+        <i class="fa-solid fa-map"></i>
+        <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد محافظات' : 'No governorates' }}</h3>
+        <p>{{ i18n.currentLang === 'ar' ? 'أضف المحافظات لتحديد تكاليف الشحن' : 'Add governorates to set shipping costs' }}</p>
+        <button class="btn-primary" (click)="seedGovernorates()">
+            <i class="fa-solid fa-download"></i>
+            {{ i18n.currentLang === 'ar' ? 'إضافة المحافظات المصرية' : 'Add Egyptian Governorates' }}
+        </button>
+    </div>
+
+    <!-- Governorates Table -->
+    <div *ngIf="!isLoading && governorates.length > 0" class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'المحافظة' : 'Governorate' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'تكلفة الشحن' : 'Shipping Cost' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'شحن مجاني' : 'Free Shipping' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let gov of governorates; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td class="name-cell">
+                        <i class="fa-solid fa-location-dot"></i>
+                        {{ gov.nameAr }}
+                    </td>
+                    <td>{{ gov.nameEn }}</td>
+                    <td class="price-cell">
+                        <span *ngIf="!gov.isFreeShipping">{{ formatPrice(gov.shippingCost) }}</span>
+                        <span *ngIf="gov.isFreeShipping" class="free-badge">
+                            {{ i18n.currentLang === 'ar' ? 'مجاني' : 'Free' }}
+                        </span>
+                    </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" [checked]="gov.isFreeShipping" (change)="toggleFreeShipping(gov)">
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <span class="status-badge" [class.active]="gov.isActive" [class.inactive]="!gov.isActive">
+                            {{ gov.isActive 
+                                ? (i18n.currentLang === 'ar' ? 'مفعل' : 'Active') 
+                                : (i18n.currentLang === 'ar' ? 'معطل' : 'Inactive') 
+                            }}
+                        </span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn-icon edit" (click)="openEditDialog(gov)" title="Edit">
+                            <i class="fa-solid fa-edit"></i>
+                        </button>
+                        <button class="btn-icon toggle" (click)="toggleActive(gov)" 
+                                [title]="gov.isActive ? 'Deactivate' : 'Activate'">
+                            <i class="fa-solid" [ngClass]="gov.isActive ? 'fa-eye-slash' : 'fa-eye'"></i>
+                        </button>
+                        <button class="btn-icon delete" (click)="openDeleteDialog(gov)" title="Delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add/Edit Dialog -->
+<div class="dialog-overlay" [class.show]="showDialog" (click)="closeDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h2>
+                {{ isEditMode 
+                    ? (i18n.currentLang === 'ar' ? 'تعديل المحافظة' : 'Edit Governorate')
+                    : (i18n.currentLang === 'ar' ? 'إضافة محافظة' : 'Add Governorate')
+                }}
+            </h2>
+            <button class="close-btn" (click)="closeDialog()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="dialog-body">
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
+                <input type="text" [(ngModel)]="form.nameAr" placeholder="مثال: القاهرة">
+            </div>
+
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
+                <input type="text" [(ngModel)]="form.nameEn" placeholder="e.g. Cairo">
+            </div>
+
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'تكلفة الشحن' : 'Shipping Cost' }}</label>
+                <input type="number" [(ngModel)]="form.shippingCost" min="0" step="0.5"
+                       [disabled]="!!form.isFreeShipping">
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" [(ngModel)]="form.isFreeShipping">
+                    <span>{{ i18n.currentLang === 'ar' ? 'شحن مجاني لهذه المحافظة' : 'Free shipping for this governorate' }}</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'ترتيب العرض' : 'Sort Order' }}</label>
+                <input type="number" [(ngModel)]="form.sortOrder" min="0">
+            </div>
+        </div>
+
+        <div class="dialog-footer">
+            <button class="btn-cancel" (click)="closeDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-submit" (click)="saveGovernorate()" [disabled]="isSubmitting">
+                <i *ngIf="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+                {{ isEditMode 
+                    ? (i18n.currentLang === 'ar' ? 'حفظ' : 'Save')
+                    : (i18n.currentLang === 'ar' ? 'إضافة' : 'Add')
+                }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Dialog -->
+<div class="dialog-overlay" [class.show]="showDeleteDialog" (click)="closeDeleteDialog()">
+    <div class="dialog dialog-sm" (click)="$event.stopPropagation()">
+        <div class="dialog-icon delete">
+            <i class="fa-solid fa-trash"></i>
+        </div>
+        <h3>{{ i18n.currentLang === 'ar' ? 'حذف المحافظة' : 'Delete Governorate' }}</h3>
+        <p>
+            {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف' : 'Are you sure you want to delete' }}
+            <strong>"{{ governorateToDelete ? getName(governorateToDelete) : '' }}"</strong>؟
+        </p>
+        <div class="dialog-actions">
+            <button class="btn-cancel" (click)="closeDeleteDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-delete" (click)="confirmDelete()" [disabled]="isDeleting">
+                <i *ngIf="isDeleting" class="fa-solid fa-spinner fa-spin"></i>
+                {{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+    <span>{{ toast.message }}</span>
+</div>

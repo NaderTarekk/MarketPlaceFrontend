@@ -1,143 +1,135 @@
 <div class="chat-container">
   <!-- Selection View -->
   @if (currentView === 'selection') {
-    <div class="chat-selection">
-      <div class="selection-header">
-        <div class="header-icon">💬</div>
-        <h2>مرحباً بك!</h2>
-        <p>كيف يمكننا مساعدتك اليوم؟</p>
-      </div>
-
-      <div class="selection-options">
-        <button class="option-card" (click)="startChat(ChatType.Bot)" [disabled]="isLoading">
-          <div class="option-icon">🤖</div>
-          <div class="option-content">
-            <h3>المساعد الآلي</h3>
-            <p>احصل على إجابات فورية للأسئلة الشائعة</p>
-          </div>
-          <span class="badge">متاح 24/7</span>
-        </button>
-
-        <button class="option-card" (click)="startChat(ChatType.LiveSupport)" [disabled]="isLoading">
-          <div class="option-icon">👨‍💼</div>
-          <div class="option-content">
-            <h3>الدعم الفني</h3>
-            <p>تحدث مع أحد موظفي الدعم مباشرة</p>
-          </div>
-          <span class="badge live">مباشر</span>
-        </button>
-      </div>
-
-      @if (isLoading) {
-        <div class="loading">
-          <div class="spinner"></div>
-          <span>جاري بدء المحادثة...</span>
-        </div>
-      }
+  <div class="chat-selection">
+    <div class="selection-header">
+      <div class="header-icon">💬</div>
+      <h2>مرحباً بك!</h2>
+      <p>كيف يمكننا مساعدتك اليوم؟</p>
     </div>
+
+    <div class="selection-options">
+      <button class="option-card" (click)="startChat(ChatType.Bot)" [disabled]="isLoading">
+        <div class="option-icon">🤖</div>
+        <div class="option-content">
+          <h3>المساعد الآلي</h3>
+          <p>احصل على إجابات فورية للأسئلة الشائعة</p>
+        </div>
+        <span class="badge">متاح 24/7</span>
+      </button>
+
+      <button class="option-card" (click)="startChat(ChatType.LiveSupport)" [disabled]="isLoading">
+        <div class="option-icon">👨‍💼</div>
+        <div class="option-content">
+          <h3>الدعم الفني</h3>
+          <p>تحدث مع أحد موظفي الدعم مباشرة</p>
+        </div>
+        <span class="badge live">مباشر</span>
+      </button>
+    </div>
+
+    @if (isLoading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>جاري بدء المحادثة...</span>
+    </div>
+    }
+  </div>
   }
 
   <!-- Chat View -->
   @if (currentView === 'chat' && session) {
-    <div class="chat-window">
-      <!-- Header -->
-      <div class="chat-header">
-        <button class="back-btn" (click)="backToSelection()">
-          <i class="fa fa-arrow-right"></i>
-        </button>
-        <div class="chat-info">
-          <div class="avatar">
-            {{ session.type === ChatType.Bot ? '🤖' : '👨‍💼' }}
-          </div>
-          <div class="details">
-            <h3>{{ session.type === ChatType.Bot ? 'المساعد الآلي' : (session.agentName || 'الدعم الفني') }}</h3>
-            <span class="status" [class.online]="session.status === ChatStatus.Active"
-                  [class.waiting]="session.status === ChatStatus.Waiting">
-              @if (session.status === ChatStatus.Active) {
-                <span class="dot"></span> متصل
-              } @else if (session.status === ChatStatus.Waiting) {
-                في انتظار موظف...
-              } @else {
-                منتهية
-              }
-            </span>
-          </div>
+  <div class="chat-window">
+    <!-- Header -->
+    <div class="chat-header">
+      <button class="back-btn" (click)="backToSelection()">
+        <i class="fa fa-arrow-right"></i>
+      </button>
+      <div class="chat-info">
+        <div class="avatar">
+          {{ session.type === ChatType.Bot ? '🤖' : '👨‍💼' }}
         </div>
-        <button class="close-btn" (click)="closeChat()" title="إنهاء المحادثة">
-          <i class="fa fa-times"></i>
-        </button>
+        <div class="details">
+          <h3>{{ session.type === ChatType.Bot ? 'المساعد الآلي' : (session.agentName || 'الدعم الفني') }}</h3>
+          <span class="status" [class.online]="session.status === ChatStatus.Active"
+            [class.waiting]="session.status === ChatStatus.Waiting">
+            @if (session.status === ChatStatus.Active) {
+            <span class="dot"></span> متصل
+            } @else if (session.status === ChatStatus.Waiting) {
+            في انتظار موظف...
+            } @else {
+            منتهية
+            }
+          </span>
+        </div>
       </div>
+      <button class="close-btn" (click)="closeChat()" title="إنهاء المحادثة">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
 
-      <!-- Connection Warning -->
-      @if (!isConnected) {
-        <div class="connection-warning">
-          <i class="fa fa-exclamation-triangle"></i>
-          جاري إعادة الاتصال...
-        </div>
-      }
-
+    <!-- Connection Warning -->
+    @if (!isConnected) {
+    <div class="connection-warning">
+      <i class="fa fa-exclamation-triangle"></i>
+      جاري إعادة الاتصال...
+    </div>
+    }
+    <div class="chat-body">
       <!-- FAQ Quick Actions -->
       @if (session.type === ChatType.Bot && faqList.length > 0) {
-        <div class="faq-actions">
-          @for (faq of faqList; track faq.keyword) {
-            <button class="faq-btn" (click)="sendFaqQuestion(faq.keyword)">
-              {{ faq.question }}
-            </button>
-          }
-        </div>
+      <div class="faq-actions">
+        @for (faq of faqList; track faq.keyword) {
+        <button class="faq-btn" (click)="sendFaqQuestion(faq.keyword)">
+          {{ faq.question }}
+        </button>
+        }
+      </div>
       }
 
       <!-- Messages -->
       <div class="messages-container" #messagesContainer>
         @for (message of messages; track message.id) {
-          <div class="message" 
-               [class.my-message]="isMyMessage(message)"
-               [class.bot-message]="message.senderType === MessageSenderType.Bot"
-               [class.agent-message]="message.senderType === MessageSenderType.Agent">
-            <div class="message-bubble">
-              @if (!isMyMessage(message)) {
-                <div class="sender-name">{{ message.senderName }}</div>
-              }
-              <div class="content">{{ message.content }}</div>
-              <div class="time">{{ formatTime(message.createdAt) }}</div>
-            </div>
+        <div class="message" [class.my-message]="isMyMessage(message)"
+          [class.bot-message]="message.senderType === MessageSenderType.Bot"
+          [class.agent-message]="message.senderType === MessageSenderType.Agent">
+          <div class="message-bubble">
+            @if (!isMyMessage(message)) {
+            <div class="sender-name">{{ message.senderName }}</div>
+            }
+            <div class="content">{{ message.content }}</div>
+            <div class="time">{{ formatTime(message.createdAt) }}</div>
           </div>
+        </div>
         }
 
         @if (otherUserTyping) {
-          <div class="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         }
       </div>
-
-      <!-- Input Area -->
-      <!-- Input Area -->
-@if (session.status !== ChatStatus.Closed) {
-  <div class="input-area">
-    <input
-      type="text"
-      [(ngModel)]="newMessage"
-      (input)="onTyping()"
-      (keydown)="onKeyDown($event)"
-      placeholder="اكتب رسالتك..."
-      [disabled]="!isConnected"
-    />
-    <button 
-      class="send-btn" 
-      (click)="sendMessage()"
-      [disabled]="!newMessage.trim() || !isConnected">
-      <i class="fa fa-paper-plane"></i>
-    </button>
-  </div>
-} @else {
-        <div class="session-closed">
-          <p>تم إنهاء المحادثة</p>
-          <button (click)="backToSelection()">بدء محادثة جديدة</button>
-        </div>
-      }
     </div>
+
+
+    <!-- Input Area -->
+    <!-- Input Area -->
+    @if (session.status !== ChatStatus.Closed) {
+    <div class="input-area">
+      <input type="text" [(ngModel)]="newMessage" (input)="onTyping()" (keydown)="onKeyDown($event)"
+        placeholder="اكتب رسالتك..." [disabled]="!isConnected" />
+      <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim() || !isConnected">
+        <i class="fa fa-paper-plane"></i>
+      </button>
+    </div>
+    } @else {
+    <div class="session-closed">
+      <p>تم إنهاء المحادثة</p>
+      <button (click)="backToSelection()">بدء محادثة جديدة</button>
+    </div>
+    }
+  </div>
   }
 </div>

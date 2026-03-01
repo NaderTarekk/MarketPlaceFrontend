@@ -397,8 +397,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let order of dashboard!.recentOrders">
-                            <td class="order-number">#{{ order.orderNumber }}</td>
+                        <tr *ngFor="let order of dashboard!.recentOrders" [class.new-order]="!order.isVendorSeen"
+                            (click)="viewOrderDetails(order)" style="cursor: pointer;">
+                            <td class="order-number">
+                                #{{ order.orderNumber }}
+                                <span *ngIf="!order.isVendorSeen" class="new-badge">
+                                    {{ i18n.currentLang === 'ar' ? 'جديد' : 'New' }}
+                                </span>
+                            </td>
                             <td>{{ order.customerName }}</td>
                             <td>
                                 <div class="order-items-preview">
@@ -416,6 +422,11 @@
                                 </span>
                             </td>
                             <td class="order-date">{{ formatDate(order.createdAt) }}</td>
+                            <td>
+                                <button class="btn-view" (click)="$event.stopPropagation(); viewOrderDetails(order)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

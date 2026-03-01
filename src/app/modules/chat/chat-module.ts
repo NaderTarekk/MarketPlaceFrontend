@@ -4,6 +4,7 @@ import { ChatComponent } from './components/chat/chat.component';
 import { FormsModule } from '@angular/forms';
 import { ChatRoutingModule } from '../../routing/chat-routing-module';
 import { AgentDashboardComponent } from './components/agent-dashboard/agent-dashboard.component';
+import { SharedModule } from '../../shared/shared-module';
 
 
 
@@ -15,7 +16,8 @@ import { AgentDashboardComponent } from './components/agent-dashboard/agent-dash
   imports: [
     CommonModule,
     FormsModule,
-    ChatRoutingModule
+    ChatRoutingModule,
+    SharedModule
   ]
 })
 export class ChatModule { }

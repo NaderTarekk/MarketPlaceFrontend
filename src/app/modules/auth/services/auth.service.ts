@@ -14,8 +14,9 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn());
+   private roleSubject = new BehaviorSubject<string | null>(this.getRole());
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
-
+public role$ = this.roleSubject.asObservable();
   constructor(private http: HttpClient) { }
 
   login(dto: LoginDto): Observable<AuthResponse> {
@@ -41,9 +42,12 @@ export class AuthService {
   }
 
   saveToken(token: string, role: string): void {
-    localStorage.setItem('NHC_MP_Token', token);
-    localStorage.setItem('NHC_MP_Role', role);
+      console.log('🔐 saveToken called with role:', role);
+  localStorage.setItem('NHC_MP_Token', token);
+  localStorage.setItem('NHC_MP_Role', role);
     this.isLoggedInSubject.next(true); // ✅ Update الـ state
+    this.roleSubject.next(role);
+    console.log('🔐 BehaviorSubjects updated');
   }
 
   getToken(): string | null {
@@ -58,6 +62,7 @@ export class AuthService {
     localStorage.removeItem('NHC_MP_Token');
     localStorage.removeItem('NHC_MP_Role');
     this.isLoggedInSubject.next(false); // ✅ Update الـ state
+    this.roleSubject.next(null);
   }
 
   isLoggedIn(): boolean {

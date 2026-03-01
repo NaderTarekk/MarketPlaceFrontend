@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Order, OrderListItem, OrderStatus, PaymentStatus } from '../../../../models/my-orders';
+import { Order, OrderListItem, OrderStatus, PaymentStatus, ShipmentStatus } from '../../../../models/my-orders';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { MyOrdersService } from '../../services/my-orders.service';
 import { Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 export class MyOrdersComponent implements OnInit {
   // Data
   orders: OrderListItem[] = [];
-  selectedOrder: Order | null = null;
+  selectedOrder: any | null = null;
 
   // UI State
   isLoading = true;
@@ -31,6 +31,7 @@ export class MyOrdersComponent implements OnInit {
   // Enums for template
   OrderStatus = OrderStatus;
   PaymentStatus = PaymentStatus;
+  ShipmentStatus = ShipmentStatus;
 
   constructor(
     public i18n: I18nService,
@@ -109,7 +110,7 @@ export class MyOrdersComponent implements OnInit {
     }
 
     this.ordersService.cancelOrder(orderId).subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         if (res.success) {
           this.showToast(
             this.i18n.currentLang === 'ar'
@@ -164,8 +165,8 @@ export class MyOrdersComponent implements OnInit {
         class: 'processing'
       },
       [OrderStatus.Shipped]: {
-        ar: 'تم الشحن',
-        en: 'Shipped',
+        ar: 'جاهز للاستلام',
+        en: 'Ready for pickup',
         class: 'shipped'
       },
       [OrderStatus.OutForDelivery]: {
@@ -182,6 +183,11 @@ export class MyOrdersComponent implements OnInit {
         ar: 'ملغي',
         en: 'Cancelled',
         class: 'cancelled'
+      },
+       [OrderStatus.DeliveryFailed]: {
+        ar: 'فشل التوصيل',
+        en: 'Delivery Failed',
+        class: 'delivery-failed'
       }
     };
 
@@ -276,4 +282,197 @@ export class MyOrdersComponent implements OnInit {
     this.router.navigate(['/products', productId]);
   }
 
+  getTrackingSteps(order: Order): any[] {
+    // لو في Shipment، استخدم ShipmentStatus
+    if (order.shipmentBarcode && order.shipmentStatus !== undefined) {
+      return this.getShipmentTrackingSteps(order);
+    }
+
+    // Otherwise use OrderStatus
+    return this.getOrderTrackingSteps(order.status);
+  }
+
+  getShipmentTrackingSteps(order: Order): any[] {
+    const status = order.shipmentStatus!;
+
+    const steps = [
+      {
+        statusValue: ShipmentStatus.Pending,
+        icon: 'fa-clipboard-check',
+        labelAr: 'تم استلام الطلب',
+        labelEn: 'Order Received',
+        descAr: 'تم استلام طلبك بنجاح',
+        descEn: 'Your order has been received'
+      },
+      {
+        statusValue: ShipmentStatus.Processing,
+        icon: 'fa-box',
+        labelAr: 'جاري التجهيز',
+        labelEn: 'Processing',
+        descAr: 'جاري تجميع منتجاتك من التجار',
+        descEn: 'Collecting items from vendors'
+      },
+      {
+        statusValue: ShipmentStatus.ReadyForPickup,
+        icon: 'fa-warehouse',
+        labelAr: 'جاهز للاستلام',
+        labelEn: 'Ready',
+        descAr: order.isReadyForPickup
+          ? 'شحنتك جاهزة للاستلام من المخزن'
+          : 'في انتظار وصول جميع المنتجات',
+        descEn: order.isReadyForPickup
+          ? 'Your shipment is ready for pickup'
+          : 'Waiting for all items to arrive'
+      },
+      {
+        statusValue: ShipmentStatus.OutForDelivery,
+        icon: 'fa-truck',
+        labelAr: 'في الطريق',
+        labelEn: 'Out for Delivery',
+        descAr: 'المندوب في طريقه إليك',
+        descEn: 'Delivery agent is on the way'
+      },
+      {
+        statusValue: ShipmentStatus.Delivered,
+        icon: 'fa-circle-check',
+        labelAr: 'تم التوصيل',
+        labelEn: 'Delivered',
+        descAr: 'تم استلام طلبك بنجاح',
+        descEn: 'Order delivered successfully'
+      }
+    ];
+
+    return steps.map((step, index) => ({
+      ...step,
+      label: this.i18n.currentLang === 'ar' ? step.labelAr : step.labelEn,
+      desc: this.i18n.currentLang === 'ar' ? step.descAr : step.descEn,
+      completed: step.statusValue < status,
+      active: step.statusValue === status,
+      pending: step.statusValue > status,
+      last: index === steps.length - 1
+    }));
+  }
+
+  getProgressPercentage(order: Order): number {
+    if (order.shipmentStatus !== undefined) {
+      const totalSteps = 5;
+      const currentStep = order.shipmentStatus;
+      return (currentStep / (totalSteps - 1)) * 100;
+    }
+
+    const totalSteps = 5;
+    const currentStep = order.status;
+    return (currentStep / (totalSteps - 1)) * 100;
+  }
+
+  getOrderTrackingSteps(status: OrderStatus): any[] {
+    const steps = [
+      {
+        statusValue: OrderStatus.Pending,
+        icon: 'fa-clock',
+        labelAr: 'في الانتظار',
+        labelEn: 'Pending'
+      },
+      {
+        statusValue: OrderStatus.Confirmed,
+        icon: 'fa-check',
+        labelAr: 'مؤكد',
+        labelEn: 'Confirmed'
+      },
+      {
+        statusValue: OrderStatus.Processing,
+        icon: 'fa-box',
+        labelAr: 'قيد التجهيز',
+        labelEn: 'Processing'
+      },
+      {
+        statusValue: OrderStatus.Shipped,
+        icon: 'fa-truck',
+        labelAr: 'جاهز للاستلام',
+        labelEn: 'Ready for pickup'
+      },
+       {
+        statusValue: OrderStatus.OutForDelivery,
+        icon: 'fa-motorcycle',
+        labelAr: 'في الطريق',
+        labelEn: 'Out for Delivery'
+      },
+      {
+        statusValue: OrderStatus.Delivered,
+        icon: 'fa-circle-check',
+        labelAr: 'تم التوصيل',
+        labelEn: 'Delivered'
+      }
+    ];
+
+    return steps.map((step, index) => ({
+      ...step,
+      label: this.i18n.currentLang === 'ar' ? step.labelAr : step.labelEn,
+      completed: step.statusValue < status,
+      active: step.statusValue === status,
+      pending: step.statusValue > status,
+      last: index === steps.length - 1
+    }));
+  }
+
+  // في الـ tracking steps، أضف خطوة DeliveryFailed:
+  // getOrderTrackingSteps(status: OrderStatus): any[] {
+  //   const steps = [
+  //     {
+  //       statusValue: OrderStatus.Pending,
+  //       icon: 'fa-clock',
+  //       labelAr: 'في الانتظار',
+  //       labelEn: 'Pending'
+  //     },
+  //     {
+  //       statusValue: OrderStatus.Confirmed,
+  //       icon: 'fa-check',
+  //       labelAr: 'مؤكد',
+  //       labelEn: 'Confirmed'
+  //     },
+  //     {
+  //       statusValue: OrderStatus.Processing,
+  //       icon: 'fa-box',
+  //       labelAr: 'قيد التجهيز',
+  //       labelEn: 'Processing'
+  //     },
+  //     {
+  //       statusValue: OrderStatus.Shipped,
+  //       icon: 'fa-truck',
+  //       labelAr: 'جاهز للاستلام',
+  //       labelEn: 'Ready for pickup'
+  //     },
+  //     {
+  //       statusValue: OrderStatus.OutForDelivery,
+  //       icon: 'fa-motorcycle',
+  //       labelAr: 'في الطريق',
+  //       labelEn: 'Out for Delivery'
+  //     },
+  //     {
+  //       statusValue: OrderStatus.Delivered,
+  //       icon: 'fa-circle-check',
+  //       labelAr: 'تم التوصيل',
+  //       labelEn: 'Delivered'
+  //     }
+  //   ];
+
+  //   // إذا كان الطلب فشل في التوصيل
+  //   if (status === OrderStatus.DeliveryFailed) {
+  //     steps.push({
+  //       statusValue: OrderStatus.DeliveryFailed,
+  //       icon: 'fa-exclamation-triangle',
+  //       labelAr: 'فشل التوصيل',
+  //       labelEn: 'Delivery Failed'
+  //     });
+  //   }
+
+  //   return steps.map((step, index) => ({
+  //     ...step,
+  //     label: this.i18n.currentLang === 'ar' ? step.labelAr : step.labelEn,
+  //     completed: step.statusValue < status,
+  //     active: step.statusValue === status,
+  //     pending: step.statusValue > status,
+  //     last: index === steps.length - 1
+  //   }));
+  // }
 }

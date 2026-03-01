@@ -1,10 +1,16 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// FILE: src/app/modules/cart/components/order/order.component.ts (UPDATED)
+// ═══════════════════════════════════════════════════════════════════════════
+
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../services/order.service';
-import { CreateOrderDto } from '../../../../models/order';
 import { CartService } from '../../services/cart.service';
+import { Governorate } from '../../../../models/governorate';
+import { CreateOrderDto } from '../../../../models/order';
+import { GovernorateService } from '../../../adamin/services/governorate.service';
 
 @Component({
   selector: 'app-order',
@@ -18,6 +24,20 @@ export class OrderComponent implements OnInit {
   orderSuccess = false;
   orderNumber = '';
   errorMessage = '';
+
+  // ✅ NEW: Governorates
+  governorates: Governorate[] = [];
+  selectedGovernorateId: number | null = null;
+  shippingCost = 0;
+  isLoadingGovernorates = true;
+
+  // ✅ NEW: Promo Code (passed from cart)
+  promoCode = '';
+  promoDiscount = 0;
+
+  // ✅ NEW: Cart Summary
+  subtotal = 0;
+  total = 0;
 
   form = {
     shippingName: '',
@@ -34,7 +54,8 @@ export class OrderComponent implements OnInit {
     private orderService: OrderService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-    private cartService: CartService
+    private cartService: CartService,
+    private governorateService: GovernorateService
   ) { }
 
   ngOnInit(): void {
@@ -44,7 +65,61 @@ export class OrderComponent implements OnInit {
     }
 
     this.paymentMethod = this.route.snapshot.queryParams['payment'] || 'cash';
-    console.log('🔹 Payment Method:', this.paymentMethod); // Debug log
+    this.promoCode = this.route.snapshot.queryParams['promoCode'] || '';
+    this.promoDiscount = parseFloat(this.route.snapshot.queryParams['promoDiscount']) || 0;
+    this.subtotal = parseFloat(this.route.snapshot.queryParams['subtotal']) || 0;
+
+    this.loadGovernorates();
+  }
+
+  loadGovernorates(): void {
+    this.isLoadingGovernorates = true;
+    this.governorateService.getAll(true).subscribe({
+      next: (res:any) => {
+        if (res.success) {
+          this.governorates = res.data;
+        }
+        this.isLoadingGovernorates = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingGovernorates = false;
+      }
+    });
+  }
+
+  onGovernorateChange(): void {
+    if (this.selectedGovernorateId) {
+      const gov = this.governorates.find(g => g.id === this.selectedGovernorateId);
+      if (gov) {
+        this.shippingCost = gov.isFreeShipping ? 0 : gov.shippingCost;
+        this.form.shippingCity = this.i18n.currentLang === 'ar' ? gov.nameAr : gov.nameEn;
+        this.calculateTotal();
+      }
+    } else {
+      this.shippingCost = 0;
+      this.form.shippingCity = '';
+      this.calculateTotal();
+    }
+  }
+
+  calculateTotal(): void {
+    this.total = this.subtotal + this.shippingCost - this.promoDiscount;
+  }
+
+  getGovernorateName(gov: Governorate): string {
+    return this.i18n.currentLang === 'ar' ? gov.nameAr : gov.nameEn;
+  }
+
+  getShippingLabel(gov: Governorate): string {
+    if (gov.isFreeShipping) {
+      return this.i18n.currentLang === 'ar' ? 'مجاني' : 'Free';
+    }
+    return `${gov.shippingCost} ${this.i18n.currentLang === 'ar' ? 'ج.م' : 'EGP'}`;
+  }
+
+  formatPrice(price: number): string {
+    return price.toLocaleString() + ' ' + (this.i18n.currentLang === 'ar' ? 'ج.م' : 'EGP');
   }
 
   getPaymentLabel(): string {
@@ -58,12 +133,18 @@ export class OrderComponent implements OnInit {
   }
 
   submitOrder(): void {
-    console.log('🔹 Submit Order Called'); // Debug log
-
+    // Validation
     if (!this.form.shippingName || !this.form.shippingPhone || !this.form.shippingAddress) {
       this.errorMessage = this.i18n.currentLang === 'ar'
         ? 'يرجى ملء جميع الحقول المطلوبة'
         : 'Please fill all required fields';
+      return;
+    }
+
+    if (!this.selectedGovernorateId) {
+      this.errorMessage = this.i18n.currentLang === 'ar'
+        ? 'يرجى اختيار المحافظة'
+        : 'Please select a governorate';
       return;
     }
 
@@ -76,29 +157,24 @@ export class OrderComponent implements OnInit {
       shippingAddress: this.form.shippingAddress,
       shippingCity: this.form.shippingCity || undefined,
       shippingNotes: this.form.shippingNotes || undefined,
-      paymentMethod: this.paymentMethod
+      paymentMethod: this.paymentMethod,
+      governorateId: this.selectedGovernorateId,
+      promoCode: this.promoCode || undefined
     };
-
-    console.log('🔹 Sending DTO:', dto); // Debug log
 
     this.orderService.createOrder(dto).subscribe({
       next: (res: any) => {
-        console.log('🔹 Response:', res); // Debug log
-
         if (res.success) {
           // If Visa payment, redirect to Stripe Checkout
           if (this.paymentMethod === 'visa' && res.checkoutUrl) {
-            console.log('🔹 Redirecting to Stripe:', res.checkoutUrl); // Debug log
-            // Redirect to Stripe Checkout page
             window.location.href = res.checkoutUrl;
             return;
           }
 
-          // For other payment methods (cash, vodafone, instapay), show success
+          // For other payment methods, show success
           this.orderSuccess = true;
           this.cartService.resetCartState();
           this.orderNumber = res.data.orderNumber;
-          console.log('🔹 Order Success:', this.orderNumber); // Debug log
         } else {
           this.errorMessage = res.message || 'Error';
         }
@@ -106,7 +182,6 @@ export class OrderComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('🔴 Error:', err); // Debug log
         this.errorMessage = err.error?.message || 'Something went wrong';
         this.isSubmitting = false;
         this.cdr.detectChanges();

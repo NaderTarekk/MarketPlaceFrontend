@@ -1,0 +1,284 @@
+<div class="delivery-agent-page">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>
+        <i class="fa-solid fa-motorcycle"></i>
+        {{ i18n.currentLang === 'ar' ? 'مهامي' : 'My Tasks' }}
+      </h1>
+      <p>{{ i18n.currentLang === 'ar' ? 'قائمة التوصيلات المطلوبة' : 'Your delivery assignments' }}</p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <i class="fa-solid fa-clock"></i>
+      <span class="value">{{ getTasksByStatus(VendorOrderStatus.Assigned).length }}</span>
+      <span class="label">{{ i18n.currentLang === 'ar' ? 'في الانتظار' : 'Waiting' }}</span>
+    </div>
+    <div class="stat-item">
+      <i class="fa-solid fa-box"></i>
+      <span class="value">{{ getTasksByStatus(VendorOrderStatus.PickedFromVendor).length }}</span>
+      <span class="label">{{ i18n.currentLang === 'ar' ? 'تم الاستلام' : 'Picked' }}</span>
+    </div>
+    <div class="stat-item total">
+      <i class="fa-solid fa-list-check"></i>
+      <span class="value">{{ tasks.length }}</span>
+      <span class="label">{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && tasks.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="fa-solid fa-check-double"></i>
+    </div>
+    <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد مهام حالياً' : 'No tasks right now' }}</h3>
+    <p>{{ i18n.currentLang === 'ar' ? 'استرح قليلاً، سيتم إشعارك بالمهام الجديدة' : 'Take a break, you\'ll be notified of new tasks' }}</p>
+    <button class="btn-refresh" (click)="loadTasks()">
+      <i class="fa-solid fa-refresh"></i>
+      {{ i18n.currentLang === 'ar' ? 'تحديث' : 'Refresh' }}
+    </button>
+  </div>
+
+  <!-- Tasks List -->
+  <div *ngIf="!isLoading && tasks.length > 0" class="tasks-container">
+    <div *ngFor="let task of tasks" class="task-card" [class.picked]="task.status === VendorOrderStatus.PickedFromVendor"
+         (click)="openTaskDetails(task)">
+      
+      <!-- Status Indicator -->
+      <div class="status-indicator" [ngClass]="{
+        'waiting': task.status === VendorOrderStatus.Assigned,
+        'picked': task.status === VendorOrderStatus.PickedFromVendor
+      }">
+        <i class="fa-solid" [ngClass]="getStatusIcon(task.status)"></i>
+      </div>
+
+      <!-- Task Content -->
+      <div class="task-content">
+        <!-- Header -->
+        <div class="task-header">
+          <span class="barcode">{{ task.vendorOrderBarcode }}</span>
+          <span class="delivery-type" [class.direct]="task.deliveryType === DeliveryType.DirectToCustomer">
+            <i class="fa-solid" [ngClass]="task.deliveryType === DeliveryType.DirectToCustomer ? 'fa-house-user' : 'fa-warehouse'"></i>
+            {{ task.deliveryTypeAr }}
+          </span>
+        </div>
+
+        <!-- Vendor Info -->
+        <div class="location-info vendor" *ngIf="task.status === VendorOrderStatus.Assigned">
+          <div class="location-label">
+            <i class="fa-solid fa-store"></i>
+            {{ i18n.currentLang === 'ar' ? 'استلام من' : 'Pick from' }}
+          </div>
+          <div class="location-name">{{ task.vendorName }}</div>
+          <div class="location-address" *ngIf="task.vendorAddress">{{ task.vendorAddress }}</div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="location-info customer" *ngIf="task.status === VendorOrderStatus.PickedFromVendor && task.deliveryType === DeliveryType.DirectToCustomer">
+          <div class="location-label">
+            <i class="fa-solid fa-house-user"></i>
+            {{ i18n.currentLang === 'ar' ? 'توصيل إلى' : 'Deliver to' }}
+          </div>
+          <div class="location-name">{{ task.customerName }}</div>
+          <div class="location-address">{{ task.shippingAddress }}</div>
+        </div>
+
+        <!-- Warehouse Info -->
+        <div class="location-info warehouse" *ngIf="task.status === VendorOrderStatus.PickedFromVendor && task.deliveryType === DeliveryType.ToWarehouse">
+          <div class="location-label">
+            <i class="fa-solid fa-warehouse"></i>
+            {{ i18n.currentLang === 'ar' ? 'تسليم إلى المخزن' : 'Deliver to Warehouse' }}
+          </div>
+        </div>
+
+        <!-- Items Summary -->
+        <div class="items-summary">
+          <span class="count">
+            <i class="fa-solid fa-box"></i>
+            {{ task.itemsCount }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}
+          </span>
+          <span class="total">{{ task.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+        </div>
+      </div>
+
+      <!-- Quick Action -->
+      <div class="quick-action" *ngIf="getNextAction(task) as action">
+        <button class="action-btn" (click)="$event.stopPropagation(); action.action()">
+          <i class="fa-solid" [ngClass]="action.icon"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Details Modal -->
+<div class="modal-overlay" [class.show]="showTaskModal" (click)="closeTaskModal()">
+  <div class="modal task-modal" (click)="$event.stopPropagation()" *ngIf="selectedTask">
+    <div class="modal-header">
+      <h3>{{ selectedTask.vendorOrderBarcode }}</h3>
+      <button class="close-btn" (click)="closeTaskModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Status Badge -->
+      <div class="current-status">
+        <span class="status-badge" [ngClass]="{
+          'waiting': selectedTask.status === VendorOrderStatus.Assigned,
+          'picked': selectedTask.status === VendorOrderStatus.PickedFromVendor
+        }">
+          {{ selectedTask.statusAr }}
+        </span>
+        <span class="delivery-badge" [class.direct]="selectedTask.deliveryType === DeliveryType.DirectToCustomer">
+          {{ selectedTask.deliveryTypeAr }}
+        </span>
+      </div>
+
+      <!-- Vendor Section -->
+      <div class="info-section">
+        <h4>
+          <i class="fa-solid fa-store"></i>
+          {{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}
+        </h4>
+        <div class="info-card">
+          <p class="name">{{ selectedTask.vendorName }}</p>
+          <p class="address" *ngIf="selectedTask.vendorAddress">{{ selectedTask.vendorAddress }}</p>
+          <div class="contact-buttons" *ngIf="selectedTask.vendorPhone">
+            <button class="btn-contact" (click)="callPhone(selectedTask.vendorPhone)">
+              <i class="fa-solid fa-phone"></i>
+              {{ i18n.currentLang === 'ar' ? 'اتصال' : 'Call' }}
+            </button>
+            <button class="btn-contact" *ngIf="selectedTask.vendorAddress" (click)="openMaps(selectedTask.vendorAddress)">
+              <i class="fa-solid fa-location-dot"></i>
+              {{ i18n.currentLang === 'ar' ? 'الموقع' : 'Map' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Section -->
+      <div class="info-section" *ngIf="selectedTask.deliveryType === DeliveryType.DirectToCustomer">
+        <h4>
+          <i class="fa-solid fa-user"></i>
+          {{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}
+        </h4>
+        <div class="info-card">
+          <p class="name">{{ selectedTask.customerName }}</p>
+          <p class="address">{{ selectedTask.shippingAddress }}</p>
+          <p class="city" *ngIf="selectedTask.shippingCity">{{ selectedTask.shippingCity }}</p>
+          <div class="contact-buttons">
+            <button class="btn-contact" (click)="callPhone(selectedTask.customerPhone)">
+              <i class="fa-solid fa-phone"></i>
+              {{ i18n.currentLang === 'ar' ? 'اتصال' : 'Call' }}
+            </button>
+            <button class="btn-contact" (click)="openMaps(selectedTask.shippingAddress)">
+              <i class="fa-solid fa-location-dot"></i>
+              {{ i18n.currentLang === 'ar' ? 'الموقع' : 'Map' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Section -->
+      <div class="info-section">
+        <h4>
+          <i class="fa-solid fa-box-open"></i>
+          {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
+          ({{ selectedTask.items.length }})
+        </h4>
+        <div class="items-list">
+          <div *ngFor="let item of selectedTask.items" class="item-row">
+            <img [src]="item.productImage" [alt]="item.productNameAr" class="item-image">
+            <div class="item-info">
+              <span class="item-name">{{ i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn }}</span>
+              <span class="item-qty">x{{ item.quantity }}</span>
+            </div>
+            <span class="item-price">{{ item.total.toFixed(2) }}</span>
+          </div>
+        </div>
+        <div class="items-total">
+          <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+          <span>{{ selectedTask.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" *ngIf="getNextAction(selectedTask) as action">
+      <button class="btn-main-action" (click)="action.action()" [disabled]="isUpdating">
+        <i class="fa-solid" [ngClass]="isUpdating ? 'fa-spinner fa-spin' : action.icon"></i>
+        {{ action.label }}
+      </button>
+
+       <button class="btn-failure" 
+          *ngIf="selectedTask.status === VendorOrderStatus.PickedFromVendor && selectedTask.deliveryType === DeliveryType.DirectToCustomer"
+          (click)="openFailureModal(selectedTask)">
+    <i class="fa-solid fa-exclamation-triangle"></i>
+    {{ i18n.currentLang === 'ar' ? 'فشل التوصيل' : 'Report Failure' }}
+  </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delivery Failure Modal -->
+<div class="modal-overlay" [class.show]="showFailureModal" (click)="closeFailureModal()">
+  <div class="modal failure-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fa-solid fa-exclamation-triangle"></i>
+        {{ i18n.currentLang === 'ar' ? 'تسجيل فشل التوصيل' : 'Report Delivery Failure' }}
+      </h3>
+      <button class="close-btn" (click)="closeFailureModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-subtitle">
+        {{ i18n.currentLang === 'ar' ? 'اختر سبب عدم إتمام التوصيل:' : 'Select the reason for delivery failure:' }}
+      </p>
+
+      <div class="reasons-list">
+        <label *ngFor="let reason of failureReasons" class="reason-option"
+               [class.selected]="selectedFailureReason === reason.value">
+          <input type="radio" [value]="reason.value" [(ngModel)]="selectedFailureReason" name="failureReason">
+          <span class="radio-custom"></span>
+          <span class="reason-label">{{ getReasonLabel(reason) }}</span>
+        </label>
+      </div>
+
+      <!-- Other Reason Input -->
+      <div class="other-reason" *ngIf="selectedFailureReason === 99">
+        <label>{{ i18n.currentLang === 'ar' ? 'أدخل السبب:' : 'Enter the reason:' }}</label>
+        <textarea [(ngModel)]="otherReason" rows="3"
+                  [placeholder]="i18n.currentLang === 'ar' ? 'اكتب السبب هنا...' : 'Write the reason here...'">
+        </textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeFailureModal()">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-report" (click)="reportDeliveryFailure()" [disabled]="isReportingFailure || selectedFailureReason === null">
+        <i class="fa-solid" [ngClass]="isReportingFailure ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+        {{ i18n.currentLang === 'ar' ? 'إرسال' : 'Submit' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+  <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+  <span>{{ toast.message }}</span>
+</div>

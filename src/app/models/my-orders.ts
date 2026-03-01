@@ -5,7 +5,8 @@ export enum OrderStatus {
   Shipped = 3,
   OutForDelivery = 4,
   Delivered = 5,
-  Cancelled = 6
+  Cancelled = 6,
+  DeliveryFailed = 7
 }
 
 export enum PaymentStatus {
@@ -13,6 +14,16 @@ export enum PaymentStatus {
   Paid = 1,
   Failed = 2,
   Refunded = 3
+}
+
+export enum ShipmentStatus {
+  Pending = 0,
+  Processing = 1,
+  PartiallyPicked = 2,
+  ReadyForPickup = 3,
+  OutForDelivery = 4,
+  Delivered = 5,
+  Cancelled = 6
 }
 
 export interface OrderItem {
@@ -52,6 +63,13 @@ export interface Order {
   createdAt: Date;
   deliveredAt?: Date;
   items: OrderItem[];
+
+  shipmentBarcode?: string;
+  shipmentStatus?: ShipmentStatus;
+  shipmentStatusAr?: string;
+  isReadyForPickup?: boolean;
+  vendorOrdersCount?: number;
+  completedVendorOrders?: number;
 }
 
 export interface OrderListItem {

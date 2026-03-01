@@ -37,6 +37,9 @@ export class ProfileComponent implements OnInit {
   imagePreview: string | null = null;
   isUploadingImage = false;
 
+  // role
+  role: string | null = null;
+
   // Toast
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
@@ -54,8 +57,8 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    if (localStorage.getItem('NHC_MP_Role') === "Admin") {
-    }
+    this.role = localStorage.getItem('NHC_MP_Role');
+
     this.loadProfile();
     this.loadStats();
   }

@@ -54,6 +54,11 @@ const routes: Routes = [
     loadChildren: () =>
       import('./modules/chat/chat-module').then(m => m.ChatModule)
   },
+  {
+    path: 'shipping',
+    loadChildren: () =>
+      import('./modules/shipping/shipping-module').then(m => m.ShippingModule)
+  },
 
   // Admin routes (lazy loaded)
   // {

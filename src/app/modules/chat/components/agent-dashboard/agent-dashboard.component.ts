@@ -18,18 +18,20 @@ export class AgentDashboardComponent implements OnInit, OnDestroy {
   newMessage = '';
   customerTyping = false;
   isConnected = false;
+  isLoading = false;
 
   ChatStatus = ChatStatus;
   MessageSenderType = MessageSenderType;
-  
+
   private destroy$ = new Subject<void>();
 
-  constructor(private chatService: ChatService,   private cdr: ChangeDetectorRef,
-  private ngZone: NgZone) {}
+  constructor(private chatService: ChatService, private cdr: ChangeDetectorRef,
+    private ngZone: NgZone) { }
 
   async ngOnInit(): Promise<void> {
+    this.isLoading = true;
     await this.chatService.startConnection();
-    
+
     this.chatService.connectionStatus
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
@@ -49,125 +51,154 @@ export class AgentDashboardComponent implements OnInit, OnDestroy {
     this.chatService.stopConnection();
   }
 
- private subscribeToEvents(): void {
-  this.chatService.connectionStatus
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(status => {
-      this.ngZone.run(() => {
-        this.isConnected = status;
-        if (status) {
-          this.chatService.joinAgentsRoom();
-          this.loadSessions();
-        }
-        this.cdr.detectChanges();
-      });
-    });
-
-  this.chatService.onMessageReceived
-    .pipe(takeUntil(this.destroy$))
-    .subscribe((msg: ChatHubMessage) => {
-      this.ngZone.run(() => {
-        if (this.currentSession && msg.sessionId === this.currentSession.id) {
-          this.currentSession.messages.push({
-            id: msg.messageId,
-            sessionId: msg.sessionId,
-            senderName: msg.senderName,
-            content: msg.content,
-            senderType: msg.senderType,
-            isRead: false,
-            createdAt: new Date(msg.createdAt)
-          });
-          this.scrollToBottom();
-        }
-
-        const session = this.activeSessions.find(s => s.id === msg.sessionId);
-        if (session) {
-          session.lastMessageAt = new Date(msg.createdAt);
-        }
-        this.cdr.detectChanges();
-      });
-    });
-
-  this.chatService.onUserTyping
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.ngZone.run(() => {
-        this.customerTyping = true;
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.customerTyping = false;
+  private subscribeToEvents(): void {
+    this.chatService.connectionStatus
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.ngZone.run(() => {
+          this.isConnected = status;
+          if (status) {
+            this.chatService.joinAgentsRoom();
+            this.loadSessions();
+          }
           this.cdr.detectChanges();
-        }, 3000);
+        });
       });
-    });
 
-  this.chatService.onSessionClosed
-    .pipe(takeUntil(this.destroy$))
-    .subscribe((sessionId: number) => {
-      this.ngZone.run(() => {
-        this.activeSessions = this.activeSessions.filter(s => s.id !== sessionId);
-        if (this.currentSession?.id === sessionId) {
-          this.currentSession = null;
-        }
-        this.cdr.detectChanges();
-      });
-    });
+    this.chatService.onMessageReceived
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((msg: ChatHubMessage) => {
+        this.ngZone.run(() => {
+          if (this.currentSession && msg.sessionId === this.currentSession.id) {
+            this.currentSession.messages.push({
+              id: msg.messageId,
+              sessionId: msg.sessionId,
+              senderName: msg.senderName,
+              content: msg.content,
+              senderType: msg.senderType,
+              isRead: false,
+              createdAt: new Date(msg.createdAt)
+            });
+            this.scrollToBottom();
+          }
 
-  // ✅ أضف ده - للمحادثات الجديدة
-  this.chatService.onWaitingSessionsUpdate
-    .pipe(takeUntil(this.destroy$))
-    .subscribe((sessions: ChatSession[]) => {
-      this.ngZone.run(() => {
-        this.waitingSessions = sessions;
-        this.cdr.detectChanges();
+          const session = this.activeSessions.find(s => s.id === msg.sessionId);
+          if (session) {
+            session.lastMessageAt = new Date(msg.createdAt);
+          }
+          this.cdr.detectChanges();
+        });
       });
-    });
-}
+
+    this.chatService.onUserTyping
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.ngZone.run(() => {
+          this.customerTyping = true;
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.customerTyping = false;
+            this.cdr.detectChanges();
+          }, 3000);
+        });
+      });
+
+    this.chatService.onSessionClosed
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((sessionId: number) => {
+        this.ngZone.run(() => {
+          this.activeSessions = this.activeSessions.filter(s => s.id !== sessionId);
+          if (this.currentSession?.id === sessionId) {
+            this.currentSession = null;
+          }
+          this.cdr.detectChanges();
+        });
+      });
+
+    // ✅ أضف ده - للمحادثات الجديدة
+    this.chatService.onWaitingSessionsUpdate
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((sessions: ChatSession[]) => {
+        this.ngZone.run(() => {
+          this.waitingSessions = sessions;
+          this.cdr.detectChanges();
+        });
+      });
+  }
 
   private loadSessions(): void {
+    this.isLoading = true;
+    // المحادثات المنتظرة
     this.chatService.getWaitingSessions().subscribe({
       next: (res: any) => {
-        if (res.success) this.waitingSessions = res.data;
+        if (res.success) {
+          this.waitingSessions = res.data;
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
       }
     });
 
+    // محادثاتي النشطة
     this.chatService.getMySessions().subscribe({
       next: (res: any) => {
         if (res.success) {
           this.activeSessions = res.data.filter(
-            (s: ChatSession) => s.status === ChatStatus.Active && s.type === ChatType.LiveSupport
+            (s: ChatSession) => s.status === ChatStatus.Active
           );
+          this.cdr.detectChanges();
+          this.isLoading = false;
         }
       }
     });
   }
 
   async joinSession(session: ChatSession): Promise<void> {
-    await this.chatService.agentJoinSession(session.id);
-    
-    this.waitingSessions = this.waitingSessions.filter(s => s.id !== session.id);
-    
-    this.chatService.getSession(session.id).subscribe({
-      next: (res: any) => {
-        if (res.success) {
-          this.activeSessions.unshift(res.data);
-          this.selectSession(res.data);
+    try {
+      await this.chatService.agentJoinSession(session.id);
+
+      // ✅ انتظر الـ API يرجع الـ session الكامل
+      this.chatService.getSession(session.id).subscribe({
+        next: async (res: any) => {
+          if (res.success) {
+            // ✅ شيل من الـ waiting
+            this.waitingSessions = this.waitingSessions.filter(s => s.id !== session.id);
+
+            // ✅ أضف للـ active
+            this.activeSessions.unshift(res.data);
+
+            // ✅ اختار الـ session مباشرة
+            this.currentSession = res.data;
+            await this.chatService.joinSession(session.id);
+
+            this.scrollToBottom();
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err) => {
+          console.error('Error joining session:', err);
         }
-      }
-    });
+      });
+    } catch (err) {
+      console.error('Error in agentJoinSession:', err);
+    }
   }
 
   async selectSession(session: ChatSession): Promise<void> {
+    // ✅ لو نفس الـ session، متعملش حاجة
+    if (this.currentSession?.id === session.id) return;
+
     if (this.currentSession) {
       await this.chatService.leaveSession(this.currentSession.id);
     }
-    
+
     this.chatService.getSession(session.id).subscribe({
       next: async (res: any) => {
         if (res.success) {
           this.currentSession = res.data;
           await this.chatService.joinSession(session.id);
           this.scrollToBottom();
+          this.cdr.detectChanges();  // ✅ أضف ده
         }
       }
     });
@@ -210,7 +241,7 @@ export class AgentDashboardComponent implements OnInit, OnDestroy {
   private scrollToBottom(): void {
     setTimeout(() => {
       if (this.messagesContainer) {
-        this.messagesContainer.nativeElement.scrollTop = 
+        this.messagesContainer.nativeElement.scrollTop =
           this.messagesContainer.nativeElement.scrollHeight;
       }
     }, 100);

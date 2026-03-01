@@ -1,0 +1,125 @@
+<div class="vendor-shipping-page">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>
+        <i class="fa-solid fa-boxes-packing"></i>
+        {{ i18n.currentLang === 'ar' ? 'طلبات الشحن' : 'Shipping Orders' }}
+      </h1>
+      <p>{{ i18n.currentLang === 'ar' ? 'المنتجات المطلوب تسليمها للمناديب' : 'Products to be handed to delivery agents' }}</p>
+    </div>
+  </section>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && orders.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="fa-solid fa-box-check"></i>
+    </div>
+    <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات منتظرة' : 'No pending orders' }}</h3>
+    <p>{{ i18n.currentLang === 'ar' ? 'جميع الطلبات تم تسليمها' : 'All orders have been handed over' }}</p>
+  </div>
+
+  <!-- Orders List -->
+  <div *ngIf="!isLoading && orders.length > 0" class="orders-container">
+    <div *ngFor="let order of orders" class="order-card" (click)="openOrderDetails(order)">
+      <div class="order-header">
+        <span class="barcode">{{ order.vendorOrderBarcode }}</span>
+        <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+          {{ order.statusAr }}
+        </span>
+      </div>
+
+      <div class="order-info">
+        <div class="info-row">
+          <i class="fa-solid fa-user"></i>
+          <span>{{ order.customerName }}</span>
+        </div>
+        <div class="info-row">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>{{ order.shippingCity }}</span>
+        </div>
+        <div class="info-row">
+          <i class="fa-solid fa-box"></i>
+          <span>{{ order.itemsCount }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}</span>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP'}}</span>
+        <button *ngIf="order.status === VendorOrderStatus.Assigned" 
+                class="btn-handover"
+                (click)="$event.stopPropagation(); confirmHandover(order)">
+          <i class="fa-solid fa-hand-holding-box"></i>
+          {{ i18n.currentLang === 'ar' ? 'تأكيد التسليم' : 'Confirm Handover' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal-overlay" [class.show]="showOrderModal" (click)="closeOrderModal()">
+  <div class="modal order-modal" (click)="$event.stopPropagation()" *ngIf="selectedOrder">
+    <div class="modal-header">
+      <h3>{{ selectedOrder.vendorOrderBarcode }}</h3>
+      <button class="close-btn" (click)="closeOrderModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="status-section">
+        <span class="status-badge large" [ngClass]="getStatusBadgeClass(selectedOrder.status)">
+          {{ selectedOrder.statusAr }}
+        </span>
+      </div>
+
+      <div class="customer-section">
+        <h4><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}</h4>
+        <p>{{ selectedOrder.customerName }}</p>
+        <p>{{ selectedOrder.shippingCity }}</p>
+      </div>
+
+      <div class="items-section">
+        <h4><i class="fa-solid fa-box-open"></i> {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</h4>
+        <div class="items-list">
+          <div *ngFor="let item of selectedOrder.items" class="item-row">
+            <img [src]="item.productImage" [alt]="item.productNameAr">
+            <div class="item-details">
+              <span class="name">{{ i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn }}</span>
+              <span class="barcode-mini">{{ item.itemBarcode }}</span>
+            </div>
+            <div class="item-qty">x{{ item.quantity }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="total-section">
+        <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+        <span class="amount">{{ selectedOrder.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+      </div>
+    </div>
+
+    <div class="modal-footer" *ngIf="selectedOrder.status === VendorOrderStatus.Assigned">
+      <button class="btn-confirm-handover" (click)="confirmHandover(selectedOrder)" [disabled]="isConfirming">
+        <i class="fa-solid" [ngClass]="isConfirming ? 'fa-spinner fa-spin' : 'fa-hand-holding-box'"></i>
+        {{ isConfirming 
+          ? (i18n.currentLang === 'ar' ? 'جاري التأكيد...' : 'Confirming...') 
+          : (i18n.currentLang === 'ar' ? 'تأكيد تسليم المنتجات للمندوب' : 'Confirm Handover to Agent') 
+        }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+  <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+  <span>{{ toast.message }}</span>
+</div>

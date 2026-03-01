@@ -30,6 +30,7 @@ export interface RecentOrder {
   status: string;
   createdAt: string;
   items: OrderItemSummary[];
+  isVendorSeen: boolean; 
 }
 
 export interface OrderItemSummary {

@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AdminDashboard, AdminUser, InventoryReport, SalesReportFilter, SalesReportSummary, UserFilter } from '../../../../models/adminDashboard';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { AdminReportsService } from '../../services/admin.service';
+import { ProductsService } from '../../../products/services/products.service';
+import { ProductList } from '../../../../models/products';
 
 @Component({
   selector: 'app-admin',
@@ -11,7 +13,7 @@ import { AdminReportsService } from '../../services/admin.service';
 })
 export class AdminComponent implements OnInit {
   // Active Tab
-  activeTab: 'dashboard' | 'users' | 'sales' | 'inventory' = 'dashboard';
+  activeTab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products' = 'dashboard';
 
   // Loading States
   isLoading = false;
@@ -23,6 +25,20 @@ export class AdminComponent implements OnInit {
 
   // Dashboard Data
   dashboard: AdminDashboard | null = null;
+
+  pendingProducts: ProductList[] = [];
+  isLoadingProducts = false;
+  productsPagination = {
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    hasNext: false,
+    hasPrevious: false
+  };
+  selectedProduct: ProductList | null = null;
+  showProductModal = false;
+  showRejectDialog = false;
+  rejectReason = '';
 
   // Users Data
   users: AdminUser[] = [];
@@ -73,11 +89,20 @@ export class AdminComponent implements OnInit {
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
   // Roles
-  roles = ['Admin', 'Vendor', 'Customer', 'DeliveryAgent', 'CustomerService'];
+  roles = [
+    { value: 'Admin', labelAr: 'مدير النظام', labelEn: 'Admin' },
+    { value: 'Vendor', labelAr: 'بائع', labelEn: 'Vendor' },
+    { value: 'Customer', labelAr: 'عميل', labelEn: 'Customer' },
+    { value: 'DeliveryAgent', labelAr: 'مندوب توصيل', labelEn: 'Delivery Agent' },
+    { value: 'CustomerService', labelAr: 'خدمة العملاء', labelEn: 'Customer Service' },
+    { value: 'ShippingEmployee', labelAr: 'موظف الشحن', labelEn: 'Shipping Employee' }
+  ];
+
 
   constructor(
     public i18n: I18nService,
     private adminService: AdminReportsService,
+    private productsService: ProductsService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -156,7 +181,7 @@ export class AdminComponent implements OnInit {
   // ═══════════════════════════════════════════════
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
-  switchTab(tab: 'dashboard' | 'users' | 'sales' | 'inventory'): void {
+  switchTab(tab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products'): void {
     this.activeTab = tab;
 
     switch (tab) {
@@ -171,6 +196,9 @@ export class AdminComponent implements OnInit {
         break;
       case 'inventory':
         if (!this.inventoryReport) this.loadInventoryReport();
+        break;
+      case 'products':
+        if (this.pendingProducts.length === 0) this.loadPendingProducts();
         break;
     }
   }
@@ -367,35 +395,35 @@ export class AdminComponent implements OnInit {
   }
 
   confirmRoleChange(): void {
-  if (!this.selectedUser || !this.selectedRole) return;
+    if (!this.selectedUser || !this.selectedRole) return;
 
-  this.isProcessing = true;
-  
-  // ✅ بعت object مش string
-  const payload = { role: this.selectedRole };
-  
-  this.adminService.changeUserRole(this.selectedUser.id, payload).subscribe({
-    next: (res) => {
-      if (res.success) {
+    this.isProcessing = true;
+
+    // ✅ بعت object مش string
+    const payload = { role: this.selectedRole };
+
+    this.adminService.changeUserRole(this.selectedUser.id, payload).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تغيير الدور' : 'Role changed',
+            'success'
+          );
+          this.loadUsers();
+          this.closeRoleDialog();
+        }
+        this.isProcessing = false;
+      },
+      error: (err) => {
+        this.isProcessing = false;
+        console.error('Role change error:', err); // ← شوف الـ error details
         this.showToast(
-          this.i18n.currentLang === 'ar' ? 'تم تغيير الدور' : 'Role changed', 
-          'success'
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error changing role',
+          'error'
         );
-        this.loadUsers();
-        this.closeRoleDialog();
       }
-      this.isProcessing = false;
-    },
-    error: (err) => {
-      this.isProcessing = false;
-      console.error('Role change error:', err); // ← شوف الـ error details
-      this.showToast(
-        this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error changing role', 
-        'error'
-      );
-    }
-  });
-}
+    });
+  }
 
   // ═══════════════════════════════════════════════
   // SALES REPORT
@@ -508,6 +536,8 @@ export class AdminComponent implements OnInit {
       case 'Admin': return 'badge-admin';
       case 'Vendor': return 'badge-vendor';
       case 'DeliveryAgent': return 'badge-delivery';
+      case 'ShippingEmployee': return 'badge-shipping-employee';
+      case 'CustomerService': return 'badge-customer-service';
       default: return 'badge-customer';
     }
   }
@@ -535,5 +565,226 @@ export class AdminComponent implements OnInit {
 
   trackByItem(index: number, item: any): number {
     return item.id;
+  }
+
+  // ═══════════════════════════════════════════════
+  // PENDING PRODUCTS
+  // ═══════════════════════════════════════════════
+
+  loadPendingProducts(page: number = 1): void {
+    this.isLoadingProducts = true;
+    this.productsService.getPendingProducts(page, 10).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.pendingProducts = res.data;
+          this.productsPagination = {
+            currentPage: res.pagination.currentPage,
+            totalPages: res.pagination.totalPages,
+            totalCount: res.pagination.totalCount,
+            hasNext: res.pagination.hasNext,
+            hasPrevious: res.pagination.hasPrevious
+          };
+        }
+        this.isLoadingProducts = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingProducts = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ في تحميل المنتجات' : 'Error loading products',
+          'error'
+        );
+      }
+    });
+  }
+
+  goToProductsPage(page: number): void {
+    this.loadPendingProducts(page);
+  }
+
+  openProductModal(product: ProductList): void {
+    this.selectedProduct = product;
+    this.showProductModal = true;
+  }
+
+  closeProductModal(): void {
+    this.showProductModal = false;
+    this.selectedProduct = null;
+  }
+
+  approveProduct(product: ProductList): void {
+    this.productsService.approveProduct(product.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم قبول المنتج بنجاح' : 'Product approved',
+            'success'
+          );
+          this.loadPendingProducts(this.productsPagination.currentPage);
+          this.loadDashboard(); // تحديث الـ dashboard
+          this.closeProductModal();
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error approving product',
+          'error'
+        );
+      }
+    });
+  }
+
+  openRejectDialog(product: ProductList): void {
+    this.selectedProduct = product;
+    this.rejectReason = '';
+    this.showRejectDialog = true;
+  }
+
+  closeRejectDialog(): void {
+    this.showRejectDialog = false;
+    this.selectedProduct = null;
+    this.rejectReason = '';
+  }
+
+  confirmRejectProduct(): void {
+    if (!this.selectedProduct) return;
+
+    this.productsService.rejectProduct(this.selectedProduct.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم رفض المنتج' : 'Product rejected',
+            'success'
+          );
+          this.loadPendingProducts(this.productsPagination.currentPage);
+          this.loadDashboard();
+          this.closeRejectDialog();
+          this.closeProductModal();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error rejecting product',
+          'error'
+        );
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // INVENTORY ACTIONS
+  // ═══════════════════════════════════════════════
+
+  // Toggle Product Visibility
+  toggleProductVisibility(product: any): void {
+    const newStatus = product.isActive ? false : true;
+    this.productsService.update(product.id, { isActive: newStatus }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          product.isActive = newStatus;
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? (newStatus ? 'تم إظهار المنتج' : 'تم إخفاء المنتج')
+              : (newStatus ? 'Product visible' : 'Product hidden'),
+            'success'
+          );
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error updating product',
+          'error'
+        );
+      }
+    });
+  }
+
+  // Edit Product Dialog
+  showEditProductDialog = false;
+  editingProduct: any = null;
+
+  openEditProductDialog(product: any): void {
+    this.editingProduct = { ...product };
+    this.showEditProductDialog = true;
+  }
+
+  closeEditProductDialog(): void {
+    this.showEditProductDialog = false;
+    this.editingProduct = null;
+  }
+
+  saveProductChanges(): void {
+    if (!this.editingProduct) return;
+
+    this.isProcessing = true;
+    this.productsService.update(this.editingProduct.id, {
+      nameAr: this.editingProduct.nameAr,
+      nameEn: this.editingProduct.nameEn,
+      price: this.editingProduct.price,
+      stock: this.editingProduct.stock,
+      isActive: this.editingProduct.isActive
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تحديث المنتج' : 'Product updated',
+            'success'
+          );
+          this.loadInventoryReport();
+          this.closeEditProductDialog();
+        }
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error updating product',
+          'error'
+        );
+      }
+    });
+  }
+
+  // Delete Product
+  showDeleteProductDialog = false;
+  deletingProduct: any = null;
+
+  openDeleteProductDialog(product: any): void {
+    this.deletingProduct = product;
+    this.showDeleteProductDialog = true;
+  }
+
+  closeDeleteProductDialog(): void {
+    this.showDeleteProductDialog = false;
+    this.deletingProduct = null;
+  }
+
+  confirmDeleteProduct(): void {
+    if (!this.deletingProduct) return;
+
+    this.isProcessing = true;
+    this.productsService.delete(this.deletingProduct.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم حذف المنتج' : 'Product deleted',
+            'success'
+          );
+          this.loadInventoryReport();
+          this.loadDashboard();
+          this.closeDeleteProductDialog();
+        }
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error deleting product',
+          'error'
+        );
+      }
+    });
   }
 }

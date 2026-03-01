@@ -1,0 +1,117 @@
+<div class="tracking-page">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>{{ i18n.currentLang === 'ar' ? 'جاري تحميل بيانات الشحنة...' : 'Loading shipment data...' }}</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!isLoading && error" class="error-state">
+    <div class="error-icon">
+      <i class="fa-solid fa-exclamation-triangle"></i>
+    </div>
+    <h2>{{ error }}</h2>
+    <button class="btn-back" routerLink="/">
+      <i class="fa-solid fa-home"></i>
+      {{ i18n.currentLang === 'ar' ? 'العودة للرئيسية' : 'Back to Home' }}
+    </button>
+  </div>
+
+  <!-- Shipment Info -->
+  <div *ngIf="!isLoading && shipment" class="tracking-content">
+    <!-- Header -->
+    <div class="tracking-header">
+      <div class="barcode-display">
+        <i class="fa-solid fa-barcode"></i>
+        <span>{{ shipment.shipmentBarcode }}</span>
+      </div>
+      <div class="status-badge large" [ngClass]="{
+        'pending': shipment.status === ShipmentStatus.Pending,
+        'processing': shipment.status === ShipmentStatus.Processing,
+        'ready': shipment.status === ShipmentStatus.ReadyForPickup,
+        'out': shipment.status === ShipmentStatus.OutForDelivery,
+        'delivered': shipment.status === ShipmentStatus.Delivered
+      }">
+        {{ shipment.statusAr }}
+      </div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+      <div class="tracker-line"></div>
+      <div *ngFor="let step of getTrackingSteps(); let i = index" 
+           class="tracker-step" 
+           [ngClass]="step.status">
+        <div class="step-icon">
+          <i class="fa-solid" [ngClass]="step.icon"></i>
+        </div>
+        <span class="step-label">{{ step.label }}</span>
+      </div>
+    </div>
+
+    <!-- Shipment Details -->
+    <div class="details-card">
+      <h3>
+        <i class="fa-solid fa-info-circle"></i>
+        {{ i18n.currentLang === 'ar' ? 'تفاصيل الشحنة' : 'Shipment Details' }}
+      </h3>
+
+      <div class="detail-row">
+        <span class="label">{{ i18n.currentLang === 'ar' ? 'رقم الطلب' : 'Order Number' }}</span>
+        <span class="value">{{ shipment.orderNumber }}</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="label">{{ i18n.currentLang === 'ar' ? 'تاريخ الطلب' : 'Order Date' }}</span>
+        <span class="value">{{ shipment.createdAt | date:'medium' }}</span>
+      </div>
+
+      <div class="detail-row" *ngIf="shipment.completedAt">
+        <span class="label">{{ i18n.currentLang === 'ar' ? 'تاريخ التسليم' : 'Delivery Date' }}</span>
+        <span class="value">{{ shipment.completedAt | date:'medium' }}</span>
+      </div>
+    </div>
+
+    <!-- Delivery Address -->
+    <div class="details-card">
+      <h3>
+        <i class="fa-solid fa-location-dot"></i>
+        {{ i18n.currentLang === 'ar' ? 'عنوان التوصيل' : 'Delivery Address' }}
+      </h3>
+      <p class="address-text">{{ shipment.customerName }}</p>
+      <p class="address-text">{{ shipment.shippingAddress }}</p>
+      <p class="address-text" *ngIf="shipment.shippingCity">{{ shipment.shippingCity }}</p>
+      <p class="address-text">{{ shipment.customerPhone }}</p>
+    </div>
+
+    <!-- Vendor Orders Progress -->
+    <div class="details-card">
+      <h3>
+        <i class="fa-solid fa-store"></i>
+        {{ i18n.currentLang === 'ar' ? 'حالة الطلبات' : 'Orders Status' }}
+      </h3>
+      <div class="vendor-orders-list">
+        <div *ngFor="let vo of shipment.vendorOrders" class="vendor-order-row">
+          <div class="vo-info">
+            <span class="vendor-name">{{ vo.vendorName }}</span>
+            <span class="items-count">{{ vo.items.length }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}</span>
+          </div>
+          <span class="vo-status" [ngClass]="{
+            'pending': vo.status <= VendorOrderStatus.Assigned,
+            'picked': vo.status === VendorOrderStatus.PickedFromVendor,
+            'warehouse': vo.status === VendorOrderStatus.InWarehouse,
+            'delivered': vo.status === VendorOrderStatus.Delivered
+          }">
+            {{ vo.statusAr }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ready for Pickup Notice -->
+    <div *ngIf="shipment.isReadyForPickup && shipment.status !== ShipmentStatus.Delivered" class="pickup-notice">
+      <i class="fa-solid fa-bell"></i>
+      <p>{{ i18n.currentLang === 'ar' ? 'شحنتك جاهزة للاستلام من المخزن!' : 'Your shipment is ready for pickup!' }}</p>
+    </div>
+  </div>
+</div>

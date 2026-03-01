@@ -13,9 +13,9 @@
                 {{ i18n.currentLang === 'ar' ? 'طلباتي' : 'My Orders' }}
             </h1>
             <p class="hero-subtitle">
-                {{ i18n.currentLang === 'ar' 
-                    ? 'تتبع طلباتك وتابع حالتها' 
-                    : 'Track your orders and follow their status' 
+                {{ i18n.currentLang === 'ar'
+                ? 'تتبع طلباتك وتابع حالتها'
+                : 'Track your orders and follow their status'
                 }}
             </p>
         </div>
@@ -32,53 +32,40 @@
 
     <!-- Main Content -->
     <div *ngIf="!isLoading" class="orders-container">
-        
+
         <!-- Filters -->
         <div class="filters-section">
-            <button 
-                class="filter-btn" 
-                [class.active]="activeFilter === 'all'"
-                (click)="filterOrders('all')">
+            <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="filterOrders('all')">
                 <i class="fa-solid fa-list"></i>
                 {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
                 <span class="count">{{ orders.length }}</span>
             </button>
-            
-            <button 
-                class="filter-btn" 
-                [class.active]="activeFilter === OrderStatus.Pending"
+
+            <button class="filter-btn" [class.active]="activeFilter === OrderStatus.Pending"
                 (click)="filterOrders(OrderStatus.Pending)">
                 <i class="fa-solid fa-clock"></i>
                 {{ i18n.currentLang === 'ar' ? 'في الانتظار' : 'Pending' }}
             </button>
-            
-            <button 
-                class="filter-btn" 
-                [class.active]="activeFilter === OrderStatus.Processing"
+
+            <button class="filter-btn" [class.active]="activeFilter === OrderStatus.Processing"
                 (click)="filterOrders(OrderStatus.Processing)">
                 <i class="fa-solid fa-box"></i>
                 {{ i18n.currentLang === 'ar' ? 'قيد المعالجة' : 'Processing' }}
             </button>
-            
-            <button 
-                class="filter-btn" 
-                [class.active]="activeFilter === OrderStatus.Shipped"
+
+            <button class="filter-btn" [class.active]="activeFilter === OrderStatus.Shipped"
                 (click)="filterOrders(OrderStatus.Shipped)">
                 <i class="fa-solid fa-truck"></i>
                 {{ i18n.currentLang === 'ar' ? 'تم الشحن' : 'Shipped' }}
             </button>
-            
-            <button 
-                class="filter-btn" 
-                [class.active]="activeFilter === OrderStatus.Delivered"
+
+            <button class="filter-btn" [class.active]="activeFilter === OrderStatus.Delivered"
                 (click)="filterOrders(OrderStatus.Delivered)">
                 <i class="fa-solid fa-check-circle"></i>
                 {{ i18n.currentLang === 'ar' ? 'تم التوصيل' : 'Delivered' }}
             </button>
-            
-            <button 
-                class="filter-btn" 
-                [class.active]="activeFilter === OrderStatus.Cancelled"
+
+            <button class="filter-btn" [class.active]="activeFilter === OrderStatus.Cancelled"
                 (click)="filterOrders(OrderStatus.Cancelled)">
                 <i class="fa-solid fa-ban"></i>
                 {{ i18n.currentLang === 'ar' ? 'ملغي' : 'Cancelled' }}
@@ -94,9 +81,9 @@
                 {{ i18n.currentLang === 'ar' ? 'لا توجد طلبات' : 'No Orders' }}
             </h3>
             <p class="empty-text">
-                {{ i18n.currentLang === 'ar' 
-                    ? 'لم تقم بإضافة أي طلبات بعد' 
-                    : 'You haven\'t placed any orders yet' 
+                {{ i18n.currentLang === 'ar'
+                ? 'لم تقم بإضافة أي طلبات بعد'
+                : 'You haven\'t placed any orders yet'
                 }}
             </p>
             <button class="btn-shop" routerLink="/products">
@@ -107,20 +94,15 @@
 
         <!-- Orders Grid -->
         <div *ngIf="filteredOrders.length > 0" class="orders-grid">
-            <div 
-                *ngFor="let order of filteredOrders" 
-                class="order-card"
-                (click)="viewOrderDetails(order.id)">
-                
+            <div *ngFor="let order of filteredOrders" class="order-card" (click)="viewOrderDetails(order.id)">
+
                 <!-- Order Header -->
                 <div class="order-header">
                     <div class="order-number">
                         <i class="fa-solid fa-hashtag"></i>
                         {{ order.orderNumber }}
                     </div>
-                    <span 
-                        class="status-badge" 
-                        [ngClass]="getStatusBadge(order.status).class">
+                    <span class="status-badge" [ngClass]="getStatusBadge(order.status).class">
                         {{ getStatusBadge(order.status).text }}
                     </span>
                 </div>
@@ -134,7 +116,7 @@
                         </span>
                         <span class="info-value">{{ formatDate(order.createdAt) }}</span>
                     </div>
-                    
+
                     <div class="info-row">
                         <span class="info-label">
                             <i class="fa-solid fa-box"></i>
@@ -142,7 +124,7 @@
                         </span>
                         <span class="info-value">{{ order.itemsCount }}</span>
                     </div>
-                    
+
                     <div class="info-row total-row">
                         <span class="info-label">
                             <i class="fa-solid fa-coins"></i>
@@ -158,7 +140,8 @@
                 <!-- View Details Button -->
                 <button class="btn-view-details">
                     {{ i18n.currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details' }}
-                    <i class="fa-solid" [ngClass]="i18n.currentLang === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+                    <i class="fa-solid"
+                        [ngClass]="i18n.currentLang === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
                 </button>
             </div>
         </div>
@@ -166,8 +149,49 @@
 
     <!-- Order Details Modal -->
     <div *ngIf="showDetailsModal" class="modal-overlay" (click)="closeDetailsModal()">
+        <!-- Delivery Failure Alert -->
+        <div *ngIf="selectedOrder?.hasDeliveryFailure && selectedOrder?.lastDeliveryFailure"
+            class="delivery-failure-alert">
+            <div class="failure-header">
+                <i class="fa-solid fa-exclamation-triangle"></i>
+                <h4>{{ i18n.currentLang === 'ar' ? 'فشل التوصيل' : 'Delivery Failed' }}</h4>
+            </div>
+            <div class="failure-details">
+                <p class="failure-reason">
+                    <strong>{{ i18n.currentLang === 'ar' ? 'السبب:' : 'Reason:' }}</strong>
+                    {{ i18n.currentLang === 'ar'
+                    ? selectedOrder.lastDeliveryFailure.reasonAr
+                    : selectedOrder.lastDeliveryFailure.reason
+                    }}
+                </p>
+                <p *ngIf="selectedOrder.lastDeliveryFailure.otherReason" class="other-reason">
+                    {{ selectedOrder.lastDeliveryFailure.otherReason }}
+                </p>
+
+                <!-- Customer Choice -->
+                <div *ngIf="selectedOrder.lastDeliveryFailure.customerChoice" class="customer-choice">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span>
+                        {{ i18n.currentLang === 'ar' ? 'اختيارك:' : 'Your choice:' }}
+                        {{ i18n.currentLang === 'ar'
+                        ? selectedOrder.lastDeliveryFailure.customerChoiceAr
+                        : selectedOrder.lastDeliveryFailure.customerChoice
+                        }}
+                    </span>
+                </div>
+
+                <!-- Contact Support -->
+                <div *ngIf="!selectedOrder.lastDeliveryFailure.isResolved" class="contact-support">
+                    <p>{{ i18n.currentLang === 'ar'
+                        ? 'سيتم التواصل معك لتحديد طريقة الاستلام'
+                        : 'We will contact you to arrange delivery'
+                        }}</p>
+                </div>
+            </div>
+        </div>
+        
         <div class="modal-content order-details-modal" (click)="$event.stopPropagation()">
-            
+
             <!-- Modal Header -->
             <div class="modal-header">
                 <h2 class="modal-title">
@@ -190,7 +214,7 @@
 
             <!-- Order Details Content -->
             <div *ngIf="!isLoadingDetails && selectedOrder" class="modal-body">
-                
+
                 <!-- Order Summary -->
                 <div class="order-summary">
                     <div class="summary-row">
@@ -199,29 +223,26 @@
                         </span>
                         <span class="summary-value">{{ selectedOrder.orderNumber }}</span>
                     </div>
-                    
+
                     <div class="summary-row">
                         <span class="summary-label">
                             {{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}
                         </span>
-                        <span 
-                            class="status-badge" 
-                            [ngClass]="getStatusBadge(selectedOrder.status).class">
+                        <span class="status-badge" [ngClass]="getStatusBadge(selectedOrder.status).class">
                             {{ getStatusBadge(selectedOrder.status).text }}
                         </span>
                     </div>
-                    
+
                     <div class="summary-row">
                         <span class="summary-label">
                             {{ i18n.currentLang === 'ar' ? 'حالة الدفع' : 'Payment Status' }}
                         </span>
-                        <span 
-                            class="payment-badge" 
+                        <span class="payment-badge"
                             [ngClass]="getPaymentStatusBadge(selectedOrder.paymentStatus).class">
                             {{ getPaymentStatusBadge(selectedOrder.paymentStatus).text }}
                         </span>
                     </div>
-                    
+
                     <div class="summary-row">
                         <span class="summary-label">
                             {{ i18n.currentLang === 'ar' ? 'طريقة الدفع' : 'Payment Method' }}
@@ -230,19 +251,86 @@
                             {{ getPaymentMethodLabel(selectedOrder.paymentMethod) }}
                         </span>
                     </div>
-                    
+
                     <div class="summary-row">
                         <span class="summary-label">
                             {{ i18n.currentLang === 'ar' ? 'تاريخ الطلب' : 'Order Date' }}
                         </span>
                         <span class="summary-value">{{ formatDateTime(selectedOrder.createdAt) }}</span>
                     </div>
-                    
+
                     <div *ngIf="selectedOrder.deliveredAt" class="summary-row">
                         <span class="summary-label">
                             {{ i18n.currentLang === 'ar' ? 'تاريخ التوصيل' : 'Delivered At' }}
                         </span>
                         <span class="summary-value">{{ formatDateTime(selectedOrder.deliveredAt) }}</span>
+                    </div>
+                </div>
+
+                <!-- Cancelled Banner -->
+                <div *ngIf="selectedOrder.status === OrderStatus.Cancelled" class="cancelled-banner">
+                    <i class="fa-solid fa-ban"></i>
+                    {{ i18n.currentLang === 'ar' ? 'تم إلغاء هذا الطلب' : 'This order has been cancelled' }}
+                </div>
+
+                <!-- Order Tracking (واحدة بس!) -->
+                <div class="tracking-section" *ngIf="selectedOrder.status !== OrderStatus.Cancelled">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-route"></i>
+                        {{ i18n.currentLang === 'ar' ? 'تتبع الطلب' : 'Track Order' }}
+                    </h3>
+
+                    <!-- Shipment Barcode -->
+                    <div class="shipment-barcode" *ngIf="selectedOrder.shipmentBarcode">
+                        <i class="fa-solid fa-barcode"></i>
+                        <span>{{ selectedOrder.shipmentBarcode }}</span>
+                    </div>
+
+                    <!-- Timeline Steps -->
+                    <div class="tracking-timeline">
+                        <div *ngFor="let step of getTrackingSteps(selectedOrder); let last = last" class="timeline-step"
+                            [class.completed]="step.completed" [class.active]="step.active"
+                            [class.pending]="step.pending">
+
+                            <div class="step-icon">
+                                <i class="fa-solid" [ngClass]="step.icon"></i>
+                            </div>
+
+                            <div class="step-info">
+                                <span class="step-label">{{ step.label }}</span>
+                                <span class="step-desc" *ngIf="step.active && step.desc">{{ step.desc }}</span>
+                            </div>
+
+                            <div class="step-connector" *ngIf="!last"></div>
+                        </div>
+                    </div>
+
+                    <!-- Vendor Progress -->
+                    <div class="vendor-progress"
+                        *ngIf="selectedOrder.vendorOrdersCount && selectedOrder.vendorOrdersCount > 1">
+                        <div class="vendor-progress-header">
+                            <span>{{ i18n.currentLang === 'ar' ? 'تجميع المنتجات' : 'Items Collection' }}</span>
+                            <span class="vendor-count">
+                                {{ selectedOrder.completedVendorOrders }}/{{ selectedOrder.vendorOrdersCount }}
+                            </span>
+                        </div>
+                        <div class="vendor-progress-bar">
+                            <div class="vendor-progress-fill"
+                                [style.width.%]="(selectedOrder.completedVendorOrders! / selectedOrder.vendorOrdersCount!) * 100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ready for Pickup Notice -->
+                    <div class="pickup-notice"
+                        *ngIf="selectedOrder.isReadyForPickup && selectedOrder.shipmentStatus !== ShipmentStatus.Delivered">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>
+                            {{ i18n.currentLang === 'ar'
+                            ? 'شحنتك جاهزة! يمكنك استلامها من المخزن أو انتظار التوصيل'
+                            : 'Your shipment is ready! Pick up from warehouse or wait for delivery'
+                            }}
+                        </span>
                     </div>
                 </div>
 
@@ -252,40 +340,30 @@
                         <i class="fa-solid fa-truck"></i>
                         {{ i18n.currentLang === 'ar' ? 'معلومات الشحن' : 'Shipping Information' }}
                     </h3>
-                    
+
                     <div class="info-grid">
                         <div class="info-item">
-                            <span class="label">
-                                {{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name' }}
-                            </span>
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name' }}</span>
                             <span class="value">{{ selectedOrder.shippingName }}</span>
                         </div>
-                        
+
                         <div class="info-item">
-                            <span class="label">
-                                {{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}
-                            </span>
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}</span>
                             <span class="value">{{ selectedOrder.shippingPhone }}</span>
                         </div>
-                        
+
                         <div class="info-item">
-                            <span class="label">
-                                {{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }}
-                            </span>
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }}</span>
                             <span class="value">{{ selectedOrder.shippingCity }}</span>
                         </div>
-                        
+
                         <div class="info-item full-width">
-                            <span class="label">
-                                {{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}
-                            </span>
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}</span>
                             <span class="value">{{ selectedOrder.shippingAddress }}</span>
                         </div>
-                        
+
                         <div *ngIf="selectedOrder.shippingNotes" class="info-item full-width">
-                            <span class="label">
-                                {{ i18n.currentLang === 'ar' ? 'ملاحظات' : 'Notes' }}
-                            </span>
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'ملاحظات' : 'Notes' }}</span>
                             <span class="value">{{ selectedOrder.shippingNotes }}</span>
                         </div>
                     </div>
@@ -297,37 +375,30 @@
                         <i class="fa-solid fa-box-open"></i>
                         {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Order Items' }}
                     </h3>
-                    
+
                     <div class="items-list">
-                        <div 
-                            *ngFor="let item of selectedOrder.items" 
-                            class="item-card"
+                        <div *ngFor="let item of selectedOrder.items" class="item-card"
                             (click)="goToProduct(item.productId)">
-                            
-                            <img 
-                                [src]="item.productImage" 
+                            <img [src]="item.productImage"
                                 [alt]="i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn"
                                 class="item-image" />
-                            
+
                             <div class="item-info">
                                 <h4 class="item-name">
                                     {{ i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn }}
                                 </h4>
                                 <div class="item-details">
                                     <span class="item-quantity">
-                                        {{ i18n.currentLang === 'ar' ? 'الكمية' : 'Qty' }}: 
-                                        {{ item.quantity }}
+                                        {{ i18n.currentLang === 'ar' ? 'الكمية' : 'Qty' }}: {{ item.quantity }}
                                     </span>
                                     <span class="item-price">
-                                        {{ item.unitPrice.toFixed(2) }}
-                                        {{ i18n.currentLang === 'ar' ? 'ر.س' : 'SAR' }}
+                                        {{ item.unitPrice.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div class="item-total">
-                                {{ item.total.toFixed(2) }}
-                                {{ i18n.currentLang === 'ar' ? 'ر.س' : 'SAR' }}
+                                {{ item.total.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
                             </div>
                         </div>
                     </div>
@@ -336,42 +407,30 @@
                 <!-- Price Summary -->
                 <div class="price-summary">
                     <div class="price-row">
-                        <span class="price-label">
-                            {{ i18n.currentLang === 'ar' ? 'المجموع الفرعي' : 'Subtotal' }}
-                        </span>
+                        <span class="price-label">{{ i18n.currentLang === 'ar' ? 'المجموع الفرعي' : 'Subtotal' }}</span>
                         <span class="price-value">
-                            {{ selectedOrder.subTotal.toFixed(2) }}
-                            {{ i18n.currentLang === 'ar' ? 'ر.س' : 'SAR' }}
+                            {{ selectedOrder.subTotal.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
                         </span>
                     </div>
-                    
+
                     <div class="price-row">
-                        <span class="price-label">
-                            {{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}
-                        </span>
+                        <span class="price-label">{{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}</span>
                         <span class="price-value">
-                            {{ selectedOrder.shippingCost.toFixed(2) }}
-                            {{ i18n.currentLang === 'ar' ? 'ر.س' : 'SAR' }}
+                            {{ selectedOrder.shippingCost.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
                         </span>
                     </div>
-                    
+
                     <div *ngIf="selectedOrder.discount > 0" class="price-row discount">
-                        <span class="price-label">
-                            {{ i18n.currentLang === 'ar' ? 'الخصم' : 'Discount' }}
-                        </span>
+                        <span class="price-label">{{ i18n.currentLang === 'ar' ? 'الخصم' : 'Discount' }}</span>
                         <span class="price-value">
-                            -{{ selectedOrder.discount.toFixed(2) }}
-                            {{ i18n.currentLang === 'ar' ? 'ر.س' : 'SAR' }}
+                            -{{ selectedOrder.discount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
                         </span>
                     </div>
-                    
+
                     <div class="price-row total">
-                        <span class="price-label">
-                            {{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}
-                        </span>
+                        <span class="price-label">{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
                         <span class="price-value">
-                            {{ selectedOrder.total.toFixed(2) }}
-                            {{ i18n.currentLang === 'ar' ? 'ر.س' : 'SAR' }}
+                            {{ selectedOrder.total.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
                         </span>
                     </div>
                 </div>
@@ -389,14 +448,9 @@
 </div>
 
 <!-- Toast -->
-<div 
-    class="toast" 
-    [class.show]="toast.show" 
-    [class.success]="toast.type === 'success'"
-    [class.error]="toast.type === 'error'"
-    [class.info]="toast.type === 'info'">
-    <i class="fa-solid" 
-       [ngClass]="{
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'" [class.info]="toast.type === 'info'">
+    <i class="fa-solid" [ngClass]="{
            'fa-check-circle': toast.type === 'success',
            'fa-exclamation-circle': toast.type === 'error',
            'fa-info-circle': toast.type === 'info'

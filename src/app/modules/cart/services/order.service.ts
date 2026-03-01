@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environment';
 import { HttpClient } from '@angular/common/http';
-import { CreateOrderDto } from '../../../models/order';
+import { CancelOrderDto, CreateOrderDto, ReportDeliveryFailureDto, SetCustomerChoiceDto } from '../../../models/order';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OrderService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   createOrder(dto: CreateOrderDto): Observable<any> {
     return this.http.post(environment.orderUrl, dto);
@@ -22,7 +22,38 @@ export class OrderService {
     return this.http.get(`${environment.orderUrl}/${id}`);
   }
 
-  cancelOrder(id: number): Observable<any> {
-    return this.http.post(`${environment.orderUrl}/${id}/cancel`, {});
+  cancelOrder(id: number, reason?: string): Observable<any> {
+    const body: CancelOrderDto = reason ? { reason } : {};
+    return this.http.post(`${environment.orderUrl}/${id}/cancel`, body);
+  }
+
+  // ✅ NEW: Mark as vendor seen
+  markAsVendorSeen(id: number): Observable<any> {
+    return this.http.post(`${environment.orderUrl}/${id}/vendor-seen`, {});
+  }
+
+  // ✅ NEW: Report delivery failure
+  reportDeliveryFailure(dto: ReportDeliveryFailureDto): Observable<any> {
+    return this.http.post(`${environment.orderUrl}/delivery-failure`, dto);
+  }
+
+  // ✅ NEW: Set customer delivery choice
+  setCustomerChoice(dto: SetCustomerChoiceDto): Observable<any> {
+    return this.http.post(`${environment.orderUrl}/delivery-failure/customer-choice`, dto);
+  }
+
+  // ✅ NEW: Get delivery failures
+  getDeliveryFailures(orderId: number): Observable<any> {
+    return this.http.get(`${environment.orderUrl}/${orderId}/delivery-failures`);
+  }
+
+  // ✅ NEW: Get failure reasons
+  getFailureReasons(): Observable<any> {
+    return this.http.get(`${environment.orderUrl}/failure-reasons`);
+  }
+
+  // ✅ NEW: Get delivery options
+  getDeliveryOptions(): Observable<any> {
+    return this.http.get(`${environment.orderUrl}/delivery-options`);
   }
 }

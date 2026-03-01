@@ -382,17 +382,22 @@ export class CartComponent implements OnInit {
   }
 
   proceedToCheckout(): void {
-    if (this.cartItems.length === 0) return;
-
-    if (!this.authService.isLoggedIn()) {
-      this.showLoginWarning = true;
+    if (!this.selectedPayment) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'اختر طريقة الدفع' : 'Select payment method',
+        'error'
+      );
       return;
     }
 
-    this.showLoginWarning = false;
-    this.selectedPayment = null;
-    this.showPaymentDialog = true;
-    document.body.style.overflow = 'hidden';
+    this.router.navigate(['/cart/checkout'], {
+      queryParams: {
+        payment: this.selectedPayment,
+        promoCode: this.promoApplied ? this.promoCode : '',
+        promoDiscount: this.promoDiscount,
+        subtotal: this.subtotal
+      }
+    });
   }
 
   closePaymentDialog(): void {

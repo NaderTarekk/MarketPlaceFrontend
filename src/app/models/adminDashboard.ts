@@ -150,6 +150,7 @@ export interface InventoryItem {
   stockValue: number;
   status: string;
   vendorName?: string;
+   isActive: boolean;
 }
 
 export interface ApiResponse<T> {
