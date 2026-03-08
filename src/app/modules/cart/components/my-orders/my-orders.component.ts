@@ -147,12 +147,19 @@ export class MyOrdersComponent implements OnInit {
   }
 
   // Helpers
+  // my-orders.component.ts - FIX getStatusBadge
+
   getStatusBadge(status: OrderStatus): { text: string; class: string } {
     const statusMap = {
       [OrderStatus.Pending]: {
-        ar: 'في الانتظار',
+        ar: 'قيد الانتظار',
         en: 'Pending',
         class: 'pending'
+      },
+      [OrderStatus.VendorSeen]: {
+        ar: 'التاجر شاف الطلب',
+        en: 'Vendor Seen',
+        class: 'vendor-seen'
       },
       [OrderStatus.Confirmed]: {
         ar: 'مؤكد',
@@ -160,13 +167,13 @@ export class MyOrdersComponent implements OnInit {
         class: 'confirmed'
       },
       [OrderStatus.Processing]: {
-        ar: 'قيد المعالجة',
+        ar: 'جاري التجهيز',
         en: 'Processing',
         class: 'processing'
       },
       [OrderStatus.Shipped]: {
         ar: 'جاهز للاستلام',
-        en: 'Ready for pickup',
+        en: 'Ready for Pickup',
         class: 'shipped'
       },
       [OrderStatus.OutForDelivery]: {
@@ -184,14 +191,24 @@ export class MyOrdersComponent implements OnInit {
         en: 'Cancelled',
         class: 'cancelled'
       },
-       [OrderStatus.DeliveryFailed]: {
+      [OrderStatus.DeliveryFailed]: {
         ar: 'فشل التوصيل',
         en: 'Delivery Failed',
         class: 'delivery-failed'
+      },
+      [OrderStatus.Returned]: {
+        ar: 'مرتجع',
+        en: 'Returned',
+        class: 'returned'
       }
     };
 
-    const info = statusMap[status];
+    const info = statusMap[status] || {
+      ar: 'غير معروف',
+      en: 'Unknown',
+      class: 'unknown'
+    };
+
     return {
       text: this.i18n.currentLang === 'ar' ? info.ar : info.en,
       class: info.class
@@ -201,8 +218,8 @@ export class MyOrdersComponent implements OnInit {
   getPaymentStatusBadge(status: PaymentStatus): { text: string; class: string } {
     const statusMap = {
       [PaymentStatus.Pending]: {
-        ar: 'في الانتظار',
-        en: 'Pending',
+        ar: 'جاري التجهيز',
+        en: 'Being Prepared',
         class: 'pending'
       },
       [PaymentStatus.Paid]: {
@@ -283,11 +300,10 @@ export class MyOrdersComponent implements OnInit {
   }
 
   getTrackingSteps(order: Order): any[] {
-    // لو في Shipment، استخدم ShipmentStatus
+    // If shipment exists, use ShipmentStatus
     if (order.shipmentBarcode && order.shipmentStatus !== undefined) {
       return this.getShipmentTrackingSteps(order);
     }
-
     // Otherwise use OrderStatus
     return this.getOrderTrackingSteps(order.status);
   }
@@ -295,7 +311,7 @@ export class MyOrdersComponent implements OnInit {
   getShipmentTrackingSteps(order: Order): any[] {
     const status = order.shipmentStatus!;
 
-    const steps = [
+    const allSteps = [
       {
         statusValue: ShipmentStatus.Pending,
         icon: 'fa-clipboard-check',
@@ -313,21 +329,25 @@ export class MyOrdersComponent implements OnInit {
         descEn: 'Collecting items from vendors'
       },
       {
+        statusValue: ShipmentStatus.PartiallyPicked,
+        icon: 'fa-truck-loading',
+        labelAr: 'جاري النقل',
+        labelEn: 'In Transit',
+        descAr: 'المندوب ينقل المنتجات',
+        descEn: 'Agent transporting items'
+      },
+      {
         statusValue: ShipmentStatus.ReadyForPickup,
         icon: 'fa-warehouse',
         labelAr: 'جاهز للاستلام',
-        labelEn: 'Ready',
-        descAr: order.isReadyForPickup
-          ? 'شحنتك جاهزة للاستلام من المخزن'
-          : 'في انتظار وصول جميع المنتجات',
-        descEn: order.isReadyForPickup
-          ? 'Your shipment is ready for pickup'
-          : 'Waiting for all items to arrive'
+        labelEn: 'Ready for Pickup',
+        descAr: 'شحنتك جاهزة للاستلام من المخزن',
+        descEn: 'Your shipment is ready for pickup'
       },
       {
         statusValue: ShipmentStatus.OutForDelivery,
-        icon: 'fa-truck',
-        labelAr: 'في الطريق',
+        icon: 'fa-truck-fast',
+        labelAr: 'جاري التوصيل',
         labelEn: 'Out for Delivery',
         descAr: 'المندوب في طريقه إليك',
         descEn: 'Delivery agent is on the way'
@@ -341,6 +361,22 @@ export class MyOrdersComponent implements OnInit {
         descEn: 'Order delivered successfully'
       }
     ];
+
+    // ✅ Filter steps based on current status
+    let steps = allSteps;
+
+    // If OutForDelivery → hide ReadyForPickup and PartiallyPicked
+    if (status === ShipmentStatus.OutForDelivery || status === ShipmentStatus.Delivered) {
+      steps = allSteps.filter(s =>
+        s.statusValue !== ShipmentStatus.ReadyForPickup &&
+        s.statusValue !== ShipmentStatus.PartiallyPicked
+      );
+    }
+
+    // If ReadyForPickup → hide OutForDelivery
+    if (status === ShipmentStatus.ReadyForPickup) {
+      steps = allSteps.filter(s => s.statusValue !== ShipmentStatus.OutForDelivery);
+    }
 
     return steps.map((step, index) => ({
       ...step,
@@ -370,8 +406,8 @@ export class MyOrdersComponent implements OnInit {
       {
         statusValue: OrderStatus.Pending,
         icon: 'fa-clock',
-        labelAr: 'في الانتظار',
-        labelEn: 'Pending'
+        labelAr: 'جاري التجهيز',
+        labelen: 'Being Prepared'
       },
       {
         statusValue: OrderStatus.Confirmed,
@@ -391,7 +427,7 @@ export class MyOrdersComponent implements OnInit {
         labelAr: 'جاهز للاستلام',
         labelEn: 'Ready for pickup'
       },
-       {
+      {
         statusValue: OrderStatus.OutForDelivery,
         icon: 'fa-motorcycle',
         labelAr: 'في الطريق',
@@ -421,8 +457,8 @@ export class MyOrdersComponent implements OnInit {
   //     {
   //       statusValue: OrderStatus.Pending,
   //       icon: 'fa-clock',
-  //       labelAr: 'في الانتظار',
-  //       labelEn: 'Pending'
+  //       labelAr: 'جاري التجهيز',
+  //       labelen: 'Being Prepared'
   //     },
   //     {
   //       statusValue: OrderStatus.Confirmed,

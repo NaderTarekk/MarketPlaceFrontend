@@ -15,6 +15,8 @@ export class DeliveryAgentComponent implements OnInit {
   selectedTask: DeliveryAgentTask | null = null;
   showTaskModal = false;
   isUpdating = false;
+  summary: any = null;
+  showSummary = false;
 
   // Toast
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
@@ -32,6 +34,7 @@ export class DeliveryAgentComponent implements OnInit {
   ngOnInit(): void {
     this.loadTasks();
     this.loadFailureReasons();
+    this.loadSummary();
   }
 
   loadTasks(): void {
@@ -49,6 +52,66 @@ export class DeliveryAgentComponent implements OnInit {
         this.showToast(this.t('error_loading'), 'error');
       }
     });
+  }
+
+  markAsPickedFromVendor(vendorOrderId: number): void {
+    this.isUpdating = true;
+    this.shippingService.pickFromVendor(vendorOrderId).subscribe({
+      next: (res) => {
+        this.isUpdating = false;
+        if (res.success) {
+          this.showToast('تم الاستلام من التاجر', 'success');
+          this.loadTasks(); // ✅ استخدم loadTasks بدل loadOrders
+          this.closeTaskModal();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      },
+      error: () => {
+        this.isUpdating = false;
+        this.showToast(this.t('error'), 'error');
+      }
+    });
+  }
+
+  markAsDelivered(task: DeliveryAgentTask): void {
+    this.isUpdating = true;
+
+    if (task.deliveryType === DeliveryType.ToWarehouse) {
+      this.shippingService.deliverToWarehouse(task.vendorOrderId).subscribe({
+        next: (res) => {
+          this.isUpdating = false;
+          if (res.success) {
+            this.showToast('تم التسليم للمخزن', 'success');
+            this.loadTasks();
+            this.closeTaskModal();
+          } else {
+            this.showToast(res.message || this.t('error'), 'error');
+          }
+        },
+        error: () => {
+          this.isUpdating = false;
+          this.showToast(this.t('error'), 'error');
+        }
+      });
+    } else {
+      this.shippingService.deliverToCustomer(task.vendorOrderId).subscribe({
+        next: (res) => {
+          this.isUpdating = false;
+          if (res.success) {
+            this.showToast('تم التسليم للعميل', 'success');
+            this.loadTasks();
+            this.closeTaskModal();
+          } else {
+            this.showToast(res.message || this.t('error'), 'error');
+          }
+        },
+        error: () => {
+          this.isUpdating = false;
+          this.showToast(this.t('error'), 'error');
+        }
+      });
+    }
   }
 
   openTaskDetails(task: DeliveryAgentTask): void {
@@ -231,15 +294,22 @@ export class DeliveryAgentComponent implements OnInit {
       return;
     }
 
+    // ✅ NOW orderId will be available
+    if (!this.selectedTaskForFailure?.orderId) {
+      this.showToast('Order ID not found', 'error');
+      console.error('❌ Task data:', this.selectedTaskForFailure);
+      return;
+    }
+
     this.isReportingFailure = true;
 
-    // استخدم الـ OrderService أو ShippingService
-    // هنا نفترض استخدام OrderService
     const dto = {
-      orderId: this.selectedTaskForFailure!.orderId, // لازم يكون في الـ task
+      orderId: this.selectedTaskForFailure.orderId, // ✅ This will now work
       reason: this.selectedFailureReason,
       otherReason: this.selectedFailureReason === 99 ? this.otherReason : undefined
     };
+
+    console.log('🔍 Sending DTO:', dto);
 
     this.shippingService.reportDeliveryFailure(dto).subscribe({
       next: (res) => {
@@ -247,14 +317,27 @@ export class DeliveryAgentComponent implements OnInit {
         if (res.success) {
           this.showToast(this.t('failure_reported'), 'success');
           this.closeFailureModal();
-          this.loadTasks(); // Reload tasks
+          this.loadTasks();
         } else {
           this.showToast(res.message || this.t('error'), 'error');
         }
       },
-      error: () => {
+      error: (err) => {
         this.isReportingFailure = false;
-        this.showToast(this.t('error'), 'error');
+        console.error('❌ Error:', err);
+        this.showToast(err.error?.message || this.t('error'), 'error');
+      }
+    });
+  }
+
+  loadSummary(): void {
+    this.shippingService.getMyOrdersSummary().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.summary = res.data;
+          this.showSummary = true;
+          this.cdr.detectChanges();
+        }
       }
     });
   }
@@ -264,11 +347,11 @@ export class DeliveryAgentComponent implements OnInit {
       'error_loading': { ar: 'خطأ في تحميل المهام', en: 'Error loading tasks' },
       'pick_from_vendor': { ar: 'استلام من التاجر', en: 'Pick from Vendor' },
       'deliver_to_warehouse': { ar: 'تسليم للمخزن', en: 'Deliver to Warehouse' },
-      'deliver_to_customer': { ar: 'تسليم للعميل', en: 'Deliver to Customer' },
+      'deliver_to_customer': { ar: 'تسليم للعميل', en: 'Customer Received Order' },
       'picked_success': { ar: 'تم استلام المنتجات', en: 'Products picked up' },
       'delivered_warehouse': { ar: 'تم التسليم للمخزن', en: 'Delivered to warehouse' },
       'delivered_customer': { ar: 'تم التسليم للعميل', en: 'Delivered to customer' },
-        'select_reason': { ar: 'اختر سبب الفشل', en: 'Select failure reason' },
+      'select_reason': { ar: 'اختر سبب الفشل', en: 'Select failure reason' },
       'enter_reason': { ar: 'أدخل السبب', en: 'Enter the reason' },
       'failure_reported': { ar: 'تم تسجيل فشل التوصيل', en: 'Delivery failure reported' },
       'report_failure': { ar: 'تسجيل فشل التوصيل', en: 'Report Delivery Failure' },

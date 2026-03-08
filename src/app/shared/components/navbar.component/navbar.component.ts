@@ -55,6 +55,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { nameAr: 'إدارة التقييمات', nameEn: 'Manage Reviews', route: '/products/reviews', icon: 'fa-star' },
     // { nameAr: 'إدارة الطلبات', nameEn: 'Manage Orders', route: '/orders', icon: 'fa-shopping-bag' },
     { nameAr: 'الشكاوي', nameEn: 'Complaints', route: '/admin/complaints', icon: 'fa-exclamation-triangle' },
+    { nameAr: 'المحافظات', nameEn: 'Governorates', route: '/admin/governorates', icon: 'fa-map-marker-alt' },
     { nameAr: 'إدارة الشحنات', nameEn: 'Shipping Management', route: '/shipping/employee', icon: 'fa-truck-fast' },
   ];
 

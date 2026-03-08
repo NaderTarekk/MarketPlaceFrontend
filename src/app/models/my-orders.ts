@@ -1,12 +1,14 @@
 export enum OrderStatus {
-  Pending = 0,
-  Confirmed = 1,
-  Processing = 2,
-  Shipped = 3,
-  OutForDelivery = 4,
-  Delivered = 5,
-  Cancelled = 6,
-  DeliveryFailed = 7
+   Pending = 0,
+  VendorSeen = 1,
+  Confirmed = 2,
+  Processing = 3,
+  Shipped = 4,
+  OutForDelivery = 5,
+  Delivered = 6,
+  DeliveryFailed = 7,
+  Cancelled = 8,
+  Returned = 9
 }
 
 export enum PaymentStatus {

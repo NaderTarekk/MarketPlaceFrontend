@@ -26,6 +26,11 @@
       <i class="fa-solid fa-users"></i>
       {{ i18n.currentLang === 'ar' ? 'المناديب' : 'Agents' }}
     </button>
+    <!-- <button class="tab-btn" [class.active]="activeTab === 'failures'" (click)="activeTab = 'failures'">
+      <i class="fa-solid fa-exclamation-triangle"></i>
+      {{ i18n.currentLang === 'ar' ? 'فشل التوصيل' : 'Delivery Failures' }}
+      <span class="badge" *ngIf="deliveryFailures.length > 0">{{ deliveryFailures.length }}</span>
+    </button> -->
   </div>
 
   <!-- Loading -->
@@ -38,10 +43,10 @@
 
     <!-- Pending Orders Tab -->
     <div *ngIf="activeTab === 'pending'" class="tab-content">
-      <!-- Actions Bar -->
       <div class="actions-bar" *ngIf="pendingOrders.length > 0">
         <label class="select-all">
-          <input type="checkbox" [checked]="selectedOrders.length === pendingOrders.length" (change)="selectAllOrders()">
+          <input type="checkbox" [checked]="selectedOrders.length === pendingOrders.length"
+            (change)="selectAllOrders()">
           {{ i18n.currentLang === 'ar' ? 'تحديد الكل' : 'Select All' }}
         </label>
         <button class="btn-assign" [disabled]="selectedOrders.length === 0" (click)="openAssignModal()">
@@ -51,13 +56,37 @@
         </button>
       </div>
 
-      <!-- Empty State -->
       <div *ngIf="pendingOrders.length === 0" class="empty-state">
         <i class="fa-solid fa-check-circle"></i>
         <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات منتظرة' : 'No pending orders' }}</h3>
       </div>
 
-      <!-- Orders Grid -->
+<!-- <div class="delivery-type-filter" *ngIf="pendingOrders.length > 0">
+  <button class="filter-btn" 
+          [class.active]="deliveryTypeFilter === null"
+          (click)="deliveryTypeFilter = null">
+    <i class="fa-solid fa-list"></i>
+    {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
+    <span class="count">({{ pendingOrders.length }})</span>
+  </button>
+  
+  <button class="filter-btn warehouse" 
+          [class.active]="deliveryTypeFilter === DeliveryType.ToWarehouse"
+          (click)="deliveryTypeFilter = DeliveryType.ToWarehouse">
+    <i class="fa-solid fa-warehouse"></i>
+    {{ i18n.currentLang === 'ar' ? 'للمخزن' : 'To Warehouse' }}
+    <span class="count">({{ getOrdersByDeliveryType(DeliveryType.ToWarehouse).length }})</span>
+  </button>
+  
+  <button class="filter-btn direct" 
+          [class.active]="deliveryTypeFilter === DeliveryType.DirectToCustomer"
+          (click)="deliveryTypeFilter = DeliveryType.DirectToCustomer">
+    <i class="fa-solid fa-house-user"></i>
+    {{ i18n.currentLang === 'ar' ? 'للعميل' : 'Direct' }}
+    <span class="count">({{ getOrdersByDeliveryType(DeliveryType.DirectToCustomer).length }})</span>
+  </button>
+</div> -->
+
       <div class="orders-grid">
         <div *ngFor="let order of pendingOrders" class="order-card" [class.selected]="isOrderSelected(order.id)">
           <div class="card-header">
@@ -65,8 +94,14 @@
               <input type="checkbox" [checked]="isOrderSelected(order.id)" (change)="toggleOrderSelection(order.id)">
             </label>
             <span class="barcode">{{ order.vendorOrderBarcode }}</span>
+
+            <span class="delivery-type-badge" [class.warehouse]="order.deliveryType === DeliveryType.ToWarehouse"
+              [class.direct]="order.deliveryType === DeliveryType.DirectToCustomer">
+              <i class="fa-solid" [ngClass]="getDeliveryTypeIcon(order.deliveryType)"></i>
+            </span>
+
             <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
-              {{ order.statusAr }}
+              {{ getStatusBadgeText(order.status) }}
             </span>
           </div>
 
@@ -83,14 +118,20 @@
               <i class="fa-solid fa-location-dot"></i>
               <span>{{ order.vendorAddress }}</span>
             </div>
+
+            <div class="info-row delivery-type">
+              <i class="fa-solid" [ngClass]="getDeliveryTypeIcon(order.deliveryType)"></i>
+              <span>{{ getDeliveryTypeLabel(order.deliveryType) }}</span>
+            </div>
+
             <div class="info-row items">
               <i class="fa-solid fa-box"></i>
               <span>{{ order.items.length }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}</span>
-              <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+              <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP'
+                }}</span>
             </div>
           </div>
 
-          <!-- Items Preview -->
           <div class="items-preview">
             <div *ngFor="let item of order.items.slice(0, 3)" class="item-mini">
               <img [src]="item.productImage" [alt]="item.productNameAr">
@@ -115,9 +156,17 @@
         <div *ngFor="let shipment of shipments" class="shipment-card" (click)="viewShipmentDetails(shipment)">
           <div class="shipment-header">
             <span class="barcode">{{ shipment.shipmentBarcode }}</span>
-            <span class="status-badge" [ngClass]="getStatusBadgeClass(shipment.status)">
-              {{ shipment.statusAr }}
-            </span>
+            <div class="badges">
+              <span *ngIf="!shipment.hasDeliveryFailure" class="status-badge"
+                [ngClass]="getStatusBadgeClass(shipment.status)">
+                {{ shipment.statusAr }}
+              </span>
+
+              <span *ngIf="shipment.hasDeliveryFailure" class="failure-badge">
+                <i class="fa-solid fa-exclamation-triangle"></i>
+                {{ i18n.currentLang === 'ar' ? 'فشل التوصيل' : 'Delivery Failed' }}
+              </span>
+            </div>
           </div>
 
           <div class="shipment-body">
@@ -132,7 +181,8 @@
             <div class="progress-info">
               <span>{{ shipment.completedVendorOrders }}/{{ shipment.vendorOrdersCount }}</span>
               <div class="progress-bar">
-                <div class="progress" [style.width.%]="(shipment.completedVendorOrders / shipment.vendorOrdersCount) * 100"></div>
+                <div class="progress"
+                  [style.width.%]="(shipment.completedVendorOrders / shipment.vendorOrdersCount) * 100"></div>
               </div>
             </div>
           </div>
@@ -171,8 +221,55 @@
         </div>
       </div>
     </div>
+
+    <!-- Failures Tab -->
+    <div *ngIf="activeTab === 'failures'" class="tab-content">
+      <div *ngIf="deliveryFailures.length === 0" class="empty-state">
+        <i class="fa-solid fa-check-double"></i>
+        <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد حالات فشل' : 'No delivery failures' }}</h3>
+        <p>{{ i18n.currentLang === 'ar' ? 'جميع التوصيلات تتم بنجاح' : 'All deliveries are successful' }}</p>
+      </div>
+
+      <div class="failures-list">
+        <div *ngFor="let failure of deliveryFailures" class="failure-card">
+          <div class="failure-header">
+            <span class="order-number">
+              <i class="fa-solid fa-receipt"></i>
+              {{ failure.orderNumber }}
+            </span>
+            <span class="failure-date">{{ failure.createdAt | date:'short' }}</span>
+          </div>
+
+          <div class="failure-body">
+            <div class="failure-info-row">
+              <strong>{{ i18n.currentLang === 'ar' ? 'السبب:' : 'Reason:' }}</strong>
+              <span>{{ i18n.currentLang === 'ar' ? failure.reasonAr : failure.reason }}</span>
+            </div>
+
+            <div class="failure-info-row" *ngIf="failure.otherReason">
+              <strong>{{ i18n.currentLang === 'ar' ? 'التفاصيل:' : 'Details:' }}</strong>
+              <span>{{ failure.otherReason }}</span>
+            </div>
+
+            <div class="failure-info-row">
+              <strong>{{ i18n.currentLang === 'ar' ? 'تم التبليغ بواسطة:' : 'Reported by:' }}</strong>
+              <span>{{ failure.reportedByName }}</span>
+            </div>
+          </div>
+
+          <div class="failure-footer">
+            <button class="btn-resolve" (click)="openCustomerChoiceModal(failure)">
+              <i class="fa-solid fa-phone"></i>
+              {{ i18n.currentLang === 'ar' ? 'تواصل مع العميل' : 'Contact Customer' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- ===== MODALS ===== -->
 
 <!-- Assign Modal -->
 <div class="modal-overlay" [class.show]="showAssignModal" (click)="closeAssignModal()">
@@ -194,7 +291,14 @@
         {{ i18n.currentLang === 'ar' ? 'طلب' : 'orders' }}
       </p>
 
-      <!-- Select Agent -->
+      <div class="delivery-type-info" *ngIf="selectedOrders.length > 0">
+        <div class="info-badge" [class.warehouse]="selectedDeliveryType === DeliveryType.ToWarehouse"
+          [class.customer]="selectedDeliveryType === DeliveryType.DirectToCustomer">
+          <i class="fa-solid" [ngClass]="getDeliveryTypeIcon(selectedDeliveryType)"></i>
+          <span>{{ getDeliveryTypeLabel(selectedDeliveryType) }}</span>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>{{ i18n.currentLang === 'ar' ? 'اختر المندوب' : 'Select Agent' }}</label>
         <select [(ngModel)]="selectedAgent">
@@ -205,17 +309,20 @@
         </select>
       </div>
 
-      <!-- Delivery Type -->
       <div class="form-group">
-        <label>{{ i18n.currentLang === 'ar' ? 'نوع التوصيل' : 'Delivery Type' }}</label>
-        <div class="radio-group">
+        <label>
+          {{ i18n.currentLang === 'ar' ? 'نوع التوصيل' : 'Delivery Type' }}
+          <span class="auto-label">{{ i18n.currentLang === 'ar' ? '(تلقائي حسب طلب العميل)' : '(Auto from customer
+            order)' }}</span>
+        </label>
+        <div class="radio-group disabled">
           <label class="radio-option" [class.selected]="selectedDeliveryType === DeliveryType.ToWarehouse">
-            <input type="radio" [value]="DeliveryType.ToWarehouse" [(ngModel)]="selectedDeliveryType">
+            <input type="radio" [value]="DeliveryType.ToWarehouse" [(ngModel)]="selectedDeliveryType" disabled>
             <i class="fa-solid fa-warehouse"></i>
             <span>{{ i18n.currentLang === 'ar' ? 'إحضار للمخزن' : 'To Warehouse' }}</span>
           </label>
           <label class="radio-option" [class.selected]="selectedDeliveryType === DeliveryType.DirectToCustomer">
-            <input type="radio" [value]="DeliveryType.DirectToCustomer" [(ngModel)]="selectedDeliveryType">
+            <input type="radio" [value]="DeliveryType.DirectToCustomer" [(ngModel)]="selectedDeliveryType" disabled>
             <i class="fa-solid fa-truck"></i>
             <span>{{ i18n.currentLang === 'ar' ? 'توصيل مباشر للعميل' : 'Direct to Customer' }}</span>
           </label>
@@ -229,10 +336,8 @@
       </button>
       <button class="btn-confirm" (click)="confirmAssignment()" [disabled]="isAssigning || !selectedAgent">
         <i class="fa-solid" [ngClass]="isAssigning ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-        {{ isAssigning 
-          ? (i18n.currentLang === 'ar' ? 'جاري التعيين...' : 'Assigning...') 
-          : (i18n.currentLang === 'ar' ? 'تأكيد' : 'Confirm') 
-        }}
+        {{ isAssigning ? (i18n.currentLang === 'ar' ? 'جاري التعيين...' : 'Assigning...') : (i18n.currentLang === 'ar' ?
+        'تأكيد' : 'Confirm') }}
       </button>
     </div>
   </div>
@@ -249,7 +354,6 @@
     </div>
 
     <div class="modal-body">
-      <!-- Customer Info -->
       <div class="section">
         <h4><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'بيانات العميل' : 'Customer Info' }}</h4>
         <p><strong>{{ selectedShipment.customerName }}</strong></p>
@@ -257,7 +361,6 @@
         <p>{{ selectedShipment.shippingAddress }}</p>
       </div>
 
-      <!-- Vendor Orders -->
       <div class="section">
         <h4><i class="fa-solid fa-store"></i> {{ i18n.currentLang === 'ar' ? 'طلبات التجار' : 'Vendor Orders' }}</h4>
         <div *ngFor="let vo of selectedShipment.vendorOrders" class="vendor-order-item">
@@ -274,24 +377,135 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-action" *ngIf="selectedShipment.status === ShipmentStatus.PartiallyPicked || 
-                                        (selectedShipment.status === ShipmentStatus.Processing && 
-                                         selectedShipment.completedVendorOrders === selectedShipment.vendorOrders.length)"
-              (click)="markAsReadyForPickup(selectedShipment.id)">
+      <button class="btn-action" *ngIf="selectedShipment.status === ShipmentStatus.PartiallyPicked"
+        (click)="markAsReadyForPickup(selectedShipment.id)">
         <i class="fa-solid fa-box"></i>
         {{ i18n.currentLang === 'ar' ? 'جاهز للاستلام' : 'Mark Ready' }}
       </button>
-      <button class="btn-action success" *ngIf="selectedShipment.isReadyForPickup && selectedShipment.status !== ShipmentStatus.Delivered"
-              (click)="markAsDelivered(selectedShipment.id)">
+
+      <button class="btn-action pickup" *ngIf="selectedShipment.status === ShipmentStatus.ReadyForPickup"
+        (click)="markAsPickedByCustomer(selectedShipment.id)">
+        <i class="fa-solid fa-hand-holding-box"></i>
+        {{ i18n.currentLang === 'ar' ? 'تم استلام العميل' : 'Customer Picked Up' }}
+      </button>
+
+      <button class="btn-action success" *ngIf="selectedShipment.status === ShipmentStatus.OutForDelivery"
+        (click)="markAsDelivered(selectedShipment.id)">
         <i class="fa-solid fa-check"></i>
         {{ i18n.currentLang === 'ar' ? 'تم التسليم' : 'Mark Delivered' }}
+      </button>
+
+      <button class="btn-action danger" (click)="openFailureModal(selectedShipment)">
+        <i class="fa-solid fa-exclamation-triangle"></i>
+        {{ i18n.currentLang === 'ar' ? 'تسجيل فشل' : 'Report Failure' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delivery Failure Modal -->
+<div class="modal-overlay" [class.show]="showFailureModal" (click)="closeFailureModal()">
+  <div class="modal failure-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fa-solid fa-exclamation-triangle"></i>
+        {{ i18n.currentLang === 'ar' ? 'تسجيل فشل التوصيل' : 'Report Delivery Failure' }}
+      </h3>
+      <button class="close-btn" (click)="closeFailureModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="order-info">
+        <strong>{{ i18n.currentLang === 'ar' ? 'رقم الطلب:' : 'Order:' }}</strong>
+        {{ selectedOrderForFailure?.shipmentBarcode }}
+      </p>
+
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'سبب الفشل' : 'Failure Reason' }}</label>
+        <select [(ngModel)]="selectedFailureReason">
+          <option [value]="null">{{ i18n.currentLang === 'ar' ? '-- اختر السبب --' : '-- Select Reason --' }}</option>
+          <option *ngFor="let reason of failureReasons" [value]="reason.value">
+            {{ getReasonLabel(reason) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="selectedFailureReason === 99">
+        <label>{{ i18n.currentLang === 'ar' ? 'وضح السبب' : 'Specify Reason' }}</label>
+        <textarea [(ngModel)]="otherReason" rows="3"
+          [placeholder]="i18n.currentLang === 'ar' ? 'اكتب السبب...' : 'Enter reason...'"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeFailureModal()">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-confirm danger" (click)="reportDeliveryFailure()"
+        [disabled]="isReportingFailure || selectedFailureReason === null">
+        <i class="fa-solid" [ngClass]="isReportingFailure ? 'fa-spinner fa-spin' : 'fa-exclamation-circle'"></i>
+        {{ isReportingFailure ? (i18n.currentLang === 'ar' ? 'جاري الإرسال...' : 'Reporting...') : (i18n.currentLang ===
+        'ar' ? 'تسجيل الفشل' : 'Report Failure') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Choice Modal -->
+<div class="modal-overlay" [class.show]="showCustomerChoiceModal" (click)="closeCustomerChoiceModal()">
+  <div class="modal choice-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fa-solid fa-user-check"></i>
+        {{ i18n.currentLang === 'ar' ? 'تحديد اختيار العميل' : 'Set Customer Choice' }}
+      </h3>
+      <button class="close-btn" (click)="closeCustomerChoiceModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="failure-info">
+        <strong>{{ i18n.currentLang === 'ar' ? 'السبب:' : 'Reason:' }}</strong>
+        {{ selectedFailureForChoice?.reasonAr || selectedFailureForChoice?.reason }}
+      </p>
+
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'اختيار العميل' : 'Customer Choice' }}</label>
+        <div class="radio-group">
+          <label class="radio-option" *ngFor="let option of deliveryOptions">
+            <input type="radio" [value]="option.value" [(ngModel)]="selectedDeliveryOption">
+            <span>{{ getReasonLabel(option) }}</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'ملاحظات العميل' : 'Customer Notes' }}</label>
+        <textarea [(ngModel)]="customerNotes" rows="3"
+          [placeholder]="i18n.currentLang === 'ar' ? 'ملاحظات إضافية...' : 'Additional notes...'"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeCustomerChoiceModal()">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-confirm" (click)="setCustomerChoice()"
+        [disabled]="isSettingChoice || selectedDeliveryOption === null">
+        <i class="fa-solid" [ngClass]="isSettingChoice ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ isSettingChoice ? (i18n.currentLang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (i18n.currentLang === 'ar' ?
+        'حفظ الاختيار' : 'Save Choice') }}
       </button>
     </div>
   </div>
 </div>
 
 <!-- Toast -->
-<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+  [class.error]="toast.type === 'error'">
   <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
   <span>{{ toast.message }}</span>
 </div>

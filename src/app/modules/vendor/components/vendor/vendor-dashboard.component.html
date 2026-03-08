@@ -44,6 +44,89 @@
         <!-- OVERVIEW TAB -->
         <!-- ═══════════════════════════════════════════════ -->
         <div *ngIf="!isLoadingDashboard && activeTab === 'overview'" class="tab-content">
+
+            <!-- ✅ FINANCIAL EARNINGS SECTION - NEW -->
+            <div class="earnings-section">
+                <div class="earnings-header">
+                    <h2 class="earnings-title">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                        {{ i18n.currentLang === 'ar' ? 'الأرباح المالية' : 'Financial Earnings' }}
+                    </h2>
+                    <div class="commission-info">
+                        <i class="fa-solid fa-percent"></i>
+                        <span>{{ i18n.currentLang === 'ar' ? 'نسبة العمولة:' : 'Commission:' }} {{ commissionRate
+                            }}%</span>
+                    </div>
+                </div>
+
+                <div class="earnings-grid">
+                    <!-- Total Revenue -->
+                    <div class="earning-card">
+                        <div class="earning-label">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            {{ i18n.currentLang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue' }}
+                        </div>
+                        <span class="earning-value">{{ formatPrice(totalRevenue) }}</span>
+                        <div class="earning-subtitle">
+                            <i class="fa-solid fa-info-circle"></i>
+                            {{ i18n.currentLang === 'ar' ? 'من جميع الطلبات' : 'From all orders' }}
+                        </div>
+                    </div>
+
+                    <!-- Total Commission -->
+                    <div class="earning-card commission">
+                        <div class="earning-label">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                            {{ i18n.currentLang === 'ar' ? 'إجمالي العمولة' : 'Total Commission' }}
+                        </div>
+                        <span class="earning-value">{{ formatPrice(totalCommission) }}</span>
+                        <div class="earning-subtitle">
+                            <i class="fa-solid fa-minus"></i>
+                            {{ i18n.currentLang === 'ar' ? 'مخصوم للمنصة' : 'Deducted for platform' }}
+                        </div>
+                    </div>
+
+                    <!-- Net Profit -->
+                    <div class="earning-card profit">
+                        <div class="earning-label">
+                            <i class="fa-solid fa-coins"></i>
+                            {{ i18n.currentLang === 'ar' ? 'صافي الأرباح' : 'Net Profit' }}
+                        </div>
+                        <span class="earning-value">{{ formatPrice(totalProfit) }}</span>
+                        <div class="earning-subtitle">
+                            <i class="fa-solid fa-calculator"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الإيرادات - العمولة' : 'Revenue - Commission' }}
+                        </div>
+                    </div>
+
+                    <!-- Confirmed Profit -->
+                    <div class="earning-card confirmed">
+                        <div class="earning-label">
+                            <i class="fa-solid fa-circle-check"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الأرباح المؤكدة' : 'Confirmed Profit' }}
+                        </div>
+                        <span class="earning-value">{{ formatPrice(confirmedProfit) }}</span>
+                        <div class="earning-subtitle">
+                            <i class="fa-solid fa-check"></i>
+                            {{ i18n.currentLang === 'ar' ? 'من الطلبات المسلمة' : 'From delivered orders' }}
+                        </div>
+                    </div>
+
+                    <!-- Pending Profit -->
+                    <div class="earning-card pending">
+                        <div class="earning-label">
+                            <i class="fa-solid fa-clock"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الأرباح الجارية' : 'Pending Profit' }}
+                        </div>
+                        <span class="earning-value">{{ formatPrice(pendingProfit) }}</span>
+                        <div class="earning-subtitle">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                            {{ i18n.currentLang === 'ar' ? 'من الطلبات الجارية' : 'From pending orders' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <!-- Revenue Card -->
@@ -52,9 +135,9 @@
                         <i class="fa-solid fa-sack-dollar"></i>
                     </div>
                     <div class="stat-info">
-                        <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue'
+                        <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'إيرادات الشهر' : 'Monthly Revenue'
                             }}</span>
-                        <span class="stat-value">{{ formatPrice(dashboard?.totalRevenue || 0) }}</span>
+                        <span class="stat-value">{{ formatPrice(confirmedProfit) || 0}}</span>
                         <div class="stat-change" [class.positive]="getRevenueGrowth() >= 0"
                             [class.negative]="getRevenueGrowth() < 0">
                             <i class="fa-solid"
@@ -174,7 +257,25 @@
                                     <span class="order-customer">{{ order.customerName }}</span>
                                 </div>
                                 <div class="order-details">
-                                    <span class="order-amount">{{ formatPrice(order.totalAmount) }}</span>
+                                    <!-- ✅ Show profit breakdown -->
+                                    <div class="order-earnings">
+                                        <span class="order-amount">
+                                            {{ formatPrice(order.vendorSubTotal) }}
+                                            <span class="shipping-label" *ngIf="order.vendorShippingShare > 0">
+                                                +{{ formatPrice(order.vendorShippingShare) }}
+                                            </span>
+                                        </span>
+                                        <span class="order-profit" [class.confirmed]="isOrderProfitConfirmed(order)">
+                                            <i class="fa-solid fa-coins"></i>
+                                            {{ formatPrice(calculateOrderProfit(order)) }}
+                                            <span class="profit-status">
+                                                {{ isOrderProfitConfirmed(order)
+                                                ? (i18n.currentLang === 'ar' ? 'مؤكد' : 'Confirmed')
+                                                : (i18n.currentLang === 'ar' ? 'جاري' : 'Pending')
+                                                }}
+                                            </span>
+                                        </span>
+                                    </div>
                                     <span class="order-status" [ngClass]="getOrderStatusBadge(order.status).class">
                                         {{ getOrderStatusBadge(order.status).text }}
                                     </span>
@@ -391,14 +492,15 @@
                             <th>{{ i18n.currentLang === 'ar' ? 'رقم الطلب' : 'Order #' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</th>
-                            <th>{{ i18n.currentLang === 'ar' ? 'المبلغ' : 'Amount' }}</th>
+                            <th>{{ i18n.currentLang === 'ar' ? 'المبلغ / الربح' : 'Amount / Profit' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                            <th>{{ i18n.currentLang === 'ar' ? 'حالة الطلب' : 'Order Status' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'التاريخ' : 'Date' }}</th>
+                            <th>{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let order of dashboard!.recentOrders" [class.new-order]="!order.isVendorSeen"
-                            (click)="viewOrderDetails(order)" style="cursor: pointer;">
+                        <tr *ngFor="let order of dashboard!.recentOrders" [class.new-order]="!order.isVendorSeen">
                             <td class="order-number">
                                 #{{ order.orderNumber }}
                                 <span *ngIf="!order.isVendorSeen" class="new-badge">
@@ -411,19 +513,68 @@
                                     <img *ngFor="let item of order.items.slice(0, 3)"
                                         [src]="getImageUrl(item.productImage)" [alt]="item.productName"
                                         [title]="item.productName" />
-                                    <span *ngIf="order.items.length > 3" class="more">+{{ order.items.length - 3
-                                        }}</span>
+                                    <span *ngIf="order.items.length > 3" class="more">
+                                        +{{ order.items.length - 3 }}
+                                    </span>
                                 </div>
                             </td>
-                            <td class="order-amount">{{ formatPrice(order.totalAmount) }}</td>
+
+                            <!-- ✅ EARNINGS COLUMN -->
+                            <td class="order-earnings-cell">
+                                <!-- ✅ عرض VendorSubTotal + VendorShippingShare -->
+                                <div class="total-amount">
+                                    {{ formatPrice(order.vendorSubTotal) }}
+                                    <span class="shipping-note" *ngIf="order.vendorShippingShare > 0">
+                                        + {{ formatPrice(order.vendorShippingShare) }} شحن
+                                    </span>
+                                </div>
+
+                                <div class="vendor-profit" [class.confirmed]="isOrderProfitConfirmed(order)">
+                                    <i class="fa-solid fa-coins"></i>
+                                    {{ formatPrice(calculateOrderProfit(order)) }}
+                                    <span class="profit-badge" [class.confirmed]="isOrderProfitConfirmed(order)">
+                                        {{ isOrderProfitConfirmed(order)
+                                        ? (i18n.currentLang === 'ar' ? 'مؤكد' : 'Confirmed')
+                                        : (i18n.currentLang === 'ar' ? 'جاري' : 'Pending')
+                                        }}
+                                    </span>
+                                </div>
+
+                                <div class="commission-deduction">
+                                    <i class="fa-solid fa-minus"></i>
+                                    {{ formatPrice(calculateOrderCommission(order)) }}
+                                    ({{ commissionRate }}%)
+                                </div>
+                            </td>
+
                             <td>
                                 <span class="status-badge" [ngClass]="getOrderStatusBadge(order.status).class">
                                     {{ getOrderStatusBadge(order.status).text }}
                                 </span>
                             </td>
+
+                            <td class="order-status-cell">
+                                <select *ngIf="canUpdateVendorOrderStatus(order.vendorOrderStatus)"
+                                    class="status-select" [(ngModel)]="order.vendorOrderStatus"
+                                    (ngModelChange)="updateVendorOrderStatus(order, $event.toString())"
+                                    [disabled]="isUpdatingStatus" (click)="$event.stopPropagation()">
+                                    <option [ngValue]="VendorOrderStatus.Pending">
+                                        {{ i18n.currentLang === 'ar' ? 'قيد الانتظار' : 'Pending' }}
+                                    </option>
+                                    <option [ngValue]="VendorOrderStatus.Assigned">
+                                        {{ i18n.currentLang === 'ar' ? 'يتم التجهيز' : 'Processing' }}
+                                    </option>
+                                </select>
+
+                                <span *ngIf="!canUpdateVendorOrderStatus(order.vendorOrderStatus)" class="status-badge"
+                                    [ngClass]="getVendorOrderStatusBadge(order.vendorOrderStatus).class">
+                                    {{ getVendorOrderStatusBadge(order.vendorOrderStatus).text }}
+                                </span>
+                            </td>
+
                             <td class="order-date">{{ formatDate(order.createdAt) }}</td>
                             <td>
-                                <button class="btn-view" (click)="$event.stopPropagation(); viewOrderDetails(order)">
+                                <button class="btn-view" (click)="viewOrderDetails(order)">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </td>
@@ -681,4 +832,148 @@
     [class.error]="toast.type === 'error'">
     <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
     <span>{{ toast.message }}</span>
+</div>
+
+
+<!-- Order Details Modal -->
+<div class="dialog-overlay" [class.show]="showOrderModal" (click)="closeOrderModal()">
+    <div class="dialog dialog-lg" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h2>
+                <i class="fa-solid fa-file-invoice"></i>
+                {{ i18n.currentLang === 'ar' ? 'تفاصيل الطلب' : 'Order Details' }}
+            </h2>
+            <button class="close-btn" (click)="closeOrderModal()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="dialog-body">
+            <!-- Loading -->
+            <div *ngIf="isLoadingOrder" class="loading">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Order Details -->
+            <div *ngIf="!isLoadingOrder && orderDetails" class="order-details-content">
+
+                <!-- Order Summary -->
+                <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-info-circle"></i>
+                        {{ i18n.currentLang === 'ar' ? 'معلومات الطلب' : 'Order Information' }}
+                    </h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'رقم الطلب' : 'Order Number' }}</span>
+                            <span class="value">#{{ orderDetails.orderNumber }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</span>
+                            <span class="status-badge" [ngClass]="getOrderStatusBadge(orderDetails.status).class">
+                                {{ getOrderStatusBadge(orderDetails.status).text }}
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'التاريخ' : 'Date' }}</span>
+                            <span class="value">{{ formatDate(orderDetails.createdAt) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <!-- <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-user"></i>
+                        {{ i18n.currentLang === 'ar' ? 'بيانات العميل' : 'Customer Information' }}
+                    </h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name' }}</span>
+                            <span class="value">{{ orderDetails.customerName }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}</span>
+                            <span class="value">{{ orderDetails.customerPhone }}</span>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Shipping Info -->
+                <!-- <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-truck"></i>
+                        {{ i18n.currentLang === 'ar' ? 'بيانات الشحن' : 'Shipping Information' }}
+                    </h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'اسم المستلم' : 'Recipient' }}</span>
+                            <span class="value">{{ orderDetails.shippingName }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}</span>
+                            <span class="value">{{ orderDetails.shippingPhone }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }}</span>
+                            <span class="value">{{ orderDetails.shippingCity }}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}</span>
+                            <span class="value">{{ orderDetails.shippingAddress }}</span>
+                        </div>
+                        <div class="detail-item full-width" *ngIf="orderDetails.shippingNotes">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'ملاحظات' : 'Notes' }}</span>
+                            <span class="value">{{ orderDetails.shippingNotes }}</span>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Order Items -->
+                <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-box"></i>
+                        {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
+                    </h3>
+                    <div class="items-list">
+                        <div *ngFor="let item of orderDetails.items" class="item-row">
+                            <img [src]="getImageUrl(item.productImage)" [alt]="item.productNameAr" class="item-img" />
+                            <div class="item-info">
+                                <span class="item-name">{{ i18n.currentLang === 'ar' ? item.productNameAr :
+                                    item.productNameEn }}</span>
+                                <span class="item-qty">{{ i18n.currentLang === 'ar' ? 'الكمية' : 'Qty' }}: {{
+                                    item.quantity }}</span>
+                            </div>
+                            <div class="item-price">
+                                <span class="unit-price">{{ formatPrice(item.unitPrice) }}</span>
+                                <span class="total-price">{{ formatPrice(item.total) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-receipt"></i>
+                        {{ i18n.currentLang === 'ar' ? 'ملخص الفاتورة' : 'Order Summary' }}
+                    </h3>
+                    <div class="price-summary">
+                        <div class="price-row">
+                            <span>{{ i18n.currentLang === 'ar' ? 'المجموع الفرعي' : 'Subtotal' }}</span>
+                            <span>{{ formatPrice(orderDetails.vendorSubTotal || orderDetails.subTotal) }}</span>
+                        </div>
+                        <div class="price-row" *ngIf="orderDetails.vendorShippingShare">
+                            <span>{{ i18n.currentLang === 'ar' ? 'نصيبك من الشحن' : 'Your Shipping Share' }}</span>
+                            <span>{{ formatPrice(orderDetails.vendorShippingShare) }}</span>
+                        </div>
+                        <div class="price-row total">
+                            <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+                            <span>{{ formatPrice(orderDetails.totalAmount || orderDetails.total) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

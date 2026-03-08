@@ -199,14 +199,20 @@
         <div class="details-section">
             <!-- Tabs -->
             <div class="tabs">
+                <!-- 1️⃣ Personal Info -->
                 <button class="tab" [class.active]="activeTab === 'personal'" (click)="activeTab = 'personal'">
                     <i class="fa-solid fa-user"></i>
                     {{ i18n.currentLang === 'ar' ? 'البيانات الشخصية' : 'Personal Info' }}
                 </button>
-                <button class="tab" [class.active]="activeTab === 'address'" (click)="activeTab = 'address'">
+
+                <!-- 2️⃣ NEW: Addresses (Multiple) -->
+                <button class="tab" [class.active]="activeTab === 'addresses'" (click)="activeTab = 'addresses'">
                     <i class="fa-solid fa-location-dot"></i>
-                    {{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}
+                    {{ i18n.currentLang === 'ar' ? 'العناوين' : 'Addresses' }}
+                    <span *ngIf="addresses.length > 0" class="tab-badge">{{ addresses.length }}</span>
                 </button>
+
+                <!-- 3️⃣ Business Info (Vendor Only) -->
                 <button *ngIf="profile.role === 'Vendor'" class="tab" [class.active]="activeTab === 'business'"
                     (click)="activeTab = 'business'">
                     <i class="fa-solid fa-store"></i>
@@ -216,7 +222,7 @@
 
             <!-- Tab Content -->
             <div class="tab-content">
-                <!-- Personal Info -->
+                <!-- ✅ Personal Info Tab -->
                 <div *ngIf="activeTab === 'personal'" class="info-grid anim-fadeIn">
                     <!-- Full Name -->
                     <div class="info-item">
@@ -295,43 +301,87 @@
                     </div>
                 </div>
 
-                <!-- Address -->
-                <div *ngIf="activeTab === 'address'" class="info-grid anim-fadeIn">
-                    <!-- Address -->
-                    <div class="info-item full-width">
-                        <label>
+                <!-- ✅ Addresses Tab Content -->
+                <div *ngIf="activeTab === 'addresses'" class="addresses-content anim-fadeIn">
+                    <!-- Header -->
+                    <div class="addresses-header">
+                        <h3>
                             <i class="fa-solid fa-location-dot"></i>
-                            {{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}
-                        </label>
-                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.address"
-                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل العنوان' : 'Enter address'" />
-                        <span *ngIf="!isEditing">{{ profile.address || '-' }}</span>
+                            {{ i18n.currentLang === 'ar' ? 'عناويني' : 'My Addresses' }}
+                        </h3>
+                        <button class="btn-add-address" (click)="openAddAddressDialog()">
+                            <i class="fa-solid fa-plus"></i>
+                            {{ i18n.currentLang === 'ar' ? 'إضافة عنوان' : 'Add Address' }}
+                        </button>
                     </div>
 
-                    <!-- City -->
-                    <div class="info-item">
-                        <label>
-                            <i class="fa-solid fa-city"></i>
-                            {{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }}
-                        </label>
-                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.city"
-                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل المدينة' : 'Enter city'" />
-                        <span *ngIf="!isEditing">{{ profile.city || '-' }}</span>
+                    <!-- Loading -->
+                    <div *ngIf="isLoadingAddresses" class="loading-addresses">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
                     </div>
 
-                    <!-- Country -->
-                    <div class="info-item">
-                        <label>
-                            <i class="fa-solid fa-globe"></i>
-                            {{ i18n.currentLang === 'ar' ? 'الدولة' : 'Country' }}
-                        </label>
-                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.country"
-                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل الدولة' : 'Enter country'" />
-                        <span *ngIf="!isEditing">{{ profile.country || '-' }}</span>
+                    <!-- Empty State -->
+                    <div *ngIf="!isLoadingAddresses && addresses.length === 0" class="empty-addresses">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <p>{{ i18n.currentLang === 'ar' ? 'لم تضف أي عناوين بعد' : 'No addresses added yet' }}</p>
+                        <button class="btn-add-first" (click)="openAddAddressDialog()">
+                            <i class="fa-solid fa-plus"></i>
+                            {{ i18n.currentLang === 'ar' ? 'إضافة أول عنوان' : 'Add First Address' }}
+                        </button>
+                    </div>
+
+                    <!-- Addresses List -->
+                    <div *ngIf="!isLoadingAddresses && addresses.length > 0" class="addresses-grid">
+                        <div *ngFor="let address of addresses" class="address-card" [class.default]="address.isDefault">
+                            <!-- Default Badge -->
+                            <span *ngIf="address.isDefault" class="default-badge">
+                                <i class="fa-solid fa-check-circle"></i>
+                                {{ i18n.currentLang === 'ar' ? 'افتراضي' : 'Default' }}
+                            </span>
+
+                            <!-- Label -->
+                            <div class="address-label">
+                                <i class="fa-solid" [ngClass]="getAddressLabelIcon(address.label)"></i>
+                                <span>{{ address.label }}</span>
+                            </div>
+
+                            <!-- Name & Phone -->
+                            <div class="address-info">
+                                <div class="info-row">
+                                    <i class="fa-solid fa-user"></i>
+                                    <span>{{ address.fullName }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fa-solid fa-phone"></i>
+                                    <span>{{ address.phoneNumber }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Full Address -->
+                            <div class="address-full">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <p>{{ address.addressLine }}, {{ address.city }}, {{ address.country }}</p>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="address-actions">
+                                <button *ngIf="!address.isDefault" class="btn-set-default"
+                                    (click)="setDefaultAddress(address)">
+                                    <i class="fa-solid fa-star"></i>
+                                    {{ i18n.currentLang === 'ar' ? 'تعيين كافتراضي' : 'Set Default' }}
+                                </button>
+                                <button class="btn-edit-address" (click)="openEditAddressDialog(address)">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn-delete-address" (click)="openDeleteAddressDialog(address)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Business Info (Vendor Only) -->
+                <!-- ✅ Business Info Tab (Vendor Only) -->
                 <div *ngIf="activeTab === 'business' && profile.role === 'Vendor'" class="info-grid anim-fadeIn">
                     <!-- Approval Status -->
                     <div class="info-item full-width">
@@ -411,4 +461,265 @@
     [class.error]="toast.type === 'error'">
     <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
     <span>{{ toast.message }}</span>
+</div>
+
+<!-- Add Address Dialog -->
+<!-- ✅ Add Address Dialog - Tailwind + Fully Responsive -->
+<div 
+  class="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300"
+  [class.opacity-0]="!showAddressDialog"
+  [class.invisible]="!showAddressDialog"
+  [class.opacity-100]="showAddressDialog"
+  [class.visible]="showAddressDialog"
+  style="background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);"
+  (click)="closeAddressDialog()">
+  
+  <div 
+    class="relative z-[100000] w-full sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden transform transition-all duration-300"
+    [class.translate-y-full]="!showAddressDialog"
+    [class.sm:scale-90]="!showAddressDialog"
+    [class.sm:translate-y-8]="!showAddressDialog"
+    [class.translate-y-0]="showAddressDialog"
+    [class.sm:scale-100]="showAddressDialog"
+    (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-purple-600 to-pink-600 flex-shrink-0">
+      <h3 class="text-base sm:text-lg font-bold text-white m-0">
+        {{ isEditingAddress
+           ? (i18n.currentLang === 'ar' ? 'تعديل العنوان' : 'Edit Address')
+           : (i18n.currentLang === 'ar' ? 'إضافة عنوان جديد' : 'Add New Address')
+        }}
+      </h3>
+      <button 
+        class="w-9 h-9 flex items-center justify-center rounded-full bg-white/20 text-white text-lg transition-all duration-200 hover:bg-white/30 hover:rotate-90"
+        (click)="closeAddressDialog()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Body - Scrollable -->
+    <div class="flex-1 px-5 sm:px-6 py-5 sm:py-6 overflow-y-auto">
+      
+      <!-- Label Options -->
+      <div class="mb-5">
+        <label class="block text-sm font-semibold text-gray-700 mb-3">
+          {{ i18n.currentLang === 'ar' ? 'نوع العنوان' : 'Address Type' }}
+        </label>
+        <div class="grid grid-cols-3 gap-3">
+          <button 
+            class="flex flex-col items-center gap-2 px-3 py-4 bg-gray-50 border-2 rounded-xl transition-all"
+            [class.border-gray-200]="addressForm.label !== 'Home'"
+            [class.bg-purple-50]="addressForm.label === 'Home'"
+            [class.border-purple-500]="addressForm.label === 'Home'"
+            [class.text-purple-600]="addressForm.label === 'Home'"
+            (click)="addressForm.label = 'Home'">
+            <i class="fa-solid fa-home text-xl sm:text-2xl"></i>
+            <span class="text-xs sm:text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'المنزل' : 'Home' }}</span>
+          </button>
+          
+          <button 
+            class="flex flex-col items-center gap-2 px-3 py-4 bg-gray-50 border-2 rounded-xl transition-all"
+            [class.border-gray-200]="addressForm.label !== 'Work'"
+            [class.bg-purple-50]="addressForm.label === 'Work'"
+            [class.border-purple-500]="addressForm.label === 'Work'"
+            [class.text-purple-600]="addressForm.label === 'Work'"
+            (click)="addressForm.label = 'Work'">
+            <i class="fa-solid fa-briefcase text-xl sm:text-2xl"></i>
+            <span class="text-xs sm:text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'العمل' : 'Work' }}</span>
+          </button>
+          
+          <button 
+            class="flex flex-col items-center gap-2 px-3 py-4 bg-gray-50 border-2 rounded-xl transition-all"
+            [class.border-gray-200]="addressForm.label !== 'Other'"
+            [class.bg-purple-50]="addressForm.label === 'Other'"
+            [class.border-purple-500]="addressForm.label === 'Other'"
+            [class.text-purple-600]="addressForm.label === 'Other'"
+            (click)="addressForm.label = 'Other'">
+            <i class="fa-solid fa-location-dot text-xl sm:text-2xl"></i>
+            <span class="text-xs sm:text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'آخر' : 'Other' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Name & Phone -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            {{ i18n.currentLang === 'ar' ? 'الاسم الكامل' : 'Full Name' }} *
+          </label>
+          <input 
+            type="text" 
+            [(ngModel)]="addressForm.fullName"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            {{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }} *
+          </label>
+          <input 
+            type="tel" 
+            [(ngModel)]="addressForm.phoneNumber"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+        </div>
+      </div>
+
+      <!-- Address Line -->
+      <div class="mb-5">
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          {{ i18n.currentLang === 'ar' ? 'العنوان بالتفصيل' : 'Address Line' }} *
+        </label>
+        <textarea 
+          [(ngModel)]="addressForm.addressLine" 
+          rows="2"
+          class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base resize-none focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all"></textarea>
+      </div>
+
+      <!-- City & Country -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            {{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }} *
+          </label>
+          <input 
+            type="text" 
+            [(ngModel)]="addressForm.city"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            {{ i18n.currentLang === 'ar' ? 'الدولة' : 'Country' }} *
+          </label>
+          <input 
+            type="text" 
+            [(ngModel)]="addressForm.country"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+        </div>
+      </div>
+
+      <!-- State & Postal Code -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            {{ i18n.currentLang === 'ar' ? 'المحافظة' : 'State' }}
+          </label>
+          <input 
+            type="text" 
+            [(ngModel)]="addressForm.state"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            {{ i18n.currentLang === 'ar' ? 'الرمز البريدي' : 'Postal Code' }}
+          </label>
+          <input 
+            type="text" 
+            [(ngModel)]="addressForm.postalCode"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+        </div>
+      </div>
+
+      <!-- Set as Default -->
+      <div class="mb-0">
+        <label class="flex items-center gap-3 cursor-pointer select-none">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="addressForm.isDefault"
+            class="w-5 h-5 cursor-pointer accent-purple-600 rounded" />
+          <span class="text-sm font-medium text-gray-700">
+            {{ i18n.currentLang === 'ar' ? 'تعيين كعنوان افتراضي' : 'Set as default address' }}
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex flex-col-reverse sm:flex-row gap-3 px-5 sm:px-6 py-4 sm:py-5 bg-gray-50 border-t border-gray-200 flex-shrink-0">
+      <button 
+        class="flex-1 px-6 py-3 sm:py-3.5 bg-white border-2 border-gray-200 rounded-xl text-base font-semibold text-gray-600 transition-all hover:bg-gray-50 hover:border-gray-300"
+        (click)="closeAddressDialog()">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      
+      <button 
+        class="flex-[2] px-6 py-3 sm:py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+        (click)="saveAddress()" 
+        [disabled]="isSaving">
+        <i *ngIf="isSaving" class="fa-solid fa-spinner fa-spin"></i>
+        <span>{{ isSaving
+           ? (i18n.currentLang === 'ar' ? 'جاري الحفظ...' : 'Saving...')
+           : (i18n.currentLang === 'ar' ? 'حفظ' : 'Save')
+        }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Delete Address Dialog - Tailwind + Fully Responsive -->
+<div 
+  class="fixed inset-0 z-[99999] flex items-center justify-center p-4 transition-all duration-300"
+  [class.opacity-0]="!showDeleteAddressDialog"
+  [class.invisible]="!showDeleteAddressDialog"
+  [class.opacity-100]="showDeleteAddressDialog"
+  [class.visible]="showDeleteAddressDialog"
+  style="background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);"
+  (click)="closeDeleteAddressDialog()">
+  
+  <div 
+    class="relative z-[100000] w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 text-center transform transition-all duration-300"
+    [class.scale-90]="!showDeleteAddressDialog"
+    [class.translate-y-8]="!showDeleteAddressDialog"
+    [class.scale-100]="showDeleteAddressDialog"
+    [class.translate-y-0]="showDeleteAddressDialog"
+    (click)="$event.stopPropagation()">
+    
+    <!-- Icon -->
+    <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-5 flex items-center justify-center rounded-full bg-red-100">
+      <i class="fa-solid fa-location-dot text-3xl sm:text-4xl text-red-600"></i>
+    </div>
+
+    <!-- Title -->
+    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+      {{ i18n.currentLang === 'ar' ? 'حذف العنوان' : 'Delete Address' }}
+    </h3>
+
+    <!-- Description -->
+    <p class="text-sm sm:text-base text-gray-600 mb-5">
+      {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا العنوان؟' : 'Are you sure you want to delete this address?' }}
+    </p>
+
+    <!-- Address Preview -->
+    <div *ngIf="addressToDelete" class="mb-6 p-4 bg-gray-50 rounded-xl text-left">
+      <div class="flex items-center gap-2 mb-2 font-semibold text-gray-700">
+        <i class="fa-solid" [ngClass]="getAddressLabelIcon(addressToDelete.label)"></i>
+        <span>{{ addressToDelete.label }}</span>
+      </div>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        {{ addressToDelete.addressLine }}, {{ addressToDelete.city }}
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col-reverse sm:flex-row gap-3">
+      <button 
+        class="flex-1 px-6 py-3 bg-white border-2 border-gray-200 rounded-xl text-base font-semibold text-gray-600 transition-all hover:bg-gray-50 hover:border-gray-300"
+        (click)="closeDeleteAddressDialog()">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      
+      <button 
+        class="flex-1 px-6 py-3 bg-red-600 rounded-xl text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+        (click)="confirmDeleteAddress()" 
+        [disabled]="isDeletingAddress">
+        <i *ngIf="isDeletingAddress" class="fa-solid fa-spinner fa-spin"></i>
+        <span>{{ isDeletingAddress
+           ? (i18n.currentLang === 'ar' ? 'جاري الحذف...' : 'Deleting...')
+           : (i18n.currentLang === 'ar' ? 'حذف' : 'Delete')
+        }}</span>
+      </button>
+    </div>
+  </div>
 </div>

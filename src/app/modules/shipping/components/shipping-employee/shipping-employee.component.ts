@@ -22,9 +22,10 @@ export class ShippingEmployeeComponent implements OnInit {
   shipments: ShipmentListItem[] = [];
   deliveryAgents: DeliveryAgent[] = [];
 
+  orderDeliveryTypes: Map<number, DeliveryType> = new Map();
   // UI State
   isLoading = true;
-  activeTab: 'pending' | 'shipments' | 'agents' = 'pending';
+  activeTab: 'pending' | 'shipments' | 'agents' | 'failures' = 'pending';
 
   // Assignment
   selectedOrders: number[] = [];
@@ -32,10 +33,13 @@ export class ShippingEmployeeComponent implements OnInit {
   selectedDeliveryType: DeliveryType = DeliveryType.ToWarehouse;
   isAssigning = false;
 
+  deliveryTypeFilter: DeliveryType | null = null;
+
   // Modal
   showAssignModal = false;
   showShipmentModal = false;
   selectedShipment: any = null;
+  deliveryFailures: any[] = [];
 
   // Toast
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
@@ -65,8 +69,19 @@ export class ShippingEmployeeComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.pendingOrders = res.data;
+          this.pendingOrders.forEach(order => {
+            this.orderDeliveryTypes.set(order.id, order.deliveryType);
+          });
         }
         this.cdr.detectChanges();
+      }
+    });
+
+    this.shippingService.getUnresolvedFailures().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.deliveryFailures = res.data;
+        }
       }
     });
 
@@ -98,9 +113,30 @@ export class ShippingEmployeeComponent implements OnInit {
   // Selection
   toggleOrderSelection(orderId: number): void {
     const index = this.selectedOrders.indexOf(orderId);
+    const orderDeliveryType = this.orderDeliveryTypes.get(orderId);
+
     if (index > -1) {
+      // Remove from selection
       this.selectedOrders.splice(index, 1);
     } else {
+      // Add to selection - but check if compatible
+      if (this.selectedOrders.length > 0) {
+        // Check if all selected orders have same delivery type
+        const firstOrderId = this.selectedOrders[0];
+        const firstDeliveryType = this.orderDeliveryTypes.get(firstOrderId);
+
+        if (orderDeliveryType !== firstDeliveryType) {
+          // ❌ Different delivery type - show error
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? 'لا يمكن اختيار طلبات بأنواع توصيل مختلفة معاً'
+              : 'Cannot select orders with different delivery types together',
+            'error'
+          );
+          return;
+        }
+      }
+
       this.selectedOrders.push(orderId);
     }
   }
@@ -113,8 +149,56 @@ export class ShippingEmployeeComponent implements OnInit {
     if (this.selectedOrders.length === this.pendingOrders.length) {
       this.selectedOrders = [];
     } else {
-      this.selectedOrders = this.pendingOrders.map(o => o.id);
+      // ✅ Group orders by delivery type first
+      const deliveryTypeGroups = new Map<DeliveryType, number[]>();
+
+      this.pendingOrders.forEach(order => {
+        const type = order.deliveryType;
+        if (!deliveryTypeGroups.has(type)) {
+          deliveryTypeGroups.set(type, []);
+        }
+        deliveryTypeGroups.get(type)!.push(order.id);
+      });
+
+      // ✅ If all orders have same type, select all
+      if (deliveryTypeGroups.size === 1) {
+        this.selectedOrders = this.pendingOrders.map(o => o.id);
+      } else {
+        // ✅ Show warning - cannot select all with mixed types
+        this.showToast(
+          this.i18n.currentLang === 'ar'
+            ? 'يوجد طلبات بأنواع توصيل مختلفة. اختر نوعاً واحداً فقط'
+            : 'Orders have different delivery types. Select one type only',
+          'error'
+        );
+      }
     }
+  }
+
+
+  getOrdersByDeliveryType(type: DeliveryType): VendorOrder[] {
+    return this.pendingOrders.filter(o => o.deliveryType === type);
+  }
+
+  getFilteredOrders(): VendorOrder[] {
+    if (this.deliveryTypeFilter === null) {
+      return this.pendingOrders;
+    }
+    return this.getOrdersByDeliveryType(this.deliveryTypeFilter);
+  }
+
+  canSelectOrder(orderId: number): boolean {
+    // If nothing selected, can select any
+    if (this.selectedOrders.length === 0) {
+      return true;
+    }
+
+    // Check if same delivery type as first selected
+    const firstOrderId = this.selectedOrders[0];
+    const firstDeliveryType = this.orderDeliveryTypes.get(firstOrderId);
+    const thisDeliveryType = this.orderDeliveryTypes.get(orderId);
+
+    return firstDeliveryType === thisDeliveryType;
   }
 
   // Assignment Modal
@@ -123,7 +207,65 @@ export class ShippingEmployeeComponent implements OnInit {
       this.showToast(this.t('select_orders_first'), 'error');
       return;
     }
+
+    // ✅ Check if all selected orders have the same delivery type
+    const firstOrderId = this.selectedOrders[0];
+    const firstDeliveryType = this.orderDeliveryTypes.get(firstOrderId);
+
+    const allSameType = this.selectedOrders.every(orderId =>
+      this.orderDeliveryTypes.get(orderId) === firstDeliveryType
+    );
+
+    if (allSameType && firstDeliveryType !== undefined) {
+      this.selectedDeliveryType = firstDeliveryType;
+    } else {
+      // Mixed delivery types - keep default
+      this.selectedDeliveryType = DeliveryType.ToWarehouse;
+    }
+
     this.showAssignModal = true;
+  }
+
+  getDeliveryTypeLabel(deliveryType: DeliveryType): string {
+    return deliveryType === DeliveryType.ToWarehouse
+      ? (this.i18n.currentLang === 'ar' ? 'للمخزن' : 'To Warehouse')
+      : (this.i18n.currentLang === 'ar' ? 'للعميل مباشرة' : 'Direct to Customer');
+  }
+
+
+  markAsPickedByCustomer(shipmentId: number): void {
+    if (!confirm(
+      this.i18n.currentLang === 'ar'
+        ? 'هل تم استلام الشحنة من قبل العميل؟'
+        : 'Has the customer picked up the shipment?'
+    )) {
+      return;
+    }
+
+    this.shippingService.markShipmentDelivered(shipmentId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? 'تم تأكيد استلام العميل للشحنة'
+              : 'Customer pickup confirmed',
+            'success'
+          );
+          this.loadData();
+          this.closeShipmentModal();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || this.t('error'), 'error');
+      }
+    });
+  }
+
+
+  getDeliveryTypeIcon(deliveryType: DeliveryType): string {
+    return deliveryType === DeliveryType.ToWarehouse ? 'fa-warehouse' : 'fa-house-user';
   }
 
   closeAssignModal(): void {
@@ -186,7 +328,14 @@ export class ShippingEmployeeComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.selectedShipment = res.data;
+
+          // ✅ DEBUG: Check what we got
+          console.log('📦 Selected Shipment:', this.selectedShipment);
+          console.log('Status:', this.selectedShipment.status);
+          console.log('Is Ready:', this.selectedShipment.isReadyForPickup);
+
           this.showShipmentModal = true;
+          this.cdr.detectChanges(); // ✅ Force UI update
         }
       }
     });
@@ -239,6 +388,21 @@ export class ShippingEmployeeComponent implements OnInit {
     return statusMap[status] || 'pending';
   }
 
+  getStatusBadgeText(status: VendorOrderStatus): string {
+    const statusMap: { [key: number]: { ar: string; en: string } } = {
+      [VendorOrderStatus.Pending]: { ar: 'قيد الانتظار', en: 'Pending' },
+      [VendorOrderStatus.Assigned]: { ar: 'قم بتعيين مندوب', en: 'Assign Agent' }, // ✅ CHANGED
+      [VendorOrderStatus.PickedFromVendor]: { ar: 'تم الاستلام من التاجر', en: 'Picked from Vendor' },
+      [VendorOrderStatus.InWarehouse]: { ar: 'في المخزن', en: 'In Warehouse' },
+      [VendorOrderStatus.OutForDelivery]: { ar: 'في الطريق', en: 'Out for Delivery' },
+      [VendorOrderStatus.Delivered]: { ar: 'تم التسليم', en: 'Delivered' },
+      [VendorOrderStatus.Cancelled]: { ar: 'ملغي', en: 'Cancelled' }
+    };
+
+    const info = statusMap[status] || { ar: 'غير معروف', en: 'Unknown' };
+    return this.i18n.currentLang === 'ar' ? info.ar : info.en;
+  }
+
   showToast(message: string, type: 'success' | 'error'): void {
     this.toast = { show: true, message, type };
     setTimeout(() => {
@@ -284,11 +448,19 @@ export class ShippingEmployeeComponent implements OnInit {
   }
 
   // Report Failure
-  openFailureModal(order: any): void {
-    this.selectedOrderForFailure = order;
+
+  openFailureModal(shipment: any): void {
+    console.log('🔴 Opening Failure Modal'); // ✅ DEBUG
+    console.log('Shipment:', shipment);
+
+    this.selectedOrderForFailure = shipment;
     this.selectedFailureReason = null;
     this.otherReason = '';
     this.showFailureModal = true;
+
+    console.log('showFailureModal:', this.showFailureModal); // ✅ DEBUG
+
+    this.cdr.detectChanges(); // ✅ Force update
   }
 
   closeFailureModal(): void {
@@ -381,10 +553,11 @@ export class ShippingEmployeeComponent implements OnInit {
     const translations: { [key: string]: { ar: string; en: string } } = {
       'select_orders_first': { ar: 'اختر طلبات أولاً', en: 'Select orders first' },
       'select_agent': { ar: 'اختر مندوب', en: 'Select delivery agent' },
-      'assignment_success': { ar: 'تم تعيين المندوب بنجاح', en: 'Agent assigned successfully' },
+      'assignment_success': { ar: 'قم بتعيين المندوب', en: 'Please assign agent' },
       'assignment_failed': { ar: 'فشل في تعيين المندوب', en: 'Failed to assign agent' },
       'ready_for_pickup': { ar: 'الشحنة جاهزة للاستلام', en: 'Shipment ready for pickup' },
       'delivered_success': { ar: 'تم تسليم الشحنة', en: 'Shipment delivered' },
+      'customer_picked_up': { ar: 'تم استلام الشحنة من العميل', en: 'Customer picked up shipment' },
       'select_reason': { ar: 'اختر سبب الفشل', en: 'Select failure reason' },
       'failure_reported': { ar: 'تم تسجيل فشل التوصيل', en: 'Delivery failure reported' },
       'select_option': { ar: 'اختر طريقة الاستلام', en: 'Select delivery option' },

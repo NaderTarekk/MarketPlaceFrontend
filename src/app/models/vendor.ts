@@ -16,10 +16,12 @@ export interface VendorDashboard {
   totalReviews: number;
   averageRating: number;
   totalViews: number;
+  commissionRate: number;
   thisMonthViews: number;
   recentOrders: RecentOrder[];
   topSellingProducts: ProductList[];
   lowStockProducts: ProductList[];
+  
 }
 
 export interface RecentOrder {
@@ -31,6 +33,10 @@ export interface RecentOrder {
   createdAt: string;
   items: OrderItemSummary[];
   isVendorSeen: boolean; 
+   vendorOrderId: number;
+   vendorSubTotal: number;
+  vendorShippingShare: number;
+  vendorOrderStatus: number;
 }
 
 export interface OrderItemSummary {

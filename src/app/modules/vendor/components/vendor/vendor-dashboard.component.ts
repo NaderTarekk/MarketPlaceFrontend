@@ -1,5 +1,7 @@
+// vendor-dashboard.component.ts - COMPLETE UPDATE
+
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { SalesReport, VendorDashboard } from '../../../../models/vendor';
+import { RecentOrder, SalesReport, VendorDashboard } from '../../../../models/vendor';
 import { ProductFilter, ProductList } from '../../../../models/products';
 import { Category } from '../../../../models/category';
 import { Brand } from '../../../../models/brand';
@@ -18,10 +20,40 @@ import { OrderService } from '../../../cart/services/order.service';
   styleUrl: './vendor-dashboard.component.css',
 })
 export class VendorDashboardComponent implements OnInit {
+  // ═══════════════════════════════════════════════
+  // FINANCIAL DATA - NEW
+  // ═══════════════════════════════════════════════
+
+  // Total revenue from all orders
+  totalRevenue = 0;
+
+  // Commission rate (from user profile or default 10%)
+  commissionRate = 10;
+
+  // Total commission amount deducted
+  totalCommission = 0;
+
+  // Net profit (revenue - commission)
+  confirmedProfit = 0;
+
+  // Pending profit (from orders not yet delivered)
+  pendingProfit = 0;
+
+  // Total profit (confirmed + pending)
+  totalProfit = 0;
+
   // Dashboard Data
   dashboard: VendorDashboard | null = null;
   isLoadingDashboard = true;
-
+  VendorOrderStatus = {
+    Pending: 0,
+    Assigned: 1,
+    PickedFromVendor: 2,
+    InWarehouse: 3,
+    OutForDelivery: 4,
+    Delivered: 5,
+    Cancelled: 6
+  };
   Math = Math;
 
   // Products
@@ -93,8 +125,17 @@ export class VendorDashboardComponent implements OnInit {
   productToDelete: ProductList | null = null;
   isDeleting = false;
 
+  recentOrders: RecentOrder[] = [];
+
   // Toast
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
+
+  // Order Details Modal
+  selectedOrderId: number | null = null;
+  showOrderModal = false;
+  orderDetails: any = null;
+  isLoadingOrder = false;
+  isUpdatingStatus = false;
 
   constructor(
     public i18n: I18nService,
@@ -103,18 +144,10 @@ export class VendorDashboardComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private orderService: OrderService
+    private orderService: OrderService,
   ) { }
 
   ngOnInit(): void {
-    // Check if user is vendor
-    // const role = localStorage.getItem('NHC_MP_Role');
-    // console.log('Current Role:', role);
-    // if (role !== 'Vendor' && role !== 'Admin') {
-    //   this.router.navigate(['/']);
-    //   return;
-    // }
-
     this.loadDashboard();
     this.loadProducts();
     this.loadCategories();
@@ -122,55 +155,66 @@ export class VendorDashboardComponent implements OnInit {
     this.loadSalesReport();
   }
 
-  viewOrderDetails(order: any): void {
-    // Mark as seen when vendor views the order
-    if (!order.isVendorSeen) {
-      this.orderService.markAsVendorSeen(order.id).subscribe({
-        next: (res) => {
-          if (res.success) {
-            order.isVendorSeen = true;
-            // Update pending orders count
-            if (this.dashboard) {
-              this.dashboard.pendingOrders = Math.max(0, this.dashboard.pendingOrders - 1);
-            }
-            this.cdr.detectChanges();
-          }
-        }
-      });
+  // ═══════════════════════════════════════════════
+  // FINANCIAL CALCULATIONS - NEW
+  // ═══════════════════════════════════════════════
+
+  calculateFinancials(): void {
+    if (!this.dashboard || !this.dashboard.recentOrders) {
+      this.resetFinancials();
+      return;
     }
 
-    // Open order details modal or navigate
-    this.selectedOrderId = order.id;
-    this.showOrderModal = true;
-    this.loadOrderDetails(order.id);
-  }
+    this.commissionRate = this.dashboard.commissionRate || 10;
 
-  // Order Details Modal
-  selectedOrderId: number | null = null;
-  showOrderModal = false;
-  orderDetails: any = null;
-  isLoadingOrder = false;
+    this.totalRevenue = 0;
+    this.confirmedProfit = 0;
+    this.pendingProfit = 0;
 
-  loadOrderDetails(orderId: number): void {
-    this.isLoadingOrder = true;
-    this.orderService.getOrderById(orderId).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.orderDetails = res.data;
-        }
-        this.isLoadingOrder = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isLoadingOrder = false;
+    this.dashboard.recentOrders.forEach(order => {
+      // ✅ TotalAmount already includes shipping share
+      const orderTotal = order.totalAmount || 0;
+      const orderCommission = (orderTotal * this.commissionRate) / 100;
+      const orderProfit = orderTotal - orderCommission;
+
+      this.totalRevenue += orderTotal;
+
+      if (order.vendorOrderStatus === this.VendorOrderStatus.Delivered) {
+        this.confirmedProfit += orderProfit;
+      } else if (order.vendorOrderStatus !== this.VendorOrderStatus.Cancelled) {
+        this.pendingProfit += orderProfit;
       }
     });
+
+    this.totalCommission = (this.totalRevenue * this.commissionRate) / 100;
+    this.totalProfit = this.confirmedProfit + this.pendingProfit;
+
+    this.cdr.detectChanges();
   }
 
-  closeOrderModal(): void {
-    this.showOrderModal = false;
-    this.orderDetails = null;
-    this.selectedOrderId = null;
+  resetFinancials(): void {
+    this.totalRevenue = 0;
+    this.totalCommission = 0;
+    this.confirmedProfit = 0;
+    this.pendingProfit = 0;
+    this.totalProfit = 0;
+  }
+
+  // Calculate profit for individual order
+  calculateOrderProfit(order: any): number {
+    const total = order.totalAmount || 0;
+    const commission = (total * this.commissionRate) / 100;
+    return total - commission;
+  }
+
+  // Calculate commission for individual order
+  calculateOrderCommission(order: any): number {
+    return ((order.totalAmount || 0) * this.commissionRate) / 100;
+  }
+
+  // Check if order profit is confirmed
+  isOrderProfitConfirmed(order: any): boolean {
+    return order.vendorOrderStatus === this.VendorOrderStatus.Delivered;
   }
 
   // ═══════════════════════════════════════════════
@@ -183,6 +227,10 @@ export class VendorDashboardComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.dashboard = res.data;
+          console.log('Dashboard loaded:', this.dashboard);
+
+          // ✅ Calculate financials after loading dashboard
+          this.calculateFinancials();
         }
         this.isLoadingDashboard = false;
         this.cdr.detectChanges();
@@ -195,7 +243,149 @@ export class VendorDashboardComponent implements OnInit {
   }
 
   // ═══════════════════════════════════════════════
-  // PRODUCTS
+  // ORDER OPERATIONS
+  // ═══════════════════════════════════════════════
+
+  viewOrderDetails(order: any): void {
+    // Mark as seen when vendor views the order
+    if (!order.isVendorSeen) {
+      this.orderService.markAsVendorSeen(order.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            order.isVendorSeen = true;
+            if (this.dashboard) {
+              this.dashboard.pendingOrders = Math.max(0, this.dashboard.pendingOrders - 1);
+            }
+            this.cdr.detectChanges();
+          }
+        }
+      });
+    }
+
+    this.selectedOrderId = order.id;
+    this.showOrderModal = true;
+    this.loadOrderDetails(order.id);
+  }
+
+loadOrderDetails(orderId: number): void {
+  this.isLoadingOrder = true;
+  this.vendorService.loadOrderDetails(orderId).subscribe({
+    next: (res: any) => {
+      if (res.success) {
+        // ✅ جيب الـ order من الـ dashboard
+        const vendorOrder = this.dashboard?.recentOrders?.find(o => o.id === orderId);
+        
+        if (vendorOrder) {
+          // ✅ فلتر المنتجات + استبدال البيانات المالية
+          this.orderDetails = {
+            ...res.data,
+            // ✅ فقط منتجات التاجر
+            items: res.data.items.filter((item: any) => 
+              vendorOrder.items.some(vi => vi.productId === item.productId)
+            ),
+            // ✅ البيانات المالية الخاصة بالتاجر
+            subTotal: vendorOrder.vendorSubTotal,
+            vendorSubTotal: vendorOrder.vendorSubTotal,
+            vendorShippingShare: vendorOrder.vendorShippingShare,
+            shippingCost: vendorOrder.vendorShippingShare,
+            total: vendorOrder.totalAmount,
+            totalAmount: vendorOrder.totalAmount
+          };
+        } else {
+          this.orderDetails = res.data;
+        }
+        
+        console.log('Order details (vendor filtered):', this.orderDetails);
+      }
+      this.isLoadingOrder = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.isLoadingOrder = false;
+    }
+  });
+}
+
+  closeOrderModal(): void {
+    this.showOrderModal = false;
+    this.orderDetails = null;
+    this.selectedOrderId = null;
+  }
+
+  canUpdateVendorOrderStatus(vendorOrderStatus: number | string): boolean {
+    const statusNum = typeof vendorOrderStatus === 'string' ? parseInt(vendorOrderStatus) : vendorOrderStatus;
+    return statusNum === this.VendorOrderStatus.Pending ||
+      statusNum === this.VendorOrderStatus.Assigned;
+  }
+
+  getVendorOrderStatusBadge(vendorOrderStatus: number | string): { text: string; class: string } {
+    const statusNum = typeof vendorOrderStatus === 'string' ? parseInt(vendorOrderStatus) : vendorOrderStatus;
+
+    const statusMap: { [key: number]: { ar: string; en: string; class: string } } = {
+      [this.VendorOrderStatus.Pending]: { ar: 'قيد الانتظار', en: 'Pending', class: 'pending' },
+      [this.VendorOrderStatus.Assigned]: { ar: 'يتم التجهيز', en: 'Processing', class: 'processing' },
+      [this.VendorOrderStatus.PickedFromVendor]: { ar: 'جاهز للاستلام', en: 'Ready for Pickup', class: 'ready-pickup' },
+      [this.VendorOrderStatus.InWarehouse]: { ar: 'في المخزن', en: 'In Warehouse', class: 'warehouse' },
+      [this.VendorOrderStatus.OutForDelivery]: { ar: 'في الطريق', en: 'Out for Delivery', class: 'out-for-delivery' },
+      [this.VendorOrderStatus.Delivered]: { ar: 'تم التسليم', en: 'Delivered', class: 'delivered' },
+      [this.VendorOrderStatus.Cancelled]: { ar: 'ملغي', en: 'Cancelled', class: 'cancelled' }
+    };
+
+    const s = statusMap[statusNum] || { ar: String(vendorOrderStatus), en: String(vendorOrderStatus), class: '' };
+    return { text: this.i18n.currentLang === 'ar' ? s.ar : s.en, class: s.class };
+  }
+
+  updateVendorOrderStatus(order: any, newStatus: string): void {
+    console.log('🔍 Update triggered:', {
+      orderId: order.id,
+      vendorOrderId: order.vendorOrderId,
+      currentStatus: order.vendorOrderStatus,
+      newStatus: newStatus
+    });
+
+    const vendorOrderId = order.vendorOrderId;
+
+    if (!vendorOrderId || vendorOrderId === 0) {
+      this.showToast(this.t('vendor_order_not_found'), 'error');
+      console.error('❌ VendorOrderId is missing:', order);
+      return;
+    }
+
+    this.isUpdatingStatus = true;
+    this.vendorService.updateVendorOrderStatus(vendorOrderId, newStatus).subscribe({
+      next: (res: any) => {
+        console.log('✅ Backend response:', res);
+        this.isUpdatingStatus = false;
+
+        if (res.success) {
+          order.vendorOrderStatus = parseInt(newStatus);
+          console.log('✅ Status updated locally:', order.vendorOrderStatus);
+
+          this.showToast(this.t('status_updated'), 'success');
+
+          // ✅ Recalculate financials after status change
+          this.calculateFinancials();
+
+          this.cdr.detectChanges();
+
+          setTimeout(() => {
+            this.loadDashboard();
+          }, 500);
+        } else {
+          console.error('❌ Backend returned failure:', res.message);
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      },
+      error: (err) => {
+        console.error('❌ HTTP Error:', err);
+        this.isUpdatingStatus = false;
+        this.showToast(this.t('error'), 'error');
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // PRODUCTS (Keep existing methods)
   // ═══════════════════════════════════════════════
 
   loadProducts(): void {
@@ -335,7 +525,7 @@ export class VendorDashboardComponent implements OnInit {
   }
 
   // ═══════════════════════════════════════════════
-  // PRODUCT CRUD
+  // PRODUCT CRUD (Keep all existing methods)
   // ═══════════════════════════════════════════════
 
   openAddProductDialog(): void {
@@ -350,7 +540,6 @@ export class VendorDashboardComponent implements OnInit {
     this.isEditMode = true;
     this.selectedProduct = product;
 
-    // Load full product details
     this.productsService.getById(product.id).subscribe({
       next: (res) => {
         if (res.success) {
@@ -464,7 +653,6 @@ export class VendorDashboardComponent implements OnInit {
     this.isSubmitting = true;
 
     try {
-      // Upload main image
       let mainImageUrl = this.productForm.mainImage;
       if (this.selectedMainImage) {
         const res = await this.vendorService.uploadImage(this.selectedMainImage).toPromise();
@@ -473,7 +661,6 @@ export class VendorDashboardComponent implements OnInit {
         }
       }
 
-      // Upload additional images
       const imageUrls: string[] = [];
       for (const file of this.selectedImages) {
         const res = await this.vendorService.uploadImage(file).toPromise();
@@ -534,7 +721,6 @@ export class VendorDashboardComponent implements OnInit {
     return true;
   }
 
-  // Delete Product
   openDeleteDialog(product: ProductList): void {
     this.productToDelete = product;
     this.showDeleteDialog = true;
@@ -637,7 +823,10 @@ export class VendorDashboardComponent implements OnInit {
       'invalid_image': { ar: 'الملف ليس صورة', en: 'File is not an image' },
       'name_required': { ar: 'يرجى إدخال اسم المنتج', en: 'Please enter product name' },
       'price_required': { ar: 'يرجى إدخال سعر صحيح', en: 'Please enter valid price' },
-      'category_required': { ar: 'يرجى اختيار التصنيف', en: 'Please select category' }
+      'category_required': { ar: 'يرجى اختيار التصنيف', en: 'Please select category' },
+      'status_updated': { ar: 'تم تحديث الحالة', en: 'Status updated' },
+      'vendor_order_not_found': { ar: 'معرف طلب التاجر غير موجود', en: 'Vendor Order ID not found' },
+      'error': { ar: 'حدث خطأ', en: 'An error occurred' },
     };
     return translations[key]?.[this.i18n.currentLang] || key;
   }

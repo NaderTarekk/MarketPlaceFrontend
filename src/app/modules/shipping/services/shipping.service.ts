@@ -54,6 +54,10 @@ export class ShippingService {
     return this.http.get<PagedResponse<ShipmentListItem[]>>(`${this.baseUrl}/shipments`, { params });
   }
 
+  updateVendorOrderStatus(vendorOrderId: number, status: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/shipments/vendor-orders/${vendorOrderId}/status`, { status });
+  }
+
   getShipmentById(id: number): Observable<ApiResponse<ShipmentDetails>> {
     return this.http.get<ApiResponse<ShipmentDetails>>(`${this.baseUrl}/shipments/${id}`);
   }
@@ -162,4 +166,12 @@ export class ShippingService {
   getDeliveryFailures(orderId: number): Observable<any> {
     return this.http.get(`${environment.orderUrl}/${orderId}/delivery-failures`);
   }
+
+  getUnresolvedFailures(): Observable<any> {
+    return this.http.get(`${environment.orderUrl}/orders/delivery-failures/unresolved`);
+  }
+
+  getMyOrdersSummary(): Observable<any> {
+  return this.http.get(`${environment.shippingUrl}/agent/my-summary`);
+}
 }

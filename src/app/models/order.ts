@@ -7,6 +7,7 @@ export interface CreateOrderDto {
   paymentMethod?: string;
   governorateId?: number;  // ✅ NEW
   promoCode?: string;
+  deliveryType: number;
 }
 
 export interface CancelOrderDto {

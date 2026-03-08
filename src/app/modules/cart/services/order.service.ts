@@ -22,6 +22,14 @@ export class OrderService {
     return this.http.get(`${environment.orderUrl}/${id}`);
   }
 
+  createStripeSession(orderData: any): Observable<any> {
+  return this.http.post(`${environment.orderUrl}/create-stripe-session`, orderData);
+}
+
+placeOrder(orderData: any): Observable<any> {
+  return this.http.post(`${environment.orderUrl}`, orderData);
+}
+
   cancelOrder(id: number, reason?: string): Observable<any> {
     const body: CancelOrderDto = reason ? { reason } : {};
     return this.http.post(`${environment.orderUrl}/${id}/cancel`, body);

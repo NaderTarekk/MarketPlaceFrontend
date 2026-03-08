@@ -38,6 +38,7 @@ export interface ShipmentListItem {
   status: ShipmentStatus;
   statusAr: string;
   isReadyForPickup: boolean;
+  hasDeliveryFailure: boolean;
   createdAt: Date;
 }
 

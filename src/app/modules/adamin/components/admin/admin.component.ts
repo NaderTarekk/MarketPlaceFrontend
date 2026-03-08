@@ -4,6 +4,7 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { AdminReportsService } from '../../services/admin.service';
 import { ProductsService } from '../../../products/services/products.service';
 import { ProductList } from '../../../../models/products';
+import { VendorList, VendorDetailedReport, DeliveryAgentList, DeliveryAgentReport, ShippingEmployeeList, ShippingEmployeeReport, FinancialReport, Settlement } from '../../../../models/financial-reports';
 
 @Component({
   selector: 'app-admin',
@@ -13,7 +14,7 @@ import { ProductList } from '../../../../models/products';
 })
 export class AdminComponent implements OnInit {
   // Active Tab
-  activeTab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products' = 'dashboard';
+  activeTab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' = 'dashboard';
 
   // Loading States
   isLoading = false;
@@ -59,6 +60,15 @@ export class AdminComponent implements OnInit {
     hasPrevious: false
   };
 
+  showVendorModal = false;
+  showAgentModal = false;
+  showEmployeeModal = false;
+  showSettlementsHistory = false;
+  agentSettlementAmount = 0;
+  agentSettlementNotes = '';
+  employeeSettlementAmount = 0;
+  employeeSettlementNotes = '';
+
   // Sales Data
   salesReport: SalesReportSummary | null = null;
   salesFilter: SalesReportFilter = {
@@ -97,6 +107,47 @@ export class AdminComponent implements OnInit {
     { value: 'CustomerService', labelAr: 'خدمة العملاء', labelEn: 'Customer Service' },
     { value: 'ShippingEmployee', labelAr: 'موظف الشحن', labelEn: 'Shipping Employee' }
   ];
+
+  // src/app/modules/admin/components/admin/admin.component.ts
+  // ✅ أضف الـ Properties دي بعد الموجودة
+
+  // ═══════════════════════════════════════════════
+  // VENDORS DATA
+  // ═══════════════════════════════════════════════
+  vendors: VendorList[] = [];
+  isLoadingVendors = false;
+  selectedVendor: VendorDetailedReport | null = null;
+  showVendorDetailsModal = false;
+  showCommissionDialog = false;
+  newCommissionRate = 0;
+
+  // ═══════════════════════════════════════════════
+  // DELIVERY AGENTS DATA
+  // ═══════════════════════════════════════════════
+  deliveryAgents: DeliveryAgentList[] = [];
+  isLoadingAgents = false;
+  selectedAgent: DeliveryAgentReport | null = null;
+  showAgentDetailsModal = false;
+  showSettleAgentDialog = false;
+  settlementAmount = 0;
+  settlementNotes = '';
+
+  // ═══════════════════════════════════════════════
+  // SHIPPING EMPLOYEES DATA
+  // ═══════════════════════════════════════════════
+  shippingEmployees: ShippingEmployeeList[] = [];
+  isLoadingEmployees = false;
+  selectedEmployee: ShippingEmployeeReport | null = null;
+  showEmployeeDetailsModal = false;
+  showSettleEmployeeDialog = false;
+
+  // ═══════════════════════════════════════════════
+  // FINANCIAL REPORTS DATA
+  // ═══════════════════════════════════════════════
+  financialReport: FinancialReport | null = null;
+  isLoadingFinancial = false;
+  settlements: Settlement[] = [];
+  isLoadingSettlements = false;
 
 
   constructor(
@@ -181,7 +232,8 @@ export class AdminComponent implements OnInit {
   // ═══════════════════════════════════════════════
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
-  switchTab(tab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products'): void {
+  // ✅ عدّل الـ switchTab Method
+  switchTab(tab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial'): void {
     this.activeTab = tab;
 
     switch (tab) {
@@ -200,8 +252,298 @@ export class AdminComponent implements OnInit {
       case 'products':
         if (this.pendingProducts.length === 0) this.loadPendingProducts();
         break;
+      case 'vendors':
+        if (this.vendors.length === 0) this.loadVendors();
+        break;
+      case 'agents':
+        if (this.deliveryAgents.length === 0) this.loadDeliveryAgents();
+        break;
+      case 'employees':
+        if (this.shippingEmployees.length === 0) this.loadShippingEmployees();
+        break;
+      case 'financial':
+        if (!this.financialReport) this.loadFinancialReport();
+        break;
     }
   }
+
+  // ═══════════════════════════════════════════════
+  // VENDORS MANAGEMENT
+  // ═══════════════════════════════════════════════
+  loadVendors(): void {
+    this.isLoadingVendors = true;
+    this.adminService.getVendorsList().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.vendors = res.data;
+        }
+        this.isLoadingVendors = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingVendors = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading vendors', 'error');
+      }
+    });
+  }
+
+  openVendorDetails(vendorId: string): void {
+    this.adminService.getVendorDetails(vendorId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedVendor = res.data;
+          this.showVendorDetailsModal = true;
+        }
+      },
+      error: () => {
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading vendor details', 'error');
+      }
+    });
+  }
+
+  closeVendorDetails(): void {
+    this.showVendorDetailsModal = false;
+    this.selectedVendor = null;
+  }
+
+  openCommissionDialog(vendor: VendorList): void {
+    this.selectedVendor = vendor as any;
+    this.newCommissionRate = vendor.commissionRate;
+    this.showCommissionDialog = true;
+  }
+
+  closeCommissionDialog(): void {
+    this.showCommissionDialog = false;
+    this.selectedVendor = null;
+    this.newCommissionRate = 0;
+  }
+
+  updateCommission(): void {
+    if (!this.selectedVendor) return;
+
+    this.isProcessing = true;
+    this.adminService.updateVendorCommission(this.selectedVendor.id, {
+      commissionRate: this.newCommissionRate
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تحديث نسبة العمولة' : 'Commission updated',
+            'success'
+          );
+          this.loadVendors();
+          this.closeCommissionDialog();
+        }
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error updating commission', 'error');
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // DELIVERY AGENTS MANAGEMENT
+  // ═══════════════════════════════════════════════
+  loadDeliveryAgents(): void {
+    this.isLoadingAgents = true;
+    this.adminService.getDeliveryAgentsList().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.deliveryAgents = res.data;
+        }
+        this.isLoadingAgents = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingAgents = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading agents', 'error');
+      }
+    });
+  }
+
+  openAgentDetails(agentId: string): void {
+    this.adminService.getDeliveryAgentDetails(agentId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedAgent = res.data;
+          this.showAgentDetailsModal = true;
+        }
+      },
+      error: () => {
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading agent details', 'error');
+      }
+    });
+  }
+
+  closeAgentDetails(): void {
+    this.showAgentDetailsModal = false;
+    this.selectedAgent = null;
+  }
+
+  markCashCollected(vendorOrderId: number): void {
+    this.adminService.markAgentCashCollected(vendorOrderId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تأكيد استلام الأموال' : 'Cash marked as collected',
+            'success'
+          );
+          if (this.selectedAgent) {
+            this.openAgentDetails(this.selectedAgent.id);
+          }
+        }
+      },
+      error: () => {
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error');
+      }
+    });
+  }
+
+  openSettleAgentDialog(agent: DeliveryAgentReport): void {
+    this.selectedAgent = agent;
+    this.settlementAmount = agent.cashPending;
+    this.settlementNotes = '';
+    this.showSettleAgentDialog = true;
+  }
+
+  closeSettleAgentDialog(): void {
+    this.showSettleAgentDialog = false;
+    this.selectedAgent = null;
+    this.settlementAmount = 0;
+    this.settlementNotes = '';
+  }
+
+  confirmSettleAgent(): void {
+    if (!this.selectedAgent) return;
+
+    this.isProcessing = true;
+    this.adminService.settleAgentCash(this.selectedAgent.id, {
+      userId: this.selectedAgent.id,
+      amount: this.settlementAmount,
+      notes: this.settlementNotes
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تسجيل التسليم بنجاح' : 'Settlement recorded',
+            'success'
+          );
+          this.loadDeliveryAgents();
+          this.closeSettleAgentDialog();
+          this.closeAgentDetails();
+        }
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error recording settlement', 'error');
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // SHIPPING EMPLOYEES MANAGEMENT
+  // ═══════════════════════════════════════════════
+  loadShippingEmployees(): void {
+    this.isLoadingEmployees = true;
+    this.adminService.getShippingEmployeesList().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.shippingEmployees = res.data;
+        }
+        this.isLoadingEmployees = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingEmployees = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading employees', 'error');
+      }
+    });
+  }
+
+  openEmployeeDetails(employeeId: string): void {
+    this.adminService.getShippingEmployeeDetails(employeeId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedEmployee = res.data;
+          this.showEmployeeDetailsModal = true;
+        }
+      },
+      error: () => {
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading employee details', 'error');
+      }
+    });
+  }
+
+  closeEmployeeDetails(): void {
+    this.showEmployeeDetailsModal = false;
+    this.selectedEmployee = null;
+  }
+
+  markShipmentCashCollected(shipmentId: number): void {
+    this.adminService.markShipmentCashCollected(shipmentId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تأكيد استلام الأموال' : 'Cash marked as collected',
+            'success'
+          );
+          if (this.selectedEmployee) {
+            this.openEmployeeDetails(this.selectedEmployee.id);
+          }
+        }
+      },
+      error: () => {
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error');
+      }
+    });
+  }
+
+  openSettleEmployeeDialog(employee: ShippingEmployeeReport): void {
+    this.selectedEmployee = employee;
+    this.settlementAmount = employee.cashPending;
+    this.settlementNotes = '';
+    this.showSettleEmployeeDialog = true;
+  }
+
+  closeSettleEmployeeDialog(): void {
+    this.showSettleEmployeeDialog = false;
+    this.selectedEmployee = null;
+    this.settlementAmount = 0;
+    this.settlementNotes = '';
+  }
+
+  confirmSettleEmployee(): void {
+    if (!this.selectedEmployee) return;
+
+    this.isProcessing = true;
+    this.adminService.settleEmployeeCash(this.selectedEmployee.id, {
+      userId: this.selectedEmployee.id,
+      amount: this.settlementAmount,
+      notes: this.settlementNotes
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تسجيل التسليم بنجاح' : 'Settlement recorded',
+            'success'
+          );
+          this.loadShippingEmployees();
+          this.closeSettleEmployeeDialog();
+          this.closeEmployeeDetails();
+        }
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error recording settlement', 'error');
+      }
+    });
+  }
+
+
 
   // ═══════════════════════════════════════════════
   // DASHBOARD
@@ -488,6 +830,52 @@ export class AdminComponent implements OnInit {
     }
 
     return items;
+  }
+
+  // ═══════════════════════════════════════════════
+  // ✅ FINANCIAL REPORTS
+  // ═══════════════════════════════════════════════
+  loadFinancialReport(): void {
+    this.isLoadingFinancial = true;
+    this.adminService.getFinancialReport().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.financialReport = res.data;
+        }
+        this.isLoadingFinancial = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingFinancial = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading financial report',
+          'error'
+        );
+      }
+    });
+  }
+
+  loadSettlementsHistory(userId?: string): void {
+    this.adminService.getSettlementHistory(userId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.settlements = res.data;
+          this.showSettlementsHistory = true;
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading settlements',
+          'error'
+        );
+      }
+    });
+  }
+
+  closeSettlementsHistory(): void {
+    this.showSettlementsHistory = false;
+    this.settlements = [];
   }
 
   // ═══════════════════════════════════════════════
@@ -786,5 +1174,85 @@ export class AdminComponent implements OnInit {
         );
       }
     });
+  }
+
+  openVendorModal(vendor: VendorList): void {
+    this.adminService.getVendorDetails(vendor.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedVendor = res.data;
+          this.showVendorModal = true;
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading vendor details',
+          'error'
+        );
+      }
+    });
+  }
+
+  closeVendorModal(): void {
+    this.showVendorModal = false;
+    this.selectedVendor = null;
+  }
+
+  openAgentModal(agent: DeliveryAgentList): void {
+    this.adminService.getDeliveryAgentDetails(agent.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedAgent = res.data;
+          this.showAgentModal = true;
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading agent details',
+          'error'
+        );
+      }
+    });
+  }
+
+  closeAgentModal(): void {
+    this.showAgentModal = false;
+    this.selectedAgent = null;
+  }
+
+  openEmployeeModal(employee: ShippingEmployeeList): void {
+    this.adminService.getShippingEmployeeDetails(employee.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedEmployee = res.data;
+          this.showEmployeeModal = true;
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading employee details',
+          'error'
+        );
+      }
+    });
+  }
+
+  closeEmployeeModal(): void {
+    this.showEmployeeModal = false;
+    this.selectedEmployee = null;
+  }
+  trackByVendor(index: number, vendor: VendorList): string {
+    return vendor.id;
+  }
+
+  trackByAgent(index: number, agent: DeliveryAgentList): string {
+    return agent.id;
+  }
+
+  trackByEmployee(index: number, employee: ShippingEmployeeList): string {
+    return employee.id;
   }
 }

@@ -4,6 +4,8 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../environment';
+import { CreateAddressDto, UserAddress } from '../../../../models/address';
+import { AddressServiceService } from '../../services/address-service.service';
 
 @Component({
   selector: 'app-profile',
@@ -37,6 +39,28 @@ export class ProfileComponent implements OnInit {
   imagePreview: string | null = null;
   isUploadingImage = false;
 
+   // ✅ Address Management
+  addresses: UserAddress[] = [];
+  isLoadingAddresses = false;
+  showAddressDialog = false;
+  isEditingAddress = false;
+  addressToEdit: UserAddress | null = null;
+  addressToDelete: UserAddress | null = null;
+  showDeleteAddressDialog = false;
+  isDeletingAddress = false;
+  
+  addressForm: CreateAddressDto = {
+    label: 'Home',
+    fullName: '',
+    phoneNumber: '',
+    addressLine: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'Egypt',
+    isDefault: false
+  };
+  
   // role
   role: string | null = null;
 
@@ -48,7 +72,8 @@ export class ProfileComponent implements OnInit {
     private profileService: AuthService,
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+     private addressService: AddressServiceService  
   ) { }
 
   ngOnInit(): void {
@@ -61,6 +86,7 @@ export class ProfileComponent implements OnInit {
 
     this.loadProfile();
     this.loadStats();
+    this.loadAddresses();
   }
 
   // ✅ NEW: Helper methods for upgrade button visibility
@@ -368,6 +394,201 @@ export class ProfileComponent implements OnInit {
       this.toast.show = false;
       this.cdr.detectChanges();
     }, 3000);
+  }
+
+   loadAddresses(): void {
+    this.isLoadingAddresses = true;
+    this.addressService.getAddresses().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.addresses = res.data;
+        }
+        this.isLoadingAddresses = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingAddresses = false;
+      }
+    });
+  }
+
+  // ✅ Open Add Address Dialog
+  openAddAddressDialog(): void {
+    this.isEditingAddress = false;
+    this.addressToEdit = null;
+    this.resetAddressForm();
+    this.showAddressDialog = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  // ✅ Open Edit Address Dialog
+  openEditAddressDialog(address: UserAddress): void {
+    this.isEditingAddress = true;
+    this.addressToEdit = address;
+    this.addressForm = {
+      label: address.label,
+      fullName: address.fullName,
+      phoneNumber: address.phoneNumber,
+      addressLine: address.addressLine,
+      city: address.city,
+      state: address.state || '',
+      postalCode: address.postalCode || '',
+      country: address.country,
+      isDefault: address.isDefault
+    };
+    this.showAddressDialog = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  // ✅ Close Address Dialog
+  closeAddressDialog(): void {
+    this.showAddressDialog = false;
+    this.resetAddressForm();
+    document.body.style.overflow = '';
+  }
+
+  // ✅ Reset Address Form
+  resetAddressForm(): void {
+    this.addressForm = {
+      label: 'Home',
+      fullName: this.profile?.fullName || '',
+      phoneNumber: this.profile?.phoneNumber || '',
+      addressLine: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: 'Egypt',
+      isDefault: this.addresses.length === 0
+    };
+  }
+
+  // ✅ Save Address
+  saveAddress(): void {
+    if (!this.validateAddressForm()) return;
+
+    this.isSaving = true;
+
+    if (this.isEditingAddress && this.addressToEdit) {
+      // Update
+      this.addressService.updateAddress(this.addressToEdit.id, this.addressForm).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.showToast(
+              this.i18n.currentLang === 'ar' ? 'تم تحديث العنوان' : 'Address updated',
+              'success'
+            );
+            this.loadAddresses();
+            this.closeAddressDialog();
+          }
+          this.isSaving = false;
+        },
+        error: (err) => {
+          this.showToast(err.error?.message || 'Error', 'error');
+          this.isSaving = false;
+        }
+      });
+    } else {
+      // Create
+      this.addressService.createAddress(this.addressForm).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.showToast(
+              this.i18n.currentLang === 'ar' ? 'تم إضافة العنوان' : 'Address added',
+              'success'
+            );
+            this.loadAddresses();
+            this.closeAddressDialog();
+          }
+          this.isSaving = false;
+        },
+        error: (err) => {
+          this.showToast(err.error?.message || 'Error', 'error');
+          this.isSaving = false;
+        }
+      });
+    }
+  }
+
+  // ✅ Validate Address Form
+  validateAddressForm(): boolean {
+    if (!this.addressForm.fullName || !this.addressForm.phoneNumber || 
+        !this.addressForm.addressLine || !this.addressForm.city) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'املأ جميع الحقول المطلوبة' : 'Fill all required fields',
+        'error'
+      );
+      return false;
+    }
+    return true;
+  }
+
+  // ✅ Open Delete Dialog
+  openDeleteAddressDialog(address: UserAddress): void {
+    this.addressToDelete = address;
+    this.showDeleteAddressDialog = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  // ✅ Close Delete Dialog
+  closeDeleteAddressDialog(): void {
+    this.showDeleteAddressDialog = false;
+    this.addressToDelete = null;
+    document.body.style.overflow = '';
+  }
+
+  // ✅ Confirm Delete
+  confirmDeleteAddress(): void {
+    if (!this.addressToDelete) return;
+
+    this.isDeletingAddress = true;
+    this.addressService.deleteAddress(this.addressToDelete.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم حذف العنوان' : 'Address deleted',
+            'success'
+          );
+          this.loadAddresses();
+          this.closeDeleteAddressDialog();
+        }
+        this.isDeletingAddress = false;
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || 'Error', 'error');
+        this.isDeletingAddress = false;
+      }
+    });
+  }
+
+  // ✅ Set Default Address
+  setDefaultAddress(address: UserAddress): void {
+    if (address.isDefault) return;
+
+    this.addressService.setDefaultAddress(address.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تعيين العنوان الافتراضي' : 'Default address set',
+            'success'
+          );
+          this.loadAddresses();
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || 'Error', 'error');
+      }
+    });
+  }
+
+  // ✅ Get Address Label Icon
+  getAddressLabelIcon(label: string): string {
+    const icons: { [key: string]: string } = {
+      'Home': 'fa-home',
+      'Work': 'fa-briefcase',
+      'Other': 'fa-location-dot'
+    };
+    return icons[label] || 'fa-location-dot';
   }
 
 }

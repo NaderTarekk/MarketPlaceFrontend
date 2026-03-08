@@ -9,10 +9,15 @@ import { environment } from '../../../../environment';
   providedIn: 'root',
 })
 export class VendorService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getDashboard(): Observable<ApiResponse<VendorDashboard>> {
     return this.http.get<ApiResponse<VendorDashboard>>(`${environment.vendorUrl}/dashboard`);  // ✅ أضف /dashboard
+  }
+
+
+  updateVendorOrderStatus(vendorOrderId: number, status: string): Observable<any> {
+    return this.http.patch(`${environment.orderUrl}/vendor-orders/${vendorOrderId}/status`, { status });
   }
 
   getProducts(filter: ProductFilter): Observable<PagedResponse<ProductList[]>> {
@@ -54,5 +59,9 @@ export class VendorService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<ApiResponse<string>>(`${environment.vendorUrl}/upload-image`, formData);  // ✅
+  }
+
+  loadOrderDetails(orderId: number): Observable<any> {
+    return this.http.get(`${environment.orderUrl}/${orderId}`);
   }
 }

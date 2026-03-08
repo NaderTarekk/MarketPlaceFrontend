@@ -103,24 +103,24 @@ export class CartComponent implements OnInit {
   }
 
   calculateSummary(): void {
-    this.subtotal = this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  this.subtotal = this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // Calculate discount from original prices
-    this.discount = this.cartItems.reduce((sum, item) => {
-      if (item.originalPrice && item.originalPrice > item.price) {
-        return sum + ((item.originalPrice - item.price) * item.quantity);
-      }
-      return sum;
-    }, 0);
+  // Calculate discount from original prices
+  this.discount = this.cartItems.reduce((sum, item) => {
+    if (item.originalPrice && item.originalPrice > item.price) {
+      return sum + ((item.originalPrice - item.price) * item.quantity);
+    }
+    return sum;
+  }, 0);
 
-    // Shipping (free over 200)
-    this.shipping = this.subtotal >= 200 ? 0 : 25;
+  // Shipping (free over 200)
+  this.shipping = this.subtotal >= 200 ? 0 : 25;
 
-    // Apply promo discount
-    const promoAmount = this.promoApplied ? (this.subtotal * this.promoDiscount / 100) : 0;
+  // ✅ FIX: Apply promo discount as ACTUAL AMOUNT, not percentage
+  const promoAmount = this.promoApplied ? this.promoDiscount : 0;
 
-    this.total = this.subtotal + this.shipping - promoAmount;
-  }
+  this.total = this.subtotal + this.shipping - promoAmount;
+}
 
   updateQuantity(item: CartItem, change: number): void {
     const newQuantity = item.quantity + change;
@@ -382,13 +382,13 @@ export class CartComponent implements OnInit {
   }
 
   proceedToCheckout(): void {
-    if (!this.selectedPayment) {
-      this.showToast(
-        this.i18n.currentLang === 'ar' ? 'اختر طريقة الدفع' : 'Select payment method',
-        'error'
-      );
-      return;
-    }
+    // if (!this.selectedPayment) {
+    //   this.showToast(
+    //     this.i18n.currentLang === 'ar' ? 'اختر طريقة الدفع' : 'Select payment method',
+    //     'error'
+    //   );
+    //   return;
+    // }
 
     this.router.navigate(['/cart/checkout'], {
       queryParams: {
@@ -429,6 +429,8 @@ export class CartComponent implements OnInit {
         } else {
           this.showToast(res.data?.message || this.t('invalid_promo'), 'error');
         }
+
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.showToast(err.error?.message || this.t('invalid_promo'), 'error');

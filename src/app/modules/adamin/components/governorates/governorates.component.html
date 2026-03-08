@@ -13,7 +13,7 @@
             <p>{{ i18n.currentLang === 'ar' ? 'إدارة المحافظات وتكاليف الشحن' : 'Manage governorates and shipping costs' }}</p>
         </div>
         <div class="header-actions">
-            <button class="btn-seed" (click)="seedGovernorates()" [disabled]="isSeeding" *ngIf="governorates.length === 0">
+            <button class="btn-seed" (click)="openSeedDialog()" [disabled]="isSeeding" *ngIf="governorates.length === 0">
                 <i class="fa-solid" [ngClass]="isSeeding ? 'fa-spinner fa-spin' : 'fa-download'"></i>
                 {{ i18n.currentLang === 'ar' ? 'إضافة المحافظات المصرية' : 'Add Egyptian Governorates' }}
             </button>
@@ -34,7 +34,7 @@
         <i class="fa-solid fa-map"></i>
         <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد محافظات' : 'No governorates' }}</h3>
         <p>{{ i18n.currentLang === 'ar' ? 'أضف المحافظات لتحديد تكاليف الشحن' : 'Add governorates to set shipping costs' }}</p>
-        <button class="btn-primary" (click)="seedGovernorates()">
+        <button class="btn-primary" (click)="openSeedDialog()">
             <i class="fa-solid fa-download"></i>
             {{ i18n.currentLang === 'ar' ? 'إضافة المحافظات المصرية' : 'Add Egyptian Governorates' }}
         </button>
@@ -129,7 +129,7 @@
             <div class="form-group">
                 <label>{{ i18n.currentLang === 'ar' ? 'تكلفة الشحن' : 'Shipping Cost' }}</label>
                 <input type="number" [(ngModel)]="form.shippingCost" min="0" step="0.5"
-                       [disabled]="!!form.isFreeShipping">
+                       [attr.disabled]="form.isFreeShipping ? true : null">
             </div>
 
             <div class="form-group checkbox-group">
@@ -178,6 +178,71 @@
             <button class="btn-delete" (click)="confirmDelete()" [disabled]="isDeleting">
                 <i *ngIf="isDeleting" class="fa-solid fa-spinner fa-spin"></i>
                 {{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Seed Governorates Confirmation Dialog -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="dialog-overlay" [class.show]="showSeedDialog" (click)="closeSeedDialog()">
+    <div class="dialog dialog-seed" (click)="$event.stopPropagation()">
+
+        <!-- Animated Icon -->
+        <div class="seed-icon-wrapper">
+            <div class="seed-icon-bg">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <div class="seed-icon-ring"></div>
+        </div>
+
+        <!-- Title -->
+        <h3 class="seed-title">
+            {{ i18n.currentLang === 'ar' ? 'إضافة المحافظات المصرية' : 'Add Egyptian Governorates' }}
+        </h3>
+
+        <!-- Description -->
+        <p class="seed-desc">
+            {{ i18n.currentLang === 'ar'
+                ? 'سيتم إضافة جميع المحافظات المصرية الـ 27 تلقائياً مع تكاليف الشحن الافتراضية.'
+                : 'All 27 Egyptian governorates will be added automatically with default shipping costs.' }}
+        </p>
+
+        <!-- Info Cards -->
+        <div class="seed-info-cards">
+            <div class="seed-info-card">
+                <i class="fa-solid fa-map-pin"></i>
+                <span>{{ i18n.currentLang === 'ar' ? '27 محافظة' : '27 Governorates' }}</span>
+            </div>
+            <div class="seed-info-card">
+                <i class="fa-solid fa-truck"></i>
+                <span>{{ i18n.currentLang === 'ar' ? 'شحن افتراضي' : 'Default Shipping' }}</span>
+            </div>
+            <div class="seed-info-card">
+                <i class="fa-solid fa-bolt"></i>
+                <span>{{ i18n.currentLang === 'ar' ? 'فوري' : 'Instant' }}</span>
+            </div>
+        </div>
+
+        <!-- Warning -->
+        <div class="seed-warning">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>
+                {{ i18n.currentLang === 'ar'
+                    ? 'يمكنك تعديل تكاليف الشحن لكل محافظة بعد الإضافة.'
+                    : 'You can edit shipping costs for each governorate after adding.' }}
+            </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="dialog-actions">
+            <button class="btn-cancel" (click)="closeSeedDialog()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-seed-confirm" (click)="confirmSeed()">
+                <i class="fa-solid fa-download"></i>
+                {{ i18n.currentLang === 'ar' ? 'إضافة الآن' : 'Add Now' }}
             </button>
         </div>
     </div>

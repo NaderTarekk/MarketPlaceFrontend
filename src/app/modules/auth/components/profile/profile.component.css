@@ -1139,3 +1139,676 @@
 .btn-support i {
   font-size: 18px;
 }
+
+/* ═══════════════════════════════════════════════ */
+/* ADDRESSES TAB */
+/* ═══════════════════════════════════════════════ */
+
+/* Tab Badge */
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+
+/* Addresses Content */
+.addresses-content {
+  padding: 0;
+}
+
+/* Addresses Header */
+.addresses-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f3f5;
+}
+
+.addresses-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.addresses-header h3 i {
+  color: #667eea;
+  font-size: 22px;
+}
+
+/* Add Address Button */
+.btn-add-address {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-address:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-add-address i {
+  font-size: 14px;
+}
+
+/* Loading State */
+.loading-addresses {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #667eea;
+  font-size: 32px;
+}
+
+.loading-addresses i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-addresses {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-addresses i {
+  font-size: 64px;
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.empty-addresses p {
+  font-size: 16px;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.btn-add-first {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-first:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Addresses Grid */
+.addresses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* Address Card */
+.address-card {
+  position: relative;
+  padding: 24px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  transition: all 0.3s;
+}
+
+.address-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+  transform: translateY(-4px);
+}
+
+.address-card.default {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4, #ffffff);
+}
+
+/* Default Badge */
+.default-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #10b981;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.default-badge i {
+  font-size: 13px;
+}
+
+/* Address Label */
+.address-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.address-label i {
+  font-size: 20px;
+  color: #667eea;
+}
+
+.address-label span {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+/* Address Info */
+.address-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.address-info .info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.address-info .info-row i {
+  font-size: 14px;
+  color: #9ca3af;
+  width: 16px;
+  text-align: center;
+}
+
+/* Full Address */
+.address-full {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.address-full i {
+  font-size: 16px;
+  color: #667eea;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.address-full p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+/* Address Actions */
+.address-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f3f5;
+}
+
+.btn-set-default {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fbbf24;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-set-default:hover {
+  background: #fde68a;
+  border-color: #f59e0b;
+}
+
+.btn-set-default i {
+  font-size: 13px;
+}
+
+.btn-edit-address {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #dbeafe;
+  color: #2563eb;
+  border: 1px solid #93c5fd;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit-address:hover {
+  background: #bfdbfe;
+  border-color: #60a5fa;
+}
+
+.btn-delete-address {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete-address:hover {
+  background: #fecaca;
+  border-color: #f87171;
+}
+
+/* ═══════════════════════════════════════════════ */
+/* ADDRESS DIALOG */
+/* ═══════════════════════════════════════════════ */
+
+.address-dialog {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Label Options */
+.label-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.label-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.label-option:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.label-option.active {
+  background: linear-gradient(135deg, #f0f4ff, #fef5ff);
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.label-option i {
+  font-size: 24px;
+}
+
+.label-option span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Form Row */
+.dialog .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dialog .form-row .form-group {
+  margin-bottom: 0;
+}
+
+/* Checkbox */
+.form-group.checkbox {
+  margin-bottom: 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.checkbox-label span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* ═══════════════════════════════════════════════ */
+/* DELETE ADDRESS DIALOG */
+/* ═══════════════════════════════════════════════ */
+
+.dialog-sm {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.dialog-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  font-size: 36px;
+}
+
+.dialog-icon.delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.dialog-sm h3 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.dialog-sm p {
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
+/* Delete Preview */
+.delete-preview {
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.delete-preview .preview-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.delete-preview .preview-label i {
+  color: #667eea;
+}
+
+.delete-preview p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Dialog Actions */
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.dialog-actions .btn-cancel {
+  flex: 1;
+  padding: 14px 24px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dialog-actions .btn-cancel:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.dialog-actions .btn-confirm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: #dc2626;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dialog-actions .btn-confirm:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+.dialog-actions .btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ═══════════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ═══════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .addresses-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .addresses-header h3 {
+    font-size: 18px;
+  }
+
+  .btn-add-address {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .addresses-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .address-card {
+    padding: 20px;
+  }
+
+  .address-actions {
+    flex-wrap: wrap;
+  }
+
+  .btn-set-default {
+    flex: 1 1 100%;
+  }
+
+  .dialog .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .label-options {
+    gap: 10px;
+  }
+
+  .label-option {
+    padding: 14px 10px;
+  }
+
+  .label-option i {
+    font-size: 20px;
+  }
+
+  .label-option span {
+    font-size: 12px;
+  }
+
+  .dialog-sm {
+    padding: 28px 24px;
+  }
+
+  .dialog-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+  }
+
+  .dialog-sm h3 {
+    font-size: 20px;
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+    padding: 0 5px;
+  }
+
+  .addresses-header h3 {
+    font-size: 16px;
+  }
+
+  .btn-add-address {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .address-card {
+    padding: 16px;
+  }
+
+  .address-label {
+    margin-bottom: 12px;
+  }
+
+  .address-label i {
+    font-size: 18px;
+  }
+
+  .address-label span {
+    font-size: 15px;
+  }
+
+  .address-info .info-row {
+    font-size: 13px;
+  }
+
+  .address-full {
+    padding: 10px;
+  }
+
+  .address-full p {
+    font-size: 13px;
+  }
+
+  .btn-edit-address,
+  .btn-delete-address {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .btn-set-default {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}

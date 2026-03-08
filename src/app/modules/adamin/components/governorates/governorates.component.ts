@@ -34,6 +34,7 @@ export class GovernoratesComponent implements OnInit {
 
   // Seed
   isSeeding = false;
+  showSeedDialog = false;
 
   // Toast
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
@@ -212,9 +213,16 @@ export class GovernoratesComponent implements OnInit {
   }
 
   // Seed Governorates
-  seedGovernorates(): void {
-    if (!confirm(this.t('seed_confirm'))) return;
+  openSeedDialog(): void {
+    this.showSeedDialog = true;
+  }
 
+  closeSeedDialog(): void {
+    this.showSeedDialog = false;
+  }
+
+  confirmSeed(): void {
+    this.showSeedDialog = false;
     this.isSeeding = true;
     this.governorateService.seedGovernorates().subscribe({
       next: (res: any) => {
@@ -252,7 +260,6 @@ export class GovernoratesComponent implements OnInit {
       'deleted': { ar: 'تم حذف المحافظة', en: 'Governorate deleted' },
       'activated': { ar: 'تم تفعيل المحافظة', en: 'Governorate activated' },
       'deactivated': { ar: 'تم إلغاء تفعيل المحافظة', en: 'Governorate deactivated' },
-      'seed_confirm': { ar: 'هل تريد إضافة كل المحافظات المصرية؟', en: 'Add all Egyptian governorates?' },
       'seeded': { ar: 'تم إضافة المحافظات', en: 'Governorates added' },
       'seed_error': { ar: 'خطأ في إضافة المحافظات', en: 'Error adding governorates' }
     };

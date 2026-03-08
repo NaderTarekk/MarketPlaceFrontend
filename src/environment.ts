@@ -19,5 +19,6 @@ export const environment = {
     orderUrl: `${localApi}/Orders`,
     complaintUrl: `${localApi}/Complaints`,
     shippingUrl: `${localApi}/Shipping`,
+    addressUrl: `${localApi}/Address`,
     baseApi: `${localBaseApi}`
 };
