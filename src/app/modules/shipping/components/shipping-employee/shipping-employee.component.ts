@@ -9,6 +9,7 @@ import {
   ShipmentListItem,
   ShipmentStatus
 } from '../../../../models/shipping';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-shipping-employee',
@@ -62,52 +63,66 @@ export class ShippingEmployeeComponent implements OnInit {
   }
 
   loadData(): void {
-    this.isLoading = true;
+  this.isLoading = true;
 
-    // Load pending orders
-    this.shippingService.getPendingVendorOrders().subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.pendingOrders = res.data;
-          this.pendingOrders.forEach(order => {
-            this.orderDeliveryTypes.set(order.id, order.deliveryType);
-          });
-        }
-        this.cdr.detectChanges();
+  // Load pending orders
+  this.shippingService.getPendingVendorOrders().subscribe({
+    next: (res) => {
+      if (res.success) {
+        console.log(res);
+        
+        this.pendingOrders = res.data.map(order => ({
+          ...order,
+          items: order.items.map(item => ({
+            ...item,
+            productImage: this.getImageUrl(item.productImage)
+          }))
+        }));
+        this.pendingOrders.forEach(order => {
+          this.orderDeliveryTypes.set(order.id, order.deliveryType);
+        });
       }
-    });
+      this.cdr.detectChanges();
+    }
+  });
 
-    this.shippingService.getUnresolvedFailures().subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.deliveryFailures = res.data;
-        }
+  this.shippingService.getUnresolvedFailures().subscribe({
+    next: (res) => {
+      if (res.success) {
+        this.deliveryFailures = res.data;
       }
-    });
+    }
+  });
 
-    // Load shipments
-    this.shippingService.getAllShipments({ page: 1, pageSize: 50 }).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.shipments = res.data;
-        }
-        this.cdr.detectChanges();
+  // Load shipments
+  this.shippingService.getAllShipments({ page: 1, pageSize: 50 }).subscribe({
+    next: (res) => {
+      if (res.success) {
+        this.shipments = res.data;
       }
-    });
+      this.cdr.detectChanges();
+    }
+  });
 
-    // Load delivery agents
-    this.shippingService.getAvailableDeliveryAgents().subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.deliveryAgents = res.data;
-        }
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isLoading = false;
+  // Load delivery agents
+  this.shippingService.getAvailableDeliveryAgents().subscribe({
+    next: (res) => {
+      if (res.success) {
+        this.deliveryAgents = res.data;
       }
-    });
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.isLoading = false;
+    }
+  });
+}
+
+  getImageUrl(image: string | null): string {
+    if (!image) return 'assets/images/placeholder.png';
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `${environment.baseApi}${image}`;
   }
 
   // Selection

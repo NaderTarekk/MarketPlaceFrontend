@@ -21,7 +21,8 @@ export interface VendorDashboard {
   recentOrders: RecentOrder[];
   topSellingProducts: ProductList[];
   lowStockProducts: ProductList[];
-  
+    pendingWithdrawal: number;
+  totalWithdrawn: number;
 }
 
 export interface RecentOrder {

@@ -5,6 +5,7 @@ import { AdminReportsService } from '../../services/admin.service';
 import { ProductsService } from '../../../products/services/products.service';
 import { ProductList } from '../../../../models/products';
 import { VendorList, VendorDetailedReport, DeliveryAgentList, DeliveryAgentReport, ShippingEmployeeList, ShippingEmployeeReport, FinancialReport, Settlement } from '../../../../models/financial-reports';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-admin',
@@ -959,32 +960,35 @@ export class AdminComponent implements OnInit {
   // PENDING PRODUCTS
   // ═══════════════════════════════════════════════
 
-  loadPendingProducts(page: number = 1): void {
-    this.isLoadingProducts = true;
-    this.productsService.getPendingProducts(page, 10).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.pendingProducts = res.data;
-          this.productsPagination = {
-            currentPage: res.pagination.currentPage,
-            totalPages: res.pagination.totalPages,
-            totalCount: res.pagination.totalCount,
-            hasNext: res.pagination.hasNext,
-            hasPrevious: res.pagination.hasPrevious
-          };
-        }
-        this.isLoadingProducts = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isLoadingProducts = false;
-        this.showToast(
-          this.i18n.currentLang === 'ar' ? 'حدث خطأ في تحميل المنتجات' : 'Error loading products',
-          'error'
-        );
+loadPendingProducts(page: number = 1): void {
+  this.isLoadingProducts = true;
+  this.productsService.getPendingProducts(page, 10).subscribe({
+    next: (res) => {
+      if (res.success) {
+        this.pendingProducts = res.data.map(product => ({
+          ...product,
+          mainImage: this.getImageUrl(product.mainImage)
+        }));
+        this.productsPagination = {
+          currentPage: res.pagination.currentPage,
+          totalPages: res.pagination.totalPages,
+          totalCount: res.pagination.totalCount,
+          hasNext: res.pagination.hasNext,
+          hasPrevious: res.pagination.hasPrevious
+        };
       }
-    });
-  }
+      this.isLoadingProducts = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.isLoadingProducts = false;
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'حدث خطأ في تحميل المنتجات' : 'Error loading products',
+        'error'
+      );
+    }
+  });
+}
 
   goToProductsPage(page: number): void {
     this.loadPendingProducts(page);
@@ -1239,6 +1243,12 @@ export class AdminComponent implements OnInit {
       }
     });
   }
+
+   getImageUrl(image: string | null): string {
+      if (!image) return 'assets/images/placeholder.png';
+      if (image.startsWith('http') || image.startsWith('data:')) return image;
+      return `${environment.baseApi}${image}`;
+    }
 
   closeEmployeeModal(): void {
     this.showEmployeeModal = false;

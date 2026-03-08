@@ -137,6 +137,27 @@ export class VendorDashboardComponent implements OnInit {
   isLoadingOrder = false;
   isUpdatingStatus = false;
 
+  // 3. Net Profit (الإيرادات - العمولة)
+  netProfit = 0;
+
+  // 4. In-Transit Revenue (طلبات خرجت من التاجر لكن لم تُسلّم للعميل)
+  inTransitRevenue = 0;
+
+  // 5. Pending Clearance (تم التسليم لكن داخل فترة التقييد)
+  pendingClearance = 0;
+
+  // 6. Available Balance (ربح متاح للسحب)
+  availableBalance = 0;
+
+  // 7. Pending Withdrawal (مبالغ طلب سحبها ولم تُحوّل بعد)
+  pendingWithdrawal = 0;
+
+  // 8. Withdrawn (إجمالي المبالغ المسحوبة فعلياً)
+  totalWithdrawn = 0;
+
+  // Clearance period in days (يجي من الـ backend أو ثابت)
+  clearancePeriodDays = 3;
+
   constructor(
     public i18n: I18nService,
     private vendorService: VendorService,
@@ -167,27 +188,52 @@ export class VendorDashboardComponent implements OnInit {
 
     this.commissionRate = this.dashboard.commissionRate || 10;
 
+    // Reset values
     this.totalRevenue = 0;
-    this.confirmedProfit = 0;
-    this.pendingProfit = 0;
+    this.inTransitRevenue = 0;
+    this.pendingClearance = 0;
+
+    const now = new Date();
+    const clearanceDate = new Date(now);
+    clearanceDate.setDate(clearanceDate.getDate() - this.clearancePeriodDays);
 
     this.dashboard.recentOrders.forEach(order => {
-      // ✅ TotalAmount already includes shipping share
       const orderTotal = order.totalAmount || 0;
       const orderCommission = (orderTotal * this.commissionRate) / 100;
       const orderProfit = orderTotal - orderCommission;
 
-      this.totalRevenue += orderTotal;
-
+      // 1. Total Revenue (Delivered only)
       if (order.vendorOrderStatus === this.VendorOrderStatus.Delivered) {
-        this.confirmedProfit += orderProfit;
-      } else if (order.vendorOrderStatus !== this.VendorOrderStatus.Cancelled) {
-        this.pendingProfit += orderProfit;
+        this.totalRevenue += orderTotal;
+
+        // 5. Pending Clearance (تم التسليم لكن داخل فترة التقييد)
+        const deliveredDate = new Date(order.createdAt); // أو order.deliveredAt لو متاح
+        if (deliveredDate > clearanceDate) {
+          this.pendingClearance += orderProfit;
+        }
+      }
+      // 4. In-Transit Revenue (خرج من التاجر لكن لم يُسلّم)
+      else if (
+        order.vendorOrderStatus === this.VendorOrderStatus.PickedFromVendor ||
+        order.vendorOrderStatus === this.VendorOrderStatus.InWarehouse ||
+        order.vendorOrderStatus === this.VendorOrderStatus.OutForDelivery
+      ) {
+        this.inTransitRevenue += orderProfit;
       }
     });
 
+    // 2. Total Commission
     this.totalCommission = (this.totalRevenue * this.commissionRate) / 100;
-    this.totalProfit = this.confirmedProfit + this.pendingProfit;
+
+    // 3. Net Profit
+    this.netProfit = this.totalRevenue - this.totalCommission;
+
+    // 6. Available Balance (نفترض إنه = صافي الربح - Pending Clearance - Pending Withdrawal)
+    // ✅ هنا لازم تجيب الـ Pending Withdrawal من الـ backend
+    this.pendingWithdrawal = this.dashboard.pendingWithdrawal || 0;
+    this.totalWithdrawn = this.dashboard.totalWithdrawn || 0;
+
+    this.availableBalance = this.netProfit - this.pendingClearance - this.pendingWithdrawal;
 
     this.cdr.detectChanges();
   }
@@ -195,9 +241,12 @@ export class VendorDashboardComponent implements OnInit {
   resetFinancials(): void {
     this.totalRevenue = 0;
     this.totalCommission = 0;
-    this.confirmedProfit = 0;
-    this.pendingProfit = 0;
-    this.totalProfit = 0;
+    this.netProfit = 0;
+    this.inTransitRevenue = 0;
+    this.pendingClearance = 0;
+    this.availableBalance = 0;
+    this.pendingWithdrawal = 0;
+    this.totalWithdrawn = 0;
   }
 
   // Calculate profit for individual order
@@ -267,44 +316,44 @@ export class VendorDashboardComponent implements OnInit {
     this.loadOrderDetails(order.id);
   }
 
-loadOrderDetails(orderId: number): void {
-  this.isLoadingOrder = true;
-  this.vendorService.loadOrderDetails(orderId).subscribe({
-    next: (res: any) => {
-      if (res.success) {
-        // ✅ جيب الـ order من الـ dashboard
-        const vendorOrder = this.dashboard?.recentOrders?.find(o => o.id === orderId);
-        
-        if (vendorOrder) {
-          // ✅ فلتر المنتجات + استبدال البيانات المالية
-          this.orderDetails = {
-            ...res.data,
-            // ✅ فقط منتجات التاجر
-            items: res.data.items.filter((item: any) => 
-              vendorOrder.items.some(vi => vi.productId === item.productId)
-            ),
-            // ✅ البيانات المالية الخاصة بالتاجر
-            subTotal: vendorOrder.vendorSubTotal,
-            vendorSubTotal: vendorOrder.vendorSubTotal,
-            vendorShippingShare: vendorOrder.vendorShippingShare,
-            shippingCost: vendorOrder.vendorShippingShare,
-            total: vendorOrder.totalAmount,
-            totalAmount: vendorOrder.totalAmount
-          };
-        } else {
-          this.orderDetails = res.data;
+  loadOrderDetails(orderId: number): void {
+    this.isLoadingOrder = true;
+    this.vendorService.loadOrderDetails(orderId).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          // ✅ جيب الـ order من الـ dashboard
+          const vendorOrder = this.dashboard?.recentOrders?.find(o => o.id === orderId);
+
+          if (vendorOrder) {
+            // ✅ فلتر المنتجات + استبدال البيانات المالية
+            this.orderDetails = {
+              ...res.data,
+              // ✅ فقط منتجات التاجر
+              items: res.data.items.filter((item: any) =>
+                vendorOrder.items.some(vi => vi.productId === item.productId)
+              ),
+              // ✅ البيانات المالية الخاصة بالتاجر
+              subTotal: vendorOrder.vendorSubTotal,
+              vendorSubTotal: vendorOrder.vendorSubTotal,
+              vendorShippingShare: vendorOrder.vendorShippingShare,
+              shippingCost: vendorOrder.vendorShippingShare,
+              total: vendorOrder.totalAmount,
+              totalAmount: vendorOrder.totalAmount
+            };
+          } else {
+            this.orderDetails = res.data;
+          }
+
+          console.log('Order details (vendor filtered):', this.orderDetails);
         }
-        
-        console.log('Order details (vendor filtered):', this.orderDetails);
+        this.isLoadingOrder = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingOrder = false;
       }
-      this.isLoadingOrder = false;
-      this.cdr.detectChanges();
-    },
-    error: () => {
-      this.isLoadingOrder = false;
-    }
-  });
-}
+    });
+  }
 
   closeOrderModal(): void {
     this.showOrderModal = false;

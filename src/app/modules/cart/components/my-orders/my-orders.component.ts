@@ -3,6 +3,7 @@ import { Order, OrderListItem, OrderStatus, PaymentStatus, ShipmentStatus } from
 import { I18nService } from '../../../../core/services/i18n.service';
 import { MyOrdersService } from '../../services/my-orders.service';
 import { Router } from '@angular/router';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-my-orders',
@@ -28,6 +29,7 @@ export class MyOrdersComponent implements OnInit {
     type: 'success' as 'success' | 'error' | 'info'
   };
 
+
   // Enums for template
   OrderStatus = OrderStatus;
   PaymentStatus = PaymentStatus;
@@ -48,6 +50,8 @@ export class MyOrdersComponent implements OnInit {
     this.isLoading = true;
     this.ordersService.getMyOrders().subscribe({
       next: (res) => {
+        console.log(res.data);
+
         if (res.success) {
           this.orders = res.data;
           console.log('📦 Orders loaded:', this.orders);
@@ -75,7 +79,13 @@ export class MyOrdersComponent implements OnInit {
     this.ordersService.getOrderById(orderId).subscribe({
       next: (res) => {
         if (res.success) {
-          this.selectedOrder = res.data;
+          this.selectedOrder = {
+            ...res.data,
+            items: res.data.items.map((item:any) => ({
+              ...item,
+              productImage: this.getImageUrl(item.productImage)
+            }))
+          };
           console.log('📋 Order details:', this.selectedOrder);
         }
         this.isLoadingDetails = false;
@@ -449,6 +459,12 @@ export class MyOrdersComponent implements OnInit {
       pending: step.statusValue > status,
       last: index === steps.length - 1
     }));
+  }
+
+  getImageUrl(image: string | null): string {
+    if (!image) return 'assets/images/placeholder.png';
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `${environment.baseApi}${image}`;
   }
 
   // في الـ tracking steps، أضف خطوة DeliveryFailed:

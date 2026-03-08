@@ -47,85 +47,123 @@
 
             <!-- ✅ FINANCIAL EARNINGS SECTION - NEW -->
             <div class="earnings-section">
-                <div class="earnings-header">
-                    <h2 class="earnings-title">
-                        <i class="fa-solid fa-sack-dollar"></i>
-                        {{ i18n.currentLang === 'ar' ? 'الأرباح المالية' : 'Financial Earnings' }}
-                    </h2>
-                    <div class="commission-info">
-                        <i class="fa-solid fa-percent"></i>
-                        <span>{{ i18n.currentLang === 'ar' ? 'نسبة العمولة:' : 'Commission:' }} {{ commissionRate
-                            }}%</span>
-                    </div>
-                </div>
+    <div class="earnings-header">
+        <h2 class="earnings-title">
+            <i class="fa-solid fa-sack-dollar"></i>
+            {{ i18n.currentLang === 'ar' ? 'الأرباح المالية' : 'Financial Earnings' }}
+        </h2>
+        <div class="commission-info">
+            <i class="fa-solid fa-percent"></i>
+            <span>{{ i18n.currentLang === 'ar' ? 'نسبة العمولة:' : 'Commission:' }} {{ commissionRate }}%</span>
+        </div>
+    </div>
 
-                <div class="earnings-grid">
-                    <!-- Total Revenue -->
-                    <div class="earning-card">
-                        <div class="earning-label">
-                            <i class="fa-solid fa-money-bill-wave"></i>
-                            {{ i18n.currentLang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue' }}
-                        </div>
-                        <span class="earning-value">{{ formatPrice(totalRevenue) }}</span>
-                        <div class="earning-subtitle">
-                            <i class="fa-solid fa-info-circle"></i>
-                            {{ i18n.currentLang === 'ar' ? 'من جميع الطلبات' : 'From all orders' }}
-                        </div>
-                    </div>
-
-                    <!-- Total Commission -->
-                    <div class="earning-card commission">
-                        <div class="earning-label">
-                            <i class="fa-solid fa-hand-holding-dollar"></i>
-                            {{ i18n.currentLang === 'ar' ? 'إجمالي العمولة' : 'Total Commission' }}
-                        </div>
-                        <span class="earning-value">{{ formatPrice(totalCommission) }}</span>
-                        <div class="earning-subtitle">
-                            <i class="fa-solid fa-minus"></i>
-                            {{ i18n.currentLang === 'ar' ? 'مخصوم للمنصة' : 'Deducted for platform' }}
-                        </div>
-                    </div>
-
-                    <!-- Net Profit -->
-                    <div class="earning-card profit">
-                        <div class="earning-label">
-                            <i class="fa-solid fa-coins"></i>
-                            {{ i18n.currentLang === 'ar' ? 'صافي الأرباح' : 'Net Profit' }}
-                        </div>
-                        <span class="earning-value">{{ formatPrice(totalProfit) }}</span>
-                        <div class="earning-subtitle">
-                            <i class="fa-solid fa-calculator"></i>
-                            {{ i18n.currentLang === 'ar' ? 'الإيرادات - العمولة' : 'Revenue - Commission' }}
-                        </div>
-                    </div>
-
-                    <!-- Confirmed Profit -->
-                    <div class="earning-card confirmed">
-                        <div class="earning-label">
-                            <i class="fa-solid fa-circle-check"></i>
-                            {{ i18n.currentLang === 'ar' ? 'الأرباح المؤكدة' : 'Confirmed Profit' }}
-                        </div>
-                        <span class="earning-value">{{ formatPrice(confirmedProfit) }}</span>
-                        <div class="earning-subtitle">
-                            <i class="fa-solid fa-check"></i>
-                            {{ i18n.currentLang === 'ar' ? 'من الطلبات المسلمة' : 'From delivered orders' }}
-                        </div>
-                    </div>
-
-                    <!-- Pending Profit -->
-                    <div class="earning-card pending">
-                        <div class="earning-label">
-                            <i class="fa-solid fa-clock"></i>
-                            {{ i18n.currentLang === 'ar' ? 'الأرباح الجارية' : 'Pending Profit' }}
-                        </div>
-                        <span class="earning-value">{{ formatPrice(pendingProfit) }}</span>
-                        <div class="earning-subtitle">
-                            <i class="fa-solid fa-hourglass-half"></i>
-                            {{ i18n.currentLang === 'ar' ? 'من الطلبات الجارية' : 'From pending orders' }}
-                        </div>
-                    </div>
-                </div>
+    <div class="earnings-grid">
+        <!-- 1. Total Revenue -->
+        <div class="earning-card">
+            <div class="earning-label">
+                <i class="fa-solid fa-money-bill-wave"></i>
+                {{ i18n.currentLang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue' }}
             </div>
+            <span class="earning-value">{{ formatPrice(totalRevenue) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-check-circle"></i>
+                {{ i18n.currentLang === 'ar' ? 'طلبات تم تسليمها' : 'Delivered orders' }}
+            </div>
+        </div>
+
+        <!-- 2. Total Commission -->
+        <div class="earning-card commission">
+            <div class="earning-label">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                {{ i18n.currentLang === 'ar' ? 'إجمالي العمولة' : 'Total Commission' }}
+            </div>
+            <span class="earning-value">{{ formatPrice(totalCommission) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-minus"></i>
+                {{ i18n.currentLang === 'ar' ? 'مخصوم للمنصة' : 'Deducted for platform' }}
+            </div>
+        </div>
+
+        <!-- 3. Net Profit -->
+        <div class="earning-card profit">
+            <div class="earning-label">
+                <i class="fa-solid fa-coins"></i>
+                {{ i18n.currentLang === 'ar' ? 'صافي الأرباح' : 'Net Profit' }}
+            </div>
+            <span class="earning-value">{{ formatPrice(netProfit) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-calculator"></i>
+                {{ i18n.currentLang === 'ar' ? 'الإيرادات - العمولة' : 'Revenue - Commission' }}
+            </div>
+        </div>
+
+        <!-- 4. In-Transit Revenue -->
+        <div class="earning-card in-transit">
+            <div class="earning-label">
+                <i class="fa-solid fa-truck"></i>
+                {{ i18n.currentLang === 'ar' ? 'إيرادات جارية' : 'In-Transit Revenue' }}
+            </div>
+            <span class="earning-value">{{ formatPrice(inTransitRevenue) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-shipping-fast"></i>
+                {{ i18n.currentLang === 'ar' ? 'قيد التوصيل' : 'Out for delivery' }}
+            </div>
+        </div>
+
+        <!-- 5. Pending Clearance -->
+        <div class="earning-card pending-clearance">
+            <div class="earning-label">
+                <i class="fa-solid fa-hourglass-half"></i>
+                {{ i18n.currentLang === 'ar' ? 'رصيد قيد التصفية' : 'Pending Clearance' }}
+            </div>
+            <span class="earning-value">{{ formatPrice(pendingClearance) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-clock"></i>
+                {{ i18n.currentLang === 'ar' ? clearancePeriodDays + ' يوم تقييد' : clearancePeriodDays + ' days hold' }}
+            </div>
+        </div>
+
+        <!-- 6. Available Balance -->
+        <div class="earning-card available">
+            <div class="earning-label">
+                <i class="fa-solid fa-wallet"></i>
+                {{ i18n.currentLang === 'ar' ? 'ربح متاح للسحب' : 'Available Balance' }}
+            </div>
+            <span class="earning-value">{{ formatPrice(availableBalance) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-arrow-down"></i>
+                {{ i18n.currentLang === 'ar' ? 'جاهز للسحب' : 'Ready to withdraw' }}
+            </div>
+        </div>
+
+        <!-- 7. Pending Withdrawal -->
+        <div class="earning-card pending-withdrawal">
+            <div class="earning-label">
+                <i class="fa-solid fa-spinner"></i>
+                {{ i18n.currentLang === 'ar' ? 'ربح تحت التسوية' : 'Pending Withdrawal' }}
+            </div>
+            <span class="earning-value">{{ formatPrice(pendingWithdrawal) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-rotate"></i>
+                {{ i18n.currentLang === 'ar' ? 'قيد التحويل' : 'Being processed' }}
+            </div>
+        </div>
+
+        <!-- 8. Withdrawn -->
+        <div class="earning-card withdrawn">
+            <div class="earning-label">
+                <i class="fa-solid fa-circle-check"></i>
+                {{ i18n.currentLang === 'ar' ? 'ربح تم سحبه' : 'Withdrawn' }}
+            </div>
+            <span class="earning-value">{{ formatPrice(totalWithdrawn) }}</span>
+            <div class="earning-subtitle">
+                <i class="fa-solid fa-check-double"></i>
+                {{ i18n.currentLang === 'ar' ? 'تم السحب' : 'Successfully withdrawn' }}
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Stats Cards -->
             <div class="stats-grid">

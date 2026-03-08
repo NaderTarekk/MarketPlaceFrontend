@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ShippingService } from '../../services/shipping.service';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { DeliveryAgentTask, VendorOrderStatus, DeliveryType } from '../../../../models/shipping';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-delivery-agent',
@@ -37,22 +38,30 @@ export class DeliveryAgentComponent implements OnInit {
     this.loadSummary();
   }
 
-  loadTasks(): void {
-    this.isLoading = true;
-    this.shippingService.getAgentTasks().subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.tasks = res.data;
-        }
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isLoading = false;
-        this.showToast(this.t('error_loading'), 'error');
+loadTasks(): void {
+  this.isLoading = true;
+  this.shippingService.getAgentTasks().subscribe({
+    next: (res) => {
+      if (res.success) {
+        console.log(res);
+        
+        this.tasks = res.data.map(task => ({
+          ...task,
+          items: task.items.map(item => ({
+            ...item,
+            productImage: this.getImageUrl(item.productImage)
+          }))
+        }));
       }
-    });
-  }
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.isLoading = false;
+      this.showToast(this.t('error_loading'), 'error');
+    }
+  });
+}
 
   markAsPickedFromVendor(vendorOrderId: number): void {
     this.isUpdating = true;
@@ -228,6 +237,12 @@ export class DeliveryAgentComponent implements OnInit {
   openMaps(address: string): void {
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
     window.open(url, '_blank');
+  }
+
+  getImageUrl(image: string | null): string {
+    if (!image) return 'assets/images/placeholder.png';
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `${environment.baseApi}${image}`;
   }
 
   callPhone(phone: string): void {
