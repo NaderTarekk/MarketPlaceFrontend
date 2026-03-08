@@ -176,6 +176,13 @@
           {{ currentLang === 'ar' ? 'الشحنات' : 'Shipping' }}
         </a>
 
+        <!-- ✅ QrCode reader -->
+        <a *ngIf="isShippingEmployee || isAdmin" routerLink="/cart/scan-barcode" routerLinkActive="active"
+          class="nav-link-ozon shipping-link">
+          <i class="fa-solid fa-qrcode"></i>
+          {{ currentLang === 'ar' ? 'قراءة باركود' : 'Scanner' }}
+        </a>
+
         <!-- ✅ Delivery Agent -->
         <a *ngIf="isDeliveryAgent" routerLink="/shipping/agent" routerLinkActive="active"
           class="nav-link-ozon agent-link">
