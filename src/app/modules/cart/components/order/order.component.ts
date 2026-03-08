@@ -13,6 +13,7 @@ import { CreateOrderDto } from '../../../../models/order';
 import { GovernorateService } from '../../../adamin/services/governorate.service';
 import { UserAddress, CreateAddressDto } from '../../../../models/address';
 import { AddressServiceService } from '../../../auth/services/address-service.service';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-order',
@@ -47,6 +48,9 @@ export class OrderComponent implements OnInit {
     content: '',
     orderNumber: ''
   };
+
+  // qrcode
+  orderQRCodePath = '';
 
   // ✅ أضف الـ toast:
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
@@ -292,6 +296,9 @@ export class OrderComponent implements OnInit {
           // ✅ Clear cart
           this.cartService.resetCartState();
 
+          // ✅ Store QR Code path
+          this.orderQRCodePath = res.data?.qrCodePath || '';
+
           // If Visa, redirect to Stripe
           if (this.selectedPaymentMethod === 'visa' && res.data?.checkoutUrl) {
             window.location.href = res.data.checkoutUrl;
@@ -321,6 +328,25 @@ export class OrderComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  getQRCodeUrl(path: string | null): string {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `${environment.baseApi}${path}`;
+  }
+
+  downloadQRCode(): void {
+    if (!this.orderQRCodePath) return;
+
+    const link = document.createElement('a');
+    link.href = this.getQRCodeUrl(this.orderQRCodePath);
+    link.download = `${this.orderNumber}-QR.png`;
+    link.click();
+  }
+
+  printQRCode(): void {
+    window.print();
   }
 
   mapPaymentMethod(method: string): string {

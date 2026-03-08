@@ -1,0 +1,253 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 2. barcode-scanner.component.html -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<div class="scanner-page">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>
+        <i class="fa-solid fa-qrcode"></i>
+        {{ i18n.currentLang === 'ar' ? 'مسح الباركود' : 'Scan Barcode' }}
+      </h1>
+      <p>{{ i18n.currentLang === 'ar' ? 'امسح رمز QR أو أدخل رقم الطلب' : 'Scan QR code or enter order number' }}</p>
+    </div>
+  </section>
+
+  <div class="scanner-container">
+    <!-- Scanner Input Card -->
+    <div class="scanner-card">
+      <div class="scanner-header">
+        <i class="fa-solid fa-barcode-read"></i>
+        <h2>{{ i18n.currentLang === 'ar' ? 'البحث عن طلب' : 'Search Order' }}</h2>
+      </div>
+
+      <div class="scanner-input-wrapper">
+        <div class="scanner-input">
+          <i class="fa-solid fa-barcode input-icon"></i>
+          <input 
+            type="text" 
+            [(ngModel)]="orderNumber"
+            (keyup.enter)="scanBarcode()"
+            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل رقم الطلب (مثال: ORD-20240309-ABC123)' : 'Enter order number (e.g., ORD-20240309-ABC123)'"
+            autofocus
+            [disabled]="isScanning"
+          />
+          <button 
+            *ngIf="orderNumber" 
+            class="btn-clear" 
+            (click)="clearSearch()"
+            [disabled]="isScanning">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+
+        <button 
+          class="btn-scan" 
+          (click)="scanBarcode()" 
+          [disabled]="isScanning || !orderNumber.trim()">
+          <i class="fa-solid" [ngClass]="isScanning ? 'fa-spinner fa-spin' : 'fa-search'"></i>
+          <span>
+            {{ isScanning 
+              ? (i18n.currentLang === 'ar' ? 'جاري البحث...' : 'Searching...')
+              : (i18n.currentLang === 'ar' ? 'بحث' : 'Search')
+            }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-msg">
+        <i class="fa-solid fa-exclamation-circle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Instructions -->
+      <div class="scanner-instructions">
+        <div class="instruction-item">
+          <i class="fa-solid fa-qrcode"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'امسح رمز QR بكاميرا الهاتف' : 'Scan QR code with phone camera' }}</span>
+        </div>
+        <div class="instruction-item">
+          <i class="fa-solid fa-keyboard"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'أو أدخل رقم الطلب يدوياً' : 'Or enter order number manually' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Details -->
+    <div *ngIf="orderDetails" class="order-details-card" [@fadeIn]>
+      <!-- Header with QR Code -->
+      <div class="order-header">
+        <div class="header-left">
+          <div class="order-number-section">
+            <span class="label">{{ i18n.currentLang === 'ar' ? 'رقم الطلب' : 'Order Number' }}</span>
+            <h2>#{{ orderDetails.orderNumber }}</h2>
+          </div>
+          <div class="order-meta">
+            <span class="order-date">
+              <i class="fa-solid fa-calendar"></i>
+              {{ formatDate(orderDetails.createdAt) }}
+            </span>
+            <span class="status-badge" [ngClass]="getStatusBadge(orderDetails.status).class">
+              {{ getStatusBadge(orderDetails.status).text }}
+            </span>
+            <span class="payment-badge" [ngClass]="getPaymentStatusBadge(orderDetails.paymentStatus).class">
+              <i class="fa-solid fa-credit-card"></i>
+              {{ getPaymentStatusBadge(orderDetails.paymentStatus).text }}
+            </span>
+          </div>
+        </div>
+
+        <!-- QR Code Display -->
+        <div *ngIf="orderDetails.qrCodePath" class="qr-code-section">
+          <img [src]="getQRCodeUrl(orderDetails.qrCodePath)" alt="QR Code" />
+          <span class="qr-label">{{ i18n.currentLang === 'ar' ? 'رمز الطلب' : 'Order QR' }}</span>
+        </div>
+      </div>
+
+      <!-- Customer Info -->
+      <div class="info-section">
+        <h3>
+          <i class="fa-solid fa-user"></i>
+          {{ i18n.currentLang === 'ar' ? 'بيانات العميل' : 'Customer Information' }}
+        </h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <i class="fa-solid fa-user-circle"></i>
+            <div class="info-content">
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name' }}</span>
+              <span class="value">{{ orderDetails.shippingName }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="fa-solid fa-phone"></i>
+            <div class="info-content">
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}</span>
+              <span class="value">{{ orderDetails.shippingPhone }}</span>
+            </div>
+          </div>
+          <div class="info-item full-width">
+            <i class="fa-solid fa-location-dot"></i>
+            <div class="info-content">
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}</span>
+              <span class="value">{{ orderDetails.shippingAddress }}, {{ orderDetails.shippingCity }}</span>
+            </div>
+          </div>
+          <div *ngIf="orderDetails.shippingNotes" class="info-item full-width">
+            <i class="fa-solid fa-note-sticky"></i>
+            <div class="info-content">
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'ملاحظات' : 'Notes' }}</span>
+              <span class="value">{{ orderDetails.shippingNotes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipment Info -->
+      <div *ngIf="orderDetails.shipmentBarcode" class="info-section">
+        <h3>
+          <i class="fa-solid fa-truck"></i>
+          {{ i18n.currentLang === 'ar' ? 'معلومات الشحن' : 'Shipment Information' }}
+        </h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <i class="fa-solid fa-barcode"></i>
+            <div class="info-content">
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'رقم الشحنة' : 'Shipment Barcode' }}</span>
+              <span class="value">{{ orderDetails.shipmentBarcode }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="fa-solid fa-boxes"></i>
+            <div class="info-content">
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'عدد طلبات التجار' : 'Vendor Orders' }}</span>
+              <span class="value">{{ orderDetails.completedVendorOrders }} / {{ orderDetails.vendorOrdersCount }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Info -->
+      <div class="info-section">
+        <h3>
+          <i class="fa-solid fa-credit-card"></i>
+          {{ i18n.currentLang === 'ar' ? 'معلومات الدفع' : 'Payment Information' }}
+        </h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <i class="fa-solid fa-wallet"></i>
+            <div class="info-content">
+              <span class="label">{{ i18n.currentLang === 'ar' ? 'طريقة الدفع' : 'Payment Method' }}</span>
+              <span class="value">{{ orderDetails.paymentMethod || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="info-section">
+        <h3>
+          <i class="fa-solid fa-box"></i>
+          {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
+          <span class="items-count">({{ orderDetails.items.length }})</span>
+        </h3>
+        <div class="items-list">
+          <div *ngFor="let item of orderDetails.items" class="item-row">
+            <img [src]="getImageUrl(item.productImage)" [alt]="item.productNameAr" />
+            <div class="item-info">
+              <span class="item-name">{{ i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn }}</span>
+              <div class="item-details">
+                <span class="item-qty">
+                  <i class="fa-solid fa-box"></i>
+                  {{ i18n.currentLang === 'ar' ? 'الكمية' : 'Qty' }}: {{ item.quantity }}
+                </span>
+                <span class="item-unit-price">{{ formatPrice(item.unitPrice) }}</span>
+              </div>
+            </div>
+            <div class="item-total">
+              <span class="total-label">{{ i18n.currentLang === 'ar' ? 'المجموع' : 'Total' }}</span>
+              <span class="total-price">{{ formatPrice(item.total) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price Summary -->
+      <div class="price-summary">
+        <div class="summary-row">
+          <span>{{ i18n.currentLang === 'ar' ? 'المجموع الفرعي' : 'Subtotal' }}</span>
+          <span>{{ formatPrice(orderDetails.subTotal) }}</span>
+        </div>
+        <div class="summary-row">
+          <span>{{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}</span>
+          <span>{{ formatPrice(orderDetails.shippingCost) }}</span>
+        </div>
+        <div *ngIf="orderDetails.discount > 0" class="summary-row discount">
+          <span>
+            <i class="fa-solid fa-tag"></i>
+            {{ i18n.currentLang === 'ar' ? 'الخصم' : 'Discount' }}
+          </span>
+          <span>-{{ formatPrice(orderDetails.discount) }}</span>
+        </div>
+        <div class="summary-row total">
+          <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+          <span>{{ formatPrice(orderDetails.total) }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="order-actions">
+        <button class="btn-print" (click)="printOrder()">
+          <i class="fa-solid fa-print"></i>
+          {{ i18n.currentLang === 'ar' ? 'طباعة' : 'Print' }}
+        </button>
+        <button class="btn-new-search" (click)="clearSearch()">
+          <i class="fa-solid fa-search"></i>
+          {{ i18n.currentLang === 'ar' ? 'بحث جديد' : 'New Search' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

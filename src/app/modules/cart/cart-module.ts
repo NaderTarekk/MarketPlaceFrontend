@@ -8,6 +8,7 @@ import { OrderComponent } from './components/order/order.component';
 import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
 import { PaymentCancelComponent } from './components/payment-cancel/payment-cancel.component';
 import { MyOrdersComponent } from './components/my-orders/my-orders.component';
+import { BarcodeScannerComponent } from './components/barcode-scanner/barcode-scanner.component';
 
 
 
@@ -17,7 +18,8 @@ import { MyOrdersComponent } from './components/my-orders/my-orders.component';
     OrderComponent,
     PaymentSuccessComponent,
     PaymentCancelComponent,
-    MyOrdersComponent
+    MyOrdersComponent,
+    BarcodeScannerComponent
   ],
   imports: [
     CommonModule,
