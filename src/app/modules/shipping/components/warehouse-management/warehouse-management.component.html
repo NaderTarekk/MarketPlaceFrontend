@@ -1,0 +1,456 @@
+<!-- src/app/modules/warehouse/components/warehouse-management/warehouse-management.component.html -->
+
+<div class="warehouse-page">
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>
+                <i class="fa-solid fa-warehouse"></i>
+                {{ i18n.currentLang === 'ar' ? 'إدارة المخزن' : 'Warehouse Management' }}
+            </h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'نظام إدارة الطلبات بالباركود' : 'QR-based order management' }}</p>
+        </div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+        <button class="tab-btn" [class.active]="activeTab === 'scan'" (click)="activeTab = 'scan'">
+            <i class="fa-solid fa-qrcode"></i>
+            {{ i18n.currentLang === 'ar' ? 'مسح QR' : 'Scan QR' }}
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'shelves'" (click)="activeTab = 'shelves'">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            {{ i18n.currentLang === 'ar' ? 'الرفوف' : 'Shelves' }}
+            <span class="badge">{{ shelves.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">
+            <i class="fa-solid fa-list"></i>
+            {{ i18n.currentLang === 'ar' ? 'جميع الطلبات' : 'All Orders' }}
+            <span class="badge">{{ orders.length }}</span>
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading" class="main-content">
+
+        <!-- ===== SCAN TAB ===== -->
+        <div *ngIf="activeTab === 'scan'" class="tab-content scan-tab">
+
+            <!-- Scan Mode Selector -->
+            <div class="scan-mode-selector">
+                <button class="mode-btn" [class.active]="scanMode === 'customer'"
+                    (click)="scanMode = 'customer'; resetScan()">
+                    <i class="fa-solid fa-user"></i>
+                    <span>{{ i18n.currentLang === 'ar' ? 'QR العميل' : 'Customer QR' }}</span>
+                </button>
+                <button class="mode-btn" [class.active]="scanMode === 'order'" (click)="scanMode = 'order'">
+                    <i class="fa-solid fa-box"></i>
+                    <span>{{ i18n.currentLang === 'ar' ? 'QR الطلب' : 'Order QR' }}</span>
+                </button>
+                <button class="mode-btn" [class.active]="scanMode === 'shelf'" (click)="scanMode = 'shelf'">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>{{ i18n.currentLang === 'ar' ? 'QR الرف' : 'Shelf QR' }}</span>
+                </button>
+            </div>
+
+            <!-- Scan Input -->
+            <div class="scan-input-section">
+                <div class="scan-icon">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="text" class="scan-input"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'امسح أو أدخل رمز QR' : 'Scan or enter QR code'"
+                        [(ngModel)]="currentScanInput" (keyup.enter)="scanQRCode(currentScanInput)" autofocus>
+                    <button class="btn-scan" (click)="scanQRCode(currentScanInput)">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current Scan Status -->
+            <div class="scan-status" *ngIf="currentOrder || currentShelf">
+                <div class="status-card order-card" *ngIf="currentOrder">
+                    <div class="card-icon success">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="card-info">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'الطلب' : 'Order' }}: {{ currentOrder.orderNumber }}</h4>
+                        <p>{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}: {{ currentOrder.vendorName }}</p>
+                        <p *ngIf="currentOrder.shelfCode">
+                            {{ i18n.currentLang === 'ar' ? 'الرف' : 'Shelf' }}: <strong>{{ currentOrder.shelfCode
+                                }}</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="status-card shelf-card" *ngIf="currentShelf">
+                    <div class="card-icon info">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="card-info">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'الرف' : 'Shelf' }}: {{ currentShelf.code }}</h4>
+                        <p *ngIf="currentShelf.description">{{ currentShelf.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Action -->
+            <div class="store-action" *ngIf="currentOrder && currentShelf">
+                <div class="form-group">
+                    <label>{{ i18n.currentLang === 'ar' ? 'ملاحظات (اختياري)' : 'Notes (optional)' }}</label>
+                    <textarea [(ngModel)]="notes" rows="2"></textarea>
+                </div>
+                <button class="btn-store" (click)="storeOrder()">
+                    <i class="fa-solid fa-save"></i>
+                    {{ i18n.currentLang === 'ar' ? 'حفظ الطلب في الرف' : 'Store Order in Shelf' }}
+                </button>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <h3>
+                    <i class="fa-solid fa-search"></i>
+                    {{ i18n.currentLang === 'ar' ? 'بحث' : 'Search' }}
+                </h3>
+
+                <div class="search-type-selector">
+                    <label>
+                        <input type="radio" value="order" [(ngModel)]="searchType">
+                        {{ i18n.currentLang === 'ar' ? 'رقم الطلب' : 'Order Number' }}
+                    </label>
+                    <label>
+                        <input type="radio" value="phone" [(ngModel)]="searchType">
+                        {{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}
+                    </label>
+                    <label>
+                        <input type="radio" value="qr" [(ngModel)]="searchType">
+                        {{ i18n.currentLang === 'ar' ? 'QR Code' : 'QR Code' }}
+                    </label>
+                </div>
+
+                <div class="search-input-wrapper">
+                    <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="performSearch()"
+                        [placeholder]="i18n.currentLang === 'ar' ? 'ابحث...' : 'Search...'">
+                    <button class="btn-search" (click)="performSearch()">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
+                </div>
+
+                <!-- Search Results -->
+                <div class="search-results" *ngIf="searchResults.length > 0">
+                    <div *ngFor="let order of searchResults" class="result-card">
+                        <div class="result-header">
+                            <span class="order-number">{{ order.orderNumber }}</span>
+                            <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+                                {{ getStatusText(order.status) }}
+                            </span>
+                        </div>
+                        <div class="result-body">
+                            <p><strong>{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}:</strong> {{
+                                order.vendorName }}</p>
+                            <p *ngIf="order.shelfCode">
+                                <strong>{{ i18n.currentLang === 'ar' ? 'الرف' : 'Shelf' }}:</strong>
+                                <span class="shelf-code" style="color: #fff;">{{ order.shelfCode }}</span>
+                            </p>
+                            <p class="created-date">{{ formatDate(order.createdAt) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SHELVES TAB ===== -->
+        <div *ngIf="activeTab === 'shelves'" class="tab-content">
+            <div class="actions-bar">
+                <button class="btn-create" (click)="openCreateShelfModal()">
+                    <i class="fa-solid fa-plus"></i>
+                    {{ i18n.currentLang === 'ar' ? 'إنشاء رف جديد' : 'Create New Shelf' }}
+                </button>
+            </div>
+
+           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-6">
+  
+  <div *ngFor="let shelf of shelves" class="group relative bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl overflow-hidden border border-slate-700/50 shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-500/40 transition-all duration-300 hover:-translate-y-1">
+    
+    <!-- Top accent bar -->
+    <div class="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500"></div>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 pt-4 pb-3">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_2px_rgba(52,211,153,0.5)] animate-pulse"></div>
+        <span class="text-white font-bold text-lg tracking-widest font-mono uppercase">
+          {{ shelf.code }}
+        </span>
+      </div>
+      <button
+        (click)="deleteShelf(shelf.id)"
+        class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-700/60 text-slate-400 hover:bg-red-500/20 hover:text-red-400 border border-transparent hover:border-red-500/30 transition-all duration-200"
+      >
+        <i class="fa-solid fa-trash text-xs"></i>
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="mx-5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+
+    <!-- Body -->
+    <div class="px-5 py-4 space-y-3">
+
+      <!-- Description -->
+      <p *ngIf="shelf.description" class="text-slate-400 text-sm leading-relaxed line-clamp-2">
+        {{ shelf.description }}
+      </p>
+
+      <!-- QR Code -->
+      <div class="flex items-center gap-3 bg-slate-700/40 rounded-xl px-3 py-2.5 border border-slate-600/30">
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-qrcode text-indigo-400 text-sm"></i>
+        </div>
+        <span class="text-slate-300 text-xs font-mono tracking-wider truncate">
+          {{ shelf.qrCode }}
+        </span>
+      </div>
+
+      <!-- Stats -->
+      <div class="flex items-center gap-3 bg-slate-700/40 rounded-xl px-3 py-2.5 border border-slate-600/30">
+        <div class="w-8 h-8 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-box text-violet-400 text-sm"></i>
+        </div>
+        <span class="text-slate-300 text-sm font-semibold">{{ shelf.ordersCount }}</span>
+        <span class="text-slate-500 text-xs">
+          {{ i18n.currentLang === 'ar' ? 'طلبات' : 'orders' }}
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Bottom glow on hover -->
+    <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+  </div>
+
+</div>
+        </div>
+
+        <!-- ===== ORDERS TAB ===== -->
+        <!-- src/app/modules/warehouse/components/warehouse-management/warehouse-management.component.html -->
+
+<!-- ===== ORDERS TAB ===== -->
+<div *ngIf="activeTab === 'orders'" class="tab-content">
+    <div class="orders-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ i18n.currentLang === 'ar' ? 'رقم الطلب' : 'Order #' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'الرف' : 'Shelf' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'التاريخ' : 'Date' }}</th>
+                    <th>{{ i18n.currentLang === 'ar' ? 'تاريخ الاستلام' : 'Picked Up' }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let order of orders">
+                    <td>{{ order.orderNumber }}</td>
+                    <td>{{ order.vendorName }}</td>
+                    <td>
+                        <span *ngIf="order.shelfCode" class="shelf-badge">{{ order.shelfCode }}</span>
+                        <span *ngIf="!order.shelfCode" class="no-shelf">-</span>
+                    </td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+                            {{ getStatusText(order.status) }}
+                        </span>
+                    </td>
+                    <td>{{ formatDate(order.createdAt) }}</td>
+                    <td>
+                        <span *ngIf="order.pickedAt">{{ formatDate(order.pickedAt) }}</span>
+                        <span *ngIf="!order.pickedAt" class="no-shelf">-</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Create Shelf Modal -->
+<div class="modal-overlay" [class.show]="showCreateShelfModal" (click)="closeCreateShelfModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>
+                <i class="fa-solid fa-plus"></i>
+                {{ i18n.currentLang === 'ar' ? 'إنشاء رف جديد' : 'Create New Shelf' }}
+            </h3>
+            <button class="close-btn" (click)="closeCreateShelfModal()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'رقم الرف' : 'Shelf Code' }}</label>
+                <input type="text" [(ngModel)]="newShelf.code" placeholder="A01, B02, etc.">
+            </div>
+
+            <div class="form-group">
+                <label>{{ i18n.currentLang === 'ar' ? 'الوصف (اختياري)' : 'Description (optional)' }}</label>
+                <textarea [(ngModel)]="newShelf.description" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="closeCreateShelfModal()">
+                {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button class="btn-confirm" (click)="createShelf()">
+                <i class="fa-solid fa-check"></i>
+                {{ i18n.currentLang === 'ar' ? 'إنشاء' : 'Create' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Orders Modal -->
+<div class="modal-overlay" [class.show]="showCustomerOrdersModal" (click)="closeCustomerOrdersModal()">
+    <div class="modal large-modal" (click)="$event.stopPropagation()" *ngIf="customerOrders">
+        <div class="modal-header">
+            <h3>
+                <i class="fa-solid fa-user"></i>
+                {{ customerOrders.customerName }}
+            </h3>
+            <button class="close-btn" (click)="closeCustomerOrdersModal()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="customer-info">
+                <p><i class="fa-solid fa-phone"></i> {{ customerOrders.customerPhone }}</p>
+                <p><i class="fa-solid fa-qrcode"></i> {{ customerOrders.customerQRCode }}</p>
+            </div>
+
+            <h4 class="orders-title">
+                {{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}
+                <span class="count">({{ customerOrders.orders.length }})</span>
+            </h4>
+
+            <div class="customer-orders-list">
+                <div *ngFor="let order of customerOrders.orders" class="customer-order-card">
+                    <div class="order-card-header">
+                        <span class="order-number">{{ order.orderNumber }}</span>
+                        <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+                            {{ getStatusText(order.status) }}
+                        </span>
+                    </div>
+                    <div class="order-card-body">
+                        <div class="order-info-row">
+                            <i class="fa-solid fa-store"></i>
+                            <span>{{ order.vendorName }}</span>
+                        </div>
+                        <div class="order-info-row" *ngIf="order.shelfCode">
+                            <i class="fa-solid fa-warehouse"></i>
+                            <span class="shelf-location">
+                                {{ i18n.currentLang === 'ar' ? 'الرف' : 'Shelf' }}:
+                                <strong>{{ order.shelfCode }}</strong>
+                            </span>
+                        </div>
+                        <div class="order-info-row">
+                            <i class="fa-solid fa-coins"></i>
+                            <span>{{ order.total.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                        </div>
+                    </div>
+                    <div class="order-card-footer" *ngIf="order.status === WarehouseOrderStatus.ReadyForPickup">
+                        <button class="btn-pickup" (click)="pickupOrder(order.orderQRCode)">
+                            <i class="fa-solid fa-hand-holding-box"></i>
+                            {{ i18n.currentLang === 'ar' ? 'تم الاستلام' : 'Mark as Picked Up' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div 
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300"
+  [class.opacity-0]="!showDeleteConfirmModal"
+  [class.pointer-events-none]="!showDeleteConfirmModal"
+  [class.opacity-100]="showDeleteConfirmModal"
+>
+  <!-- Backdrop -->
+  <div 
+    class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+    (click)="cancelDeleteShelf()"
+  ></div>
+
+  <!-- Dialog -->
+  <div 
+    class="relative bg-gradient-to-b from-slate-800 to-slate-900 border border-red-500/30 rounded-2xl shadow-2xl shadow-red-500/10 w-full max-w-sm overflow-hidden transition-all duration-300"
+    [class.scale-95]="!showDeleteConfirmModal"
+    [class.scale-100]="showDeleteConfirmModal"
+  >
+    <!-- Top red accent bar -->
+    <div class="h-1 w-full bg-gradient-to-r from-red-600 via-rose-500 to-pink-500"></div>
+
+    <!-- Icon -->
+    <div class="flex flex-col items-center pt-8 pb-2 px-6">
+      <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(239,68,68,0.15)]">
+        <i class="fa-solid fa-trash text-red-400 text-2xl"></i>
+      </div>
+
+      <h3 class="text-white font-bold text-xl mb-2">
+        {{ i18n.currentLang === 'ar' ? 'حذف الرف' : 'Delete Shelf' }}
+      </h3>
+      <p class="text-slate-400 text-sm text-center leading-relaxed">
+        {{ i18n.currentLang === 'ar' 
+          ? 'هل أنت متأكد من حذف هذا الرف؟ لا يمكن التراجع عن هذا الإجراء.' 
+          : 'Are you sure you want to delete this shelf? This action cannot be undone.' 
+        }}
+      </p>
+    </div>
+
+    <!-- Divider -->
+    <div class="mx-6 my-5 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3 px-6 pb-6">
+      <button
+        (click)="cancelDeleteShelf()"
+        class="flex-1 py-2.5 rounded-xl bg-slate-700/60 text-slate-300 font-medium border border-slate-600/40 hover:bg-slate-700 hover:text-white transition-all duration-200"
+      >
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button
+        (click)="confirmDeleteShelf()"
+        class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-500 text-white font-semibold hover:from-red-500 hover:to-rose-400 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-200 flex items-center justify-center gap-2"
+      >
+        <i class="fa-solid fa-trash text-sm"></i>
+        {{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'" [class.info]="toast.type === 'info'">
+    <i class="fa-solid" [ngClass]="{
+    'fa-check-circle': toast.type === 'success',
+    'fa-exclamation-circle': toast.type === 'error',
+    'fa-info-circle': toast.type === 'info'
+  }"></i>
+    <span>{{ toast.message }}</span>
+</div>

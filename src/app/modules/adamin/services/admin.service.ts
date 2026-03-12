@@ -24,7 +24,10 @@ import {
   FinancialReport, 
   Settlement, 
   CreateSettlement, 
-  UpdateCommissionRate 
+  UpdateCommissionRate,
+  CreateVendorWithdrawal,
+  VendorWithdrawalHistory,
+  VendorWithdrawalSummary
 } from '../../../models/financial-reports';
 
 @Injectable({
@@ -188,4 +191,27 @@ export class AdminReportsService {
     if (userId) params = params.set('userId', userId);
     return this.http.get<ApiResponse<Settlement[]>>(`${environment.adminUrl}/settlements`, { params });
   }
+
+  getVendorWithdrawalsSummary(): Observable<ApiResponse<VendorWithdrawalSummary[]>> {
+  return this.http.get<ApiResponse<VendorWithdrawalSummary[]>>(
+    `${environment.adminUrl}/vendor-withdrawals/summary`
+  );
+}
+
+createVendorWithdrawal(dto: CreateVendorWithdrawal): Observable<ApiResponse<any>> {
+  return this.http.post<ApiResponse<any>>(
+    `${environment.adminUrl}/vendor-withdrawals`, 
+    dto
+  );
+}
+
+getVendorWithdrawalHistory(vendorId?: string): Observable<ApiResponse<VendorWithdrawalHistory[]>> {
+  let params = new HttpParams();
+  if (vendorId) params = params.set('vendorId', vendorId);
+  
+  return this.http.get<ApiResponse<VendorWithdrawalHistory[]>>(
+    `${environment.adminUrl}/vendor-withdrawals/history`,
+    { params }
+  );
+}
 }

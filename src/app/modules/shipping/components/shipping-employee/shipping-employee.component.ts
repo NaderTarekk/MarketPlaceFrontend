@@ -26,7 +26,7 @@ export class ShippingEmployeeComponent implements OnInit {
   orderDeliveryTypes: Map<number, DeliveryType> = new Map();
   // UI State
   isLoading = true;
-  activeTab: 'pending' | 'shipments' | 'agents' | 'failures' = 'pending';
+  activeTab: 'pending' | 'shipments' | 'agents' | 'warehouse' = 'pending';
 
   // Assignment
   selectedOrders: number[] = [];
@@ -50,6 +50,9 @@ export class ShippingEmployeeComponent implements OnInit {
   DeliveryType = DeliveryType;
   ShipmentStatus = ShipmentStatus;
 
+  showPickupConfirmModal = false;
+  shipmentToPickupId: number | null = null;
+
   constructor(
     public i18n: I18nService,
     private shippingService: ShippingService,
@@ -63,61 +66,61 @@ export class ShippingEmployeeComponent implements OnInit {
   }
 
   loadData(): void {
-  this.isLoading = true;
+    this.isLoading = true;
 
-  // Load pending orders
-  this.shippingService.getPendingVendorOrders().subscribe({
-    next: (res) => {
-      if (res.success) {
-        console.log(res);
-        
-        this.pendingOrders = res.data.map(order => ({
-          ...order,
-          items: order.items.map(item => ({
-            ...item,
-            productImage: this.getImageUrl(item.productImage)
-          }))
-        }));
-        this.pendingOrders.forEach(order => {
-          this.orderDeliveryTypes.set(order.id, order.deliveryType);
-        });
-      }
-      this.cdr.detectChanges();
-    }
-  });
+    // Load pending orders
+    this.shippingService.getPendingVendorOrders().subscribe({
+      next: (res) => {
+        if (res.success) {
+          console.log(res);
 
-  this.shippingService.getUnresolvedFailures().subscribe({
-    next: (res) => {
-      if (res.success) {
-        this.deliveryFailures = res.data;
+          this.pendingOrders = res.data.map(order => ({
+            ...order,
+            items: order.items.map(item => ({
+              ...item,
+              productImage: this.getImageUrl(item.productImage)
+            }))
+          }));
+          this.pendingOrders.forEach(order => {
+            this.orderDeliveryTypes.set(order.id, order.deliveryType);
+          });
+        }
+        this.cdr.detectChanges();
       }
-    }
-  });
+    });
 
-  // Load shipments
-  this.shippingService.getAllShipments({ page: 1, pageSize: 50 }).subscribe({
-    next: (res) => {
-      if (res.success) {
-        this.shipments = res.data;
+    this.shippingService.getUnresolvedFailures().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.deliveryFailures = res.data;
+        }
       }
-      this.cdr.detectChanges();
-    }
-  });
+    });
 
-  // Load delivery agents
-  this.shippingService.getAvailableDeliveryAgents().subscribe({
-    next: (res) => {
-      if (res.success) {
-        this.deliveryAgents = res.data;
+    // Load shipments
+    this.shippingService.getAllShipments({ page: 1, pageSize: 50 }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.shipments = res.data;
+        }
+        this.cdr.detectChanges();
       }
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    },
-    error: () => {
-      this.isLoading = false;
-    }
-  });
-}
+    });
+
+    // Load delivery agents
+    this.shippingService.getAvailableDeliveryAgents().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.deliveryAgents = res.data;
+        }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
 
   getImageUrl(image: string | null): string {
     if (!image) return 'assets/images/placeholder.png';
@@ -245,37 +248,6 @@ export class ShippingEmployeeComponent implements OnInit {
     return deliveryType === DeliveryType.ToWarehouse
       ? (this.i18n.currentLang === 'ar' ? 'للمخزن' : 'To Warehouse')
       : (this.i18n.currentLang === 'ar' ? 'للعميل مباشرة' : 'Direct to Customer');
-  }
-
-
-  markAsPickedByCustomer(shipmentId: number): void {
-    if (!confirm(
-      this.i18n.currentLang === 'ar'
-        ? 'هل تم استلام الشحنة من قبل العميل؟'
-        : 'Has the customer picked up the shipment?'
-    )) {
-      return;
-    }
-
-    this.shippingService.markShipmentDelivered(shipmentId).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.showToast(
-            this.i18n.currentLang === 'ar'
-              ? 'تم تأكيد استلام العميل للشحنة'
-              : 'Customer pickup confirmed',
-            'success'
-          );
-          this.loadData();
-          this.closeShipmentModal();
-        } else {
-          this.showToast(res.message || this.t('error'), 'error');
-        }
-      },
-      error: (err) => {
-        this.showToast(err.error?.message || this.t('error'), 'error');
-      }
-    });
   }
 
 
@@ -580,5 +552,46 @@ export class ShippingEmployeeComponent implements OnInit {
       'error': { ar: 'حدث خطأ', en: 'An error occurred' }
     };
     return translations[key]?.[this.i18n.currentLang] || key;
+  }
+
+  markAsPickedByCustomer(shipmentId: number): void {
+    this.shipmentToPickupId = shipmentId;
+    this.showPickupConfirmModal = true;
+     this.showShipmentModal = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmPickup(): void {
+    if (!this.shipmentToPickupId) return;
+
+    this.shippingService.markShipmentDelivered(this.shipmentToPickupId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? 'تم تأكيد استلام العميل للشحنة'
+              : 'Customer pickup confirmed',
+            'success'
+          );
+          this.loadData();
+          this.closeShipmentModal();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || this.t('error'), 'error');
+      }
+    });
+
+    this.showPickupConfirmModal = false;
+    this.shipmentToPickupId = null;
+  }
+
+  cancelPickup(): void {
+    this.showPickupConfirmModal = false;
+    this.shipmentToPickupId = null;
+     this.showShipmentModal = true; 
   }
 }

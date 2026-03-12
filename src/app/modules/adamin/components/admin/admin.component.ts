@@ -4,7 +4,7 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { AdminReportsService } from '../../services/admin.service';
 import { ProductsService } from '../../../products/services/products.service';
 import { ProductList } from '../../../../models/products';
-import { VendorList, VendorDetailedReport, DeliveryAgentList, DeliveryAgentReport, ShippingEmployeeList, ShippingEmployeeReport, FinancialReport, Settlement } from '../../../../models/financial-reports';
+import { VendorList, VendorDetailedReport, DeliveryAgentList, DeliveryAgentReport, ShippingEmployeeList, ShippingEmployeeReport, FinancialReport, Settlement, VendorWithdrawalHistory, VendorWithdrawalSummary, CreateVendorWithdrawal } from '../../../../models/financial-reports';
 import { environment } from '../../../../../environment';
 
 @Component({
@@ -15,7 +15,7 @@ import { environment } from '../../../../../environment';
 })
 export class AdminComponent implements OnInit {
   // Active Tab
-  activeTab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' = 'dashboard';
+  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' = 'dashboard';
 
   // Loading States
   isLoading = false;
@@ -150,6 +150,18 @@ export class AdminComponent implements OnInit {
   settlements: Settlement[] = [];
   isLoadingSettlements = false;
 
+  // ═══════════════════════════════════════════════
+  // VENDOR WITHDRAWALS DATA
+  // ═══════════════════════════════════════════════
+  vendorWithdrawals: VendorWithdrawalSummary[] = [];
+  isLoadingWithdrawals = false;
+  selectedVendorForWithdrawal: VendorWithdrawalSummary | null = null;
+  showWithdrawalModal = false;
+  withdrawalAmount = 0;
+  withdrawalNotes = '';
+  withdrawalHistory: VendorWithdrawalHistory[] = [];
+  showWithdrawalHistory = false;
+  isLoadingHistory = false;
 
   constructor(
     public i18n: I18nService,
@@ -234,7 +246,7 @@ export class AdminComponent implements OnInit {
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
   // ✅ عدّل الـ switchTab Method
-  switchTab(tab: 'dashboard' | 'users' | 'sales' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial'): void {
+  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals'): void {
     this.activeTab = tab;
 
     switch (tab) {
@@ -244,9 +256,9 @@ export class AdminComponent implements OnInit {
       case 'users':
         if (this.users.length === 0) this.loadUsers();
         break;
-      case 'sales':
-        if (!this.salesReport) this.loadSalesReport();
-        break;
+      // case 'sales':
+      //   if (!this.salesReport) this.loadSalesReport();
+      //   break;
       case 'inventory':
         if (!this.inventoryReport) this.loadInventoryReport();
         break;
@@ -264,6 +276,9 @@ export class AdminComponent implements OnInit {
         break;
       case 'financial':
         if (!this.financialReport) this.loadFinancialReport();
+        break;
+      case 'withdrawals':
+        if (this.vendorWithdrawals.length === 0) this.loadVendorWithdrawals();
         break;
     }
   }
@@ -960,35 +975,35 @@ export class AdminComponent implements OnInit {
   // PENDING PRODUCTS
   // ═══════════════════════════════════════════════
 
-loadPendingProducts(page: number = 1): void {
-  this.isLoadingProducts = true;
-  this.productsService.getPendingProducts(page, 10).subscribe({
-    next: (res) => {
-      if (res.success) {
-        this.pendingProducts = res.data.map(product => ({
-          ...product,
-          mainImage: this.getImageUrl(product.mainImage)
-        }));
-        this.productsPagination = {
-          currentPage: res.pagination.currentPage,
-          totalPages: res.pagination.totalPages,
-          totalCount: res.pagination.totalCount,
-          hasNext: res.pagination.hasNext,
-          hasPrevious: res.pagination.hasPrevious
-        };
+  loadPendingProducts(page: number = 1): void {
+    this.isLoadingProducts = true;
+    this.productsService.getPendingProducts(page, 10).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.pendingProducts = res.data.map(product => ({
+            ...product,
+            mainImage: this.getImageUrl(product.mainImage)
+          }));
+          this.productsPagination = {
+            currentPage: res.pagination.currentPage,
+            totalPages: res.pagination.totalPages,
+            totalCount: res.pagination.totalCount,
+            hasNext: res.pagination.hasNext,
+            hasPrevious: res.pagination.hasPrevious
+          };
+        }
+        this.isLoadingProducts = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingProducts = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ في تحميل المنتجات' : 'Error loading products',
+          'error'
+        );
       }
-      this.isLoadingProducts = false;
-      this.cdr.detectChanges();
-    },
-    error: () => {
-      this.isLoadingProducts = false;
-      this.showToast(
-        this.i18n.currentLang === 'ar' ? 'حدث خطأ في تحميل المنتجات' : 'Error loading products',
-        'error'
-      );
-    }
-  });
-}
+    });
+  }
 
   goToProductsPage(page: number): void {
     this.loadPendingProducts(page);
@@ -1244,11 +1259,11 @@ loadPendingProducts(page: number = 1): void {
     });
   }
 
-   getImageUrl(image: string | null): string {
-      if (!image) return 'assets/images/placeholder.png';
-      if (image.startsWith('http') || image.startsWith('data:')) return image;
-      return `${environment.baseApi}${image}`;
-    }
+  getImageUrl(image: string | null): string {
+    if (!image) return 'assets/images/placeholder.png';
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `${environment.baseApi}${image}`;
+  }
 
   closeEmployeeModal(): void {
     this.showEmployeeModal = false;
@@ -1264,5 +1279,127 @@ loadPendingProducts(page: number = 1): void {
 
   trackByEmployee(index: number, employee: ShippingEmployeeList): string {
     return employee.id;
+  }
+
+  loadVendorWithdrawals(): void {
+    this.isLoadingWithdrawals = true;
+    this.adminService.getVendorWithdrawalsSummary().subscribe({
+      next: (res) => {
+        console.log("Withdrawal Summary: ", res);
+        
+        if (res.success) {
+          this.vendorWithdrawals = res.data;
+        }
+        this.isLoadingWithdrawals = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingWithdrawals = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading withdrawals',
+          'error'
+        );
+      }
+    });
+  }
+
+  openWithdrawalModal(vendor: VendorWithdrawalSummary): void {
+    this.selectedVendorForWithdrawal = vendor;
+    this.withdrawalAmount = 0;
+    this.withdrawalNotes = '';
+    this.showWithdrawalModal = true;
+  }
+
+  closeWithdrawalModal(): void {
+    this.showWithdrawalModal = false;
+    this.selectedVendorForWithdrawal = null;
+    this.withdrawalAmount = 0;
+    this.withdrawalNotes = '';
+  }
+
+  confirmWithdrawal(): void {
+    if (!this.selectedVendorForWithdrawal) return;
+
+    if (this.withdrawalAmount <= 0) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'المبلغ يجب أن يكون أكبر من صفر' : 'Amount must be greater than zero',
+        'error'
+      );
+      return;
+    }
+
+    if (this.withdrawalAmount > this.selectedVendorForWithdrawal.availableForWithdrawal) {
+      this.showToast(
+        this.i18n.currentLang === 'ar'
+          ? `المبلغ يتجاوز المتاح (${this.selectedVendorForWithdrawal.availableForWithdrawal.toFixed(2)})`
+          : `Amount exceeds available balance (${this.selectedVendorForWithdrawal.availableForWithdrawal.toFixed(2)})`,
+        'error'
+      );
+      return;
+    }
+
+    this.isProcessing = true;
+
+    const dto: CreateVendorWithdrawal = {
+      vendorId: this.selectedVendorForWithdrawal.vendorId,
+      amount: this.withdrawalAmount,
+      notes: this.withdrawalNotes || undefined
+    };
+
+    this.adminService.createVendorWithdrawal(dto).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم تسجيل السحب بنجاح' : 'Withdrawal recorded successfully',
+            'success'
+          );
+          this.loadVendorWithdrawals(); // ✅ Refresh
+          this.closeWithdrawalModal();
+        }
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error recording withdrawal',
+          'error'
+        );
+      }
+    });
+  }
+
+  openWithdrawalHistory(vendorId?: string): void {
+    this.isLoadingHistory = true;
+    this.showWithdrawalHistory = true;
+
+    this.adminService.getVendorWithdrawalHistory(vendorId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.withdrawalHistory = res.data;
+        }
+        this.isLoadingHistory = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingHistory = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading history',
+          'error'
+        );
+      }
+    });
+  }
+
+  closeWithdrawalHistory(): void {
+    this.showWithdrawalHistory = false;
+    this.withdrawalHistory = [];
+  }
+
+  trackByVendorWithdrawal(index: number, vendor: VendorWithdrawalSummary): string {
+    return vendor.vendorId;
+  }
+
+  trackByWithdrawalHistory(index: number, item: VendorWithdrawalHistory): number {
+    return item.id;
   }
 }

@@ -8,6 +8,7 @@ import { ShippingService } from './services/shipping.service';
 import { VendorShippingComponent } from './components/vendor-shipping/vendor-shipping.component';
 import { DeliveryAgentComponent } from './components/delivery-agent/delivery-agent.component';
 import { ShipmentTrackingComponent } from './components/shipment-tracking/shipment-tracking.component';
+import { WarehouseManagementComponent } from './components/warehouse-management/warehouse-management.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { ShipmentTrackingComponent } from './components/shipment-tracking/shipme
     ShipmentTrackingComponent,
     VendorShippingComponent,
     DeliveryAgentComponent,
+    WarehouseManagementComponent,
   ],
   imports: [
     CommonModule,

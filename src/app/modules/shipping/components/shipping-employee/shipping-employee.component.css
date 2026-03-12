@@ -1270,7 +1270,7 @@
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 1000;
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -1522,4 +1522,257 @@
 .delivery-type-badge.direct {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
+}
+
+/* shipping-employee.component.css - Add at the end */
+
+/* Warehouse Redirect */
+.warehouse-redirect {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 40px 20px;
+}
+
+.redirect-card {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 40px;
+  text-align: center;
+  max-width: 500px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.redirect-card i {
+  font-size: 4rem;
+  color: #667eea;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.redirect-card h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #1e293b;
+}
+
+.redirect-card p {
+  color: #64748b;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.btn-goto-warehouse {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-goto-warehouse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-goto-warehouse i {
+  font-size: 1rem;
+  color: white;
+}
+
+/* Add to CSS */
+.btn-warehouse-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-warehouse-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+/* Add to shipping-employee.component.css */
+
+.pickup-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.pickup-modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10000 !important;
+}
+
+.pickup-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.pickup-dialog {
+  position: relative;
+  background: linear-gradient(to bottom, #1e293b, #0f172a);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.1);
+  width: 100%;
+  max-width: 28rem;
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.3s;
+}
+
+.pickup-modal-overlay.show .pickup-dialog {
+  transform: scale(1);
+}
+
+.pickup-accent-bar {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(to right, #10b981, #2dd4bf, #22d3ee);
+}
+
+.pickup-icon-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 0.5rem;
+}
+
+.pickup-icon-circle {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+  position: relative;
+}
+
+.pickup-icon-circle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(16, 185, 129, 0.5);
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pickup-icon-circle i {
+  color: #34d399;
+  font-size: 1.875rem;
+  z-index: 10;
+}
+
+.pickup-title {
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.pickup-text {
+  color: #cbd5e1;
+  font-size: 1rem;
+  text-align: center;
+  line-height: 1.625;
+  padding: 0 1rem;
+}
+
+.pickup-subtext {
+  color: #64748b;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.pickup-divider {
+  margin: 1.5rem 1.5rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #475569, transparent);
+}
+
+.pickup-buttons {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.pickup-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.pickup-btn-cancel {
+  background: rgba(51, 65, 85, 0.6);
+  color: #cbd5e1;
+  border: 1px solid rgba(71, 85, 105, 0.4);
+}
+
+.pickup-btn-cancel:hover {
+  background: #334155;
+  color: white;
+}
+
+.pickup-btn-confirm {
+  background: linear-gradient(to right, #059669, #14b8a6);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+}
+
+.pickup-btn-confirm:hover {
+  background: linear-gradient(to right, #10b981, #2dd4bf);
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.5);
+}
+
+.pickup-btn i {
+  font-size: 0.875rem;
 }

@@ -8,6 +8,10 @@
         {{ i18n.currentLang === 'ar' ? 'إدارة الشحنات' : 'Shipping Management' }}
       </h1>
       <p>{{ i18n.currentLang === 'ar' ? 'توزيع المناديب ومتابعة الشحنات' : 'Assign agents and track shipments' }}</p>
+      <a routerLink="/shipping/warehouse" class="btn-warehouse-link">
+        <i class="fa-solid fa-warehouse"></i>
+        {{ i18n.currentLang === 'ar' ? 'إدارة المخزن' : 'Warehouse Management' }}
+      </a>
     </div>
   </section>
 
@@ -25,6 +29,11 @@
     <button class="tab-btn" [class.active]="activeTab === 'agents'" (click)="activeTab = 'agents'">
       <i class="fa-solid fa-users"></i>
       {{ i18n.currentLang === 'ar' ? 'المناديب' : 'Agents' }}
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'warehouse'" (click)="activeTab = 'warehouse'">
+      <i class="fa-solid fa-warehouse"></i>
+      {{ i18n.currentLang === 'ar' ? 'إدارة المخزن' : 'Warehouse' }}
     </button>
     <!-- <button class="tab-btn" [class.active]="activeTab === 'failures'" (click)="activeTab = 'failures'">
       <i class="fa-solid fa-exclamation-triangle"></i>
@@ -61,7 +70,7 @@
         <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات منتظرة' : 'No pending orders' }}</h3>
       </div>
 
-<!-- <div class="delivery-type-filter" *ngIf="pendingOrders.length > 0">
+      <!-- <div class="delivery-type-filter" *ngIf="pendingOrders.length > 0">
   <button class="filter-btn" 
           [class.active]="deliveryTypeFilter === null"
           (click)="deliveryTypeFilter = null">
@@ -222,8 +231,26 @@
       </div>
     </div>
 
+    <!-- Warehouse Tab -->
+    <div *ngIf="activeTab === 'warehouse'" class="tab-content">
+      <div class="warehouse-redirect">
+        <div class="redirect-card">
+          <i class="fa-solid fa-warehouse"></i>
+          <h3>{{ i18n.currentLang === 'ar' ? 'إدارة المخزن' : 'Warehouse Management' }}</h3>
+          <p>{{ i18n.currentLang === 'ar'
+            ? 'نظام إدارة الطلبات داخل المخزن باستخدام QR Code'
+            : 'Manage warehouse orders using QR Code system'
+            }}</p>
+          <a routerLink="/shipping/warehouse" class="btn-goto-warehouse">
+            <i class="fa-solid fa-arrow-right"></i>
+            {{ i18n.currentLang === 'ar' ? 'انتقل إلى إدارة المخزن' : 'Go to Warehouse Management' }}
+          </a>
+        </div>
+      </div>
+    </div>
+
     <!-- Failures Tab -->
-    <div *ngIf="activeTab === 'failures'" class="tab-content">
+    <!-- <div *ngIf="activeTab === 'failures'" class="tab-content">
       <div *ngIf="deliveryFailures.length === 0" class="empty-state">
         <i class="fa-solid fa-check-double"></i>
         <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد حالات فشل' : 'No delivery failures' }}</h3>
@@ -265,7 +292,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </div>
 
@@ -508,4 +535,51 @@
   [class.error]="toast.type === 'error'">
   <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
   <span>{{ toast.message }}</span>
+</div>
+
+<!-- Pickup Confirmation Modal -->
+<div class="pickup-modal-overlay" [class.show]="showPickupConfirmModal">
+  <div class="pickup-backdrop" (click)="cancelPickup()"></div>
+  
+  <div class="pickup-dialog">
+    <div class="pickup-accent-bar"></div>
+    
+    <div class="pickup-icon-wrapper">
+      <div class="pickup-icon-circle">
+        <i class="fa-solid fa-hand-holding-dollar"></i>
+      </div>
+      
+      <h3 class="pickup-title">
+        {{ i18n.currentLang === 'ar' ? 'تأكيد الاستلام' : 'Confirm Pickup' }}
+      </h3>
+      
+      <p class="pickup-text">
+        {{ i18n.currentLang === 'ar' 
+          ? 'هل تم استلام الشحنة من قبل العميل؟' 
+          : 'Has the customer picked up the shipment?' 
+        }}
+      </p>
+      
+      <p class="pickup-subtext">
+        {{ i18n.currentLang === 'ar' 
+          ? 'سيتم تحديث حالة الطلب إلى "تم التسليم"' 
+          : 'Order status will be updated to "Delivered"' 
+        }}
+      </p>
+    </div>
+    
+    <div class="pickup-divider"></div>
+    
+    <div class="pickup-buttons">
+      <button class="pickup-btn pickup-btn-cancel" (click)="cancelPickup()">
+        <i class="fa-solid fa-times"></i>
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      
+      <button class="pickup-btn pickup-btn-confirm" (click)="confirmPickup()">
+        <i class="fa-solid fa-check"></i>
+        {{ i18n.currentLang === 'ar' ? 'تأكيد الاستلام' : 'Confirm Pickup' }}
+      </button>
+    </div>
+  </div>
 </div>

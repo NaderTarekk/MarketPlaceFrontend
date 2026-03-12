@@ -175,3 +175,30 @@ export interface TopSellingProduct {
   totalSold: number;
   totalRevenue: number;
 }
+
+export interface VendorWithdrawalSummary {
+  vendorId: string;
+  vendorName: string;
+  email?: string;
+  businessName?: string;
+  totalEarnings: number;
+  totalWithdrawn: number;
+  availableForWithdrawal: number;
+  lastWithdrawalDate?: string;
+}
+
+export interface CreateVendorWithdrawal {
+  vendorId: string;
+  amount: number;
+  notes?: string;
+}
+
+export interface VendorWithdrawalHistory {
+  id: number;
+  vendorId: string;
+  vendorName: string;
+  amount: number;
+  withdrawalDate: string;
+  adminName?: string;
+  notes?: string;
+}

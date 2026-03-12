@@ -4,12 +4,14 @@ import { DeliveryAgentComponent } from '../modules/shipping/components/delivery-
 import { ShipmentTrackingComponent } from '../modules/shipping/components/shipment-tracking/shipment-tracking.component';
 import { ShippingEmployeeComponent } from '../modules/shipping/components/shipping-employee/shipping-employee.component';
 import { VendorShippingComponent } from '../modules/shipping/components/vendor-shipping/vendor-shipping.component';
+import { WarehouseManagementComponent } from '../modules/shipping/components/warehouse-management/warehouse-management.component';
 
 const routes: Routes = [
    { path: 'employee', component: ShippingEmployeeComponent },
     { path: 'agent', component: DeliveryAgentComponent },
     { path: 'vendor', component: VendorShippingComponent },
     { path: 'track/:barcode', component: ShipmentTrackingComponent },
+    { path: 'warehouse', component: WarehouseManagementComponent },
     { path: '', redirectTo: 'employee', pathMatch: 'full' }
 
 ];

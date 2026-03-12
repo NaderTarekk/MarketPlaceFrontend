@@ -1,19 +1,45 @@
+// src/app/modules/home/services/home.service.ts
 import { Injectable } from '@angular/core';
-import { Category, PagedResponse } from '../../../models/category';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class HomeService {
+  private apiUrl = `${environment.baseApi}/api/Home`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getCategories(isActive: boolean = true): Observable<PagedResponse<Category[]>> {
-    return this.http.get<PagedResponse<Category[]>>(
-      `${environment.categoriesUrl}?IsActive=${isActive}&PageSize=50`
-    );
+  getBanners(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/banners`);
+  }
+
+  getFeaturedSections(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/featured-sections`);
+  }
+
+  getSectionProducts(sectionId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/sections/${sectionId}/products`);
+  }
+
+  getTestimonials(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/testimonials`);
+  }
+
+  getStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats`);
+  }
+
+  subscribeNewsletter(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/newsletter/subscribe`, { email });
+  }
+
+  // إضافة method للـ categories (للـ navbar)
+  getCategories(onlyParents: boolean = false): Observable<any> {
+    return this.http.get(`${environment.baseApi}/api/Categories`, {
+      params: { onlyParents: onlyParents.toString() }
+    });
   }
 }

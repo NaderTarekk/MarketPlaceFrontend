@@ -1,11 +1,17 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+// src/app/modules/home/home.component.ts
+import {
+  ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { I18nService } from '../../core/services/i18n.service';
 import { HomeService } from './services/home.service';
-import { Category } from '../../models/category';
-import { debounceTime, distinctUntilChanged, Observable, Subject, switchMap } from 'rxjs';
 import { ProductsService } from '../products/services/products.service';
-import { Router } from '@angular/router';
+import { CartService } from '../cart/services/cart.service';
+import { Category } from '../../models/category';
+import { environment } from '../../../environment';
 
+// ─── kept for product-card compatibility ───────────────────────────────────────
 export interface Product {
   id: number;
   name: string;
@@ -20,121 +26,323 @@ export interface Product {
   isWishlisted: boolean;
 }
 
+interface ApiBanner {
+  id: number;
+  title: string;
+  titleAr: string;
+  subtitle: string;
+  subtitleAr: string;
+  imageUrl: string;
+  buttonText: string;
+  buttonTextAr: string;
+  buttonLink: string;
+}
+
+interface FeaturedSection {
+  id: number;
+  title: string;
+  titleAr: string;
+  sectionType: string;
+  displayType: string;
+  itemsToShow: number;
+  products?: any[];
+  isLoadingProducts?: boolean;
+}
+
+interface HomeStats {
+  totalProducts: number;
+  totalCustomers: number;
+  totalOrders: number;
+  satisfactionRate: number;
+}
+
+interface Testimonial {
+  id: number;
+  customerName: string;
+  customerImage?: string;
+  rating: number;
+  comment: string;
+  commentAr: string;
+  createdAt: Date;
+}
+
 @Component({
   selector: 'app-home',
   standalone: false,
   templateUrl: './home.component.html',
-    styleUrl: './home.component.css'
+  styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit {
-  isSidebarOpen = false;
-  categories: Category[] = [];
-  categories$!: Observable<Category[]>;
-  products: Product[] = [
-    {
-      id: 1,
-      nameKey: 'prod_keyboard',
-      name: 'AK-900 Wired Keyboard',
-      brand: 'Logitech',
-      image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&h=350',
-      price: 632,
-      originalPrice: 1100,
-      discount: 40,
-      rating: 4,
-      reviewCount: 35,
-      isWishlisted: false
-    },
-    {
-      id: 2,
-      nameKey: 'prod_gamepad',
-      name: 'HAVIT HV-G92 Gamepad',
-      brand: 'HAVIT',
-      image: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=400&h=350',
-      price: 120,
-      originalPrice: 160,
-      discount: 25,
-      rating: 4,
-      reviewCount: 446,
-      isWishlisted: false
-    },
-    {
-      id: 3,
-      nameKey: 'prod_monitor',
-      name: 'IPS LCD Gaming Monitor',
-      brand: 'IPS',
-      image: 'https://images.unsplash.com/photo-1616763355548-1b606f439f86?auto=format&fit=crop&w=400&h=350',
-      price: 310,
-      originalPrice: 400,
-      discount: 20,
-      rating: 4,
-      reviewCount: 371,
-      isWishlisted: false
-    },
-    {
-      id: 4,
-      nameKey: 'prod_chair',
-      name: 'E-Series Comfort Chair',
-      brand: 'Seatmatic',
-      image: 'https://images.unsplash.com/photo-1551298370-9d3d53740c72?auto=format&fit=crop&w=400&h=350',
-      price: 375,
-      originalPrice: 400,
-      discount: 10,
-      rating: 4,
-      reviewCount: 267,
-      isWishlisted: false
-    }
-  ];
-  banners = [
-    {
-      titleKey: 'banner_upto',
-      subtitleKey: 'banner_voucher',
-      limitedKey: 'banner_limited',
-      bg: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&h=400&fit=crop',
-      product: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=320&fit=crop',
-    },
-    {
-      titleKey: 'banner_upto',
-      subtitleKey: 'banner_voucher',
-      limitedKey: 'banner_limited',
-      bg: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=900&h=400&fit=crop',
-      product: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=320&fit=crop',
-    },
-    {
-      titleKey: 'banner_upto',
-      subtitleKey: 'banner_voucher',
-      limitedKey: 'banner_limited',
-      bg: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&h=400&fit=crop',
-      product: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=320&fit=crop',
-    }
-  ];
-  currentBanner = 0;
+export class HomeComponent implements OnInit, OnDestroy {
 
-  // Search
-  searchQuery = '';
+  // ── UI ─────────────────────────────────────────────────────────────────────
+  isSidebarOpen = false;
+  currentBannerIndex = 0;
+  currentTestimonialIndex = 0;
+
+  // ── Loading flags ──────────────────────────────────────────────────────────
+  isLoadingBanners     = true;
+  isLoadingSections    = true;
+  isLoadingStats       = true;
+  isLoadingTestimonials= true;
+
+  // ── Data ───────────────────────────────────────────────────────────────────
+  categories: Category[]       = [];
+  apiBanners: ApiBanner[]      = [];
+  featuredSections: FeaturedSection[] = [];
+  testimonials: Testimonial[]  = [];
+  stats: HomeStats = { totalProducts:0, totalCustomers:0, totalOrders:0, satisfactionRate:0 };
+  animatedStats    = { products:0, customers:0, orders:0, satisfaction:0 };
+
+  // ── Static fallback banners (shown until API responds) ─────────────────────
+  staticBanners = [
+    {
+      titleKey: 'banner_upto', subtitleKey: 'banner_voucher', limitedKey: 'banner_limited',
+      bg: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&h=400&fit=crop',
+    },
+    {
+      titleKey: 'banner_upto', subtitleKey: 'banner_voucher', limitedKey: 'banner_limited',
+      bg: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=900&h=400&fit=crop',
+    },
+    {
+      titleKey: 'banner_upto', subtitleKey: 'banner_voucher', limitedKey: 'banner_limited',
+      bg: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&h=400&fit=crop',
+    }
+  ];
+  currentStaticBanner = 0;
+
+  // ── Static fallback products ───────────────────────────────────────────────
+  staticProducts: Product[] = [
+    { id:1, nameKey:'prod_keyboard', name:'AK-900 Wired Keyboard',   brand:'Logitech', image:'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&h=350', price:632, originalPrice:1100, discount:40, rating:4, reviewCount:35,  isWishlisted:false },
+    { id:2, nameKey:'prod_gamepad',  name:'HAVIT HV-G92 Gamepad',    brand:'HAVIT',    image:'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=400&h=350', price:120, originalPrice:160,  discount:25, rating:4, reviewCount:446, isWishlisted:false },
+    { id:3, nameKey:'prod_monitor',  name:'IPS LCD Gaming Monitor',  brand:'IPS',      image:'https://images.unsplash.com/photo-1616763355548-1b606f439f86?auto=format&fit=crop&w=400&h=350', price:310, originalPrice:400,  discount:20, rating:4, reviewCount:371, isWishlisted:false },
+    { id:4, nameKey:'prod_chair',    name:'E-Series Comfort Chair',  brand:'Seatmatic',image:'https://images.unsplash.com/photo-1551298370-9d3d53740c72?auto=format&fit=crop&w=400&h=350', price:375, originalPrice:400,  discount:10, rating:4, reviewCount:267, isWishlisted:false },
+  ];
+
+  // ── Search ─────────────────────────────────────────────────────────────────
+  searchQuery          = '';
   searchResults: any[] = [];
-  isSearching = false;
-  showSearchDropdown = false;
+  isSearching          = false;
+  showSearchDropdown   = false;
   private searchSubject = new Subject<string>();
 
-  constructor(public i18n: I18nService, private router: Router, private homeService: HomeService, private cdr: ChangeDetectorRef, private productsService: ProductsService) { }
+  // ── Fallback products (shown when no featured sections) ────────────────────
+  fallbackProducts: any[]     = [];
+  isLoadingFallback           = false;
 
+  // ── Newsletter ─────────────────────────────────────────────────────────────
+  newsletterEmail = '';
+  isSubscribing   = false;
+
+  // ── Timers ─────────────────────────────────────────────────────────────────
+  private bannerTimer: any  = null;
+  private statTimers: any[] = [];
+
+  constructor(
+    public  i18n:           I18nService,
+    private router:         Router,
+    private homeService:    HomeService,
+    private productsService:ProductsService,
+    private cartService:    CartService,
+    private cdr:            ChangeDetectorRef,
+    private ngZone:         NgZone
+  ) {}
+
+  // ══════════════════════════════════════════════════════════════════════════
   ngOnInit(): void {
     this.loadCategories();
+    this.loadBanners();
+    this.loadFeaturedSections();
+    this.loadStats();
+    this.loadTestimonials();
     this.setupSearch();
+    this.startBannerAutoplay();
   }
+
+  ngOnDestroy(): void {
+    if (this.bannerTimer) clearInterval(this.bannerTimer);
+    this.statTimers.forEach(t => clearInterval(t));
+  }
+
+  // ── Data loaders ───────────────────────────────────────────────────────────
+
+  loadCategories(): void {
+    this.homeService.getCategories(true).subscribe({
+      next: (res: any) => {
+        if (res.success)
+          this.categories = res.data
+            .filter((c: any) => c.parentId === null || c.parentId === undefined)
+            .map((c: any) => ({
+              id: c.id, nameAr: c.nameAr, nameEn: c.nameEn,
+              productCount: c.productCount, hasChildren: c.hasChildren,
+              image: c.image || null
+            }));
+        this.cdr.detectChanges();
+      },
+      error: err => console.error('categories:', err)
+    });
+  }
+
+  loadBanners(): void {
+    this.isLoadingBanners = true;
+    this.homeService.getBanners().subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        if (res.success) this.apiBanners = res.data || [];
+        this.isLoadingBanners = false;
+        this.cdr.detectChanges();
+      }),
+      error: () => this.ngZone.run(() => { this.isLoadingBanners = false; this.cdr.detectChanges(); })
+    });
+  }
+
+  loadFeaturedSections(): void {
+    this.isLoadingSections = true;
+    this.homeService.getFeaturedSections().subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        if (res.success) {
+          this.featuredSections = (res.data || []).map((s: FeaturedSection) => ({
+            ...s, products: [], isLoadingProducts: s.sectionType === 'products'
+          }));
+          this.featuredSections.forEach(s => {
+            if (s.sectionType === 'products') this.loadSectionProducts(s);
+          });
+        }
+        this.isLoadingSections = false;
+        // If no sections from API, load fallback products
+        if (this.featuredSections.length === 0) this.loadFallbackProducts();
+        this.cdr.detectChanges();
+      }),
+      error: () => this.ngZone.run(() => {
+        this.isLoadingSections = false;
+        this.loadFallbackProducts();
+        this.cdr.detectChanges();
+      })
+    });
+  }
+
+  loadFallbackProducts(): void {
+    this.isLoadingFallback = true;
+    this.productsService.getFeatured(8).subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        if (res.success) this.fallbackProducts = res.data || [];
+        this.isLoadingFallback = false;
+        this.cdr.detectChanges();
+      }),
+      error: () => this.ngZone.run(() => { this.isLoadingFallback = false; this.cdr.detectChanges(); })
+    });
+  }
+
+  loadSectionProducts(section: FeaturedSection): void {
+    this.homeService.getSectionProducts(section.id).subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        if (res.success) section.products = res.data || [];
+        section.isLoadingProducts = false;
+        this.cdr.detectChanges();
+      }),
+      error: () => this.ngZone.run(() => { section.isLoadingProducts = false; this.cdr.detectChanges(); })
+    });
+  }
+
+  loadStats(): void {
+    this.isLoadingStats = true;
+    this.homeService.getStats().subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        if (res.success) { this.stats = res.data; this.animateStats(); }
+        this.isLoadingStats = false;
+        this.cdr.detectChanges();
+      }),
+      error: () => this.ngZone.run(() => { this.isLoadingStats = false; this.cdr.detectChanges(); })
+    });
+  }
+
+  loadTestimonials(): void {
+    this.isLoadingTestimonials = true;
+    this.homeService.getTestimonials().subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        if (res.success) this.testimonials = res.data || [];
+        this.isLoadingTestimonials = false;
+        this.cdr.detectChanges();
+      }),
+      error: () => this.ngZone.run(() => { this.isLoadingTestimonials = false; this.cdr.detectChanges(); })
+    });
+  }
+
+  // ── Stats counter animation ────────────────────────────────────────────────
+
+  animateStats(): void {
+    const steps = 60, ms = 2000 / steps;
+    const animate = (key: keyof typeof this.animatedStats, target: number) => {
+      let cur = 0, inc = target / steps;
+      // Run entirely outside Angular — update value directly, then markForCheck
+      this.ngZone.runOutsideAngular(() => {
+        const t = setInterval(() => {
+          cur += inc;
+          const done = cur >= target;
+          // Mutate directly (no zone re-entry) then schedule a single mark
+          this.animatedStats[key] = done ? Math.round(target) : Math.floor(cur);
+          this.cdr.markForCheck();
+          if (done) clearInterval(t);
+        }, ms);
+        this.statTimers.push(t);
+      });
+    };
+    animate('products',    this.stats.totalProducts);
+    animate('customers',   this.stats.totalCustomers);
+    animate('orders',      this.stats.totalOrders);
+    animate('satisfaction',this.stats.satisfactionRate);
+  }
+
+  // ── Banner carousel ────────────────────────────────────────────────────────
+
+  startBannerAutoplay(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.bannerTimer = setInterval(() => {
+        this.ngZone.run(() => this.nextBanner());
+      }, 5000);
+    });
+  }
+
+  get totalBanners(): number {
+    return this.isLoadingBanners || this.apiBanners.length === 0
+      ? this.staticBanners.length
+      : this.apiBanners.length;
+  }
+
+  // Used by *ngFor for banner dots — avoids ternary expression inside template
+  get bannerDots(): any[] {
+    return this.apiBanners.length > 0 ? this.apiBanners : this.staticBanners;
+  }
+
+  nextBanner(): void {
+    this.currentBannerIndex = (this.currentBannerIndex + 1) % this.totalBanners;
+    this.currentStaticBanner= (this.currentStaticBanner  + 1) % this.staticBanners.length;
+  }
+  prevBanner(): void {
+    this.currentBannerIndex = (this.currentBannerIndex - 1 + this.totalBanners) % this.totalBanners;
+    this.currentStaticBanner= (this.currentStaticBanner  - 1 + this.staticBanners.length) % this.staticBanners.length;
+  }
+  goToBanner(i: number): void { this.currentBannerIndex = i; }
+
+  // ── Testimonial carousel ───────────────────────────────────────────────────
+
+  nextTestimonial(): void {
+    if (this.testimonials.length)
+      this.currentTestimonialIndex = (this.currentTestimonialIndex + 1) % this.testimonials.length;
+  }
+  prevTestimonial(): void {
+    if (this.testimonials.length)
+      this.currentTestimonialIndex = (this.currentTestimonialIndex - 1 + this.testimonials.length) % this.testimonials.length;
+  }
+
+  // ── Search ─────────────────────────────────────────────────────────────────
 
   setupSearch(): void {
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap(query => {
-        if (query.length < 2) {
-          this.searchResults = [];
-          this.showSearchDropdown = false;
-          return [];
-        }
+      switchMap(q => {
+        if (q.length < 2) { this.searchResults = []; this.showSearchDropdown = false; return []; }
         this.isSearching = true;
-        return this.productsService.search(query);
+        return this.productsService.search(q);
       })
     ).subscribe({
       next: (res: any) => {
@@ -145,92 +353,76 @@ export class HomeComponent implements OnInit {
         }
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.isSearching = false;
-        this.searchResults = [];
-      }
+      error: () => { this.isSearching = false; this.searchResults = []; }
     });
   }
 
-  onSearchInput(event: Event): void {
-    const query = (event.target as HTMLInputElement).value;
-    this.searchQuery = query;
-    this.searchSubject.next(query);
+  onSearchInput(e: Event): void {
+    const q = (e.target as HTMLInputElement).value;
+    this.searchQuery = q;
+    this.searchSubject.next(q);
   }
-
-  selectSearchResult(product: any): void {
-    this.showSearchDropdown = false;
-    this.searchQuery = '';
-    this.searchResults = [];
-    this.router.navigate(['/products', product.id]);
+  selectSearchResult(p: any): void {
+    this.showSearchDropdown = false; this.searchQuery = ''; this.searchResults = [];
+    this.router.navigate(['/products', p.id]);
   }
-
   onSearch(): void {
-    if (this.searchQuery.trim()) {
-      this.showSearchDropdown = false;
-      this.router.navigate(['/products'], {
-        queryParams: { search: this.searchQuery.trim() }
-      });
-      this.searchQuery = '';
-      this.searchResults = [];
-    }
+    if (!this.searchQuery.trim()) return;
+    this.showSearchDropdown = false;
+    this.router.navigate(['/products'], { queryParams: { search: this.searchQuery.trim() } });
+    this.searchQuery = ''; this.searchResults = [];
   }
+  closeSearchDropdown(): void { setTimeout(() => { this.showSearchDropdown = false; }, 200); }
 
-  closeSearchDropdown(): void {
-    setTimeout(() => {
-      this.showSearchDropdown = false;
-    }, 200);
-  }
+  // ── Newsletter ─────────────────────────────────────────────────────────────
 
-  getProductName(product: any): string {
-    return this.i18n.currentLang === 'ar' ? product.nameAr : product.nameEn;
-  }
-
-  getProductImage(image: string): string {
-    if (!image) return 'assets/images/placeholder.png';
-    if (image.startsWith('http') || image.startsWith('data:')) return image;
-    return `http://localhost:5078${image}`;
-  }
-
-  loadCategories(): void {
-    this.homeService.getCategories(true).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.categories = response.data.map((cat: any) => ({
-            id: cat.id,
-            nameAr: cat.nameAr,
-            nameEn: cat.nameEn,
-            productCount: cat.productCount,
-            hasChildren: cat.productCount > 0
-          }));
-        }
-        this.cdr.markForCheck();
-      },
-      error: (err) => console.error('Error loading categories:', err)
+  subscribeNewsletter(): void {
+    if (!this.newsletterEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.newsletterEmail)) return;
+    this.isSubscribing = true;
+    this.homeService.subscribeNewsletter(this.newsletterEmail).subscribe({
+      next: () => { this.isSubscribing = false; this.newsletterEmail = ''; },
+      error: () => { this.isSubscribing = false; }
     });
   }
 
-  toggleWishlist(product: Product): void {
-    product.isWishlisted = !product.isWishlisted;
+  // ── Cart ───────────────────────────────────────────────────────────────────
+
+  addToCart(product: any, event?: Event): void {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    if (!localStorage.getItem('NHC_MP_Token')) { this.router.navigate(['/auth/login']); return; }
+    this.cartService.addItem(product.id, 1).subscribe();
   }
 
-  prevBanner(): void {
-    this.currentBanner = (this.currentBanner - 1 + this.banners.length) % this.banners.length;
+  // ── Misc helpers ───────────────────────────────────────────────────────────
+
+  toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
+  toggleWishlist(p: any): void { p.isWishlisted = !p.isWishlisted; }
+
+  getProductName(p: any): string { return this.i18n.currentLang === 'ar' ? p.nameAr : p.nameEn; }
+  getBannerTitle(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.titleAr : b.title; }
+  getBannerSubtitle(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.subtitleAr : b.subtitle; }
+  getBannerBtn(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.buttonTextAr : b.buttonText; }
+  getSectionTitle(s: FeaturedSection): string { return this.i18n.currentLang === 'ar' ? s.titleAr : s.title; }
+  getTestimonialComment(t: Testimonial): string { return this.i18n.currentLang === 'ar' ? t.commentAr : t.comment; }
+  getCategoryName(c: any): string { return this.i18n.currentLang === 'ar' ? c.nameAr : c.nameEn; }
+
+  getProductImage(img: string): string {
+    if (!img) return 'assets/images/placeholder.png';
+    if (img.startsWith('http') || img.startsWith('data:')) return img;
+    return `${environment.baseApi}${img}`;
+  }
+  getBannerImage(img: string): string {
+    if (!img) return 'assets/images/placeholder-banner.jpg';
+    if (img.startsWith('http') || img.startsWith('data:')) return img;
+    return `${environment.baseApi}${img}`;
+  }
+  handleImgError(e: Event): void {
+    (e.target as HTMLImageElement).src = 'assets/images/placeholder.png';
   }
 
-  nextBanner(): void {
-    this.currentBanner = (this.currentBanner + 1) % this.banners.length;
-  }
+  getStars(rating: number): number[] { return Array(5).fill(0).map((_,i) => i < rating ? 1 : 0); }
+  getStarArray(rating: number): boolean[] { return Array(5).fill(false).map((_,i) => i < Math.round(rating)); }
 
-  addToCart(product: Product): void {
-    console.log('Added to cart:', product.name);
-  }
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  getStars(rating: number): number[] {
-    return Array(5).fill(0).map((_, i) => i < rating ? 1 : 0);
-  }
+  trackById(_: number, item: any): number { return item?.id ?? _; }
+  trackByIndex(i: number): number { return i; }
 }

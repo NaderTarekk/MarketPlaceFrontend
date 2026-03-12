@@ -54,14 +54,19 @@
       <span>{{ i18n.currentLang === 'ar' ? 'التقارير المالية' : 'Financial' }}</span>
     </button>
 
-    <button class="tab" [class.active]="activeTab === 'sales'" (click)="switchTab('sales')">
+    <!-- <button class="tab" [class.active]="activeTab === 'sales'" (click)="switchTab('sales')">
       <i class="fa-solid fa-coins"></i>
       <span>{{ i18n.currentLang === 'ar' ? 'المبيعات' : 'Sales' }}</span>
-    </button>
+    </button> -->
     
     <button class="tab" [class.active]="activeTab === 'inventory'" (click)="switchTab('inventory')">
       <i class="fa-solid fa-warehouse"></i>
       <span>{{ i18n.currentLang === 'ar' ? 'المخزون' : 'Inventory' }}</span>
+    </button>
+
+     <button class="tab" [class.active]="activeTab === 'withdrawals'" (click)="switchTab('withdrawals')">
+      <i class="fa-solid fa-money-bill-transfer"></i>
+      <span>{{ i18n.currentLang === 'ar' ? 'سحوبات التجار' : 'Withdrawals' }}</span>
     </button>
   </div>
 </div>
@@ -515,8 +520,7 @@
     <!-- ═══════════════════════════════════════════════ -->
     <!-- SALES TAB -->
     <!-- ═══════════════════════════════════════════════ -->
-    <div *ngIf="activeTab === 'sales'" class="tab-content">
-      <!-- Filters -->
+    <!-- <div *ngIf="activeTab === 'sales'" class="tab-content">
       <div class="filters-bar">
         <div class="date-filters">
           <div class="date-group">
@@ -536,14 +540,11 @@
         </select>
       </div>
 
-      <!-- Loading -->
       <div *ngIf="isLoadingSales" class="loading">
         <div class="spinner"></div>
       </div>
 
-      <!-- Sales Report -->
       <div *ngIf="!isLoadingSales && salesReport" class="sales-content">
-        <!-- Summary Cards -->
         <div class="sales-summary">
           <div class="summary-card revenue">
             <i class="fa-solid fa-coins"></i>
@@ -551,10 +552,10 @@
               <span class="summary-value">{{ formatPrice(salesReport.totalRevenue) }}</span>
               <span class="summary-label">{{ i18n.currentLang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue' }}</span>
             </div>
-            <!-- <span class="growth" [class.positive]="salesReport.growthPercentage >= 0" [class.negative]="salesReport.growthPercentage < 0">
+            <span class="growth" [class.positive]="salesReport.growthPercentage >= 0" [class.negative]="salesReport.growthPercentage < 0">
               <i class="fa-solid" [ngClass]="salesReport.growthPercentage >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
               {{ salesReport.growthPercentage | number:'1.1-1' }}%
-            </span> -->
+            </span>
           </div>
 
           <div class="summary-card orders">
@@ -582,7 +583,6 @@
           </div>
         </div>
 
-        <!-- Sales Table -->
         <div class="sales-table-container">
           <table class="sales-table">
             <thead>
@@ -608,7 +608,7 @@
           </table>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- ═══════════════════════════════════════════════ -->
     <!-- INVENTORY TAB -->
@@ -2469,6 +2469,258 @@
                 </td>
                 <td class="px-4 py-3 text-sm text-right font-bold text-green-600">{{ formatPrice(settlement.amount) }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600">{{ settlement.notes || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VENDOR WITHDRAWALS TAB -->
+<!-- ═══════════════════════════════════════════════ -->
+<div *ngIf="activeTab === 'withdrawals'" class="tab-content">
+  
+  <!-- Loading -->
+  <div *ngIf="isLoadingWithdrawals" class="flex items-center justify-center py-20">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+  </div>
+
+  <!-- Withdrawals Grid -->
+  <div *ngIf="!isLoadingWithdrawals" class="space-y-6">
+    
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">
+        <i class="fa-solid fa-money-bill-transfer text-purple-600 mr-2"></i>
+        {{ i18n.currentLang === 'ar' ? 'إدارة سحوبات التجار' : 'Vendor Withdrawals Management' }}
+      </h2>
+      <button (click)="openWithdrawalHistory()" 
+              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">
+        <i class="fa-solid fa-history mr-2"></i>
+        {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'History' }}
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="vendorWithdrawals.length === 0" class="bg-white rounded-2xl shadow-lg p-12 text-center">
+      <i class="fa-solid fa-money-bill text-gray-300 text-6xl mb-4"></i>
+      <p class="text-gray-600 text-lg">{{ i18n.currentLang === 'ar' ? 'لا يوجد تجار' : 'No vendors found' }}</p>
+    </div>
+
+    <!-- Withdrawals Table -->
+    <div *ngIf="vendorWithdrawals.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+              <th class="px-6 py-4 text-left text-sm font-semibold hidden md:table-cell">{{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business' }}</th>
+              <th class="px-6 py-4 text-right text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'إجمالي الأرباح' : 'Total Earnings' }}</th>
+              <th class="px-6 py-4 text-right text-sm font-semibold hidden lg:table-cell">{{ i18n.currentLang === 'ar' ? 'المسحوب' : 'Withdrawn' }}</th>
+              <th class="px-6 py-4 text-right text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'المتاح للسحب' : 'Available' }}</th>
+              <th class="px-6 py-4 text-center text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr *ngFor="let vendor of vendorWithdrawals; trackBy: trackByVendorWithdrawal" 
+                class="hover:bg-purple-50 transition-colors duration-200">
+              
+              <!-- Vendor Info -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {{ vendor.vendorName.charAt(0) }}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-gray-900 truncate">{{ vendor.vendorName }}</div>
+                    <div class="text-xs text-gray-500 truncate">{{ vendor.email }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Business Name -->
+              <td class="px-6 py-4 hidden md:table-cell">
+                <span class="text-sm text-gray-700">{{ vendor.businessName || '-' }}</span>
+              </td>
+
+              <!-- Total Earnings -->
+              <td class="px-6 py-4 text-right">
+                <span class="text-sm font-bold text-green-600">{{ formatPrice(vendor.totalEarnings) }}</span>
+              </td>
+
+              <!-- Total Withdrawn -->
+              <td class="px-6 py-4 text-right hidden lg:table-cell">
+                <span class="text-sm font-medium text-gray-700">{{ formatPrice(vendor.totalWithdrawn) }}</span>
+              </td>
+
+              <!-- Available for Withdrawal -->
+              <td class="px-6 py-4 text-right">
+                <span class="text-lg font-bold" 
+                      [class.text-green-600]="vendor.availableForWithdrawal > 0"
+                      [class.text-gray-400]="vendor.availableForWithdrawal === 0">
+                  {{ formatPrice(vendor.availableForWithdrawal) }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-center gap-2">
+                  <button (click)="openWithdrawalModal(vendor)" 
+                          [disabled]="vendor.availableForWithdrawal <= 0"
+                          class="px-4 py-2 rounded-lg font-semibold text-sm transition-all"
+                          [ngClass]="{
+                            'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg': vendor.availableForWithdrawal > 0,
+                            'bg-gray-200 text-gray-400 cursor-not-allowed': vendor.availableForWithdrawal <= 0
+                          }">
+                    <i class="fa-solid fa-hand-holding-dollar mr-1"></i>
+                    {{ i18n.currentLang === 'ar' ? 'سحب' : 'Withdraw' }}
+                  </button>
+                  <button (click)="openWithdrawalHistory(vendor.vendorId)" 
+                          class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm">
+                    <i class="fa-solid fa-history mr-1"></i>
+                    {{ i18n.currentLang === 'ar' ? 'السجل' : 'History' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- WITHDRAWAL MODAL -->
+<!-- ═══════════════════════════════════════════════ -->
+<div *ngIf="showWithdrawalModal" 
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" 
+     (click)="closeWithdrawalModal()">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-5 rounded-t-3xl">
+      <h3 class="text-xl font-bold">
+        <i class="fa-solid fa-money-bill-transfer mr-2"></i>
+        {{ i18n.currentLang === 'ar' ? 'سحب أرباح' : 'Withdraw Earnings' }}
+      </h3>
+    </div>
+
+    <div class="p-6 space-y-6">
+      
+      <!-- Vendor Info -->
+      <div *ngIf="selectedVendorForWithdrawal" class="bg-purple-50 rounded-xl p-4">
+        <div class="text-sm text-purple-600 mb-1">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</div>
+        <div class="text-lg font-bold text-purple-900">{{ selectedVendorForWithdrawal.vendorName }}</div>
+        <div class="text-sm text-gray-600 mt-2">
+          {{ i18n.currentLang === 'ar' ? 'المتاح للسحب:' : 'Available:' }} 
+          <span class="font-bold text-green-600">{{ formatPrice(selectedVendorForWithdrawal.availableForWithdrawal) }}</span>
+        </div>
+      </div>
+
+      <!-- Amount Input -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          {{ i18n.currentLang === 'ar' ? 'المبلغ المسحوب' : 'Withdrawal Amount' }}
+        </label>
+        <input type="number" 
+               [(ngModel)]="withdrawalAmount" 
+               min="0" 
+               [max]="selectedVendorForWithdrawal?.availableForWithdrawal || 0" 
+               step="0.01"
+               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none text-lg font-semibold">
+      </div>
+
+      <!-- Notes Input -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          {{ i18n.currentLang === 'ar' ? 'ملاحظات (اختياري)' : 'Notes (optional)' }}
+        </label>
+        <textarea [(ngModel)]="withdrawalNotes" 
+                  rows="3"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none resize-none"
+                  [placeholder]="i18n.currentLang === 'ar' ? 'أضف ملاحظات...' : 'Add notes...'"></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button (click)="closeWithdrawalModal()" 
+                class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
+          {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+        </button>
+        <button (click)="confirmWithdrawal()" 
+                [disabled]="isProcessing || withdrawalAmount <= 0"
+                class="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <span *ngIf="!isProcessing">
+            <i class="fa-solid fa-check mr-2"></i>
+            {{ i18n.currentLang === 'ar' ? 'تأكيد السحب' : 'Confirm' }}
+          </span>
+          <span *ngIf="isProcessing">
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+            {{ i18n.currentLang === 'ar' ? 'جاري التسجيل...' : 'Processing...' }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- WITHDRAWAL HISTORY MODAL -->
+<!-- ═══════════════════════════════════════════════ -->
+<div *ngIf="showWithdrawalHistory" 
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" 
+     (click)="closeWithdrawalHistory()">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" 
+       (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+      <h3 class="text-2xl font-bold">
+        <i class="fa-solid fa-history mr-2"></i>
+        {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'Withdrawal History' }}
+      </h3>
+      <button (click)="closeWithdrawalHistory()" 
+              class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors">
+        <i class="fa-solid fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="p-6">
+      
+      <!-- Loading -->
+      <div *ngIf="isLoadingHistory" class="text-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-600 mx-auto"></div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoadingHistory && withdrawalHistory.length === 0" class="text-center py-12">
+        <i class="fa-solid fa-receipt text-gray-300 text-6xl mb-4"></i>
+        <p class="text-gray-600 text-lg">{{ i18n.currentLang === 'ar' ? 'لا توجد سحوبات' : 'No withdrawals found' }}</p>
+      </div>
+
+      <!-- History Table -->
+      <div *ngIf="!isLoadingHistory && withdrawalHistory.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ i18n.currentLang === 'ar' ? 'التاريخ' : 'Date' }}</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ i18n.currentLang === 'ar' ? 'المبلغ' : 'Amount' }}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ i18n.currentLang === 'ar' ? 'ملاحظات' : 'Notes' }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr *ngFor="let item of withdrawalHistory; trackBy: trackByWithdrawalHistory" class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ item.vendorName }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ formatDateTime(item.withdrawalDate) }}</td>
+                <td class="px-4 py-3 text-sm text-right font-bold text-green-600">{{ formatPrice(item.amount) }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">{{ item.notes || '-' }}</td>
               </tr>
             </tbody>
           </table>

@@ -167,9 +167,9 @@ export class ShippingService {
     return this.http.get(`${environment.orderUrl}/${orderId}/delivery-failures`);
   }
 
-  getUnresolvedFailures(): Observable<any> {
-    return this.http.get(`${environment.orderUrl}/orders/delivery-failures/unresolved`);
-  }
+  getUnresolvedFailures(): Observable<ApiResponse<any[]>> {
+  return this.http.get<ApiResponse<any[]>>(`${environment.orderUrl}/delivery-failures/unresolved`);
+}
 
   getMyOrdersSummary(): Observable<any> {
   return this.http.get(`${environment.shippingUrl}/agent/my-summary`);
