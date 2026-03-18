@@ -38,6 +38,10 @@ export class ProductsService {
     return this.http.get<ApiResponse<ProductList[]>>(`${environment.productsUrl}/featured?count=${count}`);
   }
 
+  getTopSelling(limit: number = 12): Observable<any> {
+    return this.http.get(`${environment.productsUrl}/top-selling?limit=${limit}`);
+  }
+
   getByCategory(categoryId: number, count: number = 8): Observable<ApiResponse<ProductList[]>> {
     return this.http.get<ApiResponse<ProductList[]>>(`${environment.productsUrl}/category/${categoryId}?count=${count}`);
   }

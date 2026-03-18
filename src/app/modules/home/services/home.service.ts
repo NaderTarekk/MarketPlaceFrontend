@@ -20,6 +20,10 @@ export class HomeService {
     return this.http.get(`${this.apiUrl}/featured-sections`);
   }
 
+getTopSelling(limit: number = 12): Observable<any> {
+  return this.http.get(`${this.apiUrl}/top-selling?limit=${limit}`);
+}
+
   getSectionProducts(sectionId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/sections/${sectionId}/products`);
   }

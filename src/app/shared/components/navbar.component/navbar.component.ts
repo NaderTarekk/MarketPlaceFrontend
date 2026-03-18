@@ -59,6 +59,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { nameAr: 'إدارة الشحنات', nameEn: 'Shipping Management', route: '/shipping/employee', icon: 'fa-truck-fast' },
   ];
 
+  isCategoriesDropdownOpen = false;
+
   vendorPages = [
     { nameAr: 'لوحة التحكم', nameEn: 'Dashboard', route: '/vendor', icon: 'fa-chart-line' },
     { nameAr: 'طلبات الشحن', nameEn: 'Shipping Orders', route: '/shipping/vendor', icon: 'fa-boxes-packing' }, // ✅ أضف ده
@@ -287,6 +289,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
       document.body.style.overflow = '';
     }
   }
+
+  toggleCategoriesDropdown(): void {
+  this.isCategoriesDropdownOpen = !this.isCategoriesDropdownOpen;
+  if (this.isCategoriesDropdownOpen) {
+    document.body.classList.add('menu-open');
+  } else {
+    document.body.classList.remove('menu-open');
+  }
+}
+
+closeCategoriesDropdown(): void {
+  this.isCategoriesDropdownOpen = false;
+  document.body.classList.remove('menu-open');
+}
 
   handleNavClick(link: any): void {
     if (link.func === 'logout') {

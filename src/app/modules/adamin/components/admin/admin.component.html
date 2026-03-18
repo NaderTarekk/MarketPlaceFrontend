@@ -610,6 +610,123 @@
       </div>
     </div> -->
 
+    
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VENDOR WITHDRAWALS TAB -->
+<!-- ═══════════════════════════════════════════════ -->
+<div *ngIf="activeTab === 'withdrawals'" class="tab-content">
+  
+  <!-- Loading -->
+  <div *ngIf="isLoadingWithdrawals" class="flex items-center justify-center py-20">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+  </div>
+
+  <!-- Withdrawals Grid -->
+  <div *ngIf="!isLoadingWithdrawals" class="space-y-6">
+    
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">
+        <i class="fa-solid fa-money-bill-transfer text-purple-600 mr-2"></i>
+        {{ i18n.currentLang === 'ar' ? 'إدارة سحوبات التجار' : 'Vendor Withdrawals Management' }}
+      </h2>
+      <button (click)="openWithdrawalHistory()" 
+              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">
+        <i class="fa-solid fa-history mr-2"></i>
+        {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'History' }}
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="vendorWithdrawals.length === 0" class="bg-white rounded-2xl shadow-lg p-12 text-center">
+      <i class="fa-solid fa-money-bill text-gray-300 text-6xl mb-4"></i>
+      <p class="text-gray-600 text-lg">{{ i18n.currentLang === 'ar' ? 'لا يوجد تجار' : 'No vendors found' }}</p>
+    </div>
+
+    <!-- Withdrawals Table -->
+    <div *ngIf="vendorWithdrawals.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+              <th class="px-6 py-4 text-left text-sm font-semibold hidden md:table-cell">{{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business' }}</th>
+              <th class="px-6 py-4 text-right text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'إجمالي الأرباح' : 'Total Earnings' }}</th>
+              <th class="px-6 py-4 text-right text-sm font-semibold hidden lg:table-cell">{{ i18n.currentLang === 'ar' ? 'المسحوب' : 'Withdrawn' }}</th>
+              <th class="px-6 py-4 text-right text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'المتاح للسحب' : 'Available' }}</th>
+              <th class="px-6 py-4 text-center text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr *ngFor="let vendor of vendorWithdrawals; trackBy: trackByVendorWithdrawal" 
+                class="hover:bg-purple-50 transition-colors duration-200">
+              
+              <!-- Vendor Info -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {{ vendor.vendorName.charAt(0) }}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-gray-900 truncate">{{ vendor.vendorName }}</div>
+                    <div class="text-xs text-gray-500 truncate">{{ vendor.email }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Business Name -->
+              <td class="px-6 py-4 hidden md:table-cell">
+                <span class="text-sm text-gray-700">{{ vendor.businessName || '-' }}</span>
+              </td>
+
+              <!-- Total Earnings -->
+              <td class="px-6 py-4 text-right">
+                <span class="text-sm font-bold text-green-600">{{ formatPrice(vendor.totalEarnings) }}</span>
+              </td>
+
+              <!-- Total Withdrawn -->
+              <td class="px-6 py-4 text-right hidden lg:table-cell">
+                <span class="text-sm font-medium text-gray-700">{{ formatPrice(vendor.totalWithdrawn) }}</span>
+              </td>
+
+              <!-- Available for Withdrawal -->
+              <td class="px-6 py-4 text-right">
+                <span class="text-lg font-bold" 
+                      [class.text-green-600]="vendor.availableForWithdrawal > 0"
+                      [class.text-gray-400]="vendor.availableForWithdrawal === 0">
+                  {{ formatPrice(vendor.availableForWithdrawal) }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-center gap-2">
+                  <button (click)="openWithdrawalModal(vendor)" 
+                          [disabled]="vendor.availableForWithdrawal <= 0"
+                          class="px-4 py-2 rounded-lg font-semibold text-sm transition-all"
+                          [ngClass]="{
+                            'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg': vendor.availableForWithdrawal > 0,
+                            'bg-gray-200 text-gray-400 cursor-not-allowed': vendor.availableForWithdrawal <= 0
+                          }">
+                    <i class="fa-solid fa-hand-holding-dollar mr-1"></i>
+                    {{ i18n.currentLang === 'ar' ? 'سحب' : 'Withdraw' }}
+                  </button>
+                  <button (click)="openWithdrawalHistory(vendor.vendorId)" 
+                          class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm">
+                    <i class="fa-solid fa-history mr-1"></i>
+                    {{ i18n.currentLang === 'ar' ? 'السجل' : 'History' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
     <!-- ═══════════════════════════════════════════════ -->
     <!-- INVENTORY TAB -->
     <!-- ═══════════════════════════════════════════════ -->
@@ -2478,121 +2595,6 @@
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════ -->
-<!-- VENDOR WITHDRAWALS TAB -->
-<!-- ═══════════════════════════════════════════════ -->
-<div *ngIf="activeTab === 'withdrawals'" class="tab-content">
-  
-  <!-- Loading -->
-  <div *ngIf="isLoadingWithdrawals" class="flex items-center justify-center py-20">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
-  </div>
-
-  <!-- Withdrawals Grid -->
-  <div *ngIf="!isLoadingWithdrawals" class="space-y-6">
-    
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-      <h2 class="text-2xl font-bold text-gray-900">
-        <i class="fa-solid fa-money-bill-transfer text-purple-600 mr-2"></i>
-        {{ i18n.currentLang === 'ar' ? 'إدارة سحوبات التجار' : 'Vendor Withdrawals Management' }}
-      </h2>
-      <button (click)="openWithdrawalHistory()" 
-              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">
-        <i class="fa-solid fa-history mr-2"></i>
-        {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'History' }}
-      </button>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="vendorWithdrawals.length === 0" class="bg-white rounded-2xl shadow-lg p-12 text-center">
-      <i class="fa-solid fa-money-bill text-gray-300 text-6xl mb-4"></i>
-      <p class="text-gray-600 text-lg">{{ i18n.currentLang === 'ar' ? 'لا يوجد تجار' : 'No vendors found' }}</p>
-    </div>
-
-    <!-- Withdrawals Table -->
-    <div *ngIf="vendorWithdrawals.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-            <tr>
-              <th class="px-6 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
-              <th class="px-6 py-4 text-left text-sm font-semibold hidden md:table-cell">{{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business' }}</th>
-              <th class="px-6 py-4 text-right text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'إجمالي الأرباح' : 'Total Earnings' }}</th>
-              <th class="px-6 py-4 text-right text-sm font-semibold hidden lg:table-cell">{{ i18n.currentLang === 'ar' ? 'المسحوب' : 'Withdrawn' }}</th>
-              <th class="px-6 py-4 text-right text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'المتاح للسحب' : 'Available' }}</th>
-              <th class="px-6 py-4 text-center text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr *ngFor="let vendor of vendorWithdrawals; trackBy: trackByVendorWithdrawal" 
-                class="hover:bg-purple-50 transition-colors duration-200">
-              
-              <!-- Vendor Info -->
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                    {{ vendor.vendorName.charAt(0) }}
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-semibold text-gray-900 truncate">{{ vendor.vendorName }}</div>
-                    <div class="text-xs text-gray-500 truncate">{{ vendor.email }}</div>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Business Name -->
-              <td class="px-6 py-4 hidden md:table-cell">
-                <span class="text-sm text-gray-700">{{ vendor.businessName || '-' }}</span>
-              </td>
-
-              <!-- Total Earnings -->
-              <td class="px-6 py-4 text-right">
-                <span class="text-sm font-bold text-green-600">{{ formatPrice(vendor.totalEarnings) }}</span>
-              </td>
-
-              <!-- Total Withdrawn -->
-              <td class="px-6 py-4 text-right hidden lg:table-cell">
-                <span class="text-sm font-medium text-gray-700">{{ formatPrice(vendor.totalWithdrawn) }}</span>
-              </td>
-
-              <!-- Available for Withdrawal -->
-              <td class="px-6 py-4 text-right">
-                <span class="text-lg font-bold" 
-                      [class.text-green-600]="vendor.availableForWithdrawal > 0"
-                      [class.text-gray-400]="vendor.availableForWithdrawal === 0">
-                  {{ formatPrice(vendor.availableForWithdrawal) }}
-                </span>
-              </td>
-
-              <!-- Actions -->
-              <td class="px-6 py-4">
-                <div class="flex items-center justify-center gap-2">
-                  <button (click)="openWithdrawalModal(vendor)" 
-                          [disabled]="vendor.availableForWithdrawal <= 0"
-                          class="px-4 py-2 rounded-lg font-semibold text-sm transition-all"
-                          [ngClass]="{
-                            'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg': vendor.availableForWithdrawal > 0,
-                            'bg-gray-200 text-gray-400 cursor-not-allowed': vendor.availableForWithdrawal <= 0
-                          }">
-                    <i class="fa-solid fa-hand-holding-dollar mr-1"></i>
-                    {{ i18n.currentLang === 'ar' ? 'سحب' : 'Withdraw' }}
-                  </button>
-                  <button (click)="openWithdrawalHistory(vendor.vendorId)" 
-                          class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm">
-                    <i class="fa-solid fa-history mr-1"></i>
-                    {{ i18n.currentLang === 'ar' ? 'السجل' : 'History' }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════ -->
 <!-- WITHDRAWAL MODAL -->

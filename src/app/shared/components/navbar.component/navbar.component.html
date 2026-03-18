@@ -130,11 +130,11 @@
           <i class="fa-solid fa-box"></i>
           <span>{{ currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
         </a>
-
+<!-- 
         <a routerLink="products/wishlist" class="nav-icon-item">
           <i class="fa-solid fa-heart"></i>
           <span>{{ 'fav' | translate }}</span>
-        </a>
+        </a> -->
 
         <a routerLink="/cart" class="nav-icon-item cart-item">
           <div class="cart-icon-wrapper">
@@ -170,14 +170,14 @@
         </a>
 
         <!-- ✅ Shipping Employee -->
-        <a *ngIf="isShippingEmployee || isAdmin" routerLink="/shipping/employee" routerLinkActive="active"
+        <a *ngIf="isShippingEmployee" routerLink="/shipping/employee" routerLinkActive="active"
           class="nav-link-ozon shipping-link">
           <i class="fa-solid fa-truck-fast"></i>
           {{ currentLang === 'ar' ? 'الشحنات' : 'Shipping' }}
         </a>
 
         <!-- ✅ QrCode reader -->
-        <a *ngIf="isShippingEmployee || isAdmin" routerLink="/cart/scan-barcode" routerLinkActive="active"
+        <a *ngIf="isShippingEmployee" routerLink="/cart/scan-barcode" routerLinkActive="active"
           class="nav-link-ozon shipping-link">
           <i class="fa-solid fa-qrcode"></i>
           {{ currentLang === 'ar' ? 'قراءة باركود' : 'Scanner' }}
@@ -290,6 +290,8 @@
     <span>{{ currentLang === 'ar' ? 'الأدمن' : 'Admin' }}</span>
   </button>
 
+
+
   <!-- Cart -->
   <a routerLink="/cart" routerLinkActive="active" class="bottom-nav-item">
     <div class="relative">
@@ -298,6 +300,7 @@
     </div>
     <span>{{ 'cart' | translate }}</span>
   </a>
+
 
   <!-- Wishlist (للعملاء العاديين فقط) -->
   <a *ngIf="!isVendor && !isAdmin && !isShippingEmployee && !isDeliveryAgent" routerLink="products/wishlist"
@@ -318,6 +321,102 @@
     <span>{{ 'login' | translate }}</span>
   </a>
 </nav>
+
+<nav class="mobile-bottom-nav">
+  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
+    <i class="fa-solid fa-house"></i>
+    <span>{{ 'home' | translate }}</span>
+  </a>
+
+  <!-- ✅ Categories Button مع Dropdown -->
+  <button (click)="toggleCategoriesDropdown()" class="bottom-nav-item categories-nav-btn"
+    [class.active]="isCategoriesDropdownOpen">
+    <div class="categories-icon-wrapper">
+      <i class="fa-solid fa-grip"></i>
+      <span class="categories-dot"></span>
+    </div>
+    <span>{{ currentLang === 'ar' ? 'الأقسام' : 'Categories' }}</span>
+  </button>
+
+  <!-- Vendor -->
+  <a *ngIf="isVendor" routerLink="/vendor" routerLinkActive="active" class="bottom-nav-item vendor-item">
+    <i class="fa-solid fa-store"></i>
+    <span>{{ currentLang === 'ar' ? 'متجري' : 'My Store' }}</span>
+  </a>
+
+  <!-- ✅ Shipping Employee -->
+  <a *ngIf="isShippingEmployee" routerLink="/shipping/employee" routerLinkActive="active" class="bottom-nav-item">
+    <i class="fa-solid fa-truck-fast"></i>
+    <span>{{ currentLang === 'ar' ? 'الشحنات' : 'Shipping' }}</span>
+  </a>
+
+  <!-- ✅ Delivery Agent -->
+  <a *ngIf="isDeliveryAgent" routerLink="/shipping/agent" routerLinkActive="active" class="bottom-nav-item">
+    <i class="fa-solid fa-motorcycle"></i>
+    <span>{{ currentLang === 'ar' ? 'مهامي' : 'Tasks' }}</span>
+  </a>
+
+  <!-- Admin -->
+  <button *ngIf="isAdmin" (click)="toggleAdminMenu()" class="bottom-nav-item" [class.active]="isAdminMenuOpen">
+    <i class="fa-solid fa-shield-halved"></i>
+    <span>{{ currentLang === 'ar' ? 'الأدمن' : 'Admin' }}</span>
+  </button>
+
+  <!-- Cart -->
+  <a routerLink="/cart" routerLinkActive="active" class="bottom-nav-item">
+    <div class="relative">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+    </div>
+    <span>{{ 'cart' | translate }}</span>
+  </a>
+
+  <!-- Profile -->
+  <button *ngIf="isLogged" (click)="toggleProfileMenu()" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
+    <i class="fa-solid fa-user"></i>
+    <span>{{ 'profile' | translate }}</span>
+  </button>
+
+  <!-- Login -->
+  <a *ngIf="!isLogged" routerLink="/auth/login" routerLinkActive="active" class="bottom-nav-item">
+    <i class="fa-solid fa-right-to-bracket"></i>
+    <span>{{ 'login' | translate }}</span>
+  </a>
+</nav>
+
+<!-- ✅ Categories Dropdown Popup - بدل الـ overlay القديم -->
+<div class="categories-dropdown-overlay" [class.open]="isCategoriesDropdownOpen" (click)="closeCategoriesDropdown()">
+  <div class="categories-dropdown-menu" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="categories-dropdown-header">
+      <h3>{{ currentLang === 'ar' ? 'تصفح الأقسام' : 'Browse Categories' }}</h3>
+      <button (click)="closeCategoriesDropdown()" class="close-dropdown-btn">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <!-- List Style - Simple Dropdown -->
+    <div class="catalog-grid">
+      <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.id}"
+        (click)="isCatalogOpen = false" class="catalog-card">
+        <div class="catalog-card-image">
+          <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
+            (error)="handleImageError($event)" />
+        </div>
+        <span class="catalog-card-name">{{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}</span>
+        <span class="catalog-card-count">{{ cat.productCount }} {{ currentLang === 'ar' ? 'منتج' : 'products'
+          }}</span>
+      </a>
+    </div>
+
+    <!-- View All -->
+    <a routerLink="/products" (click)="closeCategoriesDropdown()" class="categories-dropdown-view-all">
+      <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>
+      <i class="fa-solid fa-arrow-left"></i>
+    </a>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════ -->
 <!-- CATEGORIES MENU POPUP - MOBILE (Grid with Images) -->

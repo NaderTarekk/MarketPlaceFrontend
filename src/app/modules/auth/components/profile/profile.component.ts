@@ -39,6 +39,8 @@ export class ProfileComponent implements OnInit {
   imagePreview: string | null = null;
   isUploadingImage = false;
 
+  isChecked = false;
+  
    // ✅ Address Management
   addresses: UserAddress[] = [];
   isLoadingAddresses = false;

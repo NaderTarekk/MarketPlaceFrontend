@@ -69,27 +69,27 @@ export class OrderComponent implements OnInit {
     { value: 1, labelAr: 'توصيل للمنزل', labelEn: 'Home Delivery', icon: 'fa-home' }
   ];
   paymentMethods = [
-    {
-      id: 'visa',
-      nameAr: 'بطاقة ائتمان/خصم',
-      nameEn: 'Visa/Mastercard',
-      icon: 'fa-brands fa-cc-visa',
-      color: '#1a1f71'
-    },
-    {
-      id: 'vodafone',
-      nameAr: 'فودافون كاش',
-      nameEn: 'Vodafone Cash',
-      icon: 'fa-solid fa-mobile-screen-button',
-      color: '#e60000'
-    },
-    {
-      id: 'instapay',
-      nameAr: 'انستا باي',
-      nameEn: 'InstaPay',
-      icon: 'fa-solid fa-building-columns',
-      color: '#00a651'
-    },
+    // {
+    //   id: 'visa',
+    //   nameAr: 'بطاقة ائتمان/خصم',
+    //   nameEn: 'Visa/Mastercard',
+    //   icon: 'fa-brands fa-cc-visa',
+    //   color: '#1a1f71'
+    // },
+    // {
+    //   id: 'vodafone',
+    //   nameAr: 'فودافون كاش',
+    //   nameEn: 'Vodafone Cash',
+    //   icon: 'fa-solid fa-mobile-screen-button',
+    //   color: '#e60000'
+    // },
+    // {
+    //   id: 'instapay',
+    //   nameAr: 'انستا باي',
+    //   nameEn: 'InstaPay',
+    //   icon: 'fa-solid fa-building-columns',
+    //   color: '#00a651'
+    // },
     {
       id: 'cash',
       nameAr: 'الدفع عند الاستلام',

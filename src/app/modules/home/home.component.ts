@@ -80,18 +80,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentTestimonialIndex = 0;
 
   // ── Loading flags ──────────────────────────────────────────────────────────
-  isLoadingBanners     = true;
-  isLoadingSections    = true;
-  isLoadingStats       = true;
-  isLoadingTestimonials= true;
+  isLoadingBanners = true;
+  isLoadingSections = true;
+  isLoadingStats = true;
+  isLoadingTestimonials = true;
 
   // ── Data ───────────────────────────────────────────────────────────────────
-  categories: Category[]       = [];
-  apiBanners: ApiBanner[]      = [];
+  categories: Category[] = [];
+  apiBanners: ApiBanner[] = [];
   featuredSections: FeaturedSection[] = [];
-  testimonials: Testimonial[]  = [];
-  stats: HomeStats = { totalProducts:0, totalCustomers:0, totalOrders:0, satisfactionRate:0 };
-  animatedStats    = { products:0, customers:0, orders:0, satisfaction:0 };
+  testimonials: Testimonial[] = [];
+  stats: HomeStats = { totalProducts: 0, totalCustomers: 0, totalOrders: 0, satisfactionRate: 0 };
+  animatedStats = { products: 0, customers: 0, orders: 0, satisfaction: 0 };
 
   // ── Static fallback banners (shown until API responds) ─────────────────────
   staticBanners = [
@@ -112,46 +112,48 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ── Static fallback products ───────────────────────────────────────────────
   staticProducts: Product[] = [
-    { id:1, nameKey:'prod_keyboard', name:'AK-900 Wired Keyboard',   brand:'Logitech', image:'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&h=350', price:632, originalPrice:1100, discount:40, rating:4, reviewCount:35,  isWishlisted:false },
-    { id:2, nameKey:'prod_gamepad',  name:'HAVIT HV-G92 Gamepad',    brand:'HAVIT',    image:'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=400&h=350', price:120, originalPrice:160,  discount:25, rating:4, reviewCount:446, isWishlisted:false },
-    { id:3, nameKey:'prod_monitor',  name:'IPS LCD Gaming Monitor',  brand:'IPS',      image:'https://images.unsplash.com/photo-1616763355548-1b606f439f86?auto=format&fit=crop&w=400&h=350', price:310, originalPrice:400,  discount:20, rating:4, reviewCount:371, isWishlisted:false },
-    { id:4, nameKey:'prod_chair',    name:'E-Series Comfort Chair',  brand:'Seatmatic',image:'https://images.unsplash.com/photo-1551298370-9d3d53740c72?auto=format&fit=crop&w=400&h=350', price:375, originalPrice:400,  discount:10, rating:4, reviewCount:267, isWishlisted:false },
+    { id: 1, nameKey: 'prod_keyboard', name: 'AK-900 Wired Keyboard', brand: 'Logitech', image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&h=350', price: 632, originalPrice: 1100, discount: 40, rating: 4, reviewCount: 35, isWishlisted: false },
+    { id: 2, nameKey: 'prod_gamepad', name: 'HAVIT HV-G92 Gamepad', brand: 'HAVIT', image: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=400&h=350', price: 120, originalPrice: 160, discount: 25, rating: 4, reviewCount: 446, isWishlisted: false },
+    { id: 3, nameKey: 'prod_monitor', name: 'IPS LCD Gaming Monitor', brand: 'IPS', image: 'https://images.unsplash.com/photo-1616763355548-1b606f439f86?auto=format&fit=crop&w=400&h=350', price: 310, originalPrice: 400, discount: 20, rating: 4, reviewCount: 371, isWishlisted: false },
+    { id: 4, nameKey: 'prod_chair', name: 'E-Series Comfort Chair', brand: 'Seatmatic', image: 'https://images.unsplash.com/photo-1551298370-9d3d53740c72?auto=format&fit=crop&w=400&h=350', price: 375, originalPrice: 400, discount: 10, rating: 4, reviewCount: 267, isWishlisted: false },
   ];
 
   // ── Search ─────────────────────────────────────────────────────────────────
-  searchQuery          = '';
+  searchQuery = '';
   searchResults: any[] = [];
-  isSearching          = false;
-  showSearchDropdown   = false;
+  isSearching = false;
+  showSearchDropdown = false;
   private searchSubject = new Subject<string>();
 
   // ── Fallback products (shown when no featured sections) ────────────────────
-  fallbackProducts: any[]     = [];
-  isLoadingFallback           = false;
+  fallbackProducts: any[] = [];
+  isLoadingFallback = false;
 
   // ── Newsletter ─────────────────────────────────────────────────────────────
   newsletterEmail = '';
-  isSubscribing   = false;
+  isSubscribing = false;
 
   // ── Timers ─────────────────────────────────────────────────────────────────
-  private bannerTimer: any  = null;
+  private bannerTimer: any = null;
   private statTimers: any[] = [];
 
   constructor(
-    public  i18n:           I18nService,
-    private router:         Router,
-    private homeService:    HomeService,
-    private productsService:ProductsService,
-    private cartService:    CartService,
-    private cdr:            ChangeDetectorRef,
-    private ngZone:         NgZone
-  ) {}
+    public i18n: I18nService,
+    private router: Router,
+    private homeService: HomeService,
+    private productsService: ProductsService,
+    private cartService: CartService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) { }
 
   // ══════════════════════════════════════════════════════════════════════════
   ngOnInit(): void {
     this.loadCategories();
     this.loadBanners();
-    this.loadFeaturedSections();
+    this.loadTopSellingProducts(); // ✅ خليها هنا
+    // this.loadFeaturedSections();
+    this.isLoadingSections = false;
     this.loadStats();
     this.loadTestimonials();
     this.setupSearch();
@@ -194,26 +196,56 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadFeaturedSections(): void {
-    this.isLoadingSections = true;
-    this.homeService.getFeaturedSections().subscribe({
+  // loadFeaturedSections(): void {
+  //   this.isLoadingSections = true;
+  //   this.homeService.getTopSelling(12).subscribe({
+  //     next: (res: any) => this.ngZone.run(() => {
+  //       if (res.success) {
+  //         this.featuredSections = (res.data || []).map((s: FeaturedSection) => ({
+  //           ...s, products: [], isLoadingProducts: s.sectionType === 'products'
+  //         }));
+  //         this.featuredSections.forEach(s => {
+  //           if (s.sectionType === 'products') this.loadSectionProducts(s);
+  //         });
+  //       }
+  //       this.isLoadingSections = false;
+  //       // If no sections from API, load fallback products
+  //       if (this.featuredSections.length === 0) this.loadFallbackProducts();
+  //       this.cdr.detectChanges();
+  //     }),
+  //     error: () => this.ngZone.run(() => {
+  //       this.isLoadingSections = false;
+  //       this.loadFallbackProducts();
+  //       this.cdr.detectChanges();
+  //     })
+  //   });
+  // }
+
+  loadTopSellingProducts(): void {
+    // this.isLoadingFallback = true;
+    this.productsService.getTopSelling(12).subscribe({
       next: (res: any) => this.ngZone.run(() => {
-        if (res.success) {
-          this.featuredSections = (res.data || []).map((s: FeaturedSection) => ({
-            ...s, products: [], isLoadingProducts: s.sectionType === 'products'
+        if (res.success && res.data) {
+          this.fallbackProducts = res.data.map((p: any) => ({
+            id: p.id,
+            nameAr: p.nameAr,
+            nameEn: p.nameEn,
+            mainImage: p.mainImage,
+            descriptionAr: p.descriptionAr,
+            descriptionEn: p.descriptionEn,
+            price: p.price,
+            originalPrice: p.originalPrice,
+            rating: p.rating || 0,
+            reviewCount: p.reviewCount || 0,
+            isWishlisted: false
           }));
-          this.featuredSections.forEach(s => {
-            if (s.sectionType === 'products') this.loadSectionProducts(s);
-          });
         }
-        this.isLoadingSections = false;
-        // If no sections from API, load fallback products
-        if (this.featuredSections.length === 0) this.loadFallbackProducts();
+
+        this.isLoadingFallback = false;
         this.cdr.detectChanges();
       }),
-      error: () => this.ngZone.run(() => {
-        this.isLoadingSections = false;
-        this.loadFallbackProducts();
+      error: (err) => this.ngZone.run(() => {
+        this.isLoadingFallback = false;
         this.cdr.detectChanges();
       })
     });
@@ -285,10 +317,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.statTimers.push(t);
       });
     };
-    animate('products',    this.stats.totalProducts);
-    animate('customers',   this.stats.totalCustomers);
-    animate('orders',      this.stats.totalOrders);
-    animate('satisfaction',this.stats.satisfactionRate);
+    animate('products', this.stats.totalProducts);
+    animate('customers', this.stats.totalCustomers);
+    animate('orders', this.stats.totalOrders);
+    animate('satisfaction', this.stats.satisfactionRate);
   }
 
   // ── Banner carousel ────────────────────────────────────────────────────────
@@ -314,11 +346,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   nextBanner(): void {
     this.currentBannerIndex = (this.currentBannerIndex + 1) % this.totalBanners;
-    this.currentStaticBanner= (this.currentStaticBanner  + 1) % this.staticBanners.length;
+    this.currentStaticBanner = (this.currentStaticBanner + 1) % this.staticBanners.length;
   }
   prevBanner(): void {
     this.currentBannerIndex = (this.currentBannerIndex - 1 + this.totalBanners) % this.totalBanners;
-    this.currentStaticBanner= (this.currentStaticBanner  - 1 + this.staticBanners.length) % this.staticBanners.length;
+    this.currentStaticBanner = (this.currentStaticBanner - 1 + this.staticBanners.length) % this.staticBanners.length;
   }
   goToBanner(i: number): void { this.currentBannerIndex = i; }
 
@@ -399,6 +431,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   toggleWishlist(p: any): void { p.isWishlisted = !p.isWishlisted; }
 
   getProductName(p: any): string { return this.i18n.currentLang === 'ar' ? p.nameAr : p.nameEn; }
+  getProductDescription(p: any): string { return this.i18n.currentLang === 'ar' ? p.descriptionAr : p.descriptionEn; }
   getBannerTitle(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.titleAr : b.title; }
   getBannerSubtitle(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.subtitleAr : b.subtitle; }
   getBannerBtn(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.buttonTextAr : b.buttonText; }
@@ -420,8 +453,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     (e.target as HTMLImageElement).src = 'assets/images/placeholder.png';
   }
 
-  getStars(rating: number): number[] { return Array(5).fill(0).map((_,i) => i < rating ? 1 : 0); }
-  getStarArray(rating: number): boolean[] { return Array(5).fill(false).map((_,i) => i < Math.round(rating)); }
+  getStars(rating: number): number[] { return Array(5).fill(0).map((_, i) => i < rating ? 1 : 0); }
+  getStarArray(rating: number): boolean[] { return Array(5).fill(false).map((_, i) => i < Math.round(rating)); }
 
   trackById(_: number, item: any): number { return item?.id ?? _; }
   trackByIndex(i: number): number { return i; }
