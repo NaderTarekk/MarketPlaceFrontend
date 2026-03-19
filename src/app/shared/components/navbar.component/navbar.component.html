@@ -4,12 +4,19 @@
   <!-- ═══════════════════════════════════════════════ -->
   <!-- TOP ROW: Logo + Catalog + Search + Icons -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div class="navbar-top">
+  <div class="navbar-top py-3">
     <div class="navbar-container">
       <!-- Logo -->
-      <div class="logo cursor-pointer" routerLink="">
-        <img src="noqta logo rm.png" alt="MarketPlace Logo" class="logo-image" />
+      <div class="logo cursor-pointer flex text-6xl items-center gap-3 text-white hover:opacity-90 transition-opacity"
+        routerLink="">
+        <i class="fa-solid fa-location-dot text-5xl"></i>
+        <span class="text-5xl font-bold tracking-wide" style="font-family: 'Poppins', sans-serif;">
+          NOQTA
+        </span>
       </div>
+      <!-- <div class="logo cursor-pointer" routerLink="">
+         <img src="noqta logo rm.png" alt="MarketPlace Logo" class="logo-image" />
+      </div> -->
 
       <!-- Catalog Button with Dropdown -->
       <div class="catalog-dropdown">
@@ -130,7 +137,7 @@
           <i class="fa-solid fa-box"></i>
           <span>{{ currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
         </a>
-<!-- 
+        <!-- 
         <a routerLink="products/wishlist" class="nav-icon-item">
           <i class="fa-solid fa-heart"></i>
           <span>{{ 'fav' | translate }}</span>
@@ -518,7 +525,7 @@
       <i class="fa-solid fa-language"></i>
       <span>{{ currentLang === 'ar' ? 'تغيير اللغة' : 'Change Language' }}</span>
     </button>
-    <button (click)="toggleActionMenu()" class="action-menu-item" routerLink="/chat" *ngIf="role === 'Customer'">
+    <button (click)="toggleActionMenu()" class="action-menu-item" routerLink="/chat" *ngIf="role">
       <i class="fa-solid fa-headset"></i>
       <span>{{ currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Support' }}</span>
     </button>

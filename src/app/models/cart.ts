@@ -8,6 +8,11 @@ export interface CartItem {
   originalPrice: number | null;
   quantity: number;
   stock: number;
+  selectedSize?: string;
+  selectedColor?: string;
+  variantId?: number;
+  hasVariants?: boolean;
+  priceAdjustment?: number;
 }
 
 export interface CartResponse {

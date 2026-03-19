@@ -8,6 +8,8 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { ReviewFilter, ReviewResponse } from '../../../../models/review';
 import { CartService } from '../../../cart/services/cart.service';
 import { ComplaintsService } from '../../../complaints/services/complaints.service';
+import { ToastrComponent } from '../../../../shared/components/toastr/toastr.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-product-details',
@@ -19,6 +21,10 @@ export class ProductDetailsComponent implements OnInit {
   product: Product | null = null;
   relatedProducts: ProductList[] = [];
   isLoading = true;
+  selectedSize?: string;
+  selectedColor?: string;
+  selectedVariant?: any;
+  quantity: number = 1;
 
   filter: ReviewFilter = {
     isApproved: undefined,
@@ -52,9 +58,6 @@ export class ProductDetailsComponent implements OnInit {
   };
   isSubmittingComplaint = false;
 
-  // Quantity
-  quantity = 1;
-
   // Tabs
   activeTab: 'description' | 'specs' | 'reviews' = 'description';
 
@@ -72,7 +75,8 @@ export class ProductDetailsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
     private cartService: CartService,
-    private complaintsService: ComplaintsService
+    private complaintsService: ComplaintsService,
+    private toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
@@ -105,6 +109,27 @@ export class ProductDetailsComponent implements OnInit {
         this.router.navigate(['/products']);
       }
     });
+  }
+
+  // لما اليوزر يختار size
+  onSizeSelect(size: string) {
+    this.selectedSize = size;
+    this.updateSelectedVariant();
+  }
+
+  // لما اليوزر يختار color
+  onColorSelect(color: string) {
+    this.selectedColor = color;
+    this.updateSelectedVariant();
+  }
+
+  // دور على الـ variant المناسب
+  updateSelectedVariant() {
+    if (this.product?.hasVariants && this.product?.variants) {
+      this.selectedVariant = this.product.variants.find((v: any) =>
+        v.size === this.selectedSize && v.color === this.selectedColor
+      );
+    }
   }
 
   loadReviews(productId: number): void {
@@ -203,9 +228,9 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   closeComplaintForm(): void {
-  this.showComplaintForm = false;
-  this.complaintForm = { title: '', type: 1, description: '' };
-}
+    this.showComplaintForm = false;
+    this.complaintForm = { title: '', type: 1, description: '' };
+  }
 
   setRating(rating: number): void {
     this.reviewForm.rating = rating;
@@ -364,33 +389,51 @@ export class ProductDetailsComponent implements OnInit {
   // ═══════════════════════════════════════════════
 
   addToCart(): void {
-    if (!this.product) return;
+  if (!this.product) return;
 
-    if (!this.authService.isLoggedIn()) {
-      this.showToast(
-        this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
-        'error'
-      );
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
-    this.cartService.addItem(this.product.id, this.quantity).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.showToast(
-            this.i18n.currentLang === 'ar' ? 'تم إضافة المنتج للسلة' : 'Product added to cart',
-            'success'
-          );
-        } else {
-          this.showToast(res.message || 'Error', 'error');
-        }
-      },
-      error: (err) => {
-        this.showToast(err.error?.message || 'Error', 'error');
-      }
-    });
+  if (!this.authService.isLoggedIn()) {
+    this.showToast(
+      this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
+      'error'
+    );
+    this.router.navigate(['/auth/login']);
+    return;
   }
+
+  // تحقق من الـ variants
+  if (this.product.hasVariants && (!this.selectedSize || !this.selectedColor)) {
+    this.showToast(
+      this.i18n.currentLang === 'ar' ? 'يرجى اختيار المقاس واللون' : 'Please select size and color',
+      'error'
+    );
+    return;
+  }
+
+  // ✅ حساب فرق السعر
+  const priceAdjustment = this.selectedVariant?.priceAdjustment || 0;
+
+  this.cartService.addItem(
+    this.product.id, 
+    this.quantity, 
+    this.selectedSize, 
+    this.selectedColor,
+    priceAdjustment
+  ).subscribe({
+    next: (res) => {
+      if (res.success) {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'تم إضافة المنتج للسلة' : 'Product added to cart',
+          'success'
+        );
+      } else {
+        this.toastr.error(res.message);
+      }
+    },
+    error: (err) => {
+      this.showToast(err.error?.message || 'Error', 'error');
+    }
+  });
+}
 
 
   buyNow(): void {
@@ -402,6 +445,15 @@ export class ProductDetailsComponent implements OnInit {
         'error'
       );
       this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    // تحقق من الـ variants
+    if (this.product.hasVariants && (!this.selectedSize || !this.selectedColor)) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يرجى اختيار المقاس واللون' : 'Please select size and color',
+        'error'
+      );
       return;
     }
 

@@ -1558,7 +1558,7 @@ body.menu-open {
 /* Search Bar - OZON Style (Large) */
 .search-wrapper-ozon {
   flex: 1;              /* ✅ ياخد كل المساحة المتاحة */
-  max-width: 1300px;     /* ✅ زوّد العرض */
+  max-width: 1100px;     /* ✅ زوّد العرض */
   position: relative;
   margin: 0 20px;       /* ✅ مسافة من الجوانب */
 }
@@ -3434,4 +3434,135 @@ body.menu-open {
   .category-item-count {
     font-size: 10px;
   }
+}
+
+/* ═══════════════════════════════════════════════ */
+/* DESKTOP NAVBAR - PURPLE TO BLUE GRADIENT */
+/* ═══════════════════════════════════════════════ */
+
+.navbar {
+  background: linear-gradient(to left, #3b82f6 0%, #d946ef 100%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.navbar-top {
+  background: linear-gradient(to left, #3b82f6 0%, #d946ef 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-bottom {
+  background: linear-gradient(to left, #3b82f6 0%, #d946ef 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Catalog Button */
+.catalog-btn {
+  background: #ffffff;
+  color: #d946ef;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.catalog-btn:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Search Bar */
+.search-input-ozon {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.search-input-ozon:focus-within {
+  border-color: #ffffff;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.search-btn-ozon {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+  color: #d946ef;
+}
+
+.search-btn-ozon:hover {
+  filter: brightness(0.95);
+}
+
+/* Nav Icons */
+.nav-icon-item {
+  color: #ffffff;
+}
+
+.nav-icon-item:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  color: #ffffff;
+}
+
+/* Bottom Nav Links */
+.nav-link-ozon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-link-ozon::after {
+  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+}
+
+.nav-link-ozon:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+.nav-link-ozon.active {
+  color: #ffffff;
+}
+
+/* Categories Inline */
+.cat-pill-inline {
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.cat-pill-inline:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.cat-pill-inline-name {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.cat-pill-inline:hover .cat-pill-inline-name {
+  color: #ffffff;
+}
+
+.cat-pill-inline--active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-color: #ffffff;
+}
+
+.cat-pill-inline--active .cat-pill-inline-name {
+  color: #ffffff;
+}
+
+.cat-pill-inline--active::after {
+  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+}
+
+/* Logout Link */
+.nav-link-ozon.logout-link {
+  color: #ffffff;
+}
+
+.nav-link-ozon.logout-link:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
 }

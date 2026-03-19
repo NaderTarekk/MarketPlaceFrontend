@@ -78,7 +78,7 @@
           <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-[1]"></div>
           <img [src]="getBannerImage(b.imageUrl)" [alt]="getBannerTitle(b)" (error)="handleImgError($event)"
             class="absolute inset-0 w-full h-full object-cover" />
-          <div class="relative z-[2] h-full flex items-center px-6 sm:px-12 py-8">
+          <div class="relative z-[2] h-full flex items-center px-6 sm:px-12 py-4">
             <div class="max-w-xl">
               <span
                 class="inline-block text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase text-fuchsia-400 mb-3 bg-fuchsia-500/10 border border-fuchsia-500/30 px-3 py-1 rounded-full">
@@ -87,7 +87,7 @@
               <h1 class="text-white text-2xl sm:text-4xl lg:text-5xl font-black leading-tight mb-2 drop-shadow-lg">
                 {{ getBannerTitle(b) }}
               </h1>
-              <p class="text-white/70 text-sm sm:text-lg mb-6">{{ getBannerSubtitle(b) }}</p>
+              <p class="text-white/70 text-sm sm:text-lg mb-1">{{ getBannerSubtitle(b) }}</p>
               <a [routerLink]="b.buttonLink"
                 class="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-lg shadow-violet-600/40 hover:scale-105 hover:shadow-violet-600/60 transition-all duration-300">
                 {{ getBannerBtn(b) }}

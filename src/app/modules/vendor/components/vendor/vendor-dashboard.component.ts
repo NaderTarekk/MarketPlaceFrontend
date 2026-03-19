@@ -2,7 +2,7 @@
 
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RecentOrder, SalesReport, VendorDashboard } from '../../../../models/vendor';
-import { ProductFilter, ProductList } from '../../../../models/products';
+import { ProductFilter, ProductList, ProductVariant } from '../../../../models/products';
 import { Category } from '../../../../models/category';
 import { Brand } from '../../../../models/brand';
 import { I18nService } from '../../../../core/services/i18n.service';
@@ -112,7 +112,9 @@ export class VendorDashboardComponent implements OnInit {
     isFeatured: false,
     mainImage: '',
     isActive: true,
-    images: [] as string[]
+    images: [] as string[],
+    hasVariants: false,
+    variants: [] as ProductVariant[]
   };
   selectedMainImage: File | null = null;
   selectedImages: File[] = [];
@@ -264,6 +266,19 @@ export class VendorDashboardComponent implements OnInit {
   // Check if order profit is confirmed
   isOrderProfitConfirmed(order: any): boolean {
     return order.vendorOrderStatus === this.VendorOrderStatus.Delivered;
+  }
+
+  addVariant(): void {
+    this.productForm.variants.push({
+      size: '',
+      color: '',
+      stock: 0,
+      priceAdjustment: 0
+    });
+  }
+
+  removeVariant(index: number): void {
+    this.productForm.variants.splice(index, 1);
   }
 
   // ═══════════════════════════════════════════════
@@ -585,40 +600,48 @@ export class VendorDashboardComponent implements OnInit {
     document.body.style.overflow = 'hidden';
   }
 
-  openEditProductDialog(product: ProductList): void {
-    this.isEditMode = true;
-    this.selectedProduct = product;
+ openEditProductDialog(product: ProductList): void {
+  this.isEditMode = true;
+  this.selectedProduct = product;
 
-    this.productsService.getById(product.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          const p = res.data;
-          this.productForm = {
-            nameAr: p.nameAr,
-            nameEn: p.nameEn,
-            descriptionAr: p.descriptionAr || '',
-            descriptionEn: p.descriptionEn || '',
-            price: p.price,
-            originalPrice: p.originalPrice,
-            costPrice: p.costPrice || null,
-            stock: p.stock,
-            lowStockThreshold: 5,
-            categoryId: p.categoryId,
-            brandId: p.brandId,
-            isActive: p.isActive,
-            isFeatured: p.isFeatured,
-            mainImage: p.mainImage,
-            images: p.images || []
-          };
-          this.mainImagePreview = p.mainImage ? this.getImageUrl(p.mainImage) : null;
-          this.imagesPreview = p.images?.map((img: string) => this.getImageUrl(img)) || [];
-          this.showProductDialog = true;
-          document.body.style.overflow = 'hidden';
-          this.cdr.detectChanges();
-        }
+  this.productsService.getById(product.id).subscribe({
+    next: (res) => {
+      if (res.success) {
+        const p = res.data;
+        this.productForm = {
+          nameAr: p.nameAr,
+          nameEn: p.nameEn,
+          descriptionAr: p.descriptionAr || '',
+          descriptionEn: p.descriptionEn || '',
+          price: p.price,
+          originalPrice: p.originalPrice,
+          costPrice: p.costPrice || null,
+          stock: p.stock,
+          lowStockThreshold: 5,
+          categoryId: p.categoryId,
+          brandId: p.brandId,
+          isActive: p.isActive,
+          isFeatured: p.isFeatured,
+          mainImage: p.mainImage,
+          images: p.images || [],
+          hasVariants: p.hasVariants || false,
+          variants: p.variants?.map((v: any) => ({
+            id: v.id,
+            size: v.size || '',
+            color: v.color || '',
+            stock: v.stock || 0,
+            priceAdjustment: v.priceAdjustment || 0
+          })) || []
+        };
+        this.mainImagePreview = p.mainImage ? this.getImageUrl(p.mainImage) : null;
+        this.imagesPreview = p.images?.map((img: string) => this.getImageUrl(img)) || [];
+        this.showProductDialog = true;
+        document.body.style.overflow = 'hidden';
+        this.cdr.detectChanges();
       }
-    });
-  }
+    }
+  });
+}
 
   closeProductDialog(): void {
     this.showProductDialog = false;
@@ -642,7 +665,9 @@ export class VendorDashboardComponent implements OnInit {
       isActive: true,
       isFeatured: false,
       mainImage: '',
-      images: []
+      images: [],
+      hasVariants: false,  // ✅
+      variants: []
     };
     this.selectedMainImage = null;
     this.selectedImages = [];

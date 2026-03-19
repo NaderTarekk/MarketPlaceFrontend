@@ -2115,3 +2115,97 @@
     color: #64748b;
     margin-top: 2px;
 }
+
+/* vendor-dashboard.component.css */
+.variants-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.variant-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 100px 100px 40px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.btn-add-variant {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-remove {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.product-variants {
+    margin-top: 8px;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.variants-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.variants-row:last-child {
+    margin-bottom: 0;
+}
+
+.variants-row i {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.variants-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.variant-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.variant-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.variant-tag.size {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    color: #7c3aed;
+}
+
+.variant-tag.color {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    color: #db2777;
+}
+
+.color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+}

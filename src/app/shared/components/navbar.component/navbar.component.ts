@@ -57,13 +57,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { nameAr: 'الشكاوي', nameEn: 'Complaints', route: '/admin/complaints', icon: 'fa-exclamation-triangle' },
     { nameAr: 'المحافظات', nameEn: 'Governorates', route: '/admin/governorates', icon: 'fa-map-marker-alt' },
     { nameAr: 'إدارة الشحنات', nameEn: 'Shipping Management', route: '/shipping/employee', icon: 'fa-truck-fast' },
+    { nameAr: 'إدارة البانرز', nameEn: 'Banners Management', route: '/admin/banners', icon: 'fa-solid fa-rectangle-ad' },
   ];
 
   isCategoriesDropdownOpen = false;
 
   vendorPages = [
     { nameAr: 'لوحة التحكم', nameEn: 'Dashboard', route: '/vendor', icon: 'fa-chart-line' },
-    { nameAr: 'طلبات الشحن', nameEn: 'Shipping Orders', route: '/shipping/vendor', icon: 'fa-boxes-packing' }, // ✅ أضف ده
+    { nameAr: 'طلبات الشحن', nameEn: 'Shipping Orders', route: '/shipping/vendor', icon: 'fa-boxes-packing' },
   ];
 
   // أضف في الـ properties

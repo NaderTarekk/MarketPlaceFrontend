@@ -29,6 +29,10 @@ export interface Product {
   reviewCount: number;
   slug: string | null;
   createdAt: string;
+    hasVariants: boolean;   
+  sizes?: string;              
+  colors?: string;             
+  variants?: ProductVariant[]; 
 }
 
 export interface ProductList {
@@ -52,6 +56,9 @@ export interface ProductList {
   brandId: number | null;
   brandNameAr: string | null;
   brandNameEn: string | null;
+   hasVariants: boolean;
+  sizes?: string;
+  colors?: string;
 }
 
 export interface ProductFilter {
@@ -75,6 +82,7 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+
 export interface PagedResponse<T> {
   success: boolean;
   message: string;
@@ -87,4 +95,13 @@ export interface PagedResponse<T> {
     hasPrevious: boolean;
     hasNext: boolean;
   };
+}
+
+export interface ProductVariant {
+  id?: number;
+  size?: string;
+  color?: string;
+  stock: number;
+  priceAdjustment?: number;
+  image?: string;
 }

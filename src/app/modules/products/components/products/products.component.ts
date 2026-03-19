@@ -1,5 +1,5 @@
 // products.component.ts
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { ProductFilter, ProductList } from '../../../../models/products';
 import { Category } from '../../../../models/category';
 import { Brand } from '../../../../models/brand';
@@ -117,7 +117,8 @@ export class ProductsComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private cartService: CartService,
-    private authService: AuthService
+    private authService: AuthService,
+    private ngZone: NgZone 
   ) { }
 
   ngOnInit(): void {
@@ -630,29 +631,34 @@ export class ProductsComponent implements OnInit {
   // CART
   // ═══════════════════════════════════════════════
 
-  addToCart(product: ProductList, event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
+ addToCart(product: ProductList, event: Event): void {
+  event.preventDefault();
+  event.stopPropagation();
 
-    if (!this.authService.isLoggedIn()) {
+  if (!this.authService.isLoggedIn()) {
+    this.ngZone.run(() => {
       this.showToast(
         this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
         'error'
       );
-      this.router.navigate(['/auth/login']);
-      return;
-    }
+    });
+    this.router.navigate(['/auth/login']);
+    return;
+  }
 
-    if (product.stock <= 0) {
+  if (product.stock <= 0) {
+    this.ngZone.run(() => {
       this.showToast(
         this.i18n.currentLang === 'ar' ? 'المنتج غير متوفر' : 'Product out of stock',
         'error'
       );
-      return;
-    }
+    });
+    return;
+  }
 
-    this.cartService.addItem(product.id, 1).subscribe({
-      next: (res) => {
+  this.cartService.addItem(product.id, 1).subscribe({
+    next: (res) => {
+      this.ngZone.run(() => {
         if (res.success) {
           this.showToast(
             this.i18n.currentLang === 'ar' ? 'تم إضافة المنتج للسلة' : 'Added to cart',
@@ -661,12 +667,15 @@ export class ProductsComponent implements OnInit {
         } else {
           this.showToast(res.message || 'Error', 'error');
         }
-      },
-      error: (err) => {
+      });
+    },
+    error: (err) => {
+      this.ngZone.run(() => {
         this.showToast(err.error?.message || 'Error', 'error');
-      }
-    });
-  }
+      });
+    }
+  });
+}
 
   // ═══════════════════════════════════════════════
   // DIALOGS
@@ -911,13 +920,17 @@ export class ProductsComponent implements OnInit {
     return true;
   }
 
-  showToast(message: string, type: 'success' | 'error'): void {
-    this.toast = { show: true, message, type };
-    setTimeout(() => {
+ showToast(message: string, type: 'success' | 'error'): void {
+  this.toast = { show: true, message, type };
+  this.cdr.detectChanges();
+  
+  setTimeout(() => {
+    this.ngZone.run(() => {
       this.toast.show = false;
       this.cdr.detectChanges();
-    }, 3000);
-  }
+    });
+  }, 3000);
+}
 
   onDialogBackdropClick(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('dialog-overlay')) {

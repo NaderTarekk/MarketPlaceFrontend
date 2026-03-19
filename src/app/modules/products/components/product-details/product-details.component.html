@@ -114,6 +114,60 @@
 
         <!-- Quantity & Actions -->
         <div class="actions-section" *ngIf="product.stock > 0">
+          
+          <!-- Variants Section -->
+          <div *ngIf="product.hasVariants" class="variants-section" style="margin-bottom: 24px;">
+            <!-- المقاسات -->
+            <div class="variant-group" style="margin-bottom: 16px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">
+                {{ i18n.currentLang === 'ar' ? 'المقاس' : 'Size' }}
+                <span style="color: #ef4444;">*</span>
+              </label>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button *ngFor="let size of product.sizes?.split(',')" (click)="onSizeSelect(size.trim())"
+                  [style.background]="selectedSize === size.trim() ? '#9333ea' : '#fff'"
+                  [style.color]="selectedSize === size.trim() ? '#fff' : '#374151'"
+                  [style.border]="selectedSize === size.trim() ? '2px solid #9333ea' : '1px solid #d1d5db'"
+                  style="padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+                  {{size.trim()}}
+                </button>
+              </div>
+            </div>
+
+            <!-- الألوان -->
+            <div class="variant-group" style="margin-bottom: 16px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">
+                {{ i18n.currentLang === 'ar' ? 'اللون' : 'Color' }}
+                <span style="color: #ef4444;">*</span>
+              </label>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <div *ngFor="let color of product.colors?.split(',')" (click)="onColorSelect(color.trim())"
+                  [style.border]="selectedColor === color.trim() ? '3px solid #9333ea' : '2px solid #d1d5db'"
+                  style="width: 48px; height: 48px; border-radius: 50%; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+                  [style.background-color]="color.trim()" [title]="color.trim()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Stock للـ variant المختار -->
+            <div *ngIf="selectedVariant"
+              style="padding: 12px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
+              <span style="color: #166534; font-weight: 500;">
+                <i class="fa-solid fa-check-circle"></i>
+                {{ i18n.currentLang === 'ar' ? 'متوفر:' : 'Available:' }} {{selectedVariant.stock}} {{ i18n.currentLang === 'ar' ? 'قطعة' : 'items' }}
+              </span>
+            </div>
+
+            <!-- رسالة لو مافيش variant متاح -->
+            <div *ngIf="selectedSize && selectedColor && !selectedVariant"
+              style="padding: 12px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #ef4444;">
+              <span style="color: #991b1b; font-weight: 500;">
+                <i class="fa-solid fa-exclamation-circle"></i>
+                {{ i18n.currentLang === 'ar' ? 'هذا الاختيار غير متوفر' : 'This combination is not available' }}
+              </span>
+            </div>
+          </div>
+
           <!-- Quantity -->
           <div class="quantity-selector">
             <span class="label">{{ i18n.currentLang === 'ar' ? 'الكمية' : 'Quantity' }}</span>
@@ -134,10 +188,6 @@
               <i class="fa-solid fa-cart-plus"></i>
               {{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}
             </button>
-            <button class="btn-buy-now" (click)="buyNow()">
-              <i class="fa-solid fa-bolt"></i>
-              {{ i18n.currentLang === 'ar' ? 'اشتري الآن' : 'Buy Now' }}
-            </button>
           </div>
 
           <!-- Secondary Actions -->
@@ -156,111 +206,84 @@
             </button>
           </div>
 
-          <!-- ✅ Complaint Form Dialog - Responsive & Beautiful -->
-<div *ngIf="showComplaintForm" class="modal-overlay" (click)="closeComplaintForm()">
-  <div class="modal-container complaint-modal" (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="modal-header">
-      <div class="modal-icon">
-        <i class="fa-solid fa-flag"></i>
-      </div>
-      <h2>{{ i18n.currentLang === 'ar' ? 'تقديم شكوى' : 'Submit Complaint' }}</h2>
-      <button class="modal-close" (click)="closeComplaintForm()">
-        <i class="fa-solid fa-times"></i>
-      </button>
-    </div>
-    
-    <!-- Body -->
-    <div class="modal-body">
-      <!-- Title -->
-      <div class="form-field">
-        <label class="form-label">
-          <i class="fa-solid fa-heading"></i>
-          {{ i18n.currentLang === 'ar' ? 'العنوان' : 'Title' }}
-          <span class="required">*</span>
-        </label>
-        <input 
-          type="text"
-          [(ngModel)]="complaintForm.title"
-          class="form-input"
-          [placeholder]="i18n.currentLang === 'ar' ? 'عنوان الشكوى' : 'Complaint title'"
-          maxlength="200"
-        />
-      </div>
+          <!-- Complaint Form Dialog -->
+          <div *ngIf="showComplaintForm" class="modal-overlay" (click)="closeComplaintForm()">
+            <div class="modal-container complaint-modal" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <div class="modal-icon">
+                  <i class="fa-solid fa-flag"></i>
+                </div>
+                <h2>{{ i18n.currentLang === 'ar' ? 'تقديم شكوى' : 'Submit Complaint' }}</h2>
+                <button class="modal-close" (click)="closeComplaintForm()">
+                  <i class="fa-solid fa-times"></i>
+                </button>
+              </div>
 
-      <!-- Type -->
-      <div class="form-field">
-        <label class="form-label">
-          <i class="fa-solid fa-tag"></i>
-          {{ i18n.currentLang === 'ar' ? 'نوع الشكوى' : 'Type' }}
-        </label>
-        <select [(ngModel)]="complaintForm.type" class="form-select">
-          <option [value]="1">{{ i18n.currentLang === 'ar' ? 'منتج' : 'Product' }}</option>
-          <option [value]="2">{{ i18n.currentLang === 'ar' ? 'براند' : 'Brand' }}</option>
-          <option [value]="3">{{ i18n.currentLang === 'ar' ? 'تاجر' : 'Seller' }}</option>
-          <option [value]="4">{{ i18n.currentLang === 'ar' ? 'خدمة' : 'Service' }}</option>
-          <option [value]="5">{{ i18n.currentLang === 'ar' ? 'أخرى' : 'Other' }}</option>
-        </select>
-      </div>
+              <div class="modal-body">
+                <div class="form-field">
+                  <label class="form-label">
+                    <i class="fa-solid fa-heading"></i>
+                    {{ i18n.currentLang === 'ar' ? 'العنوان' : 'Title' }}
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" [(ngModel)]="complaintForm.title" class="form-input"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'عنوان الشكوى' : 'Complaint title'" maxlength="200" />
+                </div>
 
-      <!-- Description -->
-      <div class="form-field">
-        <label class="form-label">
-          <i class="fa-solid fa-message"></i>
-          {{ i18n.currentLang === 'ar' ? 'التفاصيل' : 'Details' }}
-          <span class="required">*</span>
-        </label>
-        <textarea 
-          [(ngModel)]="complaintForm.description"
-          class="form-textarea"
-          rows="6"
-          [placeholder]="i18n.currentLang === 'ar' ? 'اكتب تفاصيل الشكوى...' : 'Write complaint details...'"
-          maxlength="1000"
-        ></textarea>
-        <div class="char-count">
-          {{ complaintForm.description.length }}/1000
-        </div>
-      </div>
+                <div class="form-field">
+                  <label class="form-label">
+                    <i class="fa-solid fa-tag"></i>
+                    {{ i18n.currentLang === 'ar' ? 'نوع الشكوى' : 'Type' }}
+                  </label>
+                  <select [(ngModel)]="complaintForm.type" class="form-select">
+                    <option [value]="1">{{ i18n.currentLang === 'ar' ? 'منتج' : 'Product' }}</option>
+                    <option [value]="2">{{ i18n.currentLang === 'ar' ? 'براند' : 'Brand' }}</option>
+                    <option [value]="3">{{ i18n.currentLang === 'ar' ? 'تاجر' : 'Seller' }}</option>
+                    <option [value]="4">{{ i18n.currentLang === 'ar' ? 'خدمة' : 'Service' }}</option>
+                    <option [value]="5">{{ i18n.currentLang === 'ar' ? 'أخرى' : 'Other' }}</option>
+                  </select>
+                </div>
 
-      <!-- Product Info -->
-      <div class="complaint-product-info" *ngIf="product">
-        <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" />
-        <div class="product-info-text">
-          <span class="label">{{ i18n.currentLang === 'ar' ? 'المنتج' : 'Product' }}</span>
-          <span class="name">{{ getName(product) }}</span>
-        </div>
-      </div>
-    </div>
+                <div class="form-field">
+                  <label class="form-label">
+                    <i class="fa-solid fa-message"></i>
+                    {{ i18n.currentLang === 'ar' ? 'التفاصيل' : 'Details' }}
+                    <span class="required">*</span>
+                  </label>
+                  <textarea [(ngModel)]="complaintForm.description" class="form-textarea" rows="6"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'اكتب تفاصيل الشكوى...' : 'Write complaint details...'"
+                    maxlength="1000"></textarea>
+                  <div class="char-count">{{ complaintForm.description.length }}/1000</div>
+                </div>
 
-    <!-- Footer -->
-    <div class="modal-footer">
-      <button 
-        class="btn btn-cancel" 
-        (click)="closeComplaintForm()" 
-        [disabled]="isSubmittingComplaint"
-      >
-        <i class="fa-solid fa-times"></i>
-        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
-      </button>
-      <button 
-        class="btn btn-submit" 
-        (click)="submitComplaint()" 
-        [disabled]="isSubmittingComplaint"
-      >
-        <i *ngIf="isSubmittingComplaint" class="fa-solid fa-spinner fa-spin"></i>
-        <i *ngIf="!isSubmittingComplaint" class="fa-solid fa-paper-plane"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'إرسال الشكوى' : 'Submit' }}</span>
-      </button>
-    </div>
-  </div>
-</div>
+                <div class="complaint-product-info" *ngIf="product">
+                  <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" />
+                  <div class="product-info-text">
+                    <span class="label">{{ i18n.currentLang === 'ar' ? 'المنتج' : 'Product' }}</span>
+                    <span class="name">{{ getName(product) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-cancel" (click)="closeComplaintForm()" [disabled]="isSubmittingComplaint">
+                  <i class="fa-solid fa-times"></i>
+                  {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+                </button>
+                <button class="btn btn-submit" (click)="submitComplaint()" [disabled]="isSubmittingComplaint">
+                  <i *ngIf="isSubmittingComplaint" class="fa-solid fa-spinner fa-spin"></i>
+                  <i *ngIf="!isSubmittingComplaint" class="fa-solid fa-paper-plane"></i>
+                  <span>{{ i18n.currentLang === 'ar' ? 'إرسال الشكوى' : 'Submit' }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Out of Stock Message -->
         <div class="out-of-stock-message" *ngIf="product.stock === 0">
           <i class="fa-solid fa-bell"></i>
-          <p>{{ i18n.currentLang === 'ar' ? 'هذا المنتج غير متوفر حالياً' : 'This product is currently unavailable' }}
-          </p>
+          <p>{{ i18n.currentLang === 'ar' ? 'هذا المنتج غير متوفر حالياً' : 'This product is currently unavailable' }}</p>
           <button class="btn-notify">
             {{ i18n.currentLang === 'ar' ? 'أبلغني عند التوفر' : 'Notify me when available' }}
           </button>
@@ -315,7 +338,6 @@
       </div>
 
       <div class="tabs-content">
-        <!-- Description Tab -->
         <div class="tab-pane" *ngIf="activeTab === 'description'">
           <div class="description-content" *ngIf="getDescription(); else noDescription">
             <p>{{ getDescription() }}</p>
@@ -328,7 +350,6 @@
           </ng-template>
         </div>
 
-        <!-- Specs Tab -->
         <div class="tab-pane" *ngIf="activeTab === 'specs'">
           <div class="specs-table">
             <div class="spec-row">
@@ -337,31 +358,25 @@
             </div>
             <div class="spec-row" *ngIf="product.categoryNameAr || product.categoryNameEn">
               <span class="spec-label">{{ i18n.currentLang === 'ar' ? 'التصنيف' : 'Category' }}</span>
-              <span class="spec-value">{{ i18n.currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn
-                }}</span>
+              <span class="spec-value">{{ i18n.currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn }}</span>
             </div>
             <div class="spec-row" *ngIf="product.brandNameAr || product.brandNameEn">
               <span class="spec-label">{{ i18n.currentLang === 'ar' ? 'العلامة التجارية' : 'Brand' }}</span>
-              <span class="spec-value">{{ i18n.currentLang === 'ar' ? product.brandNameAr : product.brandNameEn
-                }}</span>
+              <span class="spec-value">{{ i18n.currentLang === 'ar' ? product.brandNameAr : product.brandNameEn }}</span>
             </div>
             <div class="spec-row">
               <span class="spec-label">{{ i18n.currentLang === 'ar' ? 'التوفر' : 'Availability' }}</span>
-              <span class="spec-value">{{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock') :
-                (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}</span>
+              <span class="spec-value">{{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock') : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Reviews Tab -->
         <div class="tab-pane" *ngIf="activeTab === 'reviews'">
-          <!-- Reviews Summary -->
           <div class="reviews-summary">
             <div class="average-rating">
               <span class="big-number">{{ product.rating.toFixed(1) }}</span>
               <div class="stars">
-                <i *ngFor="let star of getStars(product.rating)" class="fa-solid fa-star"
-                  [class.filled]="star === 1"></i>
+                <i *ngFor="let star of getStars(product.rating)" class="fa-solid fa-star" [class.filled]="star === 1"></i>
               </div>
               <span class="total">{{ product.reviewCount }} {{ i18n.currentLang === 'ar' ? 'تقييم' : 'reviews' }}</span>
             </div>
@@ -371,7 +386,6 @@
             </button>
           </div>
 
-          <!-- Reviews List -->
           <div class="reviews-list" *ngIf="reviews.length > 0">
             <div class="review-item" *ngFor="let review of reviews">
               <div class="review-header">
@@ -390,7 +404,6 @@
             </div>
           </div>
 
-          <!-- Empty State -->
           <div class="empty-tab" *ngIf="reviews.length === 0 && !isLoadingReviews">
             <i class="fa-solid fa-comments"></i>
             <p>{{ i18n.currentLang === 'ar' ? 'لا توجد تقييمات بعد' : 'No reviews yet' }}</p>
@@ -399,7 +412,6 @@
             </button>
           </div>
 
-          <!-- Loading -->
           <div class="loading-reviews" *ngIf="isLoadingReviews">
             <i class="fa-solid fa-spinner fa-spin"></i>
           </div>
@@ -440,8 +452,7 @@
 </div>
 
 <!-- Toast -->
-<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
-  [class.error]="toast.type === 'error'">
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
   <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
   <span>{{ toast.message }}</span>
 </div>
@@ -457,7 +468,6 @@
     </div>
 
     <div class="dialog-body">
-      <!-- Star Rating -->
       <div class="rating-input">
         <label>{{ i18n.currentLang === 'ar' ? 'تقييمك' : 'Your Rating' }}</label>
         <div class="stars-input">
@@ -468,7 +478,6 @@
         </div>
       </div>
 
-      <!-- Comment -->
       <div class="form-group">
         <label>{{ i18n.currentLang === 'ar' ? 'تعليقك' : 'Your Comment' }}</label>
         <textarea [(ngModel)]="reviewForm.comment" rows="4"

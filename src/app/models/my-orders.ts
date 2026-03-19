@@ -39,6 +39,8 @@ export interface OrderItem {
   total: number;
   vendorId?: string;
   vendorName?: string;
+    selectedSize?: string;
+  selectedColor?: string;
 }
 
 export interface Order {

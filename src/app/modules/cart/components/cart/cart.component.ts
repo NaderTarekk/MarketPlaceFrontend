@@ -102,8 +102,11 @@ export class CartComponent implements OnInit {
     });
   }
 
-  calculateSummary(): void {
-  this.subtotal = this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+ calculateSummary(): void {
+  // ✅ حساب السعر مع فرق السعر
+  this.subtotal = this.cartItems.reduce((sum, item) => 
+    sum + ((item.price + (item.priceAdjustment || 0)) * item.quantity), 0
+  );
 
   // Calculate discount from original prices
   this.discount = this.cartItems.reduce((sum, item) => {
@@ -116,7 +119,7 @@ export class CartComponent implements OnInit {
   // Shipping (free over 200)
   this.shipping = this.subtotal >= 200 ? 0 : 25;
 
-  // ✅ FIX: Apply promo discount as ACTUAL AMOUNT, not percentage
+  // Apply promo discount
   const promoAmount = this.promoApplied ? this.promoDiscount : 0;
 
   this.total = this.subtotal + this.shipping - promoAmount;

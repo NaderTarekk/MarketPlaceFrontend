@@ -189,7 +189,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="modal-content order-details-modal" (click)="$event.stopPropagation()">
 
             <!-- Modal Header -->
@@ -387,6 +387,19 @@
                                 <h4 class="item-name">
                                     {{ i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn }}
                                 </h4>
+
+                                <!-- ✅ أضف ده - Variants Info -->
+                                <div *ngIf="item.selectedSize || item.selectedColor" class="item-variants">
+                                    <span *ngIf="item.selectedSize" class="variant-badge">
+                                        <i class="fa-solid fa-ruler"></i>
+                                        {{ item.selectedSize }}
+                                    </span>
+                                    <span *ngIf="item.selectedColor" class="variant-badge color-badge">
+                                        <span class="color-circle" [style.background-color]="item.selectedColor"></span>
+                                        {{ item.selectedColor }}
+                                    </span>
+                                </div>
+
                                 <div class="item-details">
                                     <span class="item-quantity">
                                         {{ i18n.currentLang === 'ar' ? 'الكمية' : 'Qty' }}: {{ item.quantity }}

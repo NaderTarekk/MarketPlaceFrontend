@@ -467,6 +467,31 @@
                                 {{ product.stock }}
                             </span>
                         </div>
+
+                        <!-- ✅ Variants Display -->
+                        <div class="product-variants" *ngIf="product.hasVariants">
+                            <div class="variants-row" *ngIf="product.sizes">
+                                <i class="fa-solid fa-ruler"></i>
+                                <span class="variants-label">{{ i18n.currentLang === 'ar' ? 'المقاسات:' : 'Sizes:'
+                                    }}</span>
+                                <span class="variant-tags">
+                                    <span class="variant-tag size" *ngFor="let size of product.sizes.split(',')">{{
+                                        size.trim() }}</span>
+                                </span>
+                            </div>
+                            <div class="variants-row" *ngIf="product.colors">
+                                <i class="fa-solid fa-palette"></i>
+                                <span class="variants-label">{{ i18n.currentLang === 'ar' ? 'الألوان:' : 'Colors:'
+                                    }}</span>
+                                <span class="variant-tags">
+                                    <span class="variant-tag color" *ngFor="let color of product.colors.split(',')">
+                                        <span class="color-dot" [style.background-color]="color.trim()"></span>
+                                        {{ color.trim() }}
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
                         <div class="product-stats">
                             <span class="stat">
                                 <i class="fa-solid fa-star"></i>
@@ -773,6 +798,36 @@
                     <input type="number" [(ngModel)]="productForm.costPrice" min="0" step="0.01" />
                 </div>
 
+                <div class="form-group full-width">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="productForm.hasVariants">
+                        <span>{{ i18n.currentLang === 'ar' ? 'المنتج له مقاسات/ألوان' : 'Product has variants' }}</span>
+                    </label>
+                </div>
+
+                <div *ngIf="productForm.hasVariants" class="variants-section">
+                    <div class="section-header">
+                        <h4>{{ i18n.currentLang === 'ar' ? 'المقاسات والألوان' : 'Sizes & Colors' }}</h4>
+                        <button type="button" class="btn-add-variant" (click)="addVariant()">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <div *ngFor="let variant of productForm.variants; let i = index" class="variant-row">
+                        <input type="text" [(ngModel)]="variant.size"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'المقاس' : 'Size'">
+                        <input type="text" [(ngModel)]="variant.color"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'اللون' : 'Color'">
+                        <input type="number" [(ngModel)]="variant.stock"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'المخزون' : 'Stock'" min="0">
+                        <input type="number" [(ngModel)]="variant.priceAdjustment"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'فرق السعر' : 'Price Diff'" step="0.01">
+                        <button type="button" class="btn-remove" (click)="removeVariant(i)">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <br>
                 <!-- المخزون -->
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'المخزون' : 'Stock' }}</label>

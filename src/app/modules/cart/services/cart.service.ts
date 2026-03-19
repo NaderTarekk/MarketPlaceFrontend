@@ -29,15 +29,27 @@ export class CartService {
     this.cartCountSubject.next(0);
   }
 
-  addItem(productId: number, quantity: number = 1): Observable<ApiResponse<CartResponse>> {
-    return this.http.post<ApiResponse<CartResponse>>(environment.cartUrl, { productId, quantity }).pipe(
-      tap(res => {
-        if (res.success) {
-          this.cartCountSubject.next(res.data.items.length);
-        }
-      })
-    );
-  }
+ addItem(
+  productId: number, 
+  quantity: number = 1,
+  selectedSize?: string,
+  selectedColor?: string,
+  priceAdjustment?: number
+): Observable<ApiResponse<CartResponse>> {
+  return this.http.post<ApiResponse<CartResponse>>(environment.cartUrl, { 
+    productId, 
+    quantity,
+    selectedSize,
+    selectedColor,
+    priceAdjustment
+  }).pipe(
+    tap(res => {
+      if (res.success) {
+        this.cartCountSubject.next(res.data.items.length);
+      }
+    })
+  );
+}
 
   updateQuantity(productId: number, quantity: number): Observable<ApiResponse<CartResponse>> {
     return this.http.put<ApiResponse<CartResponse>>(`${environment.cartUrl}/${productId}`, quantity);

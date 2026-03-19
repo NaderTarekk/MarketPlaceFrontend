@@ -3,6 +3,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
+import { ApiResponse } from '../../../models/products';
+
+
+export interface ApiBanner {
+  id: number;
+  title: string;
+  titleAr: string;
+  subtitle: string;
+  subtitleAr: string;
+  imageUrl: string;
+  buttonText: string;
+  buttonTextAr: string;
+  buttonLink: string;
+  displayOrder?: number;
+  isActive?: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +28,9 @@ export class HomeService {
 
   constructor(private http: HttpClient) {}
 
-  getBanners(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/banners`);
-  }
+  getBanners(): Observable<ApiResponse<any[]>> {
+  return this.http.get<ApiResponse<any[]>>(`${environment.baseApi}/api/Banners?activeOnly=true`);
+}
 
   getFeaturedSections(): Observable<any> {
     return this.http.get(`${this.apiUrl}/featured-sections`);

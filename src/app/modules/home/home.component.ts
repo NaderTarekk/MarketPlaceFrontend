@@ -187,12 +187,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadBanners(): void {
     this.isLoadingBanners = true;
     this.homeService.getBanners().subscribe({
-      next: (res: any) => this.ngZone.run(() => {
-        if (res.success) this.apiBanners = res.data || [];
+      next: (res: any) => {
+        console.log('Banners response:', res); // ✅ شيك الـ response
+        if (res.success) {
+          this.apiBanners = res.data || [];
+          console.log('Loaded banners:', this.apiBanners); // ✅ شيك البانرات
+        }
         this.isLoadingBanners = false;
         this.cdr.detectChanges();
-      }),
-      error: () => this.ngZone.run(() => { this.isLoadingBanners = false; this.cdr.detectChanges(); })
+      },
+      error: (err) => {
+        console.error('Banners error:', err); // ✅ شيك الـ error
+        this.isLoadingBanners = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

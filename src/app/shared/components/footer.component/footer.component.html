@@ -18,7 +18,9 @@
                     </h3>
                 </div>
                 <p class="text-gray-400 text-sm leading-relaxed">
-                    {{ i18n.currentLang === 'ar' ? 'منصتك المتكاملة للتسوق الإلكتروني. نوفر لك أفضل المنتجات بأفضل الأسعار مع توصيل سريع وآمن.' : 'Your complete e-commerce platform. We provide you with the best products at the best prices with fast and secure delivery.' }}
+                    {{ i18n.currentLang === 'ar' ? 'منصتك المتكاملة للتسوق الإلكتروني. نوفر لك أفضل المنتجات بأفضل
+                    الأسعار مع توصيل سريع وآمن.' : 'Your complete e-commerce platform. We provide you with the best
+                    products at the best prices with fast and secure delivery.' }}
                 </p>
 
                 <!-- Social Media -->
@@ -158,8 +160,8 @@
                                 }}</p>
                             <p class="text-sm text-gray-300">
                                 {{ i18n.currentLang === 'ar'
-                                ? 'المملكة العربية السعودية، الرياض'
-                                : 'Saudi Arabia, Riyadh' }}
+                                ? 'مصر'
+                                : 'Egypt' }}
                             </p>
                         </div>
                     </li>
@@ -221,6 +223,24 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer Credit Section -->
+    <div class="relative border-t border-white/10">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <p class="text-sm text-gray-400">
+                    {{ i18n.currentLang === 'ar' ? 'تم التطوير بواسطة' : 'Developed by' }}
+                </p>
+                <a href="https://nhcsolutions.runasp.net/" target="_blank" rel="noopener noreferrer"
+                    class="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-500/50 transition-all duration-300 group">
+                    <img src="nhc.png" alt="Developer Company" class="w-30 h-20 rounded-lg object-contain">
+                    <span class="text-white font-semibold group-hover:text-pink-400 transition-colors">
+                        Nile Hash Code Solutions
+                    </span>
+                </a>
             </div>
         </div>
     </div>
