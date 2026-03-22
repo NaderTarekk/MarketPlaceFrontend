@@ -11,7 +11,7 @@
         routerLink="">
         <i class="fa-solid fa-location-dot text-5xl"></i>
         <span class="text-5xl font-bold tracking-wide" style="font-family: 'Poppins', sans-serif;">
-          NOQTA
+          {{ currentLang === 'ar' ? 'نقطة' : 'NOQTA' }}
         </span>
       </div>
       <!-- <div class="logo cursor-pointer" routerLink="">
@@ -157,7 +157,7 @@
   <!-- ═══════════════════════════════════════════════ -->
   <!-- BOTTOM ROW: Navigation Links -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div class="navbar-bottom desktop-nav">
+  <div class="navbar-bottom desktop-nav" *ngIf="!isInLoginPage">
     <div class="navbar-container">
       <nav class="nav-links-ozon">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link-ozon">
@@ -248,10 +248,8 @@
   </div>
 </header>
 
-
-<div class="categories-scroll-bar" *ngIf="categories.length > 0">
+<div class="categories-scroll-bar" *ngIf="categories.length > 0 && !isInLoginPage">
   <div class="categories-scroll-track">
-
     <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.id}" class="cat-pill"
       routerLinkActive="cat-pill--active">
       <div class="cat-pill-img">

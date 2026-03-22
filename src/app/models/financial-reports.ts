@@ -202,3 +202,82 @@ export interface VendorWithdrawalHistory {
   adminName?: string;
   notes?: string;
 }
+
+
+export interface VendorPrintReport {
+  vendorId: string;
+  fullName: string;
+  email?: string;
+  phoneNumber?: string;
+  createdAt: string;
+  nationalId?: string;
+  
+  businessName?: string;
+  commercialRegistration?: string;
+  taxNumber?: string;
+  businessAddress?: string;
+  commissionRate: number;
+  
+  totalProducts: number;
+  activeProducts: number;
+  totalOrders: number;
+  completedOrders: number;
+  cancelledOrders: number;
+  
+  totalRevenue: number;
+  vendorEarnings: number;
+  adminEarnings: number;
+  totalWithdrawn: number;
+  pendingPayment: number;
+  
+  reportFrom: string;
+  reportTo: string;
+  
+  orders: VendorOrderReport[];
+  monthlyRevenue: MonthlyRevenue[];
+}
+
+export interface VendorOrderReport {
+  orderId: number;
+  orderNumber: string;
+  orderDate: string;
+  customerName: string;
+  customerPhone?: string;
+  status: string;
+  statusAr: string;
+  
+  itemsTotal: number;
+  shippingShare: number;
+  totalAmount: number;
+  vendorShare: number;
+  adminShare: number;
+  
+  items: VendorOrderItem[];
+}
+
+export interface VendorOrderItem {
+  productId: number;
+  productNameAr: string;
+  productNameEn: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  selectedSize?: string;
+  selectedColor?: string;
+}
+
+export interface MonthlyRevenue {
+  year: number;
+  month: number;
+  monthName: string;
+  ordersCount: number;
+  revenue: number;
+  vendorEarnings: number;
+  adminEarnings: number;
+}
+
+export interface VendorReportFilter {
+  from?: string;
+  to?: string;
+  status?: string;
+}

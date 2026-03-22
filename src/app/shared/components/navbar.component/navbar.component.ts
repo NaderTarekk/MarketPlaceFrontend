@@ -5,7 +5,7 @@ import { combineLatest, debounceTime, distinctUntilChanged, Subject, Subscriptio
 import { I18nService, Lang } from '../../../core/services/i18n.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '../../../modules/auth/services/auth.service';
 import { Category } from '../../../models/category';
 import { HomeService } from '../../../modules/home/services/home.service';
@@ -74,6 +74,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   showSearchDropdown = false;
   private searchSubject = new Subject<string>();
   readonly placeholderImage = 'https://placehold.co/150x150/e2e8f0/94a3b8?text=No+Image';
+  isInLoginPage = false;
 
   constructor(
     public i18n: I18nService,
@@ -88,6 +89,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.isInLoginPage = this.router.url.includes('auth/login');
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.isInLoginPage = this.router.url.includes('auth/login');
+      }
+    });
+
     this.lang = localStorage.getItem('lang') || 'en';
 
     combineLatest([
@@ -292,18 +301,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   toggleCategoriesDropdown(): void {
-  this.isCategoriesDropdownOpen = !this.isCategoriesDropdownOpen;
-  if (this.isCategoriesDropdownOpen) {
-    document.body.classList.add('menu-open');
-  } else {
+    this.isCategoriesDropdownOpen = !this.isCategoriesDropdownOpen;
+    if (this.isCategoriesDropdownOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+  }
+
+  closeCategoriesDropdown(): void {
+    this.isCategoriesDropdownOpen = false;
     document.body.classList.remove('menu-open');
   }
-}
-
-closeCategoriesDropdown(): void {
-  this.isCategoriesDropdownOpen = false;
-  document.body.classList.remove('menu-open');
-}
 
   handleNavClick(link: any): void {
     if (link.func === 'logout') {

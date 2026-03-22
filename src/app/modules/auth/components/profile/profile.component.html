@@ -172,6 +172,9 @@
                         <input type="text" [(ngModel)]="vendorTaxNumber"
                             [placeholder]="i18n.currentLang === 'ar' ? 'الرقم الضريبي' : 'Tax Number'" />
 
+                        <input type="text" [(ngModel)]="vendorNationalId"
+                            [placeholder]="i18n.currentLang === 'ar' ? 'الرقم القومي' : 'National ID'" />
+
                         <textarea [(ngModel)]="vendorBusinessAddress" rows="3"
                             [placeholder]="i18n.currentLang === 'ar' ? 'عنوان المتجر' : 'Business Address'"></textarea>
                     </div>
@@ -184,7 +187,10 @@
                                     stroke-linejoin="round"></path>
                             </svg>
                         </div>
-                        <span class="label">{{ i18n.currentLang === 'ar' ? 'ارسل صورة البطاقة من الأمام والخلف والسجل التجاري والرقم الضريبي على الجيميل التالي : noqtaceo@gmail.com' : 'Send a photo of the card (front and back), commercial registration, and tax ID number to the following Gmail address: noqtaceo@gmail.com' }}</span>
+                        <span class="label">{{ i18n.currentLang === 'ar' ? 'ارسل صورة البطاقة من الأمام والخلف والسجل
+                            التجاري والرقم الضريبي على الجيميل التالي : noqtaceo@gmail.com' : 'Send a photo of the card
+                            (front and back), commercial registration, and tax ID number to the following Gmail address:
+                            noqtaceo@gmail.com' }}</span>
                     </label>
 
 
@@ -194,7 +200,8 @@
                             {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
                         </button>
 
-                        <button class="btn-modal btn-submit" (click)="upgradeAccount()" [disabled]="!isChecked || isUpgrading">
+                        <button class="btn-modal btn-submit" (click)="upgradeAccount()"
+                            [disabled]="!isChecked || isUpgrading">
                             <span *ngIf="!isUpgrading">
                                 {{ i18n.currentLang === 'ar' ? 'إرسال الطلب' : 'Submit Request' }}
                             </span>
@@ -417,7 +424,16 @@
                         <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.businessName" />
                         <span *ngIf="!isEditing">{{ profile.businessName || '-' }}</span>
                     </div>
-
+                    <br>
+                    <div class="info-item w-100">
+                        <label>
+                            <i class="fa-solid fa-id-card"></i>
+                            {{ i18n.currentLang === 'ar' ? 'الرقم الفومي' : 'National ID' }}
+                        </label>
+                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.nationalId" />
+                        <span *ngIf="!isEditing">{{ profile.nationalId || '-' }}</span>
+                    </div>
+                    <br>
                     <!-- Commercial Registration (Read Only) -->
                     <div class="info-item readonly">
                         <label>

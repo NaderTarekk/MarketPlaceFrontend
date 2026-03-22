@@ -2,30 +2,32 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
-import { 
-  AdminDashboard, 
-  AdminUser, 
-  ApiResponse, 
-  InventoryReport, 
-  PagedResponse, 
-  SalesReportFilter, 
-  SalesReportSummary, 
-  UserFilter 
+import {
+  AdminDashboard,
+  AdminUser,
+  ApiResponse,
+  InventoryReport,
+  PagedResponse,
+  SalesReportFilter,
+  SalesReportSummary,
+  UserFilter
 } from '../../../models/adminDashboard';
-import { 
-  VendorList, 
-  VendorDetailedReport, 
-  DeliveryAgentList, 
-  DeliveryAgentReport, 
-  ShippingEmployeeList, 
-  ShippingEmployeeReport, 
-  FinancialReport, 
-  Settlement, 
-  CreateSettlement, 
+import {
+  VendorList,
+  VendorDetailedReport,
+  DeliveryAgentList,
+  DeliveryAgentReport,
+  ShippingEmployeeList,
+  ShippingEmployeeReport,
+  FinancialReport,
+  Settlement,
+  CreateSettlement,
   UpdateCommissionRate,
   CreateVendorWithdrawal,
   VendorWithdrawalHistory,
-  VendorWithdrawalSummary
+  VendorWithdrawalSummary,
+  VendorPrintReport,
+  VendorReportFilter
 } from '../../../models/financial-reports';
 
 @Injectable({
@@ -38,7 +40,7 @@ export class AdminReportsService {
   // ═══════════════════════════════════════════════
   // EXISTING METHODS (Dashboard, Users, Sales, etc.)
   // ═══════════════════════════════════════════════
-  
+
   getDashboard(): Observable<ApiResponse<AdminDashboard>> {
     return this.http.get<ApiResponse<AdminDashboard>>(`${environment.adminUrl}/dashboard`);
   }
@@ -111,7 +113,7 @@ export class AdminReportsService {
   // ═══════════════════════════════════════════════
   // ✅ NEW: VENDORS MANAGEMENT
   // ═══════════════════════════════════════════════
-  
+
   getVendorsList(): Observable<ApiResponse<VendorList[]>> {
     return this.http.get<ApiResponse<VendorList[]>>(`${environment.adminUrl}/vendors`);
   }
@@ -127,7 +129,7 @@ export class AdminReportsService {
   // ═══════════════════════════════════════════════
   // ✅ NEW: DELIVERY AGENTS MANAGEMENT
   // ═══════════════════════════════════════════════
-  
+
   getDeliveryAgentsList(): Observable<ApiResponse<DeliveryAgentList[]>> {
     return this.http.get<ApiResponse<DeliveryAgentList[]>>(`${environment.adminUrl}/delivery-agents`);
   }
@@ -138,14 +140,14 @@ export class AdminReportsService {
 
   markAgentCashCollected(vendorOrderId: number): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
-      `${environment.adminUrl}/delivery-agents/cash-collected/${vendorOrderId}`, 
+      `${environment.adminUrl}/delivery-agents/cash-collected/${vendorOrderId}`,
       {}
     );
   }
 
   settleAgentCash(agentId: string, dto: CreateSettlement): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
-      `${environment.adminUrl}/delivery-agents/${agentId}/settle`, 
+      `${environment.adminUrl}/delivery-agents/${agentId}/settle`,
       dto
     );
   }
@@ -153,7 +155,7 @@ export class AdminReportsService {
   // ═══════════════════════════════════════════════
   // ✅ NEW: SHIPPING EMPLOYEES MANAGEMENT
   // ═══════════════════════════════════════════════
-  
+
   getShippingEmployeesList(): Observable<ApiResponse<ShippingEmployeeList[]>> {
     return this.http.get<ApiResponse<ShippingEmployeeList[]>>(`${environment.adminUrl}/shipping-employees`);
   }
@@ -164,14 +166,14 @@ export class AdminReportsService {
 
   markShipmentCashCollected(shipmentId: number): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
-      `${environment.adminUrl}/shipping-employees/cash-collected/${shipmentId}`, 
+      `${environment.adminUrl}/shipping-employees/cash-collected/${shipmentId}`,
       {}
     );
   }
 
   settleEmployeeCash(employeeId: string, dto: CreateSettlement): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
-      `${environment.adminUrl}/shipping-employees/${employeeId}/settle`, 
+      `${environment.adminUrl}/shipping-employees/${employeeId}/settle`,
       dto
     );
   }
@@ -179,7 +181,7 @@ export class AdminReportsService {
   // ═══════════════════════════════════════════════
   // ✅ NEW: FINANCIAL REPORTS
   // ═══════════════════════════════════════════════
-  
+
   getFinancialReport(): Observable<ApiResponse<FinancialReport>> {
     return this.http.get<ApiResponse<FinancialReport>>(`${environment.adminUrl}/financial-report`);
   }
@@ -191,25 +193,38 @@ export class AdminReportsService {
   }
 
   getVendorWithdrawalsSummary(): Observable<ApiResponse<VendorWithdrawalSummary[]>> {
-  return this.http.get<ApiResponse<VendorWithdrawalSummary[]>>(
-    `${environment.adminUrl}/vendor-withdrawals/summary`
-  );
-}
+    return this.http.get<ApiResponse<VendorWithdrawalSummary[]>>(
+      `${environment.adminUrl}/vendor-withdrawals/summary`
+    );
+  }
 
-createVendorWithdrawal(dto: CreateVendorWithdrawal): Observable<ApiResponse<any>> {
-  return this.http.post<ApiResponse<any>>(
-    `${environment.adminUrl}/vendor-withdrawals`, 
-    dto
-  );
-}
+  createVendorWithdrawal(dto: CreateVendorWithdrawal): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${environment.adminUrl}/vendor-withdrawals`,
+      dto
+    );
+  }
 
-getVendorWithdrawalHistory(vendorId?: string): Observable<ApiResponse<VendorWithdrawalHistory[]>> {
-  let params = new HttpParams();
-  if (vendorId) params = params.set('vendorId', vendorId);
-  
-  return this.http.get<ApiResponse<VendorWithdrawalHistory[]>>(
-    `${environment.adminUrl}/vendor-withdrawals/history`,
-    { params }
-  );
-}
+  getVendorWithdrawalHistory(vendorId?: string): Observable<ApiResponse<VendorWithdrawalHistory[]>> {
+    let params = new HttpParams();
+    if (vendorId) params = params.set('vendorId', vendorId);
+
+    return this.http.get<ApiResponse<VendorWithdrawalHistory[]>>(
+      `${environment.adminUrl}/vendor-withdrawals/history`,
+      { params }
+    );
+  }
+
+
+  getVendorPrintReport(vendorId: string, filter: VendorReportFilter): Observable<ApiResponse<VendorPrintReport>> {
+    let params = new HttpParams();
+    if (filter.from) params = params.set('from', filter.from);
+    if (filter.to) params = params.set('to', filter.to);
+    if (filter.status) params = params.set('status', filter.status);
+
+    return this.http.get<ApiResponse<VendorPrintReport>>(
+      `${environment.adminUrl}/vendors/${vendorId}/print-report`,
+      { params }
+    );
+  }
 }

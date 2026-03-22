@@ -4,8 +4,9 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { AdminReportsService } from '../../services/admin.service';
 import { ProductsService } from '../../../products/services/products.service';
 import { ProductList } from '../../../../models/products';
-import { VendorList, VendorDetailedReport, DeliveryAgentList, DeliveryAgentReport, ShippingEmployeeList, ShippingEmployeeReport, FinancialReport, Settlement, VendorWithdrawalHistory, VendorWithdrawalSummary, CreateVendorWithdrawal } from '../../../../models/financial-reports';
+import { VendorList, VendorDetailedReport, DeliveryAgentList, DeliveryAgentReport, ShippingEmployeeList, ShippingEmployeeReport, FinancialReport, Settlement, VendorWithdrawalHistory, VendorWithdrawalSummary, CreateVendorWithdrawal, VendorPrintReport, VendorReportFilter } from '../../../../models/financial-reports';
 import { environment } from '../../../../../environment';
+import html2pdf from 'html2pdf.js';
 
 @Component({
   selector: 'app-admin',
@@ -16,6 +17,16 @@ import { environment } from '../../../../../environment';
 export class AdminComponent implements OnInit {
   // Active Tab
   activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' = 'dashboard';
+
+  vendorPrintReport: VendorPrintReport | null = null;
+  showPrintModal = false;
+  isLoadingPrintReport = false;
+  printFilter: VendorReportFilter = {
+    from: this.getDateBefore(365),
+    to: this.getToday(),
+    status: 'All'
+  };
+  selectedVendorForPrint: VendorList | null = null;
 
   // Loading States
   isLoading = false;
@@ -1286,7 +1297,7 @@ export class AdminComponent implements OnInit {
     this.adminService.getVendorWithdrawalsSummary().subscribe({
       next: (res) => {
         console.log("Withdrawal Summary: ", res);
-        
+
         if (res.success) {
           this.vendorWithdrawals = res.data;
         }
@@ -1401,5 +1412,339 @@ export class AdminComponent implements OnInit {
 
   trackByWithdrawalHistory(index: number, item: VendorWithdrawalHistory): number {
     return item.id;
+  }
+
+  openPrintDialog(vendor: VendorList): void {
+    this.selectedVendorForPrint = vendor;
+    this.printFilter = {
+      from: this.getDateBefore(365),
+      to: this.getToday(),
+      status: 'All'
+    };
+    this.showPrintModal = true;
+    this.loadVendorPrintReport();
+  }
+
+  closePrintModal(): void {
+    this.showPrintModal = false;
+    this.vendorPrintReport = null;
+    this.selectedVendorForPrint = null;
+  }
+
+  loadVendorPrintReport(): void {
+    if (!this.selectedVendorForPrint) return;
+
+    this.isLoadingPrintReport = true;
+    this.adminService.getVendorPrintReport(this.selectedVendorForPrint.id, this.printFilter).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.vendorPrintReport = res.data;
+        }
+        this.isLoadingPrintReport = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingPrintReport = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading report', 'error');
+      }
+    });
+  }
+
+  onPrintFilterChange(): void {
+    this.loadVendorPrintReport();
+  }
+
+  printVendorReport(): void {
+  if (!this.vendorPrintReport) return;
+
+  const isRtl = this.i18n.currentLang === 'ar';
+
+  // Create hidden container for PDF
+  const container = document.createElement('div');
+  container.innerHTML = this.generatePrintHtml(isRtl);
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '210mm';
+  document.body.appendChild(container);
+
+  const element = container.firstElementChild as HTMLElement;
+
+  const opt: any = {
+    margin: [10, 10, 10, 10],
+    filename: `${isRtl ? 'تقرير_التاجر' : 'Vendor_Report'}_${this.vendorPrintReport.fullName}_${new Date().toISOString().split('T')[0]}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      letterRendering: true
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  html2pdf().set(opt).from(element).save().then(() => {
+    document.body.removeChild(container);
+    this.showToast(
+      isRtl ? 'تم تحميل التقرير بنجاح' : 'Report downloaded successfully',
+      'success'
+    );
+  }).catch(() => {
+    document.body.removeChild(container);
+    this.showToast(
+      isRtl ? 'حدث خطأ أثناء التحميل' : 'Error downloading report',
+      'error'
+    );
+  });
+}
+
+  generatePrintHtml(isRtl: boolean): string {
+    return `
+    <div style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 30px; color: #1e293b; background: #fff; direction: ${isRtl ? 'rtl' : 'ltr'}; font-size: 14px; line-height: 1.6;">
+      
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 4px solid #10b981;">
+        <h1 style="color: #10b981; font-size: 28px; margin-bottom: 10px; font-weight: 700;">${isRtl ? 'تقرير التاجر' : 'Vendor Report'}</h1>
+        <p style="color: #64748b; font-size: 14px;">${isRtl ? 'الفترة:' : 'Period:'} ${this.formatDate(this.vendorPrintReport!.reportFrom)} - ${this.formatDate(this.vendorPrintReport!.reportTo)}</p>
+      </div>
+      
+      <!-- Personal Info -->
+      <div style="margin-bottom: 30px;">
+        <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+          ${isRtl ? '👤 المعلومات الشخصية' : '👤 Personal Information'}
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #6366f1;">
+            <div style="color: #6366f1; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'الاسم' : 'Name'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.fullName}</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #6366f1;">
+            <div style="color: #6366f1; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'البريد الإلكتروني' : 'Email'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.email || '-'}</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #6366f1;">
+            <div style="color: #6366f1; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'رقم الهاتف' : 'Phone'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.phoneNumber || '-'}</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #6366f1;">
+            <div style="color: #6366f1; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'الرقم القومي' : 'National ID'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.nationalId || '-'}</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #6366f1; grid-column: span 2;">
+            <div style="color: #6366f1; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'تاريخ التسجيل' : 'Joined Date'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.formatDate(this.vendorPrintReport!.createdAt)}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Business Info -->
+      <div style="margin-bottom: 30px;">
+        <div style="background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+          ${isRtl ? '🏪 معلومات المتجر' : '🏪 Business Information'}
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
+            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'اسم المتجر' : 'Business Name'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.businessName || '-'}</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
+            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'السجل التجاري' : 'Commercial Reg.'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.commercialRegistration || '-'}</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
+            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'الرقم الضريبي' : 'Tax Number'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.taxNumber || '-'}</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
+            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'نسبة العمولة' : 'Commission Rate'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.commissionRate}%</div>
+          </div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6; grid-column: span 2;">
+            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'العنوان' : 'Address'}</div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.businessAddress || '-'}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Statistics -->
+      <div style="margin-bottom: 30px;">
+        <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+          ${isRtl ? '📊 الإحصائيات' : '📊 Statistics'}
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+          <div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #bfdbfe;">
+            <div style="font-size: 28px; font-weight: 700; color: #1e40af;">${this.vendorPrintReport!.totalProducts}</div>
+            <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'إجمالي المنتجات' : 'Total Products'}</div>
+          </div>
+          <div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #6ee7b7;">
+            <div style="font-size: 28px; font-weight: 700; color: #047857;">${this.vendorPrintReport!.activeProducts}</div>
+            <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'منتجات نشطة' : 'Active Products'}</div>
+          </div>
+          <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #c4b5fd;">
+            <div style="font-size: 28px; font-weight: 700; color: #7c3aed;">${this.vendorPrintReport!.totalOrders}</div>
+            <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'إجمالي الطلبات' : 'Total Orders'}</div>
+          </div>
+          <div style="background: linear-gradient(135deg, #f0fdfa, #ccfbf1); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #5eead4;">
+            <div style="font-size: 28px; font-weight: 700; color: #0d9488;">${this.vendorPrintReport!.completedOrders}</div>
+            <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'طلبات مكتملة' : 'Completed Orders'}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Financial Summary -->
+      <div style="margin-bottom: 30px;">
+        <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+          ${isRtl ? '💰 الملخص المالي' : '💰 Financial Summary'}
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+          <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 20px; text-align: center; border-radius: 12px; color: white;">
+            <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.totalRevenue)}</div>
+            <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'إجمالي الإيرادات' : 'Total Revenue'}</div>
+          </div>
+          <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); padding: 20px; text-align: center; border-radius: 12px; color: white;">
+            <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.vendorEarnings)}</div>
+            <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'أرباح التاجر' : 'Vendor Earnings'}</div>
+          </div>
+          <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); padding: 20px; text-align: center; border-radius: 12px; color: white;">
+            <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.adminEarnings)}</div>
+            <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'عمولة الإدارة' : 'Admin Commission'}</div>
+          </div>
+          <div style="background: linear-gradient(135deg, #f97316, #ea580c); padding: 20px; text-align: center; border-radius: 12px; color: white;">
+            <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.pendingPayment)}</div>
+            <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'مستحقات معلقة' : 'Pending Payment'}</div>
+          </div>
+        </div>
+        <div style="margin-top: 15px; background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #10b981;">
+          <div style="color: #10b981; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'إجمالي المسحوبات' : 'Total Withdrawn'}</div>
+          <div style="font-weight: 700; color: #1e293b; font-size: 20px;">${this.formatPrice(this.vendorPrintReport!.totalWithdrawn)}</div>
+        </div>
+      </div>
+      
+      ${this.generateMonthlyRevenueHtml(isRtl)}
+      
+      ${this.generateOrdersTableHtml(isRtl)}
+      
+      <!-- Footer -->
+      <div style="margin-top: 50px; text-align: center; color: #94a3b8; font-size: 12px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+        <p>${isRtl ? 'تم إنشاء هذا التقرير تلقائياً بواسطة النظام' : 'This report was automatically generated by the system'}</p>
+        <p>${isRtl ? 'تاريخ الطباعة:' : 'Print Date:'} ${this.formatDateTime(this.getToday())}</p>
+      </div>
+    </div>
+  `;
+  }
+
+  generateMonthlyRevenueHtml(isRtl: boolean): string {
+    if (!this.vendorPrintReport?.monthlyRevenue?.length) return '';
+
+    let rows = '';
+    this.vendorPrintReport.monthlyRevenue.forEach((month, i) => {
+      rows += `
+      <tr style="background: ${i % 2 === 0 ? '#f8fafc' : '#fff'}">
+        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${month.monthName}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${month.ordersCount}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 700;">${this.formatPrice(month.revenue)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: #059669;">${this.formatPrice(month.vendorEarnings)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 700;">${this.formatPrice(month.adminEarnings)}</td>
+      </tr>
+    `;
+    });
+
+    return `
+    <div style="margin-bottom: 30px; page-break-inside: avoid;">
+      <div style="background: linear-gradient(135deg, #f59e0b, #ea580c); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+        ${isRtl ? '📅 الإيرادات الشهرية' : '📅 Monthly Revenue'}
+      </div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr>
+            <th style="background: #f59e0b; color: white; padding: 12px 10px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الشهر' : 'Month'}</th>
+            <th style="background: #f59e0b; color: white; padding: 12px 10px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الطلبات' : 'Orders'}</th>
+            <th style="background: #f59e0b; color: white; padding: 12px 10px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الإيرادات' : 'Revenue'}</th>
+            <th style="background: #f59e0b; color: white; padding: 12px 10px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'أرباح التاجر' : 'Vendor Earnings'}</th>
+            <th style="background: #f59e0b; color: white; padding: 12px 10px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'عمولة الإدارة' : 'Admin Commission'}</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+  }
+
+  generateOrdersTableHtml(isRtl: boolean): string {
+    if (!this.vendorPrintReport?.orders?.length) return '';
+
+    let rows = '';
+    this.vendorPrintReport.orders.forEach((order, i) => {
+      const statusColor = order.status === 'Delivered' ? '#166534' :
+        order.status === 'Cancelled' ? '#991b1b' : '#854d0e';
+      const statusBg = order.status === 'Delivered' ? '#dcfce7' :
+        order.status === 'Cancelled' ? '#fee2e2' : '#fef9c3';
+      rows += `
+      <tr style="background: ${i % 2 === 0 ? '#f8fafc' : '#fff'}">
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${order.orderNumber}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${this.formatDate(order.orderDate)}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${order.customerName}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">
+          <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: ${statusBg}; color: ${statusColor};">
+            ${isRtl ? order.statusAr : order.status}
+          </span>
+        </td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: 700;">${this.formatPrice(order.itemsTotal)}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: 700;">${this.formatPrice(order.shippingShare)}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: 700;">${this.formatPrice(order.totalAmount)}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: #059669;">${this.formatPrice(order.vendorShare)}</td>
+      </tr>
+    `;
+    });
+
+    return `
+    <div style="margin-bottom: 30px; page-break-inside: avoid;">
+      <div style="background: linear-gradient(135deg, #e11d48, #ec4899); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+        ${isRtl ? '🧾 تفاصيل الطلبات' : '🧾 Orders Details'} (${this.vendorPrintReport!.orders.length})
+      </div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <thead>
+          <tr>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'رقم الطلب' : 'Order #'}</th>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'التاريخ' : 'Date'}</th>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'العميل' : 'Customer'}</th>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الحالة' : 'Status'}</th>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'المنتجات' : 'Items'}</th>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الشحن' : 'Shipping'}</th>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الإجمالي' : 'Total'}</th>
+            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'نصيب التاجر' : 'Vendor'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+          <tr style="background: #fef3c7; font-weight: 700;">
+            <td colspan="4" style="padding: 12px 8px; border-top: 2px solid #f59e0b;">${isRtl ? 'الإجمالي' : 'Total'}</td>
+            <td style="padding: 12px 8px; border-top: 2px solid #f59e0b; font-weight: 700;">${this.formatPrice(this.getTotalItemsSum())}</td>
+            <td style="padding: 12px 8px; border-top: 2px solid #f59e0b; font-weight: 700;">${this.formatPrice(this.getTotalShippingSum())}</td>
+            <td style="padding: 12px 8px; border-top: 2px solid #f59e0b; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.totalRevenue)}</td>
+            <td style="padding: 12px 8px; border-top: 2px solid #f59e0b; font-weight: 700; color: #059669;">${this.formatPrice(this.vendorPrintReport!.vendorEarnings)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+  }
+
+  getTotalItemsSum(): number {
+    if (!this.vendorPrintReport) return 0;
+    return this.vendorPrintReport.orders
+      .filter(o => o.status !== 'Cancelled')
+      .reduce((sum, o) => sum + o.itemsTotal, 0);
+  }
+
+  getTotalShippingSum(): number {
+    if (!this.vendorPrintReport) return 0;
+    return this.vendorPrintReport.orders
+      .filter(o => o.status !== 'Cancelled')
+      .reduce((sum, o) => sum + o.shippingShare, 0);
   }
 }

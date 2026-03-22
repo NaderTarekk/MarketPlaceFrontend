@@ -16,6 +16,7 @@ export interface Profile {
   commercialRegistration: string | null;
   taxNumber: string | null;
   businessAddress: string | null;
+  nationalId: string | null;
   isApproved: boolean;
 }
 
@@ -37,5 +38,6 @@ export interface UpdateProfile {
   gender?: string;
   bio?: string;
   businessName?: string;
+  nationalId?: string;
   businessAddress?: string;
 }

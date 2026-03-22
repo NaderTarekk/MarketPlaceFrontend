@@ -32,6 +32,7 @@ export class ProfileComponent implements OnInit {
   vendorBusinessName = '';
   vendorCommercialReg = '';
   vendorTaxNumber = '';
+  vendorNationalId = '';
   vendorBusinessAddress = '';
   isUpgrading = false;
   // Image Upload
@@ -40,8 +41,8 @@ export class ProfileComponent implements OnInit {
   isUploadingImage = false;
 
   isChecked = false;
-  
-   // ✅ Address Management
+
+  // ✅ Address Management
   addresses: UserAddress[] = [];
   isLoadingAddresses = false;
   showAddressDialog = false;
@@ -50,7 +51,7 @@ export class ProfileComponent implements OnInit {
   addressToDelete: UserAddress | null = null;
   showDeleteAddressDialog = false;
   isDeletingAddress = false;
-  
+
   addressForm: CreateAddressDto = {
     label: 'Home',
     fullName: '',
@@ -62,7 +63,7 @@ export class ProfileComponent implements OnInit {
     country: 'Egypt',
     isDefault: false
   };
-  
+
   // role
   role: string | null = null;
 
@@ -75,7 +76,7 @@ export class ProfileComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-     private addressService: AddressServiceService  
+    private addressService: AddressServiceService
   ) { }
 
   ngOnInit(): void {
@@ -93,7 +94,7 @@ export class ProfileComponent implements OnInit {
 
   // ✅ NEW: Helper methods for upgrade button visibility
   isCustomer(): boolean {
-    
+
     if (!this.profile?.role) return false;
     return this.profile.role.toLowerCase() === 'customer';
   }
@@ -127,7 +128,7 @@ export class ProfileComponent implements OnInit {
 
   upgradeAccount(): void {
     if (!this.vendorBusinessName || !this.vendorCommercialReg ||
-      !this.vendorTaxNumber || !this.vendorBusinessAddress) {
+      !this.vendorTaxNumber || !this.vendorBusinessAddress || !this.vendorNationalId) {
       this.showToast(
         this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields',
         'error'
@@ -142,6 +143,7 @@ export class ProfileComponent implements OnInit {
       businessName: this.vendorBusinessName,
       commercialRegistration: this.vendorCommercialReg,
       taxNumber: this.vendorTaxNumber,
+      nationalId: this.vendorNationalId,
       businessAddress: this.vendorBusinessAddress
     };
 
@@ -192,14 +194,13 @@ export class ProfileComponent implements OnInit {
   loadProfile(): void {
     this.isLoading = true;
     this.profileService.getProfile().subscribe({
-      next: (res) => {
+      next: (res:any) => {
         if (res.success) {
-          console.log('✅ Profile loaded:', res.data);
-          console.log('✅ Role:', res.data.role);
-          console.log('✅ Business Name:', res.data.businessName);
-          console.log('✅ Can upgrade?', this.canUpgradeToVendor());
-
           this.profile = res.data;
+          console.log(res.data);
+          
+          console.log(this.profile);
+          
           this.cdr.detectChanges();
           this.initEditForm();
         }
@@ -398,7 +399,7 @@ export class ProfileComponent implements OnInit {
     }, 3000);
   }
 
-   loadAddresses(): void {
+  loadAddresses(): void {
     this.isLoadingAddresses = true;
     this.addressService.getAddresses().subscribe({
       next: (res) => {
@@ -513,8 +514,8 @@ export class ProfileComponent implements OnInit {
 
   // ✅ Validate Address Form
   validateAddressForm(): boolean {
-    if (!this.addressForm.fullName || !this.addressForm.phoneNumber || 
-        !this.addressForm.addressLine || !this.addressForm.city) {
+    if (!this.addressForm.fullName || !this.addressForm.phoneNumber ||
+      !this.addressForm.addressLine || !this.addressForm.city) {
       this.showToast(
         this.i18n.currentLang === 'ar' ? 'املأ جميع الحقول المطلوبة' : 'Fill all required fields',
         'error'
