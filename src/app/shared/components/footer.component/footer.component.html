@@ -25,22 +25,22 @@
 
                 <!-- Social Media -->
                 <div class="flex items-center gap-3 pt-2">
-                    <a href="#"
+                    <a
                         class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
                         <i class="fab fa-facebook-f text-gray-400 group-hover:text-white transition-colors"></i>
                     </a>
-                    <a href="#"
+                    <a
                         class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
                         <i class="fab fa-twitter text-gray-400 group-hover:text-white transition-colors"></i>
                     </a>
-                    <a href="#"
+                    <a
                         class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
                         <i class="fab fa-instagram text-gray-400 group-hover:text-white transition-colors"></i>
                     </a>
-                    <a href="#"
+                    <!-- <a href="#"
                         class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
                         <i class="fab fa-linkedin-in text-gray-400 group-hover:text-white transition-colors"></i>
-                    </a>
+                    </a> -->
                 </div>
             </div>
 
@@ -67,7 +67,7 @@
                             {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
                         </a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a [routerLink]="['/about']"
                             class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
                             <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -82,7 +82,7 @@
                                 [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
                             {{ i18n.currentLang === 'ar' ? 'اتصل بنا' : 'Contact Us' }}
                         </a>
-                    </li>
+                    </li> -->
                     <li>
                         <a [routerLink]="['/auth/login']" *ngIf="!isLogged"
                             class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
@@ -102,42 +102,37 @@
                 </h4>
                 <ul class="space-y-3">
                     <li>
-                        <a href="#"
+                        <a
                             class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                           
                             {{ i18n.currentLang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy' }}
                         </a>
                     </li>
                     <li>
-                        <a href="#"
+                        <a
                             class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            
                             {{ i18n.currentLang === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions' }}
                         </a>
                     </li>
                     <li>
-                        <a href="#"
+                        <a
                             class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            
                             {{ i18n.currentLang === 'ar' ? 'سياسة الاسترجاع' : 'Return Policy' }}
                         </a>
                     </li>
                     <li>
-                        <a href="#"
+                        <a
                             class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            
                             {{ i18n.currentLang === 'ar' ? 'الأسئلة الشائعة' : 'FAQ' }}
                         </a>
                     </li>
                     <li>
-                        <a href="#"
+                        <a
                             class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
+                            
                             {{ i18n.currentLang === 'ar' ? 'الشحن والتوصيل' : 'Shipping & Delivery' }}
                         </a>
                     </li>
@@ -198,7 +193,7 @@
     </div>
 
     <!-- Newsletter Section -->
-    <div class="relative border-t border-white/10">
+    <!-- <div class="relative border-t border-white/10">
         <div class="container mx-auto px-4 py-8">
             <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div class="text-center md:text-start">
@@ -225,21 +220,21 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Developer Credit Section -->
     <div class="relative border-t border-white/10">
         <div class="container mx-auto px-4 py-6">
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <p class="text-sm text-gray-400">
+                <p class="text-sm text-gray-400" style="font-size: 10px;">
                     {{ i18n.currentLang === 'ar' ? 'تم التطوير بواسطة' : 'Developed by' }}
                 </p>
                 <a href="https://nhcsolutions.runasp.net/" target="_blank" rel="noopener noreferrer"
                     class="flex items-center gap-2 px-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-500/50 transition-all duration-300 group">
-                    <img src="nhc.png" alt="Developer Company" class="w-20 h-20 rounded-lg object-contain">
-                    <span class="text-white font-semibold group-hover:text-pink-400 transition-colors text-xs">
+                    <img src="nhc.png" alt="Developer Company" class="w-15 h-15 rounded-lg object-contain">
+                    <!-- <span class="text-white font-semibold group-hover:text-pink-400 transition-colors text-xs">
                         Nile Hash Code Solutions
-                    </span>
+                    </span> -->
                 </a>
             </div>
         </div>

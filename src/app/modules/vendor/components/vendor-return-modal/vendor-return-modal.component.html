@@ -1,0 +1,38 @@
+<div class="modal fade" [id]="modalId" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" [class.bg-success]="isApprove" [class.bg-danger]="!isApprove"
+                [class.text-white]="true">
+                <h5 class="modal-title">
+                    <i [class]="isApprove ? 'fas fa-check me-2' : 'fas fa-times me-2'"></i>
+                    {{ isApprove ? 'موافقة على الإرجاع' : 'رفض الإرجاع' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    {{ isApprove
+                    ? 'هل أنت متأكد من الموافقة على طلب الإرجاع هذا؟'
+                    : 'هل أنت متأكد من رفض طلب الإرجاع هذا؟' }}
+                </p>
+                <p class="text-muted small">
+                    المرتجع: <strong>{{ returnRequest.returnBarcode }}</strong>
+                </p>
+
+                <div class="mb-3">
+                    <label class="form-label">ملاحظات {{ isApprove ? '(اختياري)' : '(يُفضل ذكر السبب)' }}</label>
+                    <textarea class="form-control" [(ngModel)]="notes" rows="3"
+                        [placeholder]="isApprove ? 'أي ملاحظات إضافية...' : 'سبب الرفض...'"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn" [class.btn-success]="isApprove" [class.btn-danger]="!isApprove"
+                    (click)="submit()" [disabled]="submitting">
+                    <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ isApprove ? 'موافقة' : 'رفض' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

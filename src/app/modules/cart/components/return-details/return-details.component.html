@@ -1,0 +1,107 @@
+<div class="container py-4">
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <div *ngIf="!loading && returnRequest">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>
+        <i class="fas fa-undo-alt me-2"></i>
+        طلب إرجاع #{{ returnRequest.id }}
+      </h2>
+      <button class="btn btn-outline-secondary" (click)="goBack()">
+        <i class="fas fa-arrow-right me-2"></i>
+        رجوع
+      </button>
+    </div>
+
+    <!-- Status Card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h5 class="mb-1">حالة الطلب</h5>
+            <span class="badge fs-6" [ngClass]="getStatusClass(returnRequest.status)">
+              {{ getStatusLabel(returnRequest.status) }}
+            </span>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <small class="text-muted">تاريخ الطلب:</small>
+            <p class="mb-0 fw-bold">{{ returnRequest.createdAt | date:'yyyy/MM/dd - hh:mm a' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-box me-2"></i>المنتجات المرتجعة</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>المنتج</th>
+                <th>الكمية</th>
+                <th>السعر</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of returnRequest.items">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img [src]="item.productImage" class="rounded me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                    <span>{{ item.productNameAr || item.productName }}</span>
+                  </div>
+                </td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.refundAmount | number:'1.2-2' }} ج.م</td>
+              </tr>
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <td colspan="2" class="fw-bold">إجمالي الاسترداد</td>
+                <td class="fw-bold text-success">{{ returnRequest.totalRefundAmount | number:'1.2-2' }} ج.م</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-comment-alt me-2"></i>سبب الإرجاع</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>السبب:</strong> {{ returnRequest.reasonText }}</p>
+        <p *ngIf="returnRequest.reasonDetails" class="text-muted mb-0">{{ returnRequest.reasonDetails }}</p>
+      </div>
+    </div>
+
+    <!-- Images -->
+    <div class="card mb-4" *ngIf="returnRequest.images && returnRequest.images.length > 0">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-images me-2"></i>صور المنتج</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          <img *ngFor="let img of returnRequest.images" [src]="img" class="rounded" style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancel Button -->
+    <div class="text-center" *ngIf="returnRequest.status === 0">
+      <button class="btn btn-danger" (click)="cancelReturn()">
+        <i class="fas fa-times me-2"></i>
+        إلغاء طلب الإرجاع
+      </button>
+    </div>
+  </div>
+</div>

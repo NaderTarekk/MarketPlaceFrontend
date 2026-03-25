@@ -5,6 +5,7 @@ import { LoginComponent } from './login.component/login.component';
 import { SharedModule } from '../../shared/shared-module';
 import { AuthRoutingModule } from '../../routing/auth-routing.module';
 import { ProfileComponent } from './components/profile/profile.component';
+import { RouterModule } from '@angular/router';
 
 
 
@@ -19,7 +20,8 @@ import { ProfileComponent } from './components/profile/profile.component';
     FormsModule,
     SharedModule,
     ReactiveFormsModule,
-    SharedModule
+    SharedModule,
+    RouterModule
   ]
 })
 export class AuthModule { }

@@ -5,6 +5,7 @@ import { ShipmentTrackingComponent } from '../modules/shipping/components/shipme
 import { ShippingEmployeeComponent } from '../modules/shipping/components/shipping-employee/shipping-employee.component';
 import { VendorShippingComponent } from '../modules/shipping/components/vendor-shipping/vendor-shipping.component';
 import { WarehouseManagementComponent } from '../modules/shipping/components/warehouse-management/warehouse-management.component';
+import { AgentReturnTasksComponent } from '../modules/shipping/components/agent-return-tasks/agent-return-tasks.component';
 
 const routes: Routes = [
    { path: 'employee', component: ShippingEmployeeComponent },
@@ -12,6 +13,7 @@ const routes: Routes = [
     { path: 'vendor', component: VendorShippingComponent },
     { path: 'track/:barcode', component: ShipmentTrackingComponent },
     { path: 'warehouse', component: WarehouseManagementComponent },
+    { path: 'agent/return-tasks', component: AgentReturnTasksComponent },
     { path: '', redirectTo: 'employee', pathMatch: 'full' }
 
 ];

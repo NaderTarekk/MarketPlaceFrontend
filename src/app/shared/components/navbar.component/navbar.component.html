@@ -265,7 +265,7 @@
 <!-- ═══════════════════════════════════════════════ -->
 <!-- MOBILE BOTTOM NAV BAR -->
 <!-- ═══════════════════════════════════════════════ -->
-<nav class="mobile-bottom-nav">
+<nav class="mobile-bottom-nav" *ngIf="!isInLoginPage">
   <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
     <i class="fa-solid fa-house"></i>
     <span>{{ 'home' | translate }}</span>
@@ -327,7 +327,7 @@
   </a>
 </nav>
 
-<nav class="mobile-bottom-nav">
+<nav class="mobile-bottom-nav" *ngIf="!isInLoginPage">
   <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
     <i class="fa-solid fa-house"></i>
     <span>{{ 'home' | translate }}</span>

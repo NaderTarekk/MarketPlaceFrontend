@@ -55,6 +55,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   googleEmail = '';
   googleToken = '';
 
+  acceptTerms = false;
+
   // Register
   registerRole: 'Customer' | 'Vendor' | 'DeliveryAgent' = 'Customer';
   registerPhone = '';
@@ -130,6 +132,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.timerSubscription.unsubscribe();
       }
     }
+  }
+  GoHome(){
+    this.router.navigate([""])
   }
   closeForgotModal(): void {
     this.showForgotModal = false;

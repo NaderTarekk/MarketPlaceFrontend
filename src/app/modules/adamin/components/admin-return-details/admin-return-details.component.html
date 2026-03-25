@@ -1,0 +1,308 @@
+<div class="container-fluid py-4" *ngIf="returnRequest">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a routerLink="/admin/returns" class="text-muted text-decoration-none">
+                <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+            </a>
+            <h2 class="mt-2 mb-0">{{ returnRequest.returnBarcode }}</h2>
+        </div>
+        <span class="badge fs-6" [ngClass]="getStatusClass(returnRequest.status)">
+            {{ returnRequest.statusAr }}
+        </span>
+    </div>
+
+    <div class="row">
+        <!-- Main Info -->
+        <div class="col-lg-8">
+            <!-- Customer & Order Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">معلومات الطلب والعميل</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>رقم الطلب:</strong> {{ returnRequest.orderNumber }}</p>
+                            <p><strong>العميل:</strong> {{ returnRequest.customerName }}</p>
+                            <p><strong>الهاتف:</strong> {{ returnRequest.customerPhone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>العنوان:</strong> {{ returnRequest.customerAddress }}</p>
+                            <p><strong>تاريخ الطلب:</strong> {{ returnRequest.createdAt | date:'medium' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Return Reason -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">سبب الإرجاع</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>{{ returnRequest.reasonAr }}</strong></p>
+                    <p *ngIf="returnRequest.reasonDetails" class="text-muted">{{ returnRequest.reasonDetails }}</p>
+
+                    <div *ngIf="returnRequest.images?.length" class="mt-3">
+                        <p class="mb-2"><strong>صور المنتج:</strong></p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <img *ngFor="let img of returnRequest.images" [src]="img" class="rounded"
+                                style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">المنتجات المرتجعة</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>المنتج</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                                <th>الإجمالي</th>
+                                <th>حالة الفحص</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of returnRequest.items">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img [src]="item.productImage" class="rounded me-2"
+                                            style="width: 50px; height: 50px;">
+                                        <div>
+                                            <p class="mb-0">{{ item.productNameAr }}</p>
+                                            <small class="text-muted">{{ item.variantInfo }}</small>
+                                            <br>
+                                            <small class="text-muted">التاجر: {{ item.vendorName }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.quantity }} / {{ item.originalQuantity }}</td>
+                                <td>{{ item.unitPrice | number:'1.2-2' }} ر.س</td>
+                                <td>{{ item.total | number:'1.2-2' }} ر.س</td>
+                                <td>
+                                    <span *ngIf="item.itemInspectionPassed === true"
+                                        class="badge bg-success">سليم</span>
+                                    <span *ngIf="item.itemInspectionPassed === false"
+                                        class="badge bg-danger">تالف</span>
+                                    <span *ngIf="item.itemInspectionPassed === null" class="badge bg-secondary">لم
+                                        يفحص</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>الإجمالي:</strong></td>
+                                <td colspan="2"><strong>{{ returnRequest.refundAmount | number:'1.2-2' }} ر.س</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end">خصم الشحن (على التاجر):</td>
+                                <td colspan="2">{{ returnRequest.shippingDeduction | number:'1.2-2' }} ر.س</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td colspan="3" class="text-end"><strong>المبلغ للعميل:</strong></td>
+                                <td colspan="2"><strong>{{ returnRequest.totalRefund | number:'1.2-2' }} ر.س</strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Actions & Timeline -->
+        <div class="col-lg-4">
+            <!-- Actions Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">الإجراءات</h5>
+                </div>
+                <div class="card-body">
+
+                    <!-- Approve/Reject -->
+                    <div *ngIf="canApprove()">
+                        <h6>موافقة الإدارة</h6>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات</label>
+                            <textarea class="form-control" [(ngModel)]="adminNotes" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">طريقة الاستلام</label>
+                            <select class="form-select" [(ngModel)]="pickupType">
+                                <option [ngValue]="ReturnPickupType.AgentPickup">مندوب يستلم</option>
+                                <option [ngValue]="ReturnPickupType.CustomerDropOff">العميل يوصل</option>
+                            </select>
+                        </div>
+                        <div *ngIf="pickupType === ReturnPickupType.AgentPickup" class="mb-3">
+                            <label class="form-label">موعد الاستلام</label>
+                            <input type="datetime-local" class="form-control" [(ngModel)]="scheduledPickupDate">
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success flex-grow-1" (click)="approveReturn()"
+                                [disabled]="submitting">
+                                <i class="fas fa-check me-2"></i>موافقة
+                            </button>
+                            <button class="btn btn-danger" (click)="rejectReturn()" [disabled]="submitting">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Assign Agent -->
+                    <div *ngIf="canAssignAgent()">
+                        <h6>تعيين مندوب</h6>
+                        <div class="mb-3">
+                            <label class="form-label">المندوب</label>
+                            <select class="form-select" [(ngModel)]="selectedAgentId">
+                                <option value="">اختر المندوب</option>
+                                <option *ngFor="let agent of availableAgents" [value]="agent.id">
+                                    {{ agent.fullName }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">موعد الاستلام</label>
+                            <input type="datetime-local" class="form-control" [(ngModel)]="scheduledPickupDate">
+                        </div>
+                        <button class="btn btn-primary w-100" (click)="assignAgent()" [disabled]="submitting">
+                            تعيين المندوب
+                        </button>
+                    </div>
+
+                    <!-- Mark Received -->
+                    <div *ngIf="canMarkReceived()">
+                        <button class="btn btn-info w-100" (click)="markReceived()" [disabled]="submitting">
+                            <i class="fas fa-warehouse me-2"></i>تسجيل وصول المرتجع
+                        </button>
+                    </div>
+
+                    <!-- Inspection -->
+                    <div *ngIf="canInspect()">
+                        <h6>فحص المرتجع</h6>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" [(ngModel)]="inspectionPassed"
+                                    [value]="true" id="passed">
+                                <label class="form-check-label" for="passed">المنتج سليم</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" [(ngModel)]="inspectionPassed"
+                                    [value]="false" id="failed">
+                                <label class="form-check-label" for="failed">المنتج تالف</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات الفحص</label>
+                            <textarea class="form-control" [(ngModel)]="inspectionNotes" rows="2"></textarea>
+                        </div>
+                        <button class="btn btn-primary w-100" (click)="recordInspection()" [disabled]="submitting">
+                            تسجيل نتيجة الفحص
+                        </button>
+                    </div>
+
+                    <!-- Process Refund -->
+                    <div *ngIf="canProcessRefund()">
+                        <h6>معالجة الاسترداد</h6>
+                        <div class="mb-3">
+                            <label class="form-label">طريقة الاسترداد</label>
+                            <select class="form-select" [(ngModel)]="refundMethod">
+                                <option [ngValue]="RefundMethod.Wallet">إضافة للمحفظة</option>
+                                <option [ngValue]="RefundMethod.DirectRefund">استرداد مباشر</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">المبلغ</label>
+                            <input type="number" class="form-control" [(ngModel)]="customRefundAmount"
+                                [placeholder]="returnRequest.totalRefund">
+                            <small class="text-muted">اترك فارغ للمبلغ الافتراضي</small>
+                        </div>
+                        <button class="btn btn-success w-100" (click)="processRefund()" [disabled]="submitting">
+                            <i class="fas fa-money-bill me-2"></i>تنفيذ الاسترداد
+                        </button>
+                    </div>
+
+                    <!-- Completed -->
+                    <div *ngIf="returnRequest.status === ReturnStatus.RefundCompleted" class="text-center">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5>تم الاسترداد بنجاح</h5>
+                        <p class="text-muted">{{ returnRequest.refundedAt | date:'medium' }}</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">سجل الحالات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item" *ngIf="returnRequest.createdAt">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <p class="mb-0">تم إنشاء الطلب</p>
+                                <small class="text-muted">{{ returnRequest.createdAt | date:'medium' }}</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item" *ngIf="returnRequest.vendorResponseAt">
+                            <div class="timeline-marker" [class.bg-success]="returnRequest.vendorApproval"
+                                [class.bg-danger]="!returnRequest.vendorApproval"></div>
+                            <div class="timeline-content">
+                                <p class="mb-0">{{ returnRequest.vendorApproval ? 'التاجر وافق' : 'التاجر رفض' }}</p>
+                                <small class="text-muted">{{ returnRequest.vendorResponseAt | date:'medium' }}</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item" *ngIf="returnRequest.adminResponseAt">
+                            <div class="timeline-marker" [class.bg-success]="returnRequest.adminApproval"
+                                [class.bg-danger]="!returnRequest.adminApproval"></div>
+                            <div class="timeline-content">
+                                <p class="mb-0">{{ returnRequest.adminApproval ? 'الإدارة وافقت' : 'الإدارة رفضت' }}</p>
+                                <small class="text-muted">{{ returnRequest.adminResponseAt | date:'medium' }}</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item" *ngIf="returnRequest.pickedUpAt">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <p class="mb-0">تم استلام المرتجع</p>
+                                <small class="text-muted">{{ returnRequest.pickedUpAt | date:'medium' }}</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item" *ngIf="returnRequest.receivedInWarehouseAt">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <p class="mb-0">وصل للمخزن</p>
+                                <small class="text-muted">{{ returnRequest.receivedInWarehouseAt | date:'medium'
+                                    }}</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item" *ngIf="returnRequest.inspectedAt">
+                            <div class="timeline-marker" [class.bg-success]="returnRequest.inspectionPassed"
+                                [class.bg-danger]="!returnRequest.inspectionPassed"></div>
+                            <div class="timeline-content">
+                                <p class="mb-0">{{ returnRequest.inspectionPassed ? 'الفحص: مقبول' : 'الفحص: مرفوض' }}
+                                </p>
+                                <small class="text-muted">{{ returnRequest.inspectedAt | date:'medium' }}</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item" *ngIf="returnRequest.refundedAt">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <p class="mb-0">تم الاسترداد</p>
+                                <small class="text-muted">{{ returnRequest.refundedAt | date:'medium' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

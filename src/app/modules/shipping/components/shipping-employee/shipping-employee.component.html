@@ -35,6 +35,12 @@
       <i class="fa-solid fa-warehouse"></i>
       {{ i18n.currentLang === 'ar' ? 'إدارة المخزن' : 'Warehouse' }}
     </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'returns'" (click)="activeTab = 'returns'">
+      <i class="fa-solid fa-undo-alt"></i>
+      {{ i18n.currentLang === 'ar' ? 'المرتجعات' : 'Returns' }}
+      <span class="badge" *ngIf="pendingReturns.length > 0">{{ pendingReturns.length }}</span>
+    </button>
     <!-- <button class="tab-btn" [class.active]="activeTab === 'failures'" (click)="activeTab = 'failures'">
       <i class="fa-solid fa-exclamation-triangle"></i>
       {{ i18n.currentLang === 'ar' ? 'فشل التوصيل' : 'Delivery Failures' }}
@@ -245,6 +251,51 @@
             <i class="fa-solid fa-arrow-right"></i>
             {{ i18n.currentLang === 'ar' ? 'انتقل إلى إدارة المخزن' : 'Go to Warehouse Management' }}
           </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Returns Tab -->
+    <div *ngIf="activeTab === 'returns'" class="tab-content">
+      <div *ngIf="pendingReturns.length === 0" class="empty-state">
+        <i class="fa-solid fa-check-circle"></i>
+        <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد مرتجعات منتظرة' : 'No pending returns' }}</h3>
+      </div>
+
+      <div class="orders-grid">
+        <div *ngFor="let ret of pendingReturns" class="order-card">
+          <div class="card-header">
+            <span class="barcode">#{{ ret.id }}</span>
+            <span class="status-badge pending">
+              {{ i18n.currentLang === 'ar' ? 'في انتظار التعيين' : 'Pending Assignment' }}
+            </span>
+          </div>
+
+          <div class="card-body">
+            <div class="info-row">
+              <i class="fa-solid fa-user"></i>
+              <span>{{ ret.customerName }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-solid fa-phone"></i>
+              <span>{{ ret.customerPhone }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>{{ ret.pickupAddress }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-solid fa-box"></i>
+              <span>{{ ret.itemsCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'items' }}</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button class="btn-assign" (click)="openAssignReturnModal(ret)">
+              <i class="fa-solid fa-user-plus"></i>
+              {{ i18n.currentLang === 'ar' ? 'تعيين مندوب' : 'Assign Agent' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -540,45 +591,96 @@
 <!-- Pickup Confirmation Modal -->
 <div class="pickup-modal-overlay" [class.show]="showPickupConfirmModal">
   <div class="pickup-backdrop" (click)="cancelPickup()"></div>
-  
+
   <div class="pickup-dialog">
     <div class="pickup-accent-bar"></div>
-    
+
     <div class="pickup-icon-wrapper">
       <div class="pickup-icon-circle">
         <i class="fa-solid fa-hand-holding-dollar"></i>
       </div>
-      
+
       <h3 class="pickup-title">
         {{ i18n.currentLang === 'ar' ? 'تأكيد الاستلام' : 'Confirm Pickup' }}
       </h3>
-      
+
       <p class="pickup-text">
-        {{ i18n.currentLang === 'ar' 
-          ? 'هل تم استلام الشحنة من قبل العميل؟' 
-          : 'Has the customer picked up the shipment?' 
+        {{ i18n.currentLang === 'ar'
+        ? 'هل تم استلام الشحنة من قبل العميل؟'
+        : 'Has the customer picked up the shipment?'
         }}
       </p>
-      
+
       <p class="pickup-subtext">
-        {{ i18n.currentLang === 'ar' 
-          ? 'سيتم تحديث حالة الطلب إلى "تم التسليم"' 
-          : 'Order status will be updated to "Delivered"' 
+        {{ i18n.currentLang === 'ar'
+        ? 'سيتم تحديث حالة الطلب إلى "تم التسليم"'
+        : 'Order status will be updated to "Delivered"'
         }}
       </p>
     </div>
-    
+
     <div class="pickup-divider"></div>
-    
+
     <div class="pickup-buttons">
       <button class="pickup-btn pickup-btn-cancel" (click)="cancelPickup()">
         <i class="fa-solid fa-times"></i>
         {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
       </button>
-      
+
       <button class="pickup-btn pickup-btn-confirm" (click)="confirmPickup()">
         <i class="fa-solid fa-check"></i>
         {{ i18n.currentLang === 'ar' ? 'تأكيد الاستلام' : 'Confirm Pickup' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Return Agent Modal -->
+<div class="modal-overlay" [class.show]="showAssignReturnModal" (click)="closeAssignReturnModal()">
+  <div class="modal assign-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fa-solid fa-undo-alt"></i>
+        {{ i18n.currentLang === 'ar' ? 'تعيين مندوب لاستلام المرتجع' : 'Assign Return Pickup Agent' }}
+      </h3>
+      <button class="close-btn" (click)="closeAssignReturnModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedReturn">
+      <!-- معلومات المرتجع -->
+      <div class="return-info">
+        <p><strong>{{ i18n.currentLang === 'ar' ? 'العميل:' : 'Customer:' }}</strong> {{ selectedReturn.customerName }}</p>
+        <p><strong>{{ i18n.currentLang === 'ar' ? 'العنوان:' : 'Address:' }}</strong> {{ selectedReturn.pickupAddress }}</p>
+      </div>
+
+      <!-- اختيار المندوب -->
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'اختر المندوب' : 'Select Agent' }}</label>
+        <select [(ngModel)]="selectedAgent">
+          <option value="">{{ i18n.currentLang === 'ar' ? '-- اختر --' : '-- Select --' }}</option>
+          <option *ngFor="let agent of deliveryAgents" [value]="agent.id">
+            {{ agent.fullName }} ({{ agent.activeTasksCount }} {{ i18n.currentLang === 'ar' ? 'مهام' : 'tasks' }})
+          </option>
+        </select>
+      </div>
+
+      <!-- تاريخ الاستلام -->
+      <div class="form-group">
+        <label>{{ i18n.currentLang === 'ar' ? 'تاريخ الاستلام' : 'Pickup Date' }}</label>
+        <input type="date" [(ngModel)]="scheduledPickupDate" [min]="today">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeAssignReturnModal()">
+        {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+      </button>
+      <button class="btn-confirm" (click)="confirmReturnAssignment()" 
+              [disabled]="isAssigning || !selectedAgent || !scheduledPickupDate">
+        <i class="fa-solid" [ngClass]="isAssigning ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ isAssigning ? (i18n.currentLang === 'ar' ? 'جاري التعيين...' : 'Assigning...') : (i18n.currentLang === 'ar' ? 'تأكيد' : 'Confirm') }}
       </button>
     </div>
   </div>

@@ -416,13 +416,12 @@
                     </div>
 
                     <!-- Business Name -->
-                    <div class="info-item">
+                    <div class="info-item readonly">
                         <label>
                             <i class="fa-solid fa-store"></i>
                             {{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business Name' }}
                         </label>
-                        <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.businessName" />
-                        <span *ngIf="!isEditing">{{ profile.businessName || '-' }}</span>
+                        <span>{{ profile.businessName || '-' }}</span>
                     </div>
                     <br>
                     <div class="info-item w-100">
@@ -430,6 +429,7 @@
                             <i class="fa-solid fa-id-card"></i>
                             {{ i18n.currentLang === 'ar' ? 'الرقم الفومي' : 'National ID' }}
                         </label>
+                        
                         <input *ngIf="isEditing" type="text" [(ngModel)]="editForm.nationalId" />
                         <span *ngIf="!isEditing">{{ profile.nationalId || '-' }}</span>
                     </div>

@@ -9,6 +9,7 @@ import { VendorShippingComponent } from './components/vendor-shipping/vendor-shi
 import { DeliveryAgentComponent } from './components/delivery-agent/delivery-agent.component';
 import { ShipmentTrackingComponent } from './components/shipment-tracking/shipment-tracking.component';
 import { WarehouseManagementComponent } from './components/warehouse-management/warehouse-management.component';
+import { AgentReturnTasksComponent } from './components/agent-return-tasks/agent-return-tasks.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { WarehouseManagementComponent } from './components/warehouse-management/
     VendorShippingComponent,
     DeliveryAgentComponent,
     WarehouseManagementComponent,
+    AgentReturnTasksComponent,
   ],
   imports: [
     CommonModule,

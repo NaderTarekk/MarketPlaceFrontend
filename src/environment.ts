@@ -1,5 +1,5 @@
-const productionApi = 'https://noqta.fun/api';
-const productionBaseApi = 'https://noqta.fun';
+const productionApi = 'https://noqta-egypt.com/api';
+const productionBaseApi = 'https://noqta-egypt.com';
 const localApi = 'http://localhost:5078/api';
 const localBaseApi = 'http://localhost:5078';
 

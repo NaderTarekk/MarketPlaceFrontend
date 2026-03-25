@@ -1,0 +1,57 @@
+<div class="row" *ngIf="stats">
+    <!-- Stats Cards -->
+    <div class="col-md-3 col-6 mb-4">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <h3 class="mb-0">{{ stats.totalReturns }}</h3>
+                <p class="mb-0">إجمالي المرتجعات</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6 mb-4">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body">
+                <h3 class="mb-0">{{ stats.pendingReturns }}</h3>
+                <p class="mb-0">في الانتظار</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6 mb-4">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <h3 class="mb-0">{{ stats.completedReturns }}</h3>
+                <p class="mb-0">مكتملة</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6 mb-4">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <h3 class="mb-0">{{ stats.totalRefundedAmount | number:'1.2-2' }}</h3>
+                <p class="mb-0">إجمالي المسترد (ر.س)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reason Breakdown -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">أسباب الإرجاع</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div *ngFor="let item of stats.reasonBreakdown | keyvalue" class="col-md-3 col-6 mb-3">
+                        <div class="border rounded p-3 text-center">
+                            <h4 class="mb-1">{{ item.value }}</h4>
+                            <small class="text-muted">{{ getReasonLabel(item.key) }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

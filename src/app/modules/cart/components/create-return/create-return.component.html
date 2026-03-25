@@ -1,0 +1,122 @@
+<div class="container py-4">
+  <h2 class="mb-4">طلب إرجاع منتجات</h2>
+ 
+  <!-- Cannot Return Alert -->
+  <div *ngIf="!canReturn && canReturnMessage" class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ canReturnMessage }}
+  </div>
+ 
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+ 
+  <!-- Form -->
+  <form *ngIf="!loading && canReturn" [formGroup]="returnForm" (ngSubmit)="submit()">
+    
+    <!-- Select Items -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">اختر المنتجات للإرجاع</h5>
+      </div>
+      <div class="card-body">
+        <div formArrayName="items">
+          <div *ngFor="let item of itemsArray.controls; let i = index" 
+               [formGroupName]="i"
+               class="d-flex align-items-center p-3 border-bottom">
+            
+            <div class="form-check me-3">
+              <input type="checkbox" 
+                     class="form-check-input" 
+                     [checked]="item.get('selected')?.value"
+                     (change)="toggleItem(i)">
+            </div>
+ 
+            <img [src]="item.get('productImage')?.value" 
+                 class="rounded me-3" 
+                 style="width: 60px; height: 60px; object-fit: cover;">
+ 
+            <div class="flex-grow-1">
+              <h6 class="mb-0">{{ item.get('productName')?.value }}</h6>
+              <small class="text-muted">
+                الكمية الأصلية: {{ item.get('maxQuantity')?.value }}
+              </small>
+            </div>
+ 
+            <div *ngIf="item.get('selected')?.value" class="ms-3">
+              <label class="form-label small">الكمية</label>
+              <input type="number" 
+                     class="form-control form-control-sm" 
+                     formControlName="quantity"
+                     [min]="1"
+                     [max]="item.get('maxQuantity')?.value"
+                     style="width: 80px;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Reason -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">سبب الإرجاع</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">السبب *</label>
+          <select class="form-select" formControlName="reason">
+            <option [ngValue]="null">اختر السبب</option>
+            <option *ngFor="let r of reasons" [ngValue]="r.value">{{ r.label }}</option>
+          </select>
+        </div>
+ 
+        <div class="mb-3">
+          <label class="form-label">تفاصيل إضافية</label>
+          <textarea class="form-control" 
+                    formControlName="reasonDetails" 
+                    rows="3"
+                    placeholder="اكتب أي تفاصيل إضافية..."></textarea>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Images -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">صور المنتج (اختياري)</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <input type="file" 
+                 class="form-control" 
+                 multiple 
+                 accept="image/*"
+                 (change)="onImageUpload($event)">
+          <small class="text-muted">يمكنك رفع صور توضح حالة المنتج</small>
+        </div>
+ 
+        <div *ngIf="uploadedImages.length > 0" class="d-flex flex-wrap gap-2">
+          <div *ngFor="let img of uploadedImages; let i = index" class="position-relative">
+            <img [src]="img" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+            <button type="button" 
+                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                    (click)="removeImage(i)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Submit -->
+    <div class="d-flex justify-content-between">
+      <a routerLink="/orders" class="btn btn-outline-secondary">إلغاء</a>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        إرسال طلب الإرجاع
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,153 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2>طلبات الإرجاع</h2>
+      <p class="text-muted mb-0">
+        إجمالي: {{ returns.length }} طلب
+        <span *ngIf="getPendingCount() > 0" class="badge bg-warning ms-2">
+          {{ getPendingCount() }} في الانتظار
+        </span>
+      </p>
+    </div>
+  </div>
+ 
+  <!-- Status Filters -->
+  <div class="card mb-4">
+    <div class="card-body py-2">
+      <div class="d-flex gap-2 flex-wrap">
+        <button *ngFor="let f of statusFilters"
+                class="btn btn-sm"
+                [class.btn-primary]="selectedStatus === f.value"
+                [class.btn-outline-primary]="selectedStatus !== f.value"
+                (click)="filterByStatus(f.value)">
+          {{ f.label }}
+        </button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+ 
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredReturns.length === 0" class="text-center py-5">
+    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+    <h4>لا توجد طلبات إرجاع</h4>
+  </div>
+ 
+  <!-- Returns List -->
+  <div *ngIf="!loading && filteredReturns.length > 0" class="row">
+    <div *ngFor="let return of filteredReturns" class="col-12 mb-3">
+      <div class="card shadow-sm" [class.border-warning]="return.status === ReturnStatus.Pending">
+        <div class="card-body">
+          <div class="row">
+            <!-- Header -->
+            <div class="col-12 mb-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="mb-1">{{ return.returnBarcode }}</h5>
+                  <small class="text-muted">طلب #{{ return.orderNumber }} | {{ return.customerName }}</small>
+                </div>
+                <span class="badge" [ngClass]="getStatusClass(return.status)">
+                  {{ return.statusAr }}
+                </span>
+              </div>
+            </div>
+ 
+            <!-- Reason -->
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted mb-2">سبب الإرجاع</h6>
+              <p class="mb-1"><strong>{{ return.reasonAr }}</strong></p>
+              <p *ngIf="return.reasonDetails" class="text-muted small mb-0">
+                {{ return.reasonDetails }}
+              </p>
+            </div>
+ 
+            <!-- Images -->
+            <div *ngIf="return.images && return.images.length > 0" class="col-md-6 mb-3">
+              <h6 class="text-muted mb-2">صور المنتج</h6>
+              <div class="d-flex gap-2">
+                <img *ngFor="let img of return.images" 
+                     [src]="img" 
+                     class="rounded"
+                     style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
+              </div>
+            </div>
+ 
+            <!-- Items -->
+            <div class="col-12 mb-3">
+              <h6 class="text-muted mb-2">المنتجات</h6>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead class="table-light">
+                    <tr>
+                      <th>المنتج</th>
+                      <th>الكمية</th>
+                      <th>السعر</th>
+                      <th>الإجمالي</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of return.items">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <img [src]="item.productImage" class="rounded me-2" style="width: 40px; height: 40px;">
+                          <div>
+                            <p class="mb-0">{{ item.productNameAr }}</p>
+                            <small *ngIf="item.variantInfo" class="text-muted">{{ item.variantInfo }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ item.quantity }} / {{ item.originalQuantity }}</td>
+                      <td>{{ item.unitPrice | number:'1.2-2' }} ر.س</td>
+                      <td>{{ item.total | number:'1.2-2' }} ر.س</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr class="fw-bold">
+                      <td colspan="3">الإجمالي</td>
+                      <td>{{ return.totalAmount | number:'1.2-2' }} ر.س</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+ 
+            <!-- Actions -->
+            <div *ngIf="return.canRespond" class="col-12">
+              <hr>
+              <div class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-outline-danger" 
+                        data-bs-toggle="modal" 
+                        [attr.data-bs-target]="'#rejectModal' + return.id">
+                  <i class="fas fa-times me-2"></i>رفض
+                </button>
+                <button class="btn btn-success"
+                        data-bs-toggle="modal" 
+                        [attr.data-bs-target]="'#approveModal' + return.id">
+                  <i class="fas fa-check me-2"></i>موافقة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Approve Modal -->
+      <app-vendor-return-modal 
+        [returnRequest]="return" 
+        [action]="'approve'"
+        (onSubmit)="loadReturns()">
+      </app-vendor-return-modal>
+ 
+      <!-- Reject Modal -->
+      <app-vendor-return-modal 
+        [returnRequest]="return" 
+        [action]="'reject'"
+        (onSubmit)="loadReturns()">
+      </app-vendor-return-modal>
+    </div>
+  </div>
+</div>

@@ -10,6 +10,8 @@ import {
   ShipmentStatus
 } from '../../../../models/shipping';
 import { environment } from '../../../../../environment';
+import { ReturnService } from '../../services/return-service';
+import { ReturnStatus } from '../../../../models/return';
 
 @Component({
   selector: 'app-shipping-employee',
@@ -22,11 +24,15 @@ export class ShippingEmployeeComponent implements OnInit {
   pendingOrders: VendorOrder[] = [];
   shipments: ShipmentListItem[] = [];
   deliveryAgents: DeliveryAgent[] = [];
+  pendingReturns: any[] = [];
+  selectedReturn: any = null;
+  showAssignReturnModal = false;
+scheduledPickupDate: string = '';
 
   orderDeliveryTypes: Map<number, DeliveryType> = new Map();
   // UI State
   isLoading = true;
-  activeTab: 'pending' | 'shipments' | 'agents' | 'warehouse' = 'pending';
+ activeTab: 'pending' | 'shipments' | 'agents' | 'warehouse' | 'returns' = 'pending';
 
   // Assignment
   selectedOrders: number[] = [];
@@ -56,7 +62,8 @@ export class ShippingEmployeeComponent implements OnInit {
   constructor(
     public i18n: I18nService,
     private shippingService: ShippingService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private returnService: ReturnService
   ) { }
 
   ngOnInit(): void {
@@ -86,6 +93,18 @@ export class ShippingEmployeeComponent implements OnInit {
           });
         }
         this.cdr.detectChanges();
+      }
+    });
+
+    this.returnService.getAllReturns({
+      page: 1,
+      pageSize: 50,
+      status: ReturnStatus.AdminApproved
+    }).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.pendingReturns = res.data || [];
+        }
       }
     });
 
@@ -121,6 +140,62 @@ export class ShippingEmployeeComponent implements OnInit {
       }
     });
   }
+
+  openAssignReturnModal(ret: any): void {
+    this.selectedReturn = ret;
+    this.selectedAgent = '';
+    this.showAssignReturnModal = true;
+  }
+
+get today(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+closeAssignReturnModal(): void {
+  this.showAssignReturnModal = false;
+  this.selectedReturn = null;
+  this.scheduledPickupDate = '';  // ✅ reset
+}
+ confirmReturnAssignment(): void {
+  if (!this.selectedAgent) {
+    this.showToast(this.t('select_agent'), 'error');
+    return;
+  }
+
+  if (!this.scheduledPickupDate) {
+    this.showToast(
+      this.i18n.currentLang === 'ar' ? 'اختر تاريخ الاستلام' : 'Select pickup date',
+      'error'
+    );
+    return;
+  }
+
+  this.isAssigning = true;
+
+  this.returnService.assignAgent({
+    returnRequestId: this.selectedReturn.id,
+    deliveryAgentId: this.selectedAgent,
+    scheduledPickupDate: new Date(this.scheduledPickupDate)  // ✅ أضف ده
+  }).subscribe({
+    next: (res: any) => {
+      this.isAssigning = false;
+      if (res.success) {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'تم تعيين المندوب بنجاح' : 'Agent assigned successfully',
+          'success'
+        );
+        this.closeAssignReturnModal();
+        this.loadData();
+      } else {
+        this.showToast(res.message || this.t('error'), 'error');
+      }
+    },
+    error: () => {
+      this.isAssigning = false;
+      this.showToast(this.t('error'), 'error');
+    }
+  });
+}
 
   getImageUrl(image: string | null): string {
     if (!image) return 'assets/images/placeholder.png';
@@ -557,7 +632,7 @@ export class ShippingEmployeeComponent implements OnInit {
   markAsPickedByCustomer(shipmentId: number): void {
     this.shipmentToPickupId = shipmentId;
     this.showPickupConfirmModal = true;
-     this.showShipmentModal = false;
+    this.showShipmentModal = false;
     this.cdr.detectChanges();
   }
 
@@ -592,6 +667,6 @@ export class ShippingEmployeeComponent implements OnInit {
   cancelPickup(): void {
     this.showPickupConfirmModal = false;
     this.shipmentToPickupId = null;
-     this.showShipmentModal = true; 
+    this.showShipmentModal = true;
   }
 }
