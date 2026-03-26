@@ -231,7 +231,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.toastr.success('تم إرسال الكود');
         this.forgotStep = 2;  // ← هنا المشكلة كانت - لازم تغير forgotStep مش currentStep
         this.startResendTimer();
-        this.cdr.detectChanges();
+        this.isLoading = false;
       },
       error: () => {
         this.isLoading = false;

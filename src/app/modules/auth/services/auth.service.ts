@@ -27,12 +27,6 @@ public role$ = this.roleSubject.asObservable();
     return this.http.post<AuthResponse>(`${environment.authUrl}/register`, dto);
   }
 
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${environment.authUrl}/forgot-password`, JSON.stringify(email), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   googleLogin(dto: GoogleLoginDto): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.authUrl}/google-login`, dto);
   }
