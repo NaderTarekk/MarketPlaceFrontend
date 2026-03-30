@@ -139,6 +139,9 @@ export interface VendorPendingOrder {
   itemsCount: number;
   totalAmount: number;
   items: VendorOrderItem[];
+  deliveryAgentId?: string;
+  deliveryAgentName?: string;
+  deliveryAgentPhone?: string;
 }
 
 // ==================== DTOs ====================

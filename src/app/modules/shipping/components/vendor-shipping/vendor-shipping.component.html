@@ -5,11 +5,24 @@
     <div class="hero-content">
       <h1>
         <i class="fa-solid fa-boxes-packing"></i>
-        {{ i18n.currentLang === 'ar' ? 'طلبات الشحن' : 'Shipping Orders' }}
+        {{ i18n.currentLang === 'ar' ? 'طلباتي' : 'My Orders' }}
       </h1>
-      <p>{{ i18n.currentLang === 'ar' ? 'المنتجات المطلوب تسليمها للمناديب' : 'Products to be handed to delivery agents' }}</p>
+      <p>{{ i18n.currentLang === 'ar' ? 'تتبع جميع طلباتك وحالة التوصيل' : 'Track all your orders and delivery status' }}</p>
     </div>
   </section>
+
+  <!-- Status Filters -->
+  <div class="filters-bar">
+    <button *ngFor="let f of statusFilters"
+      class="filter-btn"
+      [class.active]="activeFilter === f.value"
+      (click)="activeFilter = f.value">
+      {{ i18n.currentLang === 'ar' ? f.labelAr : f.labelEn }}
+      <span class="count" *ngIf="f.value !== 'all'">
+        {{ getCountByStatus(f.value) }}
+      </span>
+    </button>
+  </div>
 
   <!-- Loading -->
   <div *ngIf="isLoading" class="loading-container">
@@ -17,22 +30,27 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && orders.length === 0" class="empty-state">
+  <div *ngIf="!isLoading && filteredOrders.length === 0" class="empty-state">
     <div class="empty-icon">
       <i class="fa-solid fa-box-check"></i>
     </div>
-    <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات منتظرة' : 'No pending orders' }}</h3>
-    <p>{{ i18n.currentLang === 'ar' ? 'جميع الطلبات تم تسليمها' : 'All orders have been handed over' }}</p>
+    <h3>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات' : 'No orders' }}</h3>
   </div>
 
   <!-- Orders List -->
-  <div *ngIf="!isLoading && orders.length > 0" class="orders-container">
-    <div *ngFor="let order of orders" class="order-card" (click)="openOrderDetails(order)">
+  <div *ngIf="!isLoading && filteredOrders.length > 0" class="orders-container">
+    <div *ngFor="let order of filteredOrders" class="order-card" (click)="openOrderDetails(order)">
       <div class="order-header">
         <span class="barcode">{{ order.vendorOrderBarcode }}</span>
         <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
-          {{ order.statusAr }}
+          {{ getStatusLabel(order.status) }}
         </span>
+      </div>
+
+      <!-- Driver On The Way Banner -->
+      <div *ngIf="order.status === VendorOrderStatus.OutForDelivery" class="driver-on-way-banner">
+        <i class="fa-solid fa-truck-fast"></i>
+        {{ i18n.currentLang === 'ar' ? 'المندوب في الطريق إلى العميل' : 'Driver is on the way to the customer' }}
       </div>
 
       <div class="order-info">
@@ -48,13 +66,27 @@
           <i class="fa-solid fa-box"></i>
           <span>{{ order.itemsCount }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}</span>
         </div>
+
+        <!-- Agent Info (shown when assigned) -->
+        <div *ngIf="order.deliveryAgentName && order.status !== VendorOrderStatus.Pending" class="agent-info-row">
+          <i class="fa-solid fa-motorcycle"></i>
+          <span>
+            {{ i18n.currentLang === 'ar' ? 'المندوب:' : 'Agent:' }}
+            <strong>{{ order.deliveryAgentName }}</strong>
+          </span>
+          <a *ngIf="order.deliveryAgentPhone" [href]="'tel:' + order.deliveryAgentPhone" class="agent-phone"
+            (click)="$event.stopPropagation()">
+            <i class="fa-solid fa-phone"></i>
+            {{ order.deliveryAgentPhone }}
+          </a>
+        </div>
       </div>
 
       <div class="order-footer">
-        <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP'}}</span>
-        <button *ngIf="order.status === VendorOrderStatus.Assigned" 
-                class="btn-handover"
-                (click)="$event.stopPropagation(); confirmHandover(order)">
+        <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+        <button *ngIf="order.status === VendorOrderStatus.Assigned"
+          class="btn-handover"
+          (click)="$event.stopPropagation(); confirmHandover(order)">
           <i class="fa-solid fa-hand-holding-box"></i>
           {{ i18n.currentLang === 'ar' ? 'تأكيد التسليم' : 'Confirm Handover' }}
         </button>
@@ -76,18 +108,51 @@
     <div class="modal-body">
       <div class="status-section">
         <span class="status-badge large" [ngClass]="getStatusBadgeClass(selectedOrder.status)">
-          {{ selectedOrder.statusAr }}
+          {{ getStatusLabel(selectedOrder.status) }}
         </span>
       </div>
 
+      <!-- Driver On The Way Alert -->
+      <div *ngIf="selectedOrder.status === VendorOrderStatus.OutForDelivery" class="driver-alert">
+        <i class="fa-solid fa-truck-fast fa-bounce"></i>
+        <div>
+          <strong>{{ i18n.currentLang === 'ar' ? 'المندوب في الطريق' : 'Driver On The Way' }}</strong>
+          <p>{{ i18n.currentLang === 'ar' ? 'المندوب في طريقه لتوصيل الطلب للعميل' : 'The delivery agent is heading to the customer' }}</p>
+        </div>
+      </div>
+
+      <!-- Delivery Agent Info -->
+      <div *ngIf="selectedOrder.deliveryAgentName && selectedOrder.status !== VendorOrderStatus.Pending"
+        class="agent-section">
+        <h4>
+          <i class="fa-solid fa-motorcycle"></i>
+          {{ i18n.currentLang === 'ar' ? 'مندوب التوصيل' : 'Delivery Agent' }}
+        </h4>
+        <div class="agent-details">
+          <p class="agent-name">{{ selectedOrder.deliveryAgentName }}</p>
+          <a *ngIf="selectedOrder.deliveryAgentPhone"
+            [href]="'tel:' + selectedOrder.deliveryAgentPhone"
+            class="agent-call-btn">
+            <i class="fa-solid fa-phone"></i>
+            {{ selectedOrder.deliveryAgentPhone }}
+          </a>
+        </div>
+      </div>
+
       <div class="customer-section">
-        <h4><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}</h4>
+        <h4>
+          <i class="fa-solid fa-user"></i>
+          {{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}
+        </h4>
         <p>{{ selectedOrder.customerName }}</p>
         <p>{{ selectedOrder.shippingCity }}</p>
       </div>
 
       <div class="items-section">
-        <h4><i class="fa-solid fa-box-open"></i> {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</h4>
+        <h4>
+          <i class="fa-solid fa-box-open"></i>
+          {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
+        </h4>
         <div class="items-list">
           <div *ngFor="let item of selectedOrder.items" class="item-row">
             <img [src]="item.productImage" [alt]="item.productNameAr">
@@ -109,9 +174,9 @@
     <div class="modal-footer" *ngIf="selectedOrder.status === VendorOrderStatus.Assigned">
       <button class="btn-confirm-handover" (click)="confirmHandover(selectedOrder)" [disabled]="isConfirming">
         <i class="fa-solid" [ngClass]="isConfirming ? 'fa-spinner fa-spin' : 'fa-hand-holding-box'"></i>
-        {{ isConfirming 
-          ? (i18n.currentLang === 'ar' ? 'جاري التأكيد...' : 'Confirming...') 
-          : (i18n.currentLang === 'ar' ? 'تأكيد تسليم المنتجات للمندوب' : 'Confirm Handover to Agent') 
+        {{ isConfirming
+          ? (i18n.currentLang === 'ar' ? 'جاري التأكيد...' : 'Confirming...')
+          : (i18n.currentLang === 'ar' ? 'تأكيد تسليم المنتجات للمندوب' : 'Confirm Handover to Agent')
         }}
       </button>
     </div>
@@ -119,7 +184,8 @@
 </div>
 
 <!-- Toast -->
-<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'"
+  [class.error]="toast.type === 'error'">
   <i class="fa-solid" [ngClass]="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
   <span>{{ toast.message }}</span>
 </div>

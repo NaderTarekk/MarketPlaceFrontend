@@ -4,6 +4,7 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { MyOrdersService } from '../../services/my-orders.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../environment';
+import { BarcodeService } from '../../../../core/services/barcode.service';
 
 @Component({
   selector: 'app-my-orders',
@@ -39,7 +40,8 @@ export class MyOrdersComponent implements OnInit {
     public i18n: I18nService,
     private ordersService: MyOrdersService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private barcodeService: BarcodeService
   ) { }
 
   ngOnInit(): void {
@@ -90,6 +92,7 @@ export class MyOrdersComponent implements OnInit {
         }
         this.isLoadingDetails = false;
         this.cdr.detectChanges();
+        this.renderOrderBarcode();
       },
       error: (err) => {
         console.error('Error loading order details:', err);
@@ -108,6 +111,23 @@ export class MyOrdersComponent implements OnInit {
   closeDetailsModal(): void {
     this.showDetailsModal = false;
     this.selectedOrder = null;
+  }
+
+  renderOrderBarcode(): void {
+    const orderNumber = this.selectedOrder?.orderNumber;
+    if (!orderNumber) return;
+    setTimeout(() => {
+      const canvas = document.getElementById('order-barcode-canvas') as HTMLCanvasElement;
+      if (canvas) {
+        this.barcodeService.renderToCanvas(canvas, orderNumber, { size: 180 });
+      }
+    }, 50);
+  }
+
+  downloadBarcodeImage(): void {
+    const orderNumber = this.selectedOrder?.orderNumber;
+    if (!orderNumber) return;
+    this.barcodeService.downloadAsPng(orderNumber, `${orderNumber}-qr.png`);
   }
 
   cancelOrder(orderId: number): void {

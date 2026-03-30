@@ -432,6 +432,27 @@
     </div>
 
     <div class="modal-body">
+
+      <!-- Barcode Section -->
+      <div class="barcode-section">
+        <div class="barcode-section-header">
+          <i class="fa-solid fa-qrcode"></i>
+          {{ i18n.currentLang === 'ar' ? 'QR رقم الطلب' : 'Order QR Code' }}
+        </div>
+        <canvas id="shipment-barcode-canvas" class="barcode-canvas"></canvas>
+        <div class="barcode-text">{{ selectedShipment.orderNumber }}</div>
+        <div class="barcode-download-actions">
+          <button class="btn-dl-img" (click)="downloadShipmentBarcodeImage()">
+            <i class="fa-solid fa-image"></i>
+            {{ i18n.currentLang === 'ar' ? 'تحميل صورة' : 'Download Image' }}
+          </button>
+          <button class="btn-dl-pdf" (click)="downloadShipmentBarcodePdf()">
+            <i class="fa-solid fa-file-pdf"></i>
+            {{ i18n.currentLang === 'ar' ? 'تحميل PDF' : 'Download PDF' }}
+          </button>
+        </div>
+      </div>
+
       <div class="section">
         <h4><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'بيانات العميل' : 'Customer Info' }}</h4>
         <p><strong>{{ selectedShipment.customerName }}</strong></p>

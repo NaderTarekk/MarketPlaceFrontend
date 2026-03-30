@@ -280,10 +280,19 @@
                         {{ i18n.currentLang === 'ar' ? 'تتبع الطلب' : 'Track Order' }}
                     </h3>
 
-                    <!-- Shipment Barcode -->
-                    <div class="shipment-barcode" *ngIf="selectedOrder.shipmentBarcode">
-                        <i class="fa-solid fa-barcode"></i>
-                        <span>{{ selectedOrder.shipmentBarcode }}</span>
+                    <!-- Order QR Code -->
+                    <div class="shipment-barcode-section" *ngIf="selectedOrder.orderNumber">
+                        <div class="barcode-label">
+                            <i class="fa-solid fa-qrcode"></i>
+                            {{ i18n.currentLang === 'ar' ? 'QR رقم الطلب' : 'Order QR Code' }}
+                        </div>
+                        <canvas id="order-barcode-canvas" class="barcode-canvas"></canvas>
+                        <div class="barcode-actions">
+                            <button class="btn-barcode-dl" (click)="downloadBarcodeImage()">
+                                <i class="fa-solid fa-image"></i>
+                                {{ i18n.currentLang === 'ar' ? 'تحميل صورة' : 'Download Image' }}
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Timeline Steps -->

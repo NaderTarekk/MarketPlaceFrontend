@@ -191,7 +191,7 @@
                     <div class="delivery-types">
                         <label *ngFor="let type of deliveryTypes" class="delivery-type-card"
                             [class.selected]="deliveryType === type.value">
-                            <input type="radio" name="deliveryType" [value]="type.value" [(ngModel)]="deliveryType" />
+                            <input type="radio" name="deliveryType" [value]="type.value" [(ngModel)]="deliveryType" (ngModelChange)="onDeliveryTypeChange()" />
                             <div class="card-content">
                                 <i class="fa-solid" [ngClass]="type.icon"></i>
                                 <span class="type-label">{{ i18n.currentLang === 'ar' ? type.labelAr : type.labelEn }}</span>

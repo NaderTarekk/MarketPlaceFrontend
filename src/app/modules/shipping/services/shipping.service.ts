@@ -145,6 +145,10 @@ export class ShippingService {
     return this.http.get<ApiResponse<VendorPendingOrder[]>>(`${this.baseUrl}/vendor/orders`);
   }
 
+  getVendorAllOrders(): Observable<ApiResponse<VendorPendingOrder[]>> {
+    return this.http.get<ApiResponse<VendorPendingOrder[]>>(`${this.baseUrl}/vendor/all-orders`);
+  }
+
   confirmHandoverToAgent(vendorOrderId: number): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/vendor/confirm-handover/${vendorOrderId}`, {});
   }

@@ -186,10 +186,8 @@ export class OrderComponent implements OnInit {
     if (this.selectedGovernorateId) {
       const gov = this.governorates.find(g => g.id === this.selectedGovernorateId);
       if (gov) {
-        this.shippingCost = gov.isFreeShipping ? 0 : gov.shippingCost;
-        this.shipping = this.shippingCost;
         this.form.shippingCity = this.i18n.currentLang === 'ar' ? gov.nameAr : gov.nameEn;
-        this.calculateTotal();
+        this.updateShippingCost(gov);
       }
     } else {
       this.shippingCost = 0;
@@ -197,6 +195,30 @@ export class OrderComponent implements OnInit {
       this.form.shippingCity = '';
       this.calculateTotal();
     }
+  }
+
+  onDeliveryTypeChange(): void {
+    if (this.selectedGovernorateId) {
+      const gov = this.governorates.find(g => g.id === this.selectedGovernorateId);
+      if (gov) {
+        this.updateShippingCost(gov);
+        return;
+      }
+    }
+    this.shippingCost = 0;
+    this.shipping = 0;
+    this.calculateTotal();
+  }
+
+  private updateShippingCost(gov: Governorate): void {
+    if (this.deliveryType === 0) {
+      // Warehouse pickup is always free
+      this.shippingCost = 0;
+    } else {
+      this.shippingCost = gov.isFreeShipping ? 0 : gov.shippingCost;
+    }
+    this.shipping = this.shippingCost;
+    this.calculateTotal();
   }
 
   calculateTotal(): void {

@@ -12,6 +12,7 @@ import {
 import { environment } from '../../../../../environment';
 import { ReturnService } from '../../services/return-service';
 import { ReturnStatus } from '../../../../models/return';
+import { BarcodeService } from '../../../../core/services/barcode.service';
 
 @Component({
   selector: 'app-shipping-employee',
@@ -63,7 +64,8 @@ scheduledPickupDate: string = '';
     public i18n: I18nService,
     private shippingService: ShippingService,
     private cdr: ChangeDetectorRef,
-    private returnService: ReturnService
+    private returnService: ReturnService,
+    private barcodeService: BarcodeService
   ) { }
 
   ngOnInit(): void {
@@ -398,8 +400,37 @@ closeAssignReturnModal(): void {
 
           this.showShipmentModal = true;
           this.cdr.detectChanges(); // ✅ Force UI update
+          this.renderShipmentBarcode();
         }
       }
+    });
+  }
+
+  renderShipmentBarcode(): void {
+    const orderNumber = this.selectedShipment?.orderNumber;
+    if (!orderNumber) return;
+    setTimeout(() => {
+      const canvas = document.getElementById('shipment-barcode-canvas') as HTMLCanvasElement;
+      if (canvas) {
+        this.barcodeService.renderToCanvas(canvas, orderNumber, { size: 200 });
+      }
+    }, 50);
+  }
+
+  downloadShipmentBarcodeImage(): void {
+    const orderNumber = this.selectedShipment?.orderNumber;
+    if (!orderNumber) return;
+    this.barcodeService.downloadAsPng(orderNumber, `${orderNumber}-qr.png`);
+  }
+
+  downloadShipmentBarcodePdf(): void {
+    const orderNumber = this.selectedShipment?.orderNumber;
+    if (!orderNumber) return;
+    this.barcodeService.downloadAsPdf({
+      barcodeValue: orderNumber,
+      orderNumber,
+      customerName: this.selectedShipment?.customerName,
+      filename: `${orderNumber}-qr.pdf`
     });
   }
 

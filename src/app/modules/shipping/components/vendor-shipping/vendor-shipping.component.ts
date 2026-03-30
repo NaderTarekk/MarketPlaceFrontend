@@ -15,10 +15,22 @@ export class VendorShippingComponent implements OnInit {
   selectedOrder: VendorPendingOrder | null = null;
   showOrderModal = false;
   isConfirming = false;
+  activeFilter: VendorOrderStatus | 'all' = 'all';
 
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
   VendorOrderStatus = VendorOrderStatus;
+
+  statusFilters: { value: VendorOrderStatus | 'all'; labelAr: string; labelEn: string }[] = [
+    { value: 'all', labelAr: 'الكل', labelEn: 'All' },
+    { value: VendorOrderStatus.Pending, labelAr: 'قيد الانتظار', labelEn: 'Pending' },
+    { value: VendorOrderStatus.Assigned, labelAr: 'تم التعيين', labelEn: 'Assigned' },
+    { value: VendorOrderStatus.PickedFromVendor, labelAr: 'تم الاستلام من التاجر', labelEn: 'Picked from Vendor' },
+    { value: VendorOrderStatus.InWarehouse, labelAr: 'في المخزن', labelEn: 'In Warehouse' },
+    { value: VendorOrderStatus.OutForDelivery, labelAr: 'المندوب في الطريق', labelEn: 'Out for Delivery' },
+    { value: VendorOrderStatus.Delivered, labelAr: 'تم التسليم', labelEn: 'Delivered' },
+    { value: VendorOrderStatus.Cancelled, labelAr: 'ملغي', labelEn: 'Cancelled' },
+  ];
 
   constructor(
     public i18n: I18nService,
@@ -32,7 +44,7 @@ export class VendorShippingComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading = true;
-    this.shippingService.getVendorPendingOrders().subscribe({
+    this.shippingService.getVendorAllOrders().subscribe({
       next: (res) => {
         if (res.success) {
           this.orders = res.data;
@@ -45,6 +57,11 @@ export class VendorShippingComponent implements OnInit {
         this.showToast(this.t('error_loading'), 'error');
       }
     });
+  }
+
+  get filteredOrders(): VendorPendingOrder[] {
+    if (this.activeFilter === 'all') return this.orders;
+    return this.orders.filter(o => o.status === this.activeFilter);
   }
 
   openOrderDetails(order: VendorPendingOrder): void {
@@ -81,9 +98,32 @@ export class VendorShippingComponent implements OnInit {
     const map: { [key: number]: string } = {
       [VendorOrderStatus.Pending]: 'pending',
       [VendorOrderStatus.Assigned]: 'assigned',
-      [VendorOrderStatus.PickedFromVendor]: 'picked'
+      [VendorOrderStatus.PickedFromVendor]: 'picked',
+      [VendorOrderStatus.InWarehouse]: 'warehouse',
+      [VendorOrderStatus.OutForDelivery]: 'out-for-delivery',
+      [VendorOrderStatus.Delivered]: 'delivered',
+      [VendorOrderStatus.Cancelled]: 'cancelled',
     };
     return map[status] || 'pending';
+  }
+
+  getStatusLabel(status: VendorOrderStatus): string {
+    const map: { [key: number]: { ar: string; en: string } } = {
+      [VendorOrderStatus.Pending]: { ar: 'قيد الانتظار', en: 'Pending' },
+      [VendorOrderStatus.Assigned]: { ar: 'تم تعيين مندوب', en: 'Agent Assigned' },
+      [VendorOrderStatus.PickedFromVendor]: { ar: 'تم الاستلام من التاجر', en: 'Picked from Vendor' },
+      [VendorOrderStatus.InWarehouse]: { ar: 'في المخزن', en: 'In Warehouse' },
+      [VendorOrderStatus.OutForDelivery]: { ar: 'المندوب في الطريق للعميل', en: 'Driver on the Way' },
+      [VendorOrderStatus.Delivered]: { ar: 'تم التسليم', en: 'Delivered' },
+      [VendorOrderStatus.Cancelled]: { ar: 'ملغي', en: 'Cancelled' },
+    };
+    const info = map[status] || { ar: 'غير معروف', en: 'Unknown' };
+    return this.i18n.currentLang === 'ar' ? info.ar : info.en;
+  }
+
+  getCountByStatus(status: VendorOrderStatus | 'all'): number {
+    if (status === 'all') return this.orders.length;
+    return this.orders.filter(o => o.status === status).length;
   }
 
   showToast(message: string, type: 'success' | 'error'): void {
