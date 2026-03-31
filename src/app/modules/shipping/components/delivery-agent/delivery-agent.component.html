@@ -99,6 +99,12 @@
           </span>
         </div>
 
+        <!-- Heading to Vendor Banner -->
+        <div class="heading-banner" *ngIf="task.status === VendorOrderStatus.Assigned && task.isAgentHeadingToVendor">
+          <i class="fa-solid fa-route"></i>
+          {{ i18n.currentLang === 'ar' ? 'أنت في الطريق للتاجر' : "You're heading to vendor" }}
+        </div>
+
         <!-- Vendor Info -->
         <div class="location-info vendor" *ngIf="task.status === VendorOrderStatus.Assigned">
           <div class="location-label">

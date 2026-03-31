@@ -120,6 +120,7 @@ export interface DeliveryAgentTask {
   deliveryTypeAr: string;
   status: VendorOrderStatus;
   statusAr: string;
+  isAgentHeadingToVendor: boolean;
   itemsCount: number;
   totalAmount: number;
   items: VendorOrderItem[];
@@ -135,13 +136,13 @@ export interface VendorPendingOrder {
   shippingCity: string;
   status: VendorOrderStatus;
   statusAr: string;
+  isAgentHeadingToVendor: boolean;
+  deliveryAgentName?: string;
+  deliveryAgentPhone?: string;
   createdAt: Date;
   itemsCount: number;
   totalAmount: number;
   items: VendorOrderItem[];
-  deliveryAgentId?: string;
-  deliveryAgentName?: string;
-  deliveryAgentPhone?: string;
 }
 
 // ==================== DTOs ====================

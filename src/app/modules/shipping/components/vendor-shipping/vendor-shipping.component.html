@@ -43,11 +43,23 @@
       <div class="order-header">
         <span class="barcode">{{ order.vendorOrderBarcode }}</span>
         <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
-          {{ getStatusLabel(order.status) }}
+          {{ getStatusLabel(order) }}
         </span>
       </div>
 
-      <!-- Driver On The Way Banner -->
+      <!-- Agent Heading to Vendor Banner -->
+      <div *ngIf="order.status === VendorOrderStatus.Assigned && order.isAgentHeadingToVendor" class="driver-on-way-banner agent-coming">
+        <i class="fa-solid fa-route"></i>
+        <span>
+          <strong>{{ order.deliveryAgentName }}</strong>
+          {{ i18n.currentLang === 'ar' ? 'في الطريق لاستلام طلبك' : 'is on the way to pick up your order' }}
+          <a *ngIf="order.deliveryAgentPhone" [href]="'tel:' + order.deliveryAgentPhone" (click)="$event.stopPropagation()">
+            <i class="fa-solid fa-phone"></i> {{ order.deliveryAgentPhone }}
+          </a>
+        </span>
+      </div>
+
+      <!-- Driver On The Way to Customer Banner -->
       <div *ngIf="order.status === VendorOrderStatus.OutForDelivery" class="driver-on-way-banner">
         <i class="fa-solid fa-truck-fast"></i>
         {{ i18n.currentLang === 'ar' ? 'المندوب في الطريق إلى العميل' : 'Driver is on the way to the customer' }}
@@ -108,11 +120,26 @@
     <div class="modal-body">
       <div class="status-section">
         <span class="status-badge large" [ngClass]="getStatusBadgeClass(selectedOrder.status)">
-          {{ getStatusLabel(selectedOrder.status) }}
+          {{ getStatusLabel(selectedOrder) }}
         </span>
       </div>
 
-      <!-- Driver On The Way Alert -->
+      <!-- Agent Heading to Vendor Alert (modal) -->
+      <div *ngIf="selectedOrder.status === VendorOrderStatus.Assigned && selectedOrder.isAgentHeadingToVendor" class="driver-alert agent-coming-alert">
+        <i class="fa-solid fa-route fa-bounce"></i>
+        <div>
+          <strong>{{ i18n.currentLang === 'ar' ? 'المندوب في طريقه إليك' : 'Agent is heading to you' }}</strong>
+          <p>
+            <strong>{{ selectedOrder.deliveryAgentName }}</strong>
+            {{ i18n.currentLang === 'ar' ? 'سيصل قريباً لاستلام طلبك' : 'will arrive soon to pick up your order' }}
+          </p>
+          <a *ngIf="selectedOrder.deliveryAgentPhone" [href]="'tel:' + selectedOrder.deliveryAgentPhone" class="agent-call-btn">
+            <i class="fa-solid fa-phone"></i> {{ selectedOrder.deliveryAgentPhone }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Driver On The Way to Customer Alert -->
       <div *ngIf="selectedOrder.status === VendorOrderStatus.OutForDelivery" class="driver-alert">
         <i class="fa-solid fa-truck-fast fa-bounce"></i>
         <div>
@@ -136,6 +163,44 @@
             <i class="fa-solid fa-phone"></i>
             {{ selectedOrder.deliveryAgentPhone }}
           </a>
+        </div>
+      </div>
+
+      <!-- Order Tracking Timeline -->
+      <div class="tracking-timeline">
+        <h4>
+          <i class="fa-solid fa-timeline"></i>
+          {{ i18n.currentLang === 'ar' ? 'تتبع الطلب' : 'Order Tracking' }}
+        </h4>
+        <div class="timeline">
+          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.Pending">
+            <div class="step-icon"><i class="fa-solid fa-clock"></i></div>
+            <span>{{ i18n.currentLang === 'ar' ? 'تم إنشاء الطلب' : 'Order Created' }}</span>
+          </div>
+          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.Assigned">
+            <div class="step-icon"><i class="fa-solid fa-motorcycle"></i></div>
+            <span>{{ i18n.currentLang === 'ar' ? 'تعيين مندوب' : 'Agent Assigned' }}</span>
+          </div>
+          <div class="timeline-step" [class.active]="selectedOrder.status === VendorOrderStatus.Assigned && selectedOrder.isAgentHeadingToVendor">
+            <div class="step-icon"><i class="fa-solid fa-route"></i></div>
+            <span>{{ i18n.currentLang === 'ar' ? 'المندوب في الطريق إليك' : 'Agent Heading to You' }}</span>
+          </div>
+          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.PickedFromVendor">
+            <div class="step-icon"><i class="fa-solid fa-hand-holding-box"></i></div>
+            <span>{{ i18n.currentLang === 'ar' ? 'استلام من التاجر' : 'Picked from Vendor' }}</span>
+          </div>
+          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.InWarehouse">
+            <div class="step-icon"><i class="fa-solid fa-warehouse"></i></div>
+            <span>{{ i18n.currentLang === 'ar' ? 'في المخزن' : 'In Warehouse' }}</span>
+          </div>
+          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.OutForDelivery">
+            <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
+            <span>{{ i18n.currentLang === 'ar' ? 'في الطريق للعميل' : 'Out for Delivery' }}</span>
+          </div>
+          <div class="timeline-step" [class.done]="selectedOrder.status === VendorOrderStatus.Delivered">
+            <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <span>{{ i18n.currentLang === 'ar' ? 'تم التسليم' : 'Delivered' }}</span>
+          </div>
         </div>
       </div>
 

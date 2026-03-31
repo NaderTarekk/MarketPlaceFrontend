@@ -208,8 +208,34 @@ loadTasks(): void {
     return icons[status] || 'fa-circle';
   }
 
+  headingToVendor(task: DeliveryAgentTask): void {
+    this.isUpdating = true;
+    this.shippingService.headingToVendor(task.vendorOrderId).subscribe({
+      next: (res) => {
+        this.isUpdating = false;
+        if (res.success) {
+          this.showToast(this.t('heading_to_vendor'), 'success');
+          this.loadTasks();
+        } else {
+          this.showToast(res.message || this.t('error'), 'error');
+        }
+      },
+      error: () => {
+        this.isUpdating = false;
+        this.showToast(this.t('error'), 'error');
+      }
+    });
+  }
+
   getNextAction(task: DeliveryAgentTask): { label: string; action: () => void; icon: string } | null {
-    if (task.status === VendorOrderStatus.Assigned) {
+    if (task.status === VendorOrderStatus.Assigned && !task.isAgentHeadingToVendor) {
+      return {
+        label: this.t('heading_to_vendor'),
+        action: () => this.headingToVendor(task),
+        icon: 'fa-route'
+      };
+    }
+    if (task.status === VendorOrderStatus.Assigned && task.isAgentHeadingToVendor) {
       return {
         label: this.t('pick_from_vendor'),
         action: () => this.pickFromVendor(task),
@@ -360,6 +386,7 @@ loadTasks(): void {
   t(key: string): string {
     const translations: { [key: string]: { ar: string; en: string } } = {
       'error_loading': { ar: 'خطأ في تحميل المهام', en: 'Error loading tasks' },
+      'heading_to_vendor': { ar: 'أنا في الطريق للتاجر', en: "I'm on the Way" },
       'pick_from_vendor': { ar: 'استلام من التاجر', en: 'Pick from Vendor' },
       'deliver_to_warehouse': { ar: 'تسليم للمخزن', en: 'Deliver to Warehouse' },
       'deliver_to_customer': { ar: 'تسليم للعميل', en: 'Customer Received Order' },

@@ -248,12 +248,14 @@ export class OrderComponent implements OnInit {
       return;
     }
 
-    if (!this.selectedGovernorateId) {
-      this.showToast(
-        this.i18n.currentLang === 'ar' ? 'اختر المحافظة' : 'Select governorate',
-        'error'
-      );
-      return;
+    if (this.deliveryType === 1) {
+      if (!this.selectedGovernorateId) {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'اختر المحافظة' : 'Select governorate',
+          'error'
+        );
+        return;
+      }
     }
 
     if (!this.selectedPaymentMethod) {

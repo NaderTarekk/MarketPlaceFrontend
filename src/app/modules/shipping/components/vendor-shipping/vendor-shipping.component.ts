@@ -107,7 +107,10 @@ export class VendorShippingComponent implements OnInit {
     return map[status] || 'pending';
   }
 
-  getStatusLabel(status: VendorOrderStatus): string {
+  getStatusLabel(order: VendorPendingOrder): string {
+    if (order.status === VendorOrderStatus.Assigned && order.isAgentHeadingToVendor) {
+      return this.i18n.currentLang === 'ar' ? 'المندوب في الطريق إليك' : 'Agent on the Way to You';
+    }
     const map: { [key: number]: { ar: string; en: string } } = {
       [VendorOrderStatus.Pending]: { ar: 'قيد الانتظار', en: 'Pending' },
       [VendorOrderStatus.Assigned]: { ar: 'تم تعيين مندوب', en: 'Agent Assigned' },
@@ -117,7 +120,7 @@ export class VendorShippingComponent implements OnInit {
       [VendorOrderStatus.Delivered]: { ar: 'تم التسليم', en: 'Delivered' },
       [VendorOrderStatus.Cancelled]: { ar: 'ملغي', en: 'Cancelled' },
     };
-    const info = map[status] || { ar: 'غير معروف', en: 'Unknown' };
+    const info = map[order.status] || { ar: 'غير معروف', en: 'Unknown' };
     return this.i18n.currentLang === 'ar' ? info.ar : info.en;
   }
 

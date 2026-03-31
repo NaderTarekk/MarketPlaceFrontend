@@ -6,7 +6,17 @@
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
       "Bash(PLACEHOLDER=\"data:image/svg+xml,%3Csvg xmlns=''''http://www.w3.org/2000/svg'''' width=''''100'''' height=''''100''''%3E%3Crect width=''''100%25'''' height=''''100%25'''' fill=''''%23e5e7eb''''/%3E%3C/svg%3E\")",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Read(//d/Angular/**)",
+      "Read(//d//**)",
+      "Bash(find C:UsersEL11_gazysourcereposMarketPlace.API -type d -name *DTO* -o -type d -name *Dto*)",
+      "Bash(grep -E \"\\\\.\\(cs|Dto\\)$\")",
+      "Bash(grep -E \"\\\\.cs$\")",
+      "Bash(xargs grep:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(dotnet --list-sdks)",
+      "Bash(dotnet tool:*)"
     ]
   }
 }

@@ -127,6 +127,10 @@ export class ShippingService {
     return this.http.get<ApiResponse<DeliveryAgentTask[]>>(`${this.baseUrl}/agent/tasks`);
   }
 
+  headingToVendor(vendorOrderId: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/agent/heading-to-vendor/${vendorOrderId}`, {});
+  }
+
   pickFromVendor(vendorOrderId: number): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/agent/pick/${vendorOrderId}`, {});
   }
