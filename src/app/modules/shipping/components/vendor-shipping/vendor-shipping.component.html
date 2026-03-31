@@ -7,21 +7,32 @@
         <i class="fa-solid fa-boxes-packing"></i>
         {{ i18n.currentLang === 'ar' ? 'طلباتي' : 'My Orders' }}
       </h1>
-      <p>{{ i18n.currentLang === 'ar' ? 'تتبع جميع طلباتك وحالة التوصيل' : 'Track all your orders and delivery status' }}</p>
+      <p>{{ i18n.currentLang === 'ar' ? 'تتبع جميع طلباتك وحالة التوصيل' : 'Track all your orders and delivery status'
+        }}</p>
     </div>
   </section>
 
   <!-- Status Filters -->
-  <div class="filters-bar">
-    <button *ngFor="let f of statusFilters"
-      class="filter-btn"
-      [class.active]="activeFilter === f.value"
-      (click)="activeFilter = f.value">
+  <div class="flex flex-wrap gap-2 p-3 bg-white rounded-2xl shadow-sm">
+
+    <button *ngFor="let f of statusFilters" (click)="activeFilter = f.value"
+      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border"
+      [ngClass]="{
+      'bg-indigo-600 text-white border-indigo-600 shadow-sm': activeFilter === f.value,
+      'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200': activeFilter !== f.value
+    }">
+
       {{ i18n.currentLang === 'ar' ? f.labelAr : f.labelEn }}
-      <span class="count" *ngIf="f.value !== 'all'">
+
+      <span *ngIf="f.value !== 'all'" class="px-2 py-0.5 text-xs rounded-full" [ngClass]="{
+        'bg-white text-indigo-600': activeFilter === f.value,
+        'bg-gray-200 text-gray-600': activeFilter !== f.value
+      }">
         {{ getCountByStatus(f.value) }}
       </span>
+
     </button>
+
   </div>
 
   <!-- Loading -->
@@ -38,213 +49,350 @@
   </div>
 
   <!-- Orders List -->
-  <div *ngIf="!isLoading && filteredOrders.length > 0" class="orders-container">
-    <div *ngFor="let order of filteredOrders" class="order-card" (click)="openOrderDetails(order)">
-      <div class="order-header">
-        <span class="barcode">{{ order.vendorOrderBarcode }}</span>
-        <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+  <div *ngIf="!isLoading && filteredOrders.length > 0"
+    class="grid gap-4 m-5 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+
+    <div *ngFor="let order of filteredOrders" (click)="openOrderDetails(order)"
+      class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-4 cursor-pointer border border-gray-100">
+
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs text-gray-500 font-mono">
+          {{ order.vendorOrderBarcode }}
+        </span>
+
+        <span class="px-3 py-1 text-xs rounded-full font-medium" [ngClass]="getStatusBadgeClass(order.status)">
           {{ getStatusLabel(order) }}
         </span>
       </div>
 
-      <!-- Agent Heading to Vendor Banner -->
-      <div *ngIf="order.status === VendorOrderStatus.Assigned && order.isAgentHeadingToVendor" class="driver-on-way-banner agent-coming">
+      <!-- Agent Heading to Vendor -->
+      <div *ngIf="order.status === VendorOrderStatus.Assigned && order.isAgentHeadingToVendor"
+        class="flex items-center gap-2 bg-yellow-50 text-yellow-700 p-2 rounded-lg text-xs mb-2">
+
         <i class="fa-solid fa-route"></i>
+
         <span>
           <strong>{{ order.deliveryAgentName }}</strong>
           {{ i18n.currentLang === 'ar' ? 'في الطريق لاستلام طلبك' : 'is on the way to pick up your order' }}
-          <a *ngIf="order.deliveryAgentPhone" [href]="'tel:' + order.deliveryAgentPhone" (click)="$event.stopPropagation()">
-            <i class="fa-solid fa-phone"></i> {{ order.deliveryAgentPhone }}
+
+          <a *ngIf="order.deliveryAgentPhone" [href]="'tel:' + order.deliveryAgentPhone"
+            (click)="$event.stopPropagation()" class="ml-2 text-blue-600 hover:underline">
+            <i class="fa-solid fa-phone"></i>
+            {{ order.deliveryAgentPhone }}
           </a>
         </span>
       </div>
 
-      <!-- Driver On The Way to Customer Banner -->
-      <div *ngIf="order.status === VendorOrderStatus.OutForDelivery" class="driver-on-way-banner">
+      <!-- Driver to Customer -->
+      <div *ngIf="order.status === VendorOrderStatus.OutForDelivery"
+        class="flex items-center gap-2 bg-blue-50 text-blue-700 p-2 rounded-lg text-xs mb-2">
         <i class="fa-solid fa-truck-fast"></i>
         {{ i18n.currentLang === 'ar' ? 'المندوب في الطريق إلى العميل' : 'Driver is on the way to the customer' }}
       </div>
 
-      <div class="order-info">
-        <div class="info-row">
-          <i class="fa-solid fa-user"></i>
+      <!-- Info -->
+      <div class="space-y-2 text-sm text-gray-700">
+
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-user text-gray-400"></i>
           <span>{{ order.customerName }}</span>
         </div>
-        <div class="info-row">
-          <i class="fa-solid fa-location-dot"></i>
+
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-location-dot text-gray-400"></i>
           <span>{{ order.shippingCity }}</span>
         </div>
-        <div class="info-row">
-          <i class="fa-solid fa-box"></i>
-          <span>{{ order.itemsCount }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}</span>
+
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-box text-gray-400"></i>
+          <span>
+            {{ order.itemsCount }}
+            {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}
+          </span>
         </div>
 
-        <!-- Agent Info (shown when assigned) -->
-        <div *ngIf="order.deliveryAgentName && order.status !== VendorOrderStatus.Pending" class="agent-info-row">
-          <i class="fa-solid fa-motorcycle"></i>
-          <span>
-            {{ i18n.currentLang === 'ar' ? 'المندوب:' : 'Agent:' }}
-            <strong>{{ order.deliveryAgentName }}</strong>
-          </span>
-          <a *ngIf="order.deliveryAgentPhone" [href]="'tel:' + order.deliveryAgentPhone" class="agent-phone"
-            (click)="$event.stopPropagation()">
+        <!-- Agent Info -->
+        <div *ngIf="order.deliveryAgentName && order.status !== VendorOrderStatus.Pending"
+          class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+
+          <div class="flex items-center gap-2 text-sm">
+            <i class="fa-solid fa-motorcycle text-gray-400"></i>
+            <span>
+              {{ i18n.currentLang === 'ar' ? 'المندوب:' : 'Agent:' }}
+              <strong>{{ order.deliveryAgentName }}</strong>
+            </span>
+          </div>
+
+          <a *ngIf="order.deliveryAgentPhone" [href]="'tel:' + order.deliveryAgentPhone"
+            class="text-green-600 text-sm flex items-center gap-1 hover:underline" (click)="$event.stopPropagation()">
             <i class="fa-solid fa-phone"></i>
             {{ order.deliveryAgentPhone }}
           </a>
+
         </div>
+
       </div>
 
-      <div class="order-footer">
-        <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+      <!-- Footer -->
+      <div class="flex justify-between items-center mt-4 pt-3 border-t">
+
+        <span class="text-lg font-semibold text-gray-900">
+          {{ order.totalAmount.toFixed(2) }}
+          {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
+        </span>
+
         <button *ngIf="order.status === VendorOrderStatus.Assigned"
-          class="btn-handover"
-          (click)="$event.stopPropagation(); confirmHandover(order)">
+          (click)="$event.stopPropagation(); confirmHandover(order)"
+          class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded-lg transition-all">
+
           <i class="fa-solid fa-hand-holding-box"></i>
           {{ i18n.currentLang === 'ar' ? 'تأكيد التسليم' : 'Confirm Handover' }}
+
         </button>
+
       </div>
+
     </div>
   </div>
 </div>
 
 <!-- Order Details Modal -->
-<div class="modal-overlay" [class.show]="showOrderModal" (click)="closeOrderModal()">
-  <div class="modal order-modal" (click)="$event.stopPropagation()" *ngIf="selectedOrder">
-    <div class="modal-header">
-      <h3>{{ selectedOrder.vendorOrderBarcode }}</h3>
-      <button class="close-btn" (click)="closeOrderModal()">
+<div class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 p-4
+         transition-opacity duration-300 ease-out
+         animate-[fadeIn_0.3s_ease]" *ngIf="showOrderModal" (click)="closeOrderModal()">
+
+  <div *ngIf="selectedOrder" (click)="$event.stopPropagation()" class="w-full max-w-4xl max-h-[90vh] overflow-y-auto
+            rounded-3xl bg-white shadow-2xl border border-gray-100
+            transform transition-all duration-300 ease-out
+            animate-[modalIn_0.35s_cubic-bezier(0.22,1,0.36,1)]">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b px-6 py-4">
+      <h3 class="text-lg font-bold text-gray-900">
+        {{ selectedOrder.vendorOrderBarcode }}
+      </h3>
+
+      <button (click)="closeOrderModal()"
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition hover:bg-red-50 hover:text-red-600">
         <i class="fa-solid fa-times"></i>
       </button>
     </div>
 
-    <div class="modal-body">
-      <div class="status-section">
-        <span class="status-badge large" [ngClass]="getStatusBadgeClass(selectedOrder.status)">
+    <!-- Body -->
+    <div class="space-y-6 px-6 py-5">
+
+      <!-- Status -->
+      <div class="flex justify-center">
+        <span class="px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="getStatusBadgeClass(selectedOrder.status)">
           {{ getStatusLabel(selectedOrder) }}
         </span>
       </div>
 
-      <!-- Agent Heading to Vendor Alert (modal) -->
-      <div *ngIf="selectedOrder.status === VendorOrderStatus.Assigned && selectedOrder.isAgentHeadingToVendor" class="driver-alert agent-coming-alert">
-        <i class="fa-solid fa-route fa-bounce"></i>
-        <div>
-          <strong>{{ i18n.currentLang === 'ar' ? 'المندوب في طريقه إليك' : 'Agent is heading to you' }}</strong>
-          <p>
+      <!-- Agent Heading Alert -->
+      <div *ngIf="selectedOrder.status === VendorOrderStatus.Assigned && selectedOrder.isAgentHeadingToVendor"
+        class="flex gap-3 rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800">
+        <div class="pt-1 text-lg">
+          <i class="fa-solid fa-route"></i>
+        </div>
+
+        <div class="space-y-2">
+          <strong class="block text-sm">
+            {{ i18n.currentLang === 'ar' ? 'المندوب في طريقه إليك' : 'Agent is heading to you' }}
+          </strong>
+
+          <p class="text-sm">
             <strong>{{ selectedOrder.deliveryAgentName }}</strong>
             {{ i18n.currentLang === 'ar' ? 'سيصل قريباً لاستلام طلبك' : 'will arrive soon to pick up your order' }}
           </p>
-          <a *ngIf="selectedOrder.deliveryAgentPhone" [href]="'tel:' + selectedOrder.deliveryAgentPhone" class="agent-call-btn">
-            <i class="fa-solid fa-phone"></i> {{ selectedOrder.deliveryAgentPhone }}
-          </a>
-        </div>
-      </div>
 
-      <!-- Driver On The Way to Customer Alert -->
-      <div *ngIf="selectedOrder.status === VendorOrderStatus.OutForDelivery" class="driver-alert">
-        <i class="fa-solid fa-truck-fast fa-bounce"></i>
-        <div>
-          <strong>{{ i18n.currentLang === 'ar' ? 'المندوب في الطريق' : 'Driver On The Way' }}</strong>
-          <p>{{ i18n.currentLang === 'ar' ? 'المندوب في طريقه لتوصيل الطلب للعميل' : 'The delivery agent is heading to the customer' }}</p>
-        </div>
-      </div>
-
-      <!-- Delivery Agent Info -->
-      <div *ngIf="selectedOrder.deliveryAgentName && selectedOrder.status !== VendorOrderStatus.Pending"
-        class="agent-section">
-        <h4>
-          <i class="fa-solid fa-motorcycle"></i>
-          {{ i18n.currentLang === 'ar' ? 'مندوب التوصيل' : 'Delivery Agent' }}
-        </h4>
-        <div class="agent-details">
-          <p class="agent-name">{{ selectedOrder.deliveryAgentName }}</p>
-          <a *ngIf="selectedOrder.deliveryAgentPhone"
-            [href]="'tel:' + selectedOrder.deliveryAgentPhone"
-            class="agent-call-btn">
+          <a *ngIf="selectedOrder.deliveryAgentPhone" [href]="'tel:' + selectedOrder.deliveryAgentPhone"
+            class="inline-flex items-center gap-2 rounded-xl bg-green-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-green-700">
             <i class="fa-solid fa-phone"></i>
             {{ selectedOrder.deliveryAgentPhone }}
           </a>
         </div>
       </div>
 
-      <!-- Order Tracking Timeline -->
-      <div class="tracking-timeline">
-        <h4>
-          <i class="fa-solid fa-timeline"></i>
+      <!-- Driver On The Way -->
+      <div *ngIf="selectedOrder.status === VendorOrderStatus.OutForDelivery"
+        class="flex gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-blue-800">
+        <div class="pt-1 text-lg">
+          <i class="fa-solid fa-truck-fast"></i>
+        </div>
+
+        <div>
+          <strong class="block text-sm">
+            {{ i18n.currentLang === 'ar' ? 'المندوب في الطريق' : 'Driver On The Way' }}
+          </strong>
+          <p class="text-sm">
+            {{ i18n.currentLang === 'ar' ? 'المندوب في طريقه لتوصيل الطلب للعميل' : 'The delivery agent is heading to
+            the customer' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Agent Info -->
+      <div *ngIf="selectedOrder.deliveryAgentName && selectedOrder.status !== VendorOrderStatus.Pending"
+        class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+        <h4 class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-800">
+          <i class="fa-solid fa-motorcycle text-indigo-600"></i>
+          {{ i18n.currentLang === 'ar' ? 'مندوب التوصيل' : 'Delivery Agent' }}
+        </h4>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-base font-semibold text-gray-900">
+            {{ selectedOrder.deliveryAgentName }}
+          </p>
+
+          <a *ngIf="selectedOrder.deliveryAgentPhone" [href]="'tel:' + selectedOrder.deliveryAgentPhone"
+            class="inline-flex items-center gap-2 rounded-xl bg-green-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-green-700">
+            <i class="fa-solid fa-phone"></i>
+            {{ selectedOrder.deliveryAgentPhone }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Tracking Timeline -->
+      <div class="rounded-2xl border border-gray-200 bg-white p-4">
+        <h4 class="mb-4 flex items-center gap-2 text-sm font-bold text-gray-800">
+          <i class="fa-solid fa-timeline text-indigo-600"></i>
           {{ i18n.currentLang === 'ar' ? 'تتبع الطلب' : 'Order Tracking' }}
         </h4>
-        <div class="timeline">
-          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.Pending">
-            <div class="step-icon"><i class="fa-solid fa-clock"></i></div>
-            <span>{{ i18n.currentLang === 'ar' ? 'تم إنشاء الطلب' : 'Order Created' }}</span>
+
+        <div class="space-y-3">
+
+          <div class="flex items-center gap-3 rounded-xl p-2"
+            [ngClass]="selectedOrder.status >= VendorOrderStatus.Pending ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <span class="text-sm font-medium">{{ i18n.currentLang === 'ar' ? 'تم إنشاء الطلب' : 'Order Created'
+              }}</span>
           </div>
-          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.Assigned">
-            <div class="step-icon"><i class="fa-solid fa-motorcycle"></i></div>
-            <span>{{ i18n.currentLang === 'ar' ? 'تعيين مندوب' : 'Agent Assigned' }}</span>
+
+          <div class="flex items-center gap-3 rounded-xl p-2"
+            [ngClass]="selectedOrder.status >= VendorOrderStatus.Assigned ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow">
+              <i class="fa-solid fa-motorcycle"></i>
+            </div>
+            <span class="text-sm font-medium">{{ i18n.currentLang === 'ar' ? 'تعيين مندوب' : 'Agent Assigned' }}</span>
           </div>
-          <div class="timeline-step" [class.active]="selectedOrder.status === VendorOrderStatus.Assigned && selectedOrder.isAgentHeadingToVendor">
-            <div class="step-icon"><i class="fa-solid fa-route"></i></div>
-            <span>{{ i18n.currentLang === 'ar' ? 'المندوب في الطريق إليك' : 'Agent Heading to You' }}</span>
+
+          <div class="flex items-center gap-3 rounded-xl p-2"
+            [ngClass]="selectedOrder.status === VendorOrderStatus.Assigned && selectedOrder.isAgentHeadingToVendor ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-500'">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <span class="text-sm font-medium">{{ i18n.currentLang === 'ar' ? 'المندوب في الطريق إليك' : 'Agent Heading
+              to You' }}</span>
           </div>
-          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.PickedFromVendor">
-            <div class="step-icon"><i class="fa-solid fa-hand-holding-box"></i></div>
-            <span>{{ i18n.currentLang === 'ar' ? 'استلام من التاجر' : 'Picked from Vendor' }}</span>
+
+          <div class="flex items-center gap-3 rounded-xl p-2"
+            [ngClass]="selectedOrder.status >= VendorOrderStatus.PickedFromVendor ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow">
+              <i class="fa-solid fa-hand-holding-box"></i>
+            </div>
+            <span class="text-sm font-medium">{{ i18n.currentLang === 'ar' ? 'استلام من التاجر' : 'Picked from Vendor'
+              }}</span>
           </div>
-          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.InWarehouse">
-            <div class="step-icon"><i class="fa-solid fa-warehouse"></i></div>
-            <span>{{ i18n.currentLang === 'ar' ? 'في المخزن' : 'In Warehouse' }}</span>
+
+          <div class="flex items-center gap-3 rounded-xl p-2"
+            [ngClass]="selectedOrder.status >= VendorOrderStatus.InWarehouse ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow">
+              <i class="fa-solid fa-warehouse"></i>
+            </div>
+            <span class="text-sm font-medium">{{ i18n.currentLang === 'ar' ? 'في المخزن' : 'In Warehouse' }}</span>
           </div>
-          <div class="timeline-step" [class.done]="selectedOrder.status >= VendorOrderStatus.OutForDelivery">
-            <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
-            <span>{{ i18n.currentLang === 'ar' ? 'في الطريق للعميل' : 'Out for Delivery' }}</span>
+
+          <div class="flex items-center gap-3 rounded-xl p-2"
+            [ngClass]="selectedOrder.status >= VendorOrderStatus.OutForDelivery ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow">
+              <i class="fa-solid fa-truck-fast"></i>
+            </div>
+            <span class="text-sm font-medium">{{ i18n.currentLang === 'ar' ? 'في الطريق للعميل' : 'Out for Delivery'
+              }}</span>
           </div>
-          <div class="timeline-step" [class.done]="selectedOrder.status === VendorOrderStatus.Delivered">
-            <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
-            <span>{{ i18n.currentLang === 'ar' ? 'تم التسليم' : 'Delivered' }}</span>
+
+          <div class="flex items-center gap-3 rounded-xl p-2"
+            [ngClass]="selectedOrder.status === VendorOrderStatus.Delivered ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <span class="text-sm font-medium">{{ i18n.currentLang === 'ar' ? 'تم التسليم' : 'Delivered' }}</span>
           </div>
+
         </div>
       </div>
 
-      <div class="customer-section">
-        <h4>
-          <i class="fa-solid fa-user"></i>
+      <!-- Customer -->
+      <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+        <h4 class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-800">
+          <i class="fa-solid fa-user text-indigo-600"></i>
           {{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}
         </h4>
-        <p>{{ selectedOrder.customerName }}</p>
-        <p>{{ selectedOrder.shippingCity }}</p>
+        <div class="space-y-1 text-sm text-gray-700">
+          <p>{{ selectedOrder.customerName }}</p>
+          <p>{{ selectedOrder.shippingCity }}</p>
+        </div>
       </div>
 
-      <div class="items-section">
-        <h4>
-          <i class="fa-solid fa-box-open"></i>
+      <!-- Items -->
+      <div class="rounded-2xl border border-gray-200 bg-white p-4">
+        <h4 class="mb-4 flex items-center gap-2 text-sm font-bold text-gray-800">
+          <i class="fa-solid fa-box-open text-indigo-600"></i>
           {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
         </h4>
-        <div class="items-list">
-          <div *ngFor="let item of selectedOrder.items" class="item-row">
-            <img [src]="item.productImage" [alt]="item.productNameAr">
-            <div class="item-details">
-              <span class="name">{{ i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn }}</span>
-              <span class="barcode-mini">{{ item.itemBarcode }}</span>
+
+        <div class="space-y-3">
+          <div *ngFor="let item of selectedOrder.items"
+            class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-3">
+
+            <img [src]="item.productImage" [alt]="item.productNameAr"
+              class="h-16 w-16 rounded-xl object-cover border bg-white">
+
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-sm font-semibold text-gray-900">
+                {{ i18n.currentLang === 'ar' ? item.productNameAr : item.productNameEn }}
+              </div>
+              <div class="mt-1 text-xs text-gray-500 font-mono">
+                {{ item.itemBarcode }}
+              </div>
             </div>
-            <div class="item-qty">x{{ item.quantity }}</div>
+
+            <div class="rounded-full bg-indigo-100 px-3 py-1 text-sm font-bold text-indigo-700">
+              x{{ item.quantity }}
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="total-section">
-        <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
-        <span class="amount">{{ selectedOrder.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+      <!-- Total -->
+      <div class="flex items-center justify-between rounded-2xl bg-gray-900 px-5 py-4 text-white">
+        <span class="text-sm font-medium">
+          {{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}
+        </span>
+        <span class="text-lg font-bold">
+          {{ selectedOrder.totalAmount.toFixed(2) }}
+          {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
+        </span>
       </div>
+
     </div>
 
-    <div class="modal-footer" *ngIf="selectedOrder.status === VendorOrderStatus.Assigned">
-      <button class="btn-confirm-handover" (click)="confirmHandover(selectedOrder)" [disabled]="isConfirming">
+    <!-- Footer -->
+    <div class="border-t px-6 py-4" *ngIf="selectedOrder.status === VendorOrderStatus.Assigned">
+      <button (click)="confirmHandover(selectedOrder)" [disabled]="isConfirming"
+        class="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60">
         <i class="fa-solid" [ngClass]="isConfirming ? 'fa-spinner fa-spin' : 'fa-hand-holding-box'"></i>
         {{ isConfirming
-          ? (i18n.currentLang === 'ar' ? 'جاري التأكيد...' : 'Confirming...')
-          : (i18n.currentLang === 'ar' ? 'تأكيد تسليم المنتجات للمندوب' : 'Confirm Handover to Agent')
+        ? (i18n.currentLang === 'ar' ? 'جاري التأكيد...' : 'Confirming...')
+        : (i18n.currentLang === 'ar' ? 'تأكيد تسليم المنتجات للمندوب' : 'Confirm Handover to Agent')
         }}
       </button>
     </div>
+
   </div>
 </div>
 

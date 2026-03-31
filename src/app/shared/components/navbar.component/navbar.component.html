@@ -164,7 +164,7 @@
           <i class="fa-solid fa-house"></i>
           {{ 'home' | translate }}
         </a>
-        <a routerLink="/products" routerLinkActive="active" class="nav-link-ozon">
+        <a routerLink="/products" routerLinkActive="active" *ngIf="role !='ShippingEmployee' && role != 'DeliveryAgent'" class="nav-link-ozon">
           <i class="fa-solid fa-store"></i>
           {{ 'products' | translate }}
         </a>

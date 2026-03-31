@@ -429,6 +429,7 @@ closeAssignReturnModal(): void {
     this.barcodeService.downloadAsPdf({
       barcodeValue: orderNumber,
       orderNumber,
+      totalAmount: this.selectedShipment?.totalAmount || 0,
       customerName: this.selectedShipment?.customerName,
       filename: `${orderNumber}-qr.pdf`
     });

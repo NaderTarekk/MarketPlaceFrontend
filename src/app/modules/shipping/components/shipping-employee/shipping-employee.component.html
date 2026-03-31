@@ -475,9 +475,10 @@
 
       <div class="section">
         <h4><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'بيانات العميل' : 'Customer Info' }}</h4>
-        <p><strong>{{ selectedShipment.customerName }}</strong></p>
-        <p>{{ selectedShipment.customerPhone }}</p>
-        <p>{{ selectedShipment.shippingAddress }}</p>
+        <p>Name:<strong> {{ selectedShipment.customerName }}</strong></p>
+        <p>Customer Phone Number: <strong>{{ selectedShipment.customerPhone }}</strong></p>
+        <p>Shipping Address: <strong>{{ selectedShipment.shippingAddress }}</strong></p>
+        <p>Total Amount: <strong>{{ selectedShipment.totalAmount }}</strong></p>
       </div>
 
       <div class="section">

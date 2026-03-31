@@ -42,6 +42,7 @@ export class BarcodeService {
   downloadAsPdf(options: {
     barcodeValue: string;
     orderNumber: string;
+    totalAmount: number;
     customerName?: string;
     employeeName?: string;
     logoUrl?: string;
@@ -64,6 +65,7 @@ export class BarcodeService {
         <div style="font-family:Arial,sans-serif;text-align:center;padding:24px;width:320px;border:1px solid #e5e7eb;border-radius:8px;">
           ${logoHtml}
           <div style="font-size:13px;color:#374151;font-weight:600;margin-bottom:4px;">رقم الطلب / Order No.</div>
+          <div style="font-size:13px;color:#374151;font-weight:600;margin-bottom:4px;">Total Amount: ${options.totalAmount}</div>
           <div style="font-size:18px;font-weight:900;color:#111827;margin-bottom:12px;">${options.orderNumber}</div>
           <img src="${qrDataUrl}" style="width:200px;height:200px;margin-bottom:8px;" />
           <div style="font-size:12px;color:#6b7280;letter-spacing:1px;">${options.barcodeValue}</div>
