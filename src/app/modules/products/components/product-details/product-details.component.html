@@ -56,6 +56,10 @@
       <div class="info-section">
         <!-- Category & Brand -->
         <div class="meta-info">
+          <a class="store-badge" [routerLink]="['/products']" [queryParams]="{vendorId: product.vendorId, storeName: product.vendorName}" *ngIf="product.vendorName">
+            <i class="fa-solid fa-store"></i>
+            {{ product.vendorName }}
+          </a>
           <span class="category" *ngIf="product.categoryNameAr || product.categoryNameEn">
             {{ i18n.currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn }}
           </span>
@@ -91,6 +95,17 @@
           <span *ngIf="getDiscountPercentage()" class="discount-text">
             {{ i18n.currentLang === 'ar' ? 'وفر' : 'Save' }} {{ getDiscountPercentage() }}%
           </span>
+        </div>
+
+        <!-- Seller -->
+        <div class="seller-row" *ngIf="product.vendorName">
+          <span class="seller-label">
+            {{ i18n.currentLang === 'ar' ? 'البائع:' : 'Seller:' }}
+          </span>
+          <a class="seller-link" [routerLink]="['/products']" [queryParams]="{vendorId: product.vendorId, storeName: product.vendorName}">
+            <i class="fa-solid fa-store"></i>
+            {{ product.vendorName }}
+          </a>
         </div>
 
         <!-- Stock Status -->

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environment';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { ApiResponse, PagedResponse, Product, ProductFilter, ProductList } from '../../../models/products';
+import { ApiResponse, PagedResponse, Product, ProductFilter, ProductList, Store } from '../../../models/products';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Brand } from '../../../models/brand';
 import { Category } from '../../../models/category';
@@ -70,6 +70,10 @@ export class ProductsService {
     );
   }
 
+  getStores(): Observable<ApiResponse<Store[]>> {
+    return this.http.get<ApiResponse<Store[]>>(`${environment.productsUrl}/stores`);
+  }
+
   search(query: string): Observable<ApiResponse<ProductList[]>> {
     return this.http.get<ApiResponse<ProductList[]>>(
       `${environment.productsUrl}?search=${encodeURIComponent(query)}&pageSize=6`
@@ -106,6 +110,7 @@ export class ProductsService {
     if (filter.search) params.push(`search=${encodeURIComponent(filter.search)}`);
     if (filter.categoryId) params.push(`categoryId=${filter.categoryId}`);
     if (filter.brandId) params.push(`brandId=${filter.brandId}`);
+    if (filter.vendorId) params.push(`vendorId=${filter.vendorId}`);
     if (filter.minPrice !== undefined) params.push(`minPrice=${filter.minPrice}`);
     if (filter.maxPrice !== undefined) params.push(`maxPrice=${filter.maxPrice}`);
     if (filter.inStock !== undefined) params.push(`inStock=${filter.inStock}`);

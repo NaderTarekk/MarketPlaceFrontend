@@ -5,9 +5,11 @@ import { ProductDetailsComponent } from '../modules/products/components/product-
 import { AdminReviewComponent } from '../modules/products/components/admin-review/admin-review.component';
 import { WishlistsComponent } from '../modules/products/components/wishlists/wishlists.component';
 import { MyReviewsComponent } from '../modules/products/components/my-reviews/my-reviews.component';
+import { StoresComponent } from '../modules/products/components/stores/stores.component';
 
 const routes: Routes = [
   { path: '', component: ProductsComponent },
+  { path: 'stores', component: StoresComponent },
   { path: 'reviews', component: AdminReviewComponent },
   { path: 'wishlist', component: WishlistsComponent },
   { path: 'my-reviews', component: MyReviewsComponent },

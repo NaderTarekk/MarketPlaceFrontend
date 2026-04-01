@@ -100,6 +100,7 @@ export class ProductsComponent implements OnInit {
   ];
 
   selectedSort = 'newest';
+  activeStoreName: string | null = null;
 
   selectedBrand: Brand | null = null;
   selectedBrandId: number | null = null;
@@ -150,6 +151,11 @@ export class ProductsComponent implements OnInit {
 
       if (params['search']) {
         this.filter.search = params['search'];
+      }
+
+      if (params['vendorId']) {
+        this.filter.vendorId = params['vendorId'];
+        this.activeStoreName = params['storeName'] || null;
       }
 
       this.loadProducts();

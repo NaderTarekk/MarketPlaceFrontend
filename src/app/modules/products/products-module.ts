@@ -7,6 +7,7 @@ import { ProductDetailsComponent } from './components/product-details/product-de
 import { AdminReviewComponent } from './components/admin-review/admin-review.component';
 import { WishlistsComponent } from './components/wishlists/wishlists.component';
 import { MyReviewsComponent } from './components/my-reviews/my-reviews.component';
+import { StoresComponent } from './components/stores/stores.component';
 
 
 
@@ -16,7 +17,8 @@ import { MyReviewsComponent } from './components/my-reviews/my-reviews.component
     ProductDetailsComponent,
     AdminReviewComponent,
     WishlistsComponent,
-    MyReviewsComponent
+    MyReviewsComponent,
+    StoresComponent
   ],
   imports: [
     CommonModule,

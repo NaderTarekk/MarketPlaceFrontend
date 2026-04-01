@@ -8,8 +8,25 @@
             <h1>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</h1>
             <p>{{ i18n.currentLang === 'ar' ? 'اكتشف مجموعتنا المميزة من المنتجات' : 'Discover our amazing collection'
                 }}</p>
+            <a routerLink="/products/stores" class="stores-hero-btn">
+                <i class="fa-solid fa-store"></i>
+                {{ i18n.currentLang === 'ar' ? 'تصفح المتاجر' : 'Browse Stores' }}
+            </a>
         </div>
     </section>
+
+    <!-- Store Filter Banner -->
+    <div class="store-filter-banner" *ngIf="filter.vendorId && activeStoreName">
+        <i class="fa-solid fa-store"></i>
+        <span>
+            {{ i18n.currentLang === 'ar' ? 'منتجات متجر:' : 'Products from store:' }}
+            <strong>{{ activeStoreName }}</strong>
+        </span>
+        <a routerLink="/products" class="clear-store-filter">
+            <i class="fa-solid fa-times"></i>
+            {{ i18n.currentLang === 'ar' ? 'عرض الكل' : 'View All' }}
+        </a>
+    </div>
 
     <!-- ═══════════════════════════════════════════════ -->
     <!-- POPULAR BRANDS + BEST SELLERS BANNER          -->

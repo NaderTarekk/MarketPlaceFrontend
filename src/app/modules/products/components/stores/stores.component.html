@@ -1,0 +1,69 @@
+<div class="stores-page">
+  <!-- Hero -->
+  <section class="stores-hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>
+        <i class="fa-solid fa-store"></i>
+        {{ i18n.currentLang === 'ar' ? 'المتاجر' : 'Stores' }}
+      </h1>
+      <p>{{ i18n.currentLang === 'ar' ? 'تصفح منتجات متاجرنا المميزة' : 'Browse our featured stores' }}</p>
+
+      <!-- Search -->
+      <div class="hero-search">
+        <i class="fa-solid fa-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="search"
+          [placeholder]="i18n.currentLang === 'ar' ? 'ابحث عن متجر...' : 'Search stores...'"
+        />
+      </div>
+    </div>
+  </section>
+
+  <div class="stores-container">
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div *ngFor="let i of [1,2,3,4,5,6]" class="store-card skeleton"></div>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!isLoading && filteredStores.length === 0" class="empty-state">
+      <i class="fa-solid fa-store-slash"></i>
+      <p>{{ i18n.currentLang === 'ar' ? 'لا توجد متاجر' : 'No stores found' }}</p>
+    </div>
+
+    <!-- Stores Grid -->
+    <div *ngIf="!isLoading && filteredStores.length > 0" class="stores-grid">
+      <div *ngFor="let store of filteredStores" class="store-card" (click)="browseStore(store)">
+        <!-- Avatar -->
+        <div class="store-avatar">
+          <span>{{ getInitials(store.vendorName) }}</span>
+        </div>
+
+        <!-- Info -->
+        <div class="store-info">
+          <h3 class="store-name">{{ store.vendorName }}</h3>
+          <p class="store-address" *ngIf="store.vendorAddress">
+            <i class="fa-solid fa-location-dot"></i>
+            {{ store.vendorAddress }}
+          </p>
+          <div class="store-stats">
+            <span class="product-count">
+              <i class="fa-solid fa-box"></i>
+              {{ store.productCount }}
+              {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button class="browse-btn">
+          <i class="fa-solid fa-arrow-left" *ngIf="i18n.currentLang === 'ar'"></i>
+          <i class="fa-solid fa-arrow-right" *ngIf="i18n.currentLang !== 'ar'"></i>
+          {{ i18n.currentLang === 'ar' ? 'تصفح المتجر' : 'Browse Store' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

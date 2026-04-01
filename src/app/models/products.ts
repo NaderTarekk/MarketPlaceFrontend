@@ -65,6 +65,7 @@ export interface ProductFilter {
   search?: string;
   categoryId?: number;
   brandId?: number;
+  vendorId?: string;
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
@@ -74,6 +75,14 @@ export interface ProductFilter {
   page?: number;
   pageSize?: number;
   status?: number;
+}
+
+export interface Store {
+  vendorId: string;
+  vendorName: string;
+  vendorAddress: string | null;
+  phoneNumber: string | null;
+  productCount: number;
 }
 
 export interface ApiResponse<T> {

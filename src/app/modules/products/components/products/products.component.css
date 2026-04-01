@@ -43,8 +43,30 @@
 .hero-content p {
     font-size: 0.875rem;
     opacity: 0.9;
-    margin: 0;
+    margin: 0 0 12px;
 }
+
+.stores-hero-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.2); color: #fff;
+    border: 1px solid rgba(255,255,255,0.4); border-radius: 25px;
+    padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; transition: background 0.2s;
+}
+.stores-hero-btn:hover { background: rgba(255,255,255,0.35); }
+
+.store-filter-banner {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #f0f4ff; border-inline-start: 4px solid #667eea;
+    padding: 12px 20px; font-size: 0.9rem; color: #374151;
+}
+.store-filter-banner i { color: #667eea; }
+.store-filter-banner strong { color: #1e293b; }
+.clear-store-filter {
+    margin-inline-start: auto; color: #667eea; text-decoration: none;
+    font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 5px;
+}
+.clear-store-filter:hover { color: #4f46e5; }
 
 /* ═══════════════════════════════════════════════ */
 /* MAIN CONTAINER */

@@ -255,6 +255,28 @@
   flex-wrap: wrap;
 }
 
+.meta-info .store-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  background: linear-gradient(135deg, #667eea22, #764ba222);
+  color: #667eea; font-size: 12px; font-weight: 600;
+  text-decoration: none; border: 1px solid #667eea44;
+  transition: background 0.2s;
+}
+.meta-info .store-badge:hover { background: linear-gradient(135deg, #667eea33, #764ba233); }
+
+.seller-row {
+  display: flex; align-items: center; gap: 8px;
+  margin: 8px 0;
+}
+.seller-label { font-size: 0.88rem; color: #64748b; }
+.seller-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: #667eea; font-size: 0.88rem; font-weight: 600;
+  text-decoration: none;
+}
+.seller-link:hover { text-decoration: underline; color: #4f46e5; }
+
 .meta-info .category,
 .meta-info .brand {
   padding: 6px 14px;
