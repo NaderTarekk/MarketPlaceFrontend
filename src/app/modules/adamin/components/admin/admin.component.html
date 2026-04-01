@@ -1076,6 +1076,13 @@
                   <!-- Actions -->
                   <td class="px-4 py-4">
                     <div class="flex items-center justify-center gap-2">
+                      <button (click)="toggleVerification(vendor)"
+                        class="p-2 rounded-lg transition-colors"
+                        [class.bg-blue-100]="!vendor.isVerified" [class.text-blue-600]="!vendor.isVerified" [class.hover:bg-blue-200]="!vendor.isVerified"
+                        [class.bg-green-100]="vendor.isVerified" [class.text-green-700]="vendor.isVerified" [class.hover:bg-green-200]="vendor.isVerified"
+                        [title]="vendor.isVerified ? (i18n.currentLang === 'ar' ? 'إلغاء التوثيق' : 'Remove Verification') : (i18n.currentLang === 'ar' ? 'توثيق التاجر' : 'Verify Vendor')">
+                        <i class="fa-solid" [class.fa-badge-check]="vendor.isVerified" [class.fa-circle-check]="!vendor.isVerified"></i>
+                      </button>
                       <button (click)="openVendorModal(vendor)"
                         class="p-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
                         [title]="i18n.currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details'">

@@ -9,6 +9,8 @@ export interface VendorList {
   totalRevenue: number;
   pendingPayment: number;
   createdAt: string;
+  isVerified: boolean;
+  averageRating: number;
 }
 
 export interface VendorDetailedReport {

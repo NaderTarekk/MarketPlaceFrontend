@@ -43,16 +43,28 @@
 
         <!-- Info -->
         <div class="store-info">
-          <h3 class="store-name">{{ store.vendorName }}</h3>
+          <div class="store-name-row">
+            <h3 class="store-name">{{ store.vendorName }}</h3>
+            <span class="verified-badge" *ngIf="store.isVerified" title="Verified Store">
+              <i class="fa-solid fa-circle-check"></i>
+            </span>
+          </div>
           <p class="store-address" *ngIf="store.vendorAddress">
             <i class="fa-solid fa-location-dot"></i>
             {{ store.vendorAddress }}
           </p>
           <div class="store-stats">
-            <span class="product-count">
+            <span class="stat-pill">
               <i class="fa-solid fa-box"></i>
-              {{ store.productCount }}
-              {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
+              {{ store.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
+            </span>
+            <span class="stat-pill">
+              <i class="fa-solid fa-shopping-bag"></i>
+              {{ store.totalOrders }} {{ i18n.currentLang === 'ar' ? 'طلب' : 'orders' }}
+            </span>
+            <span class="stat-pill rating-pill" *ngIf="store.averageRating > 0">
+              <i class="fa-solid fa-star"></i>
+              {{ store.averageRating }}
             </span>
           </div>
         </div>

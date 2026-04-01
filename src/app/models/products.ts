@@ -20,6 +20,7 @@ export interface Product {
   brandNameEn: string | null;
   vendorId: string;
   vendorName: string | null;
+  vendorIsVerified: boolean;
   status: number;
   isActive: boolean;
   isFeatured: boolean;
@@ -83,6 +84,9 @@ export interface Store {
   vendorAddress: string | null;
   phoneNumber: string | null;
   productCount: number;
+  totalOrders: number;
+  averageRating: number;
+  isVerified: boolean;
 }
 
 export interface ApiResponse<T> {

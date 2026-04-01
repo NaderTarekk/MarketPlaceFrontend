@@ -126,6 +126,10 @@ export class AdminReportsService {
     return this.http.put<ApiResponse<any>>(`${environment.adminUrl}/vendors/${id}/commission`, dto);
   }
 
+  toggleVendorVerification(id: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${environment.adminUrl}/vendors/${id}/verify`, {});
+  }
+
   // ═══════════════════════════════════════════════
   // ✅ NEW: DELIVERY AGENTS MANAGEMENT
   // ═══════════════════════════════════════════════

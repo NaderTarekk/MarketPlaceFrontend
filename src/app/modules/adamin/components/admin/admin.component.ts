@@ -345,6 +345,23 @@ export class AdminComponent implements OnInit {
     this.newCommissionRate = 0;
   }
 
+  toggleVerification(vendor: VendorList): void {
+    this.adminService.toggleVendorVerification(vendor.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          vendor.isVerified = !vendor.isVerified;
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? (vendor.isVerified ? 'تم توثيق التاجر' : 'تم إلغاء توثيق التاجر')
+              : (vendor.isVerified ? 'Vendor verified' : 'Vendor unverified'),
+            'success'
+          );
+        }
+      },
+      error: () => this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error')
+    });
+  }
+
   updateCommission(): void {
     if (!this.selectedVendor) return;
 

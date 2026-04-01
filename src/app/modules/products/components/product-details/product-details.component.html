@@ -105,6 +105,7 @@
           <a class="seller-link" [routerLink]="['/products']" [queryParams]="{vendorId: product.vendorId, storeName: product.vendorName}">
             <i class="fa-solid fa-store"></i>
             {{ product.vendorName }}
+            <i class="fa-solid fa-circle-check seller-verified" *ngIf="product.vendorIsVerified" title="Verified Store"></i>
           </a>
         </div>
 
