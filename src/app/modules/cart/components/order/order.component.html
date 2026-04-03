@@ -149,7 +149,13 @@
 
                     <!-- Address -->
                     <div class="form-group">
-                        <label>{{ i18n.currentLang === 'ar' ? 'العنوان بالتفصيل' : 'Full Address' }} *</label>
+                        <div class="address-label-row">
+                            <label>{{ i18n.currentLang === 'ar' ? 'العنوان بالتفصيل' : 'Full Address' }} *</label>
+                            <button type="button" class="gps-btn" (click)="detectLocation()" [disabled]="isDetectingLocation">
+                                <i class="fa-solid" [class.fa-location-crosshairs]="!isDetectingLocation" [class.fa-spinner]="isDetectingLocation" [class.fa-spin]="isDetectingLocation"></i>
+                                {{ i18n.currentLang === 'ar' ? (isDetectingLocation ? 'جاري التحديد...' : 'تحديد موقعي') : (isDetectingLocation ? 'Detecting...' : 'Use my location') }}
+                            </button>
+                        </div>
                         <textarea [(ngModel)]="form.shippingAddress" rows="3"
                             [placeholder]="i18n.currentLang === 'ar' ? 'الشارع، المبنى، الشقة...' : 'Street, building, apt...'"></textarea>
                     </div>
@@ -190,12 +196,18 @@
                     </label>
                     <div class="delivery-types">
                         <label *ngFor="let type of deliveryTypes" class="delivery-type-card"
-                            [class.selected]="deliveryType === type.value">
-                            <input type="radio" name="deliveryType" [value]="type.value" [(ngModel)]="deliveryType" (ngModelChange)="onDeliveryTypeChange()" />
+                            [class.selected]="deliveryType === type.value"
+                            [class.disabled]="type.value === 0 && !isPickupAvailable">
+                            <input type="radio" name="deliveryType" [value]="type.value" [(ngModel)]="deliveryType"
+                                (ngModelChange)="onDeliveryTypeChange()"
+                                [disabled]="type.value === 0 && !isPickupAvailable" />
                             <div class="card-content">
                                 <i class="fa-solid" [ngClass]="type.icon"></i>
                                 <span class="type-label">{{ i18n.currentLang === 'ar' ? type.labelAr : type.labelEn }}</span>
-                                <i class="fa-solid fa-circle-check check-icon"></i>
+                                <span *ngIf="type.value === 0 && !isPickupAvailable" class="pickup-closed-badge">
+                                    {{ i18n.currentLang === 'ar' ? 'مغلقة مؤقتاً' : 'Temporarily Closed' }}
+                                </span>
+                                <i class="fa-solid fa-circle-check check-icon" *ngIf="!(type.value === 0 && !isPickupAvailable)"></i>
                             </div>
                         </label>
                     </div>

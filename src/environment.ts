@@ -20,6 +20,7 @@ export const environment = {
     complaintUrl: `${productionApi}/Complaints`,
     shippingUrl: `${productionApi}/Shipping`,
     addressUrl: `${productionApi}/Address`,
+    siteSettingsUrl: `${productionApi}/SiteSettings`,
     baseApi: `${productionBaseApi}`
 };
 

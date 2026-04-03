@@ -702,7 +702,7 @@
   padding: 30px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   margin-top: 30px;
-  height: 550px !important;
+  height: 900px !important;
 }
 
 .payment-section h3 {
@@ -1397,3 +1397,44 @@
   }
 }
 
+
+.address-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.address-label-row label { margin-bottom: 0; }
+.gps-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #eff6ff;
+  color: #3b82f6;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.gps-btn:hover { background: #dbeafe; }
+.gps-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.pickup-closed-badge {
+  display: inline-block;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  margin-top: 4px;
+}
+.delivery-type-card.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}

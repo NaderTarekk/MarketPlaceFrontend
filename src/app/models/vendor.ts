@@ -38,6 +38,8 @@ export interface RecentOrder {
    vendorSubTotal: number;
   vendorShippingShare: number;
   vendorOrderStatus: number;
+  cancellationReason?: string;
+  cancelledBy?: string;
 }
 
 export interface OrderItemSummary {

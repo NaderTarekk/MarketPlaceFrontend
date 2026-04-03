@@ -21,6 +21,25 @@
   justify-content: center;
 }
 
+.cancel-reason-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #fff1f1;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    color: #dc2626;
+    font-size: 13px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.cancel-reason-card i {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
 .hero-bg {
   position: absolute;
   inset: 0;
@@ -1292,7 +1311,7 @@
 /* ─── Cancelled ────────────────────────────────────────────── */
 .cancelled-banner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 0.75rem;
   padding: 1.25rem;
@@ -1311,6 +1330,14 @@
 
 .cancelled-banner i {
   font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.cancel-reason-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 4px;
+  opacity: 0.85;
 }
 
 .order-cancelled {

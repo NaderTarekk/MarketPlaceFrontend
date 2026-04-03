@@ -68,4 +68,8 @@ export class OrderService {
   scanOrderBarcode(orderNumber: string): Observable<any> {
     return this.http.get(`${environment.orderUrl}/scan/${orderNumber}`);
   }
+
+  getSiteSettings(): Observable<any> {
+    return this.http.get(`${environment.siteSettingsUrl}`);
+  }
 }

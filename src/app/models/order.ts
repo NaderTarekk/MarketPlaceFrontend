@@ -1,3 +1,9 @@
+export interface SiteSettings {
+  isPickupAvailable: boolean;
+  vodafoneCashNumber?: string;
+  vodafoneCashName?: string;
+}
+
 export interface CreateOrderDto {
   shippingName: string;
   shippingPhone: string;

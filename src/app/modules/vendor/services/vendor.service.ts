@@ -64,4 +64,8 @@ export class VendorService {
   loadOrderDetails(orderId: number): Observable<any> {
     return this.http.get(`${environment.orderUrl}/${orderId}`);
   }
+
+  cancelOrder(orderId: number, reason: string): Observable<any> {
+    return this.http.post(`${environment.vendorUrl}/orders/${orderId}/cancel`, { reason });
+  }
 }

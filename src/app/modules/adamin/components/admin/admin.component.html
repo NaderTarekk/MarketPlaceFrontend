@@ -70,6 +70,10 @@
         <i class="fa-solid fa-money-bill-transfer"></i>
         <span>{{ i18n.currentLang === 'ar' ? 'سحوبات التجار' : 'Withdrawals' }}</span>
       </button>
+      <button class="tab" [class.active]="activeTab === 'settings'" (click)="switchTab('settings')">
+        <i class="fa-solid fa-gear"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'الإعدادات' : 'Settings' }}</span>
+      </button>
     </div>
   </div>
 
@@ -1792,6 +1796,51 @@
               </table>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div *ngIf="activeTab === 'settings'" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-gear"></i> {{ i18n.currentLang === 'ar' ? 'إعدادات الموقع' : 'Site Settings' }}</h2>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <i class="fa-solid fa-warehouse"></i>
+          <h3>{{ i18n.currentLang === 'ar' ? 'نقطة الاستلام' : 'Pickup Point' }}</h3>
+          <span class="status-badge" [style.background]="siteSettings.isPickupAvailable ? '#dcfce7' : '#fee2e2'"
+                [style.color]="siteSettings.isPickupAvailable ? '#16a34a' : '#dc2626'">
+            {{ siteSettings.isPickupAvailable ? (i18n.currentLang === 'ar' ? 'مفتوحة' : 'Open') : (i18n.currentLang === 'ar' ? 'مغلقة مؤقتاً' : 'Temporarily Closed') }}
+          </span>
+        </div>
+        <p class="settings-desc">{{ i18n.currentLang === 'ar' ? 'التحكم في توفر خيار الاستلام من المخزن للعملاء' : 'Control whether customers can choose pickup from warehouse' }}</p>
+        <button class="btn-settings-toggle" (click)="togglePickup()"
+          [style.background]="siteSettings.isPickupAvailable ? '#fee2e2' : '#dcfce7'"
+          [style.color]="siteSettings.isPickupAvailable ? '#dc2626' : '#16a34a'">
+          <i class="fa-solid" [class.fa-lock]="siteSettings.isPickupAvailable" [class.fa-lock-open]="!siteSettings.isPickupAvailable"></i>
+          {{ siteSettings.isPickupAvailable ? (i18n.currentLang === 'ar' ? 'إغلاق نقطة الاستلام مؤقتاً' : 'Close Pickup Temporarily') : (i18n.currentLang === 'ar' ? 'فتح نقطة الاستلام' : 'Open Pickup Point') }}
+        </button>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <i class="fa-solid fa-mobile-screen-button" style="color:#e60000"></i>
+          <h3>{{ i18n.currentLang === 'ar' ? 'فودافون كاش' : 'Vodafone Cash' }}</h3>
+        </div>
+        <p class="settings-desc">{{ i18n.currentLang === 'ar' ? 'رقم فودافون كاش الذي سيتم إرسال المدفوعات إليه' : 'Vodafone Cash number to receive payments' }}</p>
+        <div class="vf-form">
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}</label>
+            <input type="text" [(ngModel)]="vfCashForm.number" placeholder="01xxxxxxxxx" />
+          </div>
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Account Name' }}</label>
+            <input type="text" [(ngModel)]="vfCashForm.name" [placeholder]="i18n.currentLang === 'ar' ? 'اسم الحساب' : 'Account holder name'" />
+          </div>
+          <button class="btn-save-settings" (click)="saveVodafoneCash()">
+            <i class="fa-solid fa-floppy-disk"></i>
+            {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+          </button>
         </div>
       </div>
     </div>

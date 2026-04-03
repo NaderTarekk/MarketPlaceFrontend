@@ -276,6 +276,7 @@
   text-decoration: none;
 }
 .seller-link:hover { text-decoration: underline; color: #4f46e5; }
+.seller-verified { color: #3b82f6; font-size: 0.85rem; }
 
 .meta-info .category,
 .meta-info .brand {

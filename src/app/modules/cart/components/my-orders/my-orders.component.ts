@@ -171,10 +171,10 @@ export class MyOrdersComponent implements OnInit {
 
   get filteredOrders(): OrderListItem[] {
     if (this.activeFilter === 'all') {
-      return this.orders;
+        return this.orders;
     }
     return this.orders.filter(o => o.status === this.activeFilter);
-  }
+}
 
   // Helpers
   // my-orders.component.ts - FIX getStatusBadge

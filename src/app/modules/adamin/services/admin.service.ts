@@ -231,4 +231,16 @@ export class AdminReportsService {
       { params }
     );
   }
+
+  getSiteSettings(): Observable<any> {
+    return this.http.get(`${environment.siteSettingsUrl}`);
+  }
+
+  togglePickupAvailability(): Observable<any> {
+    return this.http.post(`${environment.siteSettingsUrl}/toggle-pickup`, {});
+  }
+
+  updateVodafoneCash(number: string, name: string): Observable<any> {
+    return this.http.put(`${environment.siteSettingsUrl}/vodafone-cash`, { number, name });
+  }
 }

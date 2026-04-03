@@ -74,6 +74,8 @@ export interface Order {
   isReadyForPickup?: boolean;
   vendorOrdersCount?: number;
   completedVendorOrders?: number;
+  cancellationReason?: string;
+  cancelledBy?: string;
 }
 
 export interface OrderListItem {
@@ -84,6 +86,8 @@ export interface OrderListItem {
   total: number;
   status: OrderStatus;
   createdAt: Date;
+   cancellationReason?: string; // ✅
+  cancelledBy?: string;
 }
 
 export interface ApiResponse<T> {

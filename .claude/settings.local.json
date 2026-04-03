@@ -16,7 +16,17 @@
       "Bash(dotnet build:*)",
       "Bash(dotnet ef:*)",
       "Bash(dotnet --list-sdks)",
-      "Bash(dotnet tool:*)"
+      "Bash(dotnet tool:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(node -e \"const fs=require\\(''fs''\\); const c=fs.readFileSync\\(''d:/Angular/MarketPlace/src/app/modules/cart/components/order/order.component.ts'',''utf8''\\); const i=c.indexOf\\(''paymentMethods = [''\\); console.log\\(JSON.stringify\\(c.slice\\(i,i+500\\)\\)\\);\")",
+      "Bash(\"d:\\\\Angular\\\\MarketPlace\\\\src\\\\app\\\\modules\\\\adamin\\\\components\\\\admin\\\\admin.component.css\":*)",
+      "Bash(node -e \":*)",
+      "Bash(git -C \"d:\\\\Angular\\\\MarketPlace\" diff --stat HEAD src/app/modules/adamin/components/admin/admin.component.html)",
+      "Bash(git -C \"d:\\\\Angular\\\\MarketPlace\" checkout HEAD -- src/app/modules/adamin/components/admin/admin.component.html)",
+      "Bash(grep -n \"activeTab === ''''settings''''\\\\|activeTab === ''''withdrawals''''\\\\|class=\"\"main-container\"\"\" \"d:\\\\Angular\\\\MarketPlace\\\\src\\\\app\\\\modules\\\\adamin\\\\components\\\\admin\\\\admin.component.html\")",
+      "Bash(head -10 grep -n \"cancel\\\\|Cancel\" d:AngularMarketPlacesrcappmodulesproductscomponentsvendor-dashboardvendor-dashboard.component.ts)",
+      "Bash(find d:AngularMarketPlacesrc -name vendor* -type f)",
+      "Bash(\"d:/Angular/MarketPlace/src/app/modules/vendor/components/vendor/vendor-dashboard.component.css\")"
     ]
   }
 }

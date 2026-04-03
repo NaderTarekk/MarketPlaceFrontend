@@ -139,6 +139,12 @@ export class VendorDashboardComponent implements OnInit {
   isLoadingOrder = false;
   isUpdatingStatus = false;
 
+  // Cancel Order Modal
+  showCancelModal = false;
+  cancelOrderId: number | null = null;
+  cancelReason = '';
+  isCancelling = false;
+
   // 3. Net Profit (الإيرادات - العمولة)
   netProfit = 0;
 
@@ -374,6 +380,55 @@ export class VendorDashboardComponent implements OnInit {
     this.showOrderModal = false;
     this.orderDetails = null;
     this.selectedOrderId = null;
+  }
+
+  openCancelModal(order: any, event?: Event): void {
+    event?.stopPropagation();
+    this.cancelOrderId = order.id;
+    this.cancelReason = '';
+    this.showCancelModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+    this.cancelOrderId = null;
+    this.cancelReason = '';
+  }
+
+  confirmCancelOrder(): void {
+    if (!this.cancelOrderId || !this.cancelReason.trim()) {
+      this.showToast(this.i18n.currentLang === 'ar' ? 'أدخل سبب الإلغاء' : 'Enter cancellation reason', 'error');
+      return;
+    }
+    this.isCancelling = true;
+    this.vendorService.cancelOrder(this.cancelOrderId, this.cancelReason).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          const order = this.dashboard?.recentOrders?.find(o => o.id === this.cancelOrderId);
+          if (order) {
+            (order as any).status = 8; // Cancelled
+            (order as any).cancellationReason = this.cancelReason;
+            (order as any).cancelledBy = 'Vendor';
+          }
+          this.cdr.detectChanges();
+          this.showToast(this.i18n.currentLang === 'ar' ? 'تم إلغاء الطلب' : 'Order cancelled', 'success');
+          this.closeCancelModal();
+        } else {
+          this.showToast(res.message || 'Error', 'error');
+        }
+        this.isCancelling = false;
+      },
+      error: (err: any) => {
+        this.showToast(err.error?.message || 'Error', 'error');
+        this.isCancelling = false;
+      }
+    });
+  }
+
+  canCancelOrder(order: any): boolean {
+    const s = typeof order.status === 'string' ? parseInt(order.status) : order.status;
+    return s !== 8 && s !== 6; // not Cancelled(8) and not Delivered(6)
   }
 
   canUpdateVendorOrderStatus(vendorOrderStatus: number | string): boolean {

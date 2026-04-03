@@ -68,34 +68,25 @@ export class OrderComponent implements OnInit {
     { value: 0, labelAr: 'استلام من المخزن', labelEn: 'Pickup from Warehouse', icon: 'fa-warehouse' },
     { value: 1, labelAr: 'توصيل للمنزل', labelEn: 'Home Delivery', icon: 'fa-home' }
   ];
+  isPickupAvailable = true;
+  vodafoneCashNumber = '';
+  vodafoneCashName = '';
+  isDetectingLocation = false;
+
   paymentMethods = [
-    // {
-    //   id: 'visa',
-    //   nameAr: 'بطاقة ائتمان/خصم',
-    //   nameEn: 'Visa/Mastercard',
-    //   icon: 'fa-brands fa-cc-visa',
-    //   color: '#1a1f71'
-    // },
-    // {
-    //   id: 'vodafone',
-    //   nameAr: 'فودافون كاش',
-    //   nameEn: 'Vodafone Cash',
-    //   icon: 'fa-solid fa-mobile-screen-button',
-    //   color: '#e60000'
-    // },
-    // {
-    //   id: 'instapay',
-    //   nameAr: 'انستا باي',
-    //   nameEn: 'InstaPay',
-    //   icon: 'fa-solid fa-building-columns',
-    //   color: '#00a651'
-    // },
     {
       id: 'cash',
       nameAr: 'الدفع عند الاستلام',
       nameEn: 'Cash on Delivery',
       icon: 'fa-solid fa-money-bill-wave',
       color: '#059669'
+    },
+    {
+      id: 'vodafone',
+      nameAr: 'فودافون كاش',
+      nameEn: 'Vodafone Cash',
+      icon: 'fa-solid fa-mobile-screen-button',
+      color: '#e60000'
     }
   ];
   selectedPaymentMethod: string = '';
@@ -164,6 +155,42 @@ export class OrderComponent implements OnInit {
 
     this.loadGovernorates();
     this.loadAddresses();
+    this.loadSiteSettings();
+  }
+
+  loadSiteSettings(): void {
+    this.orderService.getSiteSettings().subscribe({
+      next: (res: any) => {
+        if (res?.success) {
+          this.isPickupAvailable = res.data.isPickupAvailable ?? true;
+          this.vodafoneCashNumber = res.data.vodafoneCashNumber || '';
+          this.vodafoneCashName = res.data.vodafoneCashName || '';
+        }
+      },
+      error: () => { /* keep defaults: pickup open */ }
+    });
+  }
+
+  detectLocation(): void {
+    if (!navigator.geolocation) return;
+    this.isDetectingLocation = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+          .then(r => r.json())
+          .then((data: any) => {
+            const addr = data.address;
+            const parts = [addr.road, addr.suburb, addr.city_district, addr.city, addr.state].filter(Boolean);
+            this.form.shippingAddress = parts.join(', ');
+            this.isDetectingLocation = false;
+            this.cdr.detectChanges();
+          })
+          .catch(() => { this.isDetectingLocation = false; });
+      },
+      () => { this.isDetectingLocation = false; }
+    );
   }
 
   loadGovernorates(): void {
@@ -479,38 +506,34 @@ export class OrderComponent implements OnInit {
   }
 
   showVodafoneInstructions(orderNumber: string): void {
-    // Show modal with instructions
+    const num = this.vodafoneCashNumber || '01116770933';
+    const name = this.vodafoneCashName || '';
+    const waLink = 'https://wa.me/2' + num.replace(/^0/, '');
     this.instructionsModal = {
       show: true,
-      title: this.i18n.currentLang === 'ar' ? 'تعليمات الدفع' : 'Payment Instructions',
+      title: this.i18n.currentLang === 'ar' ? 'تعليمات الدفع - فودافون كاش' : 'Payment Instructions - Vodafone Cash',
       content: this.i18n.currentLang === 'ar'
-        ? `
-          <p>لإتمام الدفع:</p>
-          <ol>
+        ? `<p>لإتمام الدفع عبر فودافون كاش:</p><ol>
             <li>افتح تطبيق فودافون كاش</li>
             <li>اختر "تحويل أموال"</li>
-            <li>أدخل الرقم: <strong>01116770933</strong></li>
+            <li>أدخل الرقم: <strong>${num}</strong> ${name ? '(' + name + ')' : ''}</li>
             <li>أدخل المبلغ: <strong>${this.total} ج.م</strong></li>
-            <li>أرسل صورة الإيصال عبر WhatsApp: <strong>01116770933</strong></li>
-          </ol>
-          <p>رقم الطلب: <strong>${orderNumber}</strong></p>
-        `
-        : `
-          <p>To complete payment:</p>
-          <ol>
+            <li>خذ لقطة شاشة للإيصال</li>
+            <li>أرسل على واتساب: <a href="${waLink}" target="_blank" style="color:#25d366"><strong>${num}</strong></a></li>
+            <li>اذكر رقم الطلب: <strong>${orderNumber}</strong></li></ol>`
+        : `<p>Complete payment via Vodafone Cash:</p><ol>
             <li>Open Vodafone Cash app</li>
             <li>Select "Transfer Money"</li>
-            <li>Enter number: <strong>01116770933</strong></li>
+            <li>Enter number: <strong>${num}</strong> ${name ? '(' + name + ')' : ''}</li>
             <li>Enter amount: <strong>${this.total} EGP</strong></li>
-            <li>Send receipt via WhatsApp: <strong>01116770933</strong></li>
-          </ol>
-          <p>Order Number: <strong>${orderNumber}</strong></p>
-        `,
+            <li>Take a screenshot of the receipt</li>
+            <li>Send on WhatsApp: <a href="${waLink}" target="_blank" style="color:#25d366"><strong>${num}</strong></a></li>
+            <li>Mention order number: <strong>${orderNumber}</strong></li></ol>`,
       orderNumber
     };
   }
 
-  showInstapayInstructions(orderNumber: string): void {
+    showInstapayInstructions(orderNumber: string): void {
     this.instructionsModal = {
       show: true,
       title: this.i18n.currentLang === 'ar' ? 'تعليمات الدفع' : 'Payment Instructions',

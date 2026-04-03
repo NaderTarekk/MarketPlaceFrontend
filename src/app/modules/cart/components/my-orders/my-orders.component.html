@@ -137,6 +137,14 @@
                     </div>
                 </div>
 
+                <div *ngIf="order.status === OrderStatus.Cancelled && order.cancellationReason"
+                    class="cancel-reason-card">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>
+                        {{ i18n.currentLang === 'ar' ? 'سبب الإلغاء: ' : 'Reason: ' }}{{ order.cancellationReason }}
+                    </span>
+                </div>
+
                 <!-- View Details Button -->
                 <button class="btn-view-details">
                     {{ i18n.currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details' }}
@@ -268,9 +276,25 @@
                 </div>
 
                 <!-- Cancelled Banner -->
+                <!-- Cancelled Banner -->
                 <div *ngIf="selectedOrder.status === OrderStatus.Cancelled" class="cancelled-banner">
                     <i class="fa-solid fa-ban"></i>
-                    {{ i18n.currentLang === 'ar' ? 'تم إلغاء هذا الطلب' : 'This order has been cancelled' }}
+                    <div>
+                        <div>
+                            {{ i18n.currentLang === 'ar' ? 'تم إلغاء هذا الطلب' : 'This order has been cancelled' }}
+                            <span *ngIf="selectedOrder.cancelledBy === 'Vendor'">
+                                {{ i18n.currentLang === 'ar' ? ' من قِبَل التاجر' : ' by the vendor' }}
+                            </span>
+                            <span *ngIf="selectedOrder.cancelledBy === 'Customer'">
+                                {{ i18n.currentLang === 'ar' ? ' من قِبَلك' : ' by you' }}
+                            </span>
+                        </div>
+                        <!-- ✅ سبب الإلغاء -->
+                        <div *ngIf="selectedOrder.cancellationReason" class="cancel-reason-text">
+                            {{ i18n.currentLang === 'ar' ? 'السبب: ' : 'Reason: ' }}{{ selectedOrder.cancellationReason
+                            }}
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Order Tracking (واحدة بس!) -->

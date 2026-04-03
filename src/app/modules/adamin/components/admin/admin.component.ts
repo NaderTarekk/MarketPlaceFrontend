@@ -16,7 +16,10 @@ import html2pdf from 'html2pdf.js';
 })
 export class AdminComponent implements OnInit {
   // Active Tab
-  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' = 'dashboard';
+  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' = 'dashboard';
+
+  siteSettings = { isPickupAvailable: true, vodafoneCashNumber: '', vodafoneCashName: '' };
+  vfCashForm = { number: '', name: '' };
 
   vendorPrintReport: VendorPrintReport | null = null;
   showPrintModal = false;
@@ -184,6 +187,52 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.loadDashboard();
     this.loadPendingVendorRequests();
+    this.loadSiteSettings();
+  }
+
+  loadSiteSettings(): void {
+    this.adminService.getSiteSettings().subscribe({
+      next: (res: any) => {
+        if (res?.success) {
+          this.siteSettings = res.data;
+          this.vfCashForm.number = res.data.vodafoneCashNumber || '';
+          this.vfCashForm.name = res.data.vodafoneCashName || '';
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => { /* keep defaults */ }
+    });
+  }
+
+  togglePickup(): void {
+    this.adminService.togglePickupAvailability().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.siteSettings.isPickupAvailable = !this.siteSettings.isPickupAvailable;
+          this.showToast(res.message, 'success');
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error')
+    });
+  }
+
+  saveVodafoneCash(): void {
+    if (!this.vfCashForm.number) {
+      this.showToast(this.i18n.currentLang === 'ar' ? 'أدخل رقم الهاتف' : 'Enter phone number', 'error');
+      return;
+    }
+    this.adminService.updateVodafoneCash(this.vfCashForm.number, this.vfCashForm.name).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.siteSettings.vodafoneCashNumber = this.vfCashForm.number;
+          this.siteSettings.vodafoneCashName = this.vfCashForm.name;
+          this.showToast(this.i18n.currentLang === 'ar' ? 'تم الحفظ' : 'Saved', 'success');
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error')
+    });
   }
 
   loadPendingVendorRequests(): void {
@@ -257,7 +306,7 @@ export class AdminComponent implements OnInit {
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
   // ✅ عدّل الـ switchTab Method
-  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals'): void {
+  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings'): void {
     this.activeTab = tab;
 
     switch (tab) {
@@ -291,7 +340,11 @@ export class AdminComponent implements OnInit {
       case 'withdrawals':
         if (this.vendorWithdrawals.length === 0) this.loadVendorWithdrawals();
         break;
+      case 'settings':
+        this.loadSiteSettings();
+        break;
     }
+    this.cdr.detectChanges();
   }
 
   // ═══════════════════════════════════════════════
@@ -960,7 +1013,7 @@ export class AdminComponent implements OnInit {
   getProductImage(image?: string): string {
     if (!image) return 'assets/images/placeholder.png';
     if (image.startsWith('http')) return image;
-    return `http://localhost:5078${image}`;
+    return `${environment.baseApi}${image}`;
   }
 
   getRoleBadgeClass(role: string): string {
