@@ -76,6 +76,14 @@ export interface Order {
   completedVendorOrders?: number;
   cancellationReason?: string;
   cancelledBy?: string;
+  deliveryType?: number;
+  pickupPointId?: number;
+  pickupPointNameAr?: string;
+  pickupPointNameEn?: string;
+  pickupPointAddressAr?: string;
+  pickupPointAddressEn?: string;
+  pickupPointLatitude?: number;
+  pickupPointLongitude?: number;
 }
 
 export interface OrderListItem {

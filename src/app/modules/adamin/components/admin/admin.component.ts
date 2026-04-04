@@ -6,7 +6,11 @@ import { ProductsService } from '../../../products/services/products.service';
 import { ProductList } from '../../../../models/products';
 import { VendorList, VendorDetailedReport, DeliveryAgentList, DeliveryAgentReport, ShippingEmployeeList, ShippingEmployeeReport, FinancialReport, Settlement, VendorWithdrawalHistory, VendorWithdrawalSummary, CreateVendorWithdrawal, VendorPrintReport, VendorReportFilter } from '../../../../models/financial-reports';
 import { environment } from '../../../../../environment';
+import { PickupPointService } from '../../../../services/pickup-point.service';
+import { PickupPoint } from '../../../../models/pickup-point';
+import { GovernorateService } from '../../services/governorate.service';
 import html2pdf from 'html2pdf.js';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-admin',
@@ -16,10 +20,24 @@ import html2pdf from 'html2pdf.js';
 })
 export class AdminComponent implements OnInit {
   // Active Tab
-  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' = 'dashboard';
+  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' = 'dashboard';
 
   siteSettings = { isPickupAvailable: true, vodafoneCashNumber: '', vodafoneCashName: '' };
   vfCashForm = { number: '', name: '' };
+
+  // Pickup Points
+  pickupPoints: PickupPoint[] = [];
+  isLoadingPickupPoints = false;
+  showPickupPointForm = false;
+  isEditingPickupPoint = false;
+  editingPickupPointId: number | null = null;
+  pickupPointForm = { nameAr: '', nameEn: '', addressAr: '', addressEn: '', latitude: 0, longitude: 0, governorateId: 0 };
+  governorates: any[] = [];
+  showPickupMap = false;
+  pickupMapPoint: PickupPoint | null = null;
+  private pickupMap: L.Map | null = null;
+  private formMap: L.Map | null = null;
+  private formMarker: L.Marker | null = null;
 
   vendorPrintReport: VendorPrintReport | null = null;
   showPrintModal = false;
@@ -181,6 +199,8 @@ export class AdminComponent implements OnInit {
     public i18n: I18nService,
     private adminService: AdminReportsService,
     private productsService: ProductsService,
+    private pickupPointService: PickupPointService,
+    private governorateService: GovernorateService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -306,7 +326,7 @@ export class AdminComponent implements OnInit {
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
   // ✅ عدّل الـ switchTab Method
-  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings'): void {
+  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints'): void {
     this.activeTab = tab;
 
     switch (tab) {
@@ -342,6 +362,10 @@ export class AdminComponent implements OnInit {
         break;
       case 'settings':
         this.loadSiteSettings();
+        break;
+      case 'pickupPoints':
+        if (this.pickupPoints.length === 0) this.loadPickupPoints();
+        if (this.governorates.length === 0) this.loadGovernorates();
         break;
     }
     this.cdr.detectChanges();
@@ -1816,5 +1840,151 @@ export class AdminComponent implements OnInit {
     return this.vendorPrintReport.orders
       .filter(o => o.status !== 'Cancelled')
       .reduce((sum, o) => sum + o.shippingShare, 0);
+  }
+
+  // ═══════════════════════════════════════════════
+  // PICKUP POINTS
+  // ═══════════════════════════════════════════════
+
+  loadPickupPoints(): void {
+    this.isLoadingPickupPoints = true;
+    this.pickupPointService.getAll().subscribe({
+      next: (res: any) => {
+        if (res.success) this.pickupPoints = res.data;
+        this.isLoadingPickupPoints = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isLoadingPickupPoints = false; }
+    });
+  }
+
+  loadGovernorates(): void {
+    this.governorateService.getAll(false).subscribe({
+      next: (res: any) => {
+        if (res.success) this.governorates = res.data;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
+  }
+
+  openPickupPointForm(point?: PickupPoint): void {
+    if (point) {
+      this.isEditingPickupPoint = true;
+      this.editingPickupPointId = point.id;
+      this.pickupPointForm = {
+        nameAr: point.nameAr, nameEn: point.nameEn,
+        addressAr: point.addressAr, addressEn: point.addressEn,
+        latitude: point.latitude, longitude: point.longitude,
+        governorateId: point.governorateId
+      };
+    } else {
+      this.isEditingPickupPoint = false;
+      this.editingPickupPointId = null;
+      this.pickupPointForm = { nameAr: '', nameEn: '', addressAr: '', addressEn: '', latitude: 30.0444, longitude: 31.2357, governorateId: 0 };
+    }
+    this.showPickupPointForm = true;
+    setTimeout(() => this.initFormMap(), 500);
+  }
+
+  closePickupPointForm(): void {
+    this.showPickupPointForm = false;
+    this.destroyFormMap();
+  }
+
+  savePickupPoint(): void {
+    if (!this.pickupPointForm.nameAr || !this.pickupPointForm.governorateId) return;
+    const request = this.isEditingPickupPoint && this.editingPickupPointId
+      ? this.pickupPointService.update(this.editingPickupPointId, this.pickupPointForm)
+      : this.pickupPointService.create(this.pickupPointForm);
+
+    request.subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.loadPickupPoints();
+          this.closePickupPointForm();
+        }
+      }
+    });
+  }
+
+  deletePickupPoint(id: number): void {
+    if (!confirm(this.i18n.currentLang === 'ar' ? 'حذف نقطة الاستلام؟' : 'Delete pickup point?')) return;
+    this.pickupPointService.delete(id).subscribe({
+      next: (res: any) => { if (res.success) this.loadPickupPoints(); }
+    });
+  }
+
+  togglePickupPointActive(point: PickupPoint): void {
+    this.pickupPointService.update(point.id, { isActive: !point.isActive }).subscribe({
+      next: (res: any) => { if (res.success) point.isActive = !point.isActive; }
+    });
+  }
+
+  openPickupMapModal(point: PickupPoint): void {
+    this.pickupMapPoint = point;
+    this.showPickupMap = true;
+    setTimeout(() => this.initViewMap(point), 100);
+  }
+
+  closePickupMapModal(): void {
+    this.showPickupMap = false;
+    if (this.pickupMap) { this.pickupMap.remove(); this.pickupMap = null; }
+  }
+
+  private fixLeafletIcons(): void {
+    const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+    const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+    const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
+    L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl });
+  }
+
+  private initViewMap(point: PickupPoint): void {
+    this.fixLeafletIcons();
+    if (this.pickupMap) { this.pickupMap.remove(); this.pickupMap = null; }
+    const el = document.getElementById('pickupViewMap');
+    if (!el) return;
+    this.pickupMap = L.map(el).setView([point.latitude, point.longitude], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(this.pickupMap);
+    const name = this.i18n.currentLang === 'ar' ? point.nameAr : point.nameEn;
+    const addr = this.i18n.currentLang === 'ar' ? point.addressAr : point.addressEn;
+    L.marker([point.latitude, point.longitude]).addTo(this.pickupMap).bindPopup(`<b>${name}</b><br>${addr}`).openPopup();
+    setTimeout(() => this.pickupMap?.invalidateSize(), 200);
+  }
+
+  private initFormMap(): void {
+    this.fixLeafletIcons();
+    this.destroyFormMap();
+    const el = document.getElementById('pickupFormMap');
+    if (!el) return;
+    const lat = this.pickupPointForm.latitude || 30.0444;
+    const lng = this.pickupPointForm.longitude || 31.2357;
+    this.formMap = L.map(el).setView([lat, lng], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(this.formMap);
+    this.formMarker = L.marker([lat, lng], { draggable: true }).addTo(this.formMap);
+    // Force multiple redraws to ensure all tiles load
+    setTimeout(() => { this.formMap?.invalidateSize(); }, 100);
+    setTimeout(() => { this.formMap?.invalidateSize(); }, 400);
+    setTimeout(() => { this.formMap?.invalidateSize(); }, 800);
+    this.formMarker.on('dragend', () => {
+      const pos = this.formMarker!.getLatLng();
+      this.pickupPointForm.latitude = parseFloat(pos.lat.toFixed(6));
+      this.pickupPointForm.longitude = parseFloat(pos.lng.toFixed(6));
+      this.cdr.detectChanges();
+    });
+    this.formMap.on('click', (e: L.LeafletMouseEvent) => {
+      this.pickupPointForm.latitude = parseFloat(e.latlng.lat.toFixed(6));
+      this.pickupPointForm.longitude = parseFloat(e.latlng.lng.toFixed(6));
+      this.formMarker!.setLatLng(e.latlng);
+      this.cdr.detectChanges();
+    });
+  }
+
+  private destroyFormMap(): void {
+    if (this.formMap) { this.formMap.remove(); this.formMap = null; this.formMarker = null; }
   }
 }

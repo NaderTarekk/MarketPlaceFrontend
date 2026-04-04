@@ -40,6 +40,11 @@ export interface ShipmentListItem {
   isReadyForPickup: boolean;
   hasDeliveryFailure: boolean;
   createdAt: Date;
+  deliveryType?: number;
+  pickupPointNameAr?: string;
+  pickupPointNameEn?: string;
+  pickupPointAddressAr?: string;
+  pickupPointAddressEn?: string;
 }
 
 export interface ShipmentDetails {
@@ -57,6 +62,11 @@ export interface ShipmentDetails {
   isReadyForPickup: boolean;
   createdAt: Date;
   completedAt?: Date;
+  deliveryType?: number;
+  pickupPointNameAr?: string;
+  pickupPointNameEn?: string;
+  pickupPointAddressAr?: string;
+  pickupPointAddressEn?: string;
   totalAmount: number;
   vendorOrders: VendorOrder[];
 }
@@ -82,6 +92,12 @@ export interface VendorOrder {
   deliveredAt?: Date;
   totalAmount: number;
   items: VendorOrderItem[];
+  customerName?: string;
+  shippingAddress?: string;
+  pickupPointNameAr?: string;
+  pickupPointNameEn?: string;
+  pickupPointAddressAr?: string;
+  pickupPointAddressEn?: string;
 }
 
 export interface VendorOrderItem {

@@ -139,6 +139,22 @@
               <span>{{ getDeliveryTypeLabel(order.deliveryType) }}</span>
             </div>
 
+            <!-- Delivery Location -->
+            <div class="delivery-dest" *ngIf="order.deliveryType === DeliveryType.DirectToCustomer && order.customerName">
+              <i class="fa-solid fa-house-user"></i>
+              <div>
+                <strong>{{ order.customerName }}</strong>
+                <span>{{ order.shippingAddress }}</span>
+              </div>
+            </div>
+            <div class="delivery-dest pickup" *ngIf="order.deliveryType === DeliveryType.ToWarehouse && order.pickupPointNameAr">
+              <i class="fa-solid fa-map-pin"></i>
+              <div>
+                <strong>{{ i18n.currentLang === 'ar' ? order.pickupPointNameAr : order.pickupPointNameEn }}</strong>
+                <span>{{ i18n.currentLang === 'ar' ? order.pickupPointAddressAr : order.pickupPointAddressEn }}</span>
+              </div>
+            </div>
+
             <div class="info-row items">
               <i class="fa-solid fa-box"></i>
               <span>{{ order.items.length }} {{ i18n.currentLang === 'ar' ? 'منتجات' : 'items' }}</span>
@@ -189,9 +205,19 @@
               <i class="fa-solid fa-user"></i>
               <span>{{ shipment.customerName }}</span>
             </div>
-            <div class="address-info">
-              <i class="fa-solid fa-location-dot"></i>
+            <div class="address-info" *ngIf="shipment.deliveryType === 1 || shipment.deliveryType === undefined">
+              <i class="fa-solid fa-house-user"></i>
               <span>{{ shipment.shippingAddress }}</span>
+              <span class="delivery-label">{{ i18n.currentLang === 'ar' ? 'توصيل منزلي' : 'Home Delivery' }}</span>
+            </div>
+            <div class="address-info pickup-address" *ngIf="shipment.deliveryType === 0">
+              <i class="fa-solid fa-warehouse"></i>
+              <div class="pickup-location-info">
+                <span class="delivery-label pickup-label">{{ i18n.currentLang === 'ar' ? 'استلام من نقطة' : 'Pickup Point' }}</span>
+                <strong *ngIf="shipment.pickupPointNameAr">{{ i18n.currentLang === 'ar' ? shipment.pickupPointNameAr : shipment.pickupPointNameEn }}</strong>
+                <span *ngIf="shipment.pickupPointAddressAr">{{ i18n.currentLang === 'ar' ? shipment.pickupPointAddressAr : shipment.pickupPointAddressEn }}</span>
+                <span *ngIf="!shipment.pickupPointNameAr">{{ shipment.shippingAddress }}</span>
+              </div>
             </div>
             <div class="progress-info">
               <span>{{ shipment.completedVendorOrders }}/{{ shipment.vendorOrdersCount }}</span>
@@ -475,10 +501,30 @@
 
       <div class="section">
         <h4><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'بيانات العميل' : 'Customer Info' }}</h4>
-        <p>Name:<strong> {{ selectedShipment.customerName }}</strong></p>
-        <p>Customer Phone Number: <strong>{{ selectedShipment.customerPhone }}</strong></p>
-        <p>Shipping Address: <strong>{{ selectedShipment.shippingAddress }}</strong></p>
-        <p>Total Amount: <strong>{{ selectedShipment.totalAmount }}</strong></p>
+        <p>{{ i18n.currentLang === 'ar' ? 'الاسم:' : 'Name:' }} <strong>{{ selectedShipment.customerName }}</strong></p>
+        <p>{{ i18n.currentLang === 'ar' ? 'رقم الهاتف:' : 'Phone:' }} <strong>{{ selectedShipment.customerPhone }}</strong></p>
+        <p>{{ i18n.currentLang === 'ar' ? 'المبلغ الإجمالي:' : 'Total Amount:' }} <strong>{{ selectedShipment.totalAmount }}</strong></p>
+      </div>
+
+      <div class="section delivery-location-section">
+        <h4><i class="fa-solid fa-map-location-dot"></i> {{ i18n.currentLang === 'ar' ? 'مكان التسليم' : 'Delivery Location' }}</h4>
+        <div *ngIf="selectedShipment.deliveryType === 1 || selectedShipment.deliveryType === undefined || selectedShipment.deliveryType === null" class="delivery-location-card home">
+          <i class="fa-solid fa-house-user"></i>
+          <div>
+            <span class="delivery-type-label home-label">{{ i18n.currentLang === 'ar' ? 'توصيل منزلي' : 'Home Delivery' }}</span>
+            <strong>{{ selectedShipment.shippingAddress }}</strong>
+            <span *ngIf="selectedShipment.shippingCity">{{ selectedShipment.shippingCity }}</span>
+          </div>
+        </div>
+        <div *ngIf="selectedShipment.deliveryType === 0" class="delivery-location-card pickup">
+          <i class="fa-solid fa-warehouse"></i>
+          <div>
+            <span class="delivery-type-label pickup-label-detail">{{ i18n.currentLang === 'ar' ? 'استلام من نقطة' : 'Pickup Point' }}</span>
+            <strong *ngIf="selectedShipment.pickupPointNameAr">{{ i18n.currentLang === 'ar' ? selectedShipment.pickupPointNameAr : selectedShipment.pickupPointNameEn }}</strong>
+            <span *ngIf="selectedShipment.pickupPointAddressAr">{{ i18n.currentLang === 'ar' ? selectedShipment.pickupPointAddressAr : selectedShipment.pickupPointAddressEn }}</span>
+            <span *ngIf="!selectedShipment.pickupPointNameAr">{{ selectedShipment.shippingAddress }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="section">

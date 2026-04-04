@@ -558,7 +558,7 @@
                             <th>{{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'المبلغ / الربح' : 'Amount / Profit' }}</th>
-                            <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                            <th class="text-center" style="text-align: center;">{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'حالة الطلب' : 'Order Status' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'التاريخ' : 'Date' }}</th>
                             <th>{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
@@ -570,6 +570,10 @@
                                 #{{ order.orderNumber }}
                                 <span *ngIf="!order.isVendorSeen" class="new-badge">
                                     {{ i18n.currentLang === 'ar' ? 'جديد' : 'New' }}
+                                </span>
+                                <span *ngIf="order.isVendorSeen" class="seen-badge">
+                                    <i class="fa-solid fa-check-double"></i>
+                                    {{ i18n.currentLang === 'ar' ? 'تم المشاهدة' : 'Seen' }}
                                 </span>
                             </td>
                             <td>{{ order.customerName }}</td>
@@ -613,13 +617,22 @@
                             </td>
 
                             <td>
-                                <span class="status-badge" [ngClass]="getOrderStatusBadge(order.status).class">
-                                    {{ getOrderStatusBadge(order.status).text }}
-                                </span>
+                                <div class="order-tracking-mini">
+                                    <div class="tracking-steps">
+                                        <div class="tracking-step"
+                                            *ngFor="let step of getTrackingSteps(order.status)"
+                                            [class.completed]="step.completed"
+                                            [class.active]="step.active"
+                                            [class.cancelled]="step.cancelled">
+                                            <div class="step-dot"></div>
+                                            <span class="step-label">{{ i18n.currentLang === 'ar' ? step.labelAr : step.labelEn }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
 
                             <td class="order-status-cell">
-                                <select *ngIf="canUpdateVendorOrderStatus(order.vendorOrderStatus)"
+                                <select *ngIf="canUpdateVendorOrderStatus(order.vendorOrderStatus) && order.status !== 'Cancelled' && +order.status !== 8"
                                     class="status-select" [(ngModel)]="order.vendorOrderStatus"
                                     (ngModelChange)="updateVendorOrderStatus(order, $event.toString())"
                                     [disabled]="isUpdatingStatus" (click)="$event.stopPropagation()">
@@ -631,13 +644,24 @@
                                     </option>
                                 </select>
 
-                                <span *ngIf="!canUpdateVendorOrderStatus(order.vendorOrderStatus)" class="status-badge"
+                                <span *ngIf="order.status === 'Cancelled' || +order.status === 8" class="status-badge cancelled">
+                                    {{ i18n.currentLang === 'ar' ? 'ملغي' : 'Cancelled' }}
+                                </span>
+
+                                <span *ngIf="order.status !== 'Cancelled' && +order.status !== 8 && !canUpdateVendorOrderStatus(order.vendorOrderStatus)" class="status-badge"
                                     [ngClass]="getVendorOrderStatusBadge(order.vendorOrderStatus).class">
                                     {{ getVendorOrderStatusBadge(order.vendorOrderStatus).text }}
                                 </span>
                             </td>
 
-                            <td class="order-date">{{ formatDate(order.createdAt) }}</td>
+                            <td class="order-date">
+                                {{ formatDate(order.createdAt) }}
+                                <div *ngIf="order.isAgentHeadingToVendor" class="agent-heading-badge">
+                                    <i class="fa-solid fa-motorcycle"></i>
+                                    {{ i18n.currentLang === 'ar' ? 'المندوب في الطريق' : 'Agent on the way' }}
+                                    <span *ngIf="order.deliveryAgentName" class="agent-name">{{ order.deliveryAgentName }}</span>
+                                </div>
+                            </td>
                             <td>
                                 <div style="display:flex;gap:6px;align-items:center;justify-content:center">
                                     <button class="btn-view" (click)="viewOrderDetails(order)">
@@ -648,9 +672,15 @@
                                         <i class="fa-solid fa-ban"></i>
                                     </button>
                                 </div>
-                                <div *ngIf="+order.status === 8 && order.cancellationReason" class="cancel-reason-chip">
+                                <div *ngIf="order.status === 'Cancelled' || +order.status === 8" class="cancel-reason-chip">
                                     <i class="fa-solid fa-circle-xmark"></i>
-                                    {{ i18n.currentLang === 'ar' ? 'سبب الإلغاء: ' : 'Reason: ' }}{{ order.cancellationReason }}
+                                    <div>
+                                        <span *ngIf="order.cancelledBy === 'Customer'">{{ i18n.currentLang === 'ar' ? 'ملغي من العميل' : 'Cancelled by Customer' }}</span>
+                                        <span *ngIf="order.cancelledBy === 'Vendor'">{{ i18n.currentLang === 'ar' ? 'ملغي من التاجر' : 'Cancelled by Vendor' }}</span>
+                                        <div *ngIf="order.cancellationReason" class="cancel-reason-detail">
+                                            {{ i18n.currentLang === 'ar' ? 'السبب: ' : 'Reason: ' }}{{ order.cancellationReason }}
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

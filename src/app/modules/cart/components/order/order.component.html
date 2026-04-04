@@ -213,6 +213,42 @@
                     </div>
                 </div>
 
+                <!-- Pickup Points Section -->
+                <div *ngIf="deliveryType === 0 && isPickupAvailable" class="pickup-points-section">
+                    <label>
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        {{ i18n.currentLang === 'ar' ? 'اختر المحافظة' : 'Select Governorate' }} *
+                    </label>
+                    <select class="form-control" [(ngModel)]="selectedPickupGovernorateId"
+                        (ngModelChange)="onPickupGovernorateChange($event)">
+                        <option [ngValue]="null" disabled>{{ i18n.currentLang === 'ar' ? '-- اختر المحافظة --' : '-- Select Governorate --' }}</option>
+                        <option *ngFor="let gov of pickupGovernorates" [ngValue]="gov.id">
+                            {{ i18n.currentLang === 'ar' ? gov.nameAr : gov.nameEn }}
+                        </option>
+                    </select>
+
+                    <div *ngIf="showPickupMap && pickupPoints.length > 0" class="pickup-map-section">
+                        <p class="pickup-map-hint">
+                            <i class="fa-solid fa-hand-pointer"></i>
+                            {{ i18n.currentLang === 'ar' ? 'اضغط على أي نقطة على الخريطة لاختيارها' : 'Click any point on the map to select it' }}
+                        </p>
+                        <div id="customerPickupMap" class="customer-pickup-map"></div>
+                    </div>
+
+                    <div *ngIf="pickupPoints.length === 0 && selectedPickupGovernorateId" class="no-points-msg">
+                        <i class="fa-solid fa-circle-info"></i>
+                        {{ i18n.currentLang === 'ar' ? 'لا توجد نقاط استلام في هذه المحافظة' : 'No pickup points in this governorate' }}
+                    </div>
+
+                    <div *ngIf="selectedPickupPoint" class="selected-point-card">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>
+                            <strong>{{ i18n.currentLang === 'ar' ? selectedPickupPoint.nameAr : selectedPickupPoint.nameEn }}</strong>
+                            <span>{{ i18n.currentLang === 'ar' ? selectedPickupPoint.addressAr : selectedPickupPoint.addressEn }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Error -->
                 <div *ngIf="errorMessage" class="error-msg">
                     <i class="fa-solid fa-exclamation-circle"></i>

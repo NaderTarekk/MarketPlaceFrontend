@@ -156,7 +156,7 @@
     </div>
 
     <!-- Order Details Modal -->
-    <div *ngIf="showDetailsModal" class="modal-overlay" (click)="closeDetailsModal()">
+    <div *ngIf="showDetailsModal" class="modal-overlay" [style.display]="showCancelModal ? 'none' : null" (click)="closeDetailsModal()">
         <!-- Delivery Failure Alert -->
         <div *ngIf="selectedOrder?.hasDeliveryFailure && selectedOrder?.lastDeliveryFailure"
             class="delivery-failure-alert">
@@ -390,9 +390,24 @@
                             <span class="value">{{ selectedOrder.shippingCity }}</span>
                         </div>
 
-                        <div class="info-item full-width">
+                        <div class="info-item full-width" *ngIf="selectedOrder.deliveryType !== 0">
                             <span class="label">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}</span>
                             <span class="value">{{ selectedOrder.shippingAddress }}</span>
+                        </div>
+
+                        <!-- Pickup Point Info -->
+                        <div class="info-item full-width" *ngIf="selectedOrder.deliveryType === 0 && selectedOrder.pickupPointNameAr">
+                            <span class="label">{{ i18n.currentLang === 'ar' ? 'نقطة الاستلام' : 'Pickup Point' }}</span>
+                            <div class="pickup-point-detail">
+                                <div class="pickup-point-info">
+                                    <i class="fa-solid fa-map-pin"></i>
+                                    <div>
+                                        <strong>{{ i18n.currentLang === 'ar' ? selectedOrder.pickupPointNameAr : selectedOrder.pickupPointNameEn }}</strong>
+                                        <span>{{ i18n.currentLang === 'ar' ? selectedOrder.pickupPointAddressAr : selectedOrder.pickupPointAddressEn }}</span>
+                                    </div>
+                                </div>
+                                <div id="orderPickupMap" class="order-pickup-map"></div>
+                            </div>
                         </div>
 
                         <div *ngIf="selectedOrder.shippingNotes" class="info-item full-width">
@@ -483,12 +498,45 @@
 
                 <!-- Cancel Button -->
                 <div *ngIf="canCancelOrder(selectedOrder)" class="modal-actions">
-                    <button class="btn-cancel-order" (click)="cancelOrder(selectedOrder.id)">
+                    <button class="btn-cancel-order" (click)="openCancelModal(selectedOrder.id)">
                         <i class="fa-solid fa-ban"></i>
                         {{ i18n.currentLang === 'ar' ? 'إلغاء الطلب' : 'Cancel Order' }}
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal (outside root div to avoid stacking context issues) -->
+<div class="cancel-overlay" [class.show]="showCancelModal" (click)="closeCancelModal()">
+    <div class="cancel-modal" (click)="$event.stopPropagation()">
+        <div class="cancel-modal-header">
+            <h3>{{ i18n.currentLang === 'ar' ? 'إلغاء الطلب' : 'Cancel Order' }}</h3>
+            <button class="modal-close-btn" (click)="closeCancelModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="cancel-modal-body">
+            <p class="cancel-warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to cancel this order? This action cannot be undone.' }}
+            </p>
+            <div class="cancel-reason-field">
+                <label for="customerCancelReason">{{ i18n.currentLang === 'ar' ? 'سبب الإلغاء' : 'Cancellation Reason' }} *</label>
+                <textarea id="customerCancelReason" [(ngModel)]="cancelReason" rows="3"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'اكتب سبب الإلغاء...' : 'Enter cancellation reason...'"
+                    class="cancel-reason-textarea"></textarea>
+            </div>
+        </div>
+        <div class="cancel-modal-footer">
+            <button class="btn-modal-back" (click)="closeCancelModal()" [disabled]="isCancelling">
+                {{ i18n.currentLang === 'ar' ? 'تراجع' : 'Back' }}
+            </button>
+            <button class="btn-modal-confirm" (click)="confirmCancelOrder()" [disabled]="isCancelling || !cancelReason.trim()">
+                <i *ngIf="isCancelling" class="fa-solid fa-spinner fa-spin"></i>
+                {{ isCancelling ? (i18n.currentLang === 'ar' ? 'جاري الإلغاء...' : 'Cancelling...') : (i18n.currentLang === 'ar' ? 'تأكيد الإلغاء' : 'Confirm Cancel') }}
+            </button>
         </div>
     </div>
 </div>

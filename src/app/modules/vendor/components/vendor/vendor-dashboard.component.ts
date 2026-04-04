@@ -427,8 +427,10 @@ export class VendorDashboardComponent implements OnInit {
   }
 
   canCancelOrder(order: any): boolean {
+    if (order.status === 'Cancelled' || order.status === 'Delivered') return false;
+    if (order.vendorOrderStatus >= 2) return false; // PickedFromVendor or later
     const s = typeof order.status === 'string' ? parseInt(order.status) : order.status;
-    return s !== 8 && s !== 6; // not Cancelled(8) and not Delivered(6)
+    return isNaN(s) || (s !== 8 && s !== 6);
   }
 
   canUpdateVendorOrderStatus(vendorOrderStatus: number | string): boolean {
@@ -924,15 +926,61 @@ export class VendorDashboardComponent implements OnInit {
     }
   }
 
-  getOrderStatusBadge(status: string): { text: string; class: string } {
+  getTrackingSteps(status: string | number): { labelAr: string; labelEn: string; completed: boolean; active: boolean; cancelled: boolean }[] {
+    const statusNumMap: { [key: string]: number } = {
+      'Pending': 0, 'VendorSeen': 1, 'Confirmed': 2, 'Processing': 3,
+      'Shipped': 4, 'OutForDelivery': 5, 'Delivered': 6, 'Cancelled': 8
+    };
+    const s = typeof status === 'number' ? status : (statusNumMap[status] ?? (parseInt(status) || 0));
+    const isCancelled = s === 8;
+
+    const steps = [
+      { labelAr: 'قيد الانتظار', labelEn: 'Pending', value: 0 },
+      { labelAr: 'تأكيد', labelEn: 'Confirmed', value: 2 },
+      { labelAr: 'شحن', labelEn: 'Shipped', value: 4 },
+      { labelAr: 'تم التوصيل', labelEn: 'Delivered', value: 6 },
+    ];
+
+    if (isCancelled) {
+      return steps.map(step => ({
+        labelAr: step.labelAr,
+        labelEn: step.labelEn,
+        completed: false,
+        active: false,
+        cancelled: true
+      })).concat([{
+        labelAr: 'ملغي',
+        labelEn: 'Cancelled',
+        completed: false,
+        active: true,
+        cancelled: true
+      }]);
+    }
+
+    return steps.map(step => ({
+      labelAr: step.labelAr,
+      labelEn: step.labelEn,
+      completed: s > step.value,
+      active: s >= step.value && s <= step.value + 1,
+      cancelled: false
+    }));
+  }
+
+  getOrderStatusBadge(status: string | number): { text: string; class: string } {
     const statusMap: { [key: string]: { ar: string; en: string; class: string } } = {
       'Pending': { ar: 'قيد الانتظار', en: 'Pending', class: 'pending' },
+      '0': { ar: 'قيد الانتظار', en: 'Pending', class: 'pending' },
       'Processing': { ar: 'قيد التجهيز', en: 'Processing', class: 'processing' },
+      '3': { ar: 'قيد التجهيز', en: 'Processing', class: 'processing' },
       'Shipped': { ar: 'تم الشحن', en: 'Shipped', class: 'shipped' },
+      '4': { ar: 'تم الشحن', en: 'Shipped', class: 'shipped' },
       'Delivered': { ar: 'تم التوصيل', en: 'Delivered', class: 'delivered' },
-      'Cancelled': { ar: 'ملغي', en: 'Cancelled', class: 'cancelled' }
+      '6': { ar: 'تم التوصيل', en: 'Delivered', class: 'delivered' },
+      'Cancelled': { ar: 'ملغي', en: 'Cancelled', class: 'cancelled' },
+      '8': { ar: 'ملغي', en: 'Cancelled', class: 'cancelled' }
     };
-    const s = statusMap[status] || { ar: status, en: status, class: '' };
+    const key = String(status);
+    const s = statusMap[key] || { ar: key, en: key, class: '' };
     return { text: this.i18n.currentLang === 'ar' ? s.ar : s.en, class: s.class };
   }
 

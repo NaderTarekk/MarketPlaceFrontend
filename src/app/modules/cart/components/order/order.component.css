@@ -1433,6 +1433,89 @@
   padding: 2px 8px;
   margin-top: 4px;
 }
+/* Pickup Points Section */
+.pickup-points-section {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pickup-points-section label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pickup-points-section select {
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.pickup-points-section select:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+.pickup-map-section {
+  margin-top: 8px;
+}
+.pickup-map-hint {
+  font-size: 13px;
+  color: #6366f1;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.customer-pickup-map {
+  width: 100%;
+  height: 350px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+.no-points-msg {
+  padding: 14px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 10px;
+  color: #0369a1;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.selected-point-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+}
+.selected-point-card i {
+  color: #16a34a;
+  font-size: 18px;
+  margin-top: 2px;
+}
+.selected-point-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.selected-point-card strong {
+  font-size: 14px;
+  color: #166534;
+}
+.selected-point-card span {
+  font-size: 12px;
+  color: #4ade80;
+}
+
 .delivery-type-card.disabled {
   opacity: 0.55;
   cursor: not-allowed;

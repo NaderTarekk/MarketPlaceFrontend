@@ -27,8 +27,8 @@ export class MyOrdersService {
     return this.http.get<ApiResponse<any>>(`${environment.orderUrl}/${id}`);
   }
 
-  cancelOrder(id: number): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${environment.orderUrl}/${id}/cancel`, {});
+  cancelOrder(id: number, reason?: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${environment.orderUrl}/${id}/cancel`, reason ? { reason } : {});
   }
 
   // ══════════════════════════════════════════════════════════

@@ -14,6 +14,9 @@ import { GovernorateService } from '../../../adamin/services/governorate.service
 import { UserAddress, CreateAddressDto } from '../../../../models/address';
 import { AddressServiceService } from '../../../auth/services/address-service.service';
 import { environment } from '../../../../../environment';
+import { PickupPointService } from '../../../../services/pickup-point.service';
+import { PickupPoint } from '../../../../models/pickup-point';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-order',
@@ -72,6 +75,14 @@ export class OrderComponent implements OnInit {
   vodafoneCashNumber = '';
   vodafoneCashName = '';
   isDetectingLocation = false;
+
+  // Pickup Points
+  pickupGovernorates: any[] = [];
+  pickupPoints: PickupPoint[] = [];
+  selectedPickupGovernorateId: number | null = null;
+  selectedPickupPoint: PickupPoint | null = null;
+  showPickupMap = false;
+  private pickupMap: L.Map | null = null;
 
   paymentMethods = [
     {
@@ -139,7 +150,8 @@ export class OrderComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private cartService: CartService,
     private governorateService: GovernorateService,
-    private addressService: AddressServiceService
+    private addressService: AddressServiceService,
+    private pickupPointService: PickupPointService
   ) { }
 
   ngOnInit(): void {
@@ -156,6 +168,7 @@ export class OrderComponent implements OnInit {
     this.loadGovernorates();
     this.loadAddresses();
     this.loadSiteSettings();
+    this.loadPickupGovernorates();
   }
 
   loadSiteSettings(): void {
@@ -225,6 +238,12 @@ export class OrderComponent implements OnInit {
   }
 
   onDeliveryTypeChange(): void {
+    if (this.deliveryType === 0) {
+      this.loadPickupGovernorates();
+      this.selectedPickupPoint = null;
+      this.showPickupMap = false;
+      this.destroyPickupMap();
+    }
     if (this.selectedGovernorateId) {
       const gov = this.governorates.find(g => g.id === this.selectedGovernorateId);
       if (gov) {
@@ -320,6 +339,10 @@ export class OrderComponent implements OnInit {
       deliveryType: this.deliveryType,
       paymentMethod: this.mapPaymentMethod(this.selectedPaymentMethod)
     };
+
+    if (this.deliveryType === 0 && this.selectedPickupPoint) {
+      dto.pickupPointId = this.selectedPickupPoint.id;
+    }
 
     if (this.form.shippingNotes?.trim()) {
       dto.shippingNotes = this.form.shippingNotes.trim();
@@ -858,5 +881,83 @@ export class OrderComponent implements OnInit {
       return null;
     }
     return this.addresses.find(a => a.id === this.selectedAddressId) || null;
+  }
+
+  // ═══════════════════════════════════════════════
+  // PICKUP POINTS
+  // ═══════════════════════════════════════════════
+
+  loadPickupGovernorates(): void {
+    this.pickupPointService.getGovernoratesWithPoints().subscribe({
+      next: (res: any) => {
+        if (res.success) this.pickupGovernorates = res.data;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
+  }
+
+  onPickupGovernorateChange(govId: number): void {
+    this.selectedPickupGovernorateId = govId;
+    this.selectedPickupPoint = null;
+    this.pickupPointService.getByGovernorate(govId).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.pickupPoints = res.data;
+          this.showPickupMap = true;
+          this.cdr.detectChanges();
+          setTimeout(() => this.initPickupMap(), 300);
+        }
+      }
+    });
+  }
+
+  selectPickupPoint(point: PickupPoint): void {
+    this.selectedPickupPoint = point;
+    this.cdr.detectChanges();
+  }
+
+  private fixLeafletIcons(): void {
+    const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+    const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+    const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
+    L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl });
+  }
+
+  private initPickupMap(): void {
+    this.fixLeafletIcons();
+    if (this.pickupMap) { this.pickupMap.remove(); this.pickupMap = null; }
+    const el = document.getElementById('customerPickupMap');
+    if (!el || this.pickupPoints.length === 0) return;
+
+    this.pickupMap = L.map(el).setView([this.pickupPoints[0].latitude, this.pickupPoints[0].longitude], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(this.pickupMap);
+
+    const bounds = L.latLngBounds([]);
+    const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+
+    this.pickupPoints.forEach(point => {
+      const name = this.i18n.currentLang === 'ar' ? point.nameAr : point.nameEn;
+      const addr = this.i18n.currentLang === 'ar' ? point.addressAr : point.addressEn;
+      const btnText = this.i18n.currentLang === 'ar' ? 'اختيار هذه النقطة' : 'Select this point';
+      const marker = L.marker([point.latitude, point.longitude]).addTo(this.pickupMap!);
+      marker.bindPopup(`<b>${name}</b><br>${addr}<br><button onclick="window.dispatchEvent(new CustomEvent('selectPickup', {detail: ${point.id}}))" style="margin-top:8px;padding:6px 14px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;width:100%">${btnText}</button>`);
+      bounds.extend([point.latitude, point.longitude]);
+    });
+
+    this.pickupMap.fitBounds(bounds, { padding: [30, 30] });
+    setTimeout(() => this.pickupMap?.invalidateSize(), 200);
+
+    // Listen for pickup selection from popup button
+    window.addEventListener('selectPickup', ((e: CustomEvent) => {
+      const point = this.pickupPoints.find(p => p.id === e.detail);
+      if (point) this.selectPickupPoint(point);
+    }) as EventListener);
+  }
+
+  destroyPickupMap(): void {
+    if (this.pickupMap) { this.pickupMap.remove(); this.pickupMap = null; }
   }
 }

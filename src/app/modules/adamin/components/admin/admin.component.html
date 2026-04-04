@@ -74,6 +74,10 @@
         <i class="fa-solid fa-gear"></i>
         <span>{{ i18n.currentLang === 'ar' ? 'الإعدادات' : 'Settings' }}</span>
       </button>
+      <button class="tab" [class.active]="activeTab === 'pickupPoints'" (click)="switchTab('pickupPoints')">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'نقاط الاستلام' : 'Pickup Points' }}</span>
+      </button>
     </div>
   </div>
 
@@ -1845,6 +1849,137 @@
       </div>
     </div>
 
+    <!-- PICKUP POINTS TAB -->
+    <div *ngIf="activeTab === 'pickupPoints'" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-map-location-dot"></i> {{ i18n.currentLang === 'ar' ? 'نقاط الاستلام' : 'Pickup Points' }}</h2>
+        <button class="btn-add" (click)="openPickupPointForm()">
+          <i class="fa-solid fa-plus"></i>
+          {{ i18n.currentLang === 'ar' ? 'إضافة نقطة' : 'Add Point' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingPickupPoints" class="loading-spinner">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+
+      <div *ngIf="!isLoadingPickupPoints && pickupPoints.length === 0" class="empty-state-card">
+        <i class="fa-solid fa-map-pin"></i>
+        <p>{{ i18n.currentLang === 'ar' ? 'لا توجد نقاط استلام بعد' : 'No pickup points yet' }}</p>
+      </div>
+
+      <div class="pickup-points-grid" *ngIf="pickupPoints.length > 0">
+        <div class="pickup-card" *ngFor="let point of pickupPoints" [class.inactive]="!point.isActive">
+          <div class="pickup-card-header">
+            <h3>{{ i18n.currentLang === 'ar' ? point.nameAr : point.nameEn }}</h3>
+            <span class="pickup-status" [class.active]="point.isActive" [class.inactive-status]="!point.isActive">
+              {{ point.isActive ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active') : (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive') }}
+            </span>
+          </div>
+          <div class="pickup-card-body">
+            <div class="pickup-info-row">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>{{ i18n.currentLang === 'ar' ? point.addressAr : point.addressEn }}</span>
+            </div>
+            <div class="pickup-info-row">
+              <i class="fa-solid fa-city"></i>
+              <span>{{ i18n.currentLang === 'ar' ? point.governorateNameAr : point.governorateNameEn }}</span>
+            </div>
+            <div class="pickup-info-row coords">
+              <i class="fa-solid fa-crosshairs"></i>
+              <span>{{ point.latitude.toFixed(4) }}, {{ point.longitude.toFixed(4) }}</span>
+            </div>
+          </div>
+          <div class="pickup-card-actions">
+            <button class="btn-map" (click)="openPickupMapModal(point)" [title]="i18n.currentLang === 'ar' ? 'عرض على الخريطة' : 'Show on Map'">
+              <i class="fa-solid fa-map"></i>
+            </button>
+            <button class="btn-edit-point" (click)="openPickupPointForm(point)">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn-toggle-active" (click)="togglePickupPointActive(point)"
+              [title]="point.isActive ? (i18n.currentLang === 'ar' ? 'تعطيل' : 'Deactivate') : (i18n.currentLang === 'ar' ? 'تفعيل' : 'Activate')">
+              <i class="fa-solid" [class.fa-toggle-on]="point.isActive" [class.fa-toggle-off]="!point.isActive"></i>
+            </button>
+            <button class="btn-delete-point" (click)="deletePickupPoint(point.id)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pickup Point Form Modal -->
+  <div class="pp-overlay" [class.show]="showPickupPointForm" (click)="closePickupPointForm()">
+    <div class="pp-modal" (click)="$event.stopPropagation()">
+      <div class="pp-modal-header">
+        <h3>{{ isEditingPickupPoint ? (i18n.currentLang === 'ar' ? 'تعديل نقطة استلام' : 'Edit Pickup Point') : (i18n.currentLang === 'ar' ? 'إضافة نقطة استلام' : 'Add Pickup Point') }}</h3>
+        <button class="modal-close-btn" (click)="closePickupPointForm()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="pp-modal-body">
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'المحافظة' : 'Governorate' }} *</label>
+            <select [(ngModel)]="pickupPointForm.governorateId">
+              <option [value]="0" disabled>{{ i18n.currentLang === 'ar' ? 'اختر المحافظة' : 'Select Governorate' }}</option>
+              <option *ngFor="let gov of governorates" [ngValue]="gov.id">{{ i18n.currentLang === 'ar' ? gov.nameAr : gov.nameEn }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Name (Arabic)' }} *</label>
+            <input type="text" [(ngModel)]="pickupPointForm.nameAr" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'Name (English)' }}</label>
+            <input type="text" [(ngModel)]="pickupPointForm.nameEn" />
+          </div>
+        </div>
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'العنوان بالعربي' : 'Address (Arabic)' }} *</label>
+            <input type="text" [(ngModel)]="pickupPointForm.addressAr" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'العنوان بالإنجليزي' : 'Address (English)' }}</label>
+            <input type="text" [(ngModel)]="pickupPointForm.addressEn" />
+          </div>
+        </div>
+        <div class="pp-form-row coords-row">
+          <div class="pp-field small">
+            <label>{{ i18n.currentLang === 'ar' ? 'خط العرض' : 'Latitude' }}</label>
+            <input type="number" [(ngModel)]="pickupPointForm.latitude" step="0.0001" />
+          </div>
+          <div class="pp-field small">
+            <label>{{ i18n.currentLang === 'ar' ? 'خط الطول' : 'Longitude' }}</label>
+            <input type="number" [(ngModel)]="pickupPointForm.longitude" step="0.0001" />
+          </div>
+        </div>
+        <p class="map-hint"><i class="fa-solid fa-hand-pointer"></i> {{ i18n.currentLang === 'ar' ? 'اضغط على الخريطة أو اسحب العلامة لتحديد الموقع' : 'Click on the map or drag the marker to set location' }}</p>
+        <div id="pickupFormMap" class="pp-map-container"></div>
+      </div>
+      <div class="pp-modal-footer">
+        <button class="btn-modal-back" (click)="closePickupPointForm()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+        <button class="btn-modal-confirm" (click)="savePickupPoint()" [disabled]="!pickupPointForm.nameAr || !pickupPointForm.governorateId">
+          <i class="fa-solid fa-check"></i>
+          {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pickup Point Map View Modal -->
+  <div class="pp-overlay" [class.show]="showPickupMap" (click)="closePickupMapModal()">
+    <div class="pp-modal pp-map-modal" (click)="$event.stopPropagation()">
+      <div class="pp-modal-header">
+        <h3>{{ pickupMapPoint ? (i18n.currentLang === 'ar' ? pickupMapPoint.nameAr : pickupMapPoint.nameEn) : '' }}</h3>
+        <button class="modal-close-btn" (click)="closePickupMapModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="pickupViewMap" class="pp-map-view"></div>
+    </div>
   </div>
 
   <!-- Product Details Modal -->

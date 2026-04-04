@@ -105,8 +105,8 @@
           {{ i18n.currentLang === 'ar' ? 'أنت في الطريق للتاجر' : "You're heading to vendor" }}
         </div>
 
-        <!-- Vendor Info -->
-        <div class="location-info vendor" *ngIf="task.status === VendorOrderStatus.Assigned">
+        <!-- Vendor Info (pickup from) -->
+        <div class="location-info vendor">
           <div class="location-label">
             <i class="fa-solid fa-store"></i>
             {{ i18n.currentLang === 'ar' ? 'استلام من' : 'Pick from' }}
@@ -115,9 +115,8 @@
           <div class="location-address" *ngIf="task.vendorAddress">{{ task.vendorAddress }}</div>
         </div>
 
-        <!-- Customer Info -->
-        <div class="location-info customer"
-          *ngIf="task.status === VendorOrderStatus.PickedFromVendor && task.deliveryType === DeliveryType.DirectToCustomer">
+        <!-- Customer Info (deliver to) -->
+        <div class="location-info customer" *ngIf="task.deliveryType === DeliveryType.DirectToCustomer">
           <div class="location-label">
             <i class="fa-solid fa-house-user"></i>
             {{ i18n.currentLang === 'ar' ? 'توصيل إلى' : 'Deliver to' }}
@@ -127,8 +126,7 @@
         </div>
 
         <!-- Warehouse Info -->
-        <div class="location-info warehouse"
-          *ngIf="task.status === VendorOrderStatus.PickedFromVendor && task.deliveryType === DeliveryType.ToWarehouse">
+        <div class="location-info warehouse" *ngIf="task.deliveryType === DeliveryType.ToWarehouse">
           <div class="location-label">
             <i class="fa-solid fa-warehouse"></i>
             {{ i18n.currentLang === 'ar' ? 'تسليم إلى المخزن' : 'Deliver to Warehouse' }}

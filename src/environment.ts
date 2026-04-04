@@ -21,6 +21,7 @@ export const environment = {
     shippingUrl: `${productionApi}/Shipping`,
     addressUrl: `${productionApi}/Address`,
     siteSettingsUrl: `${productionApi}/SiteSettings`,
+    pickupPointUrl: `${productionApi}/PickupPoints`,
     baseApi: `${productionBaseApi}`
 };
 

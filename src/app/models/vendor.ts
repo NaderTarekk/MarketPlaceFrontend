@@ -40,6 +40,8 @@ export interface RecentOrder {
   vendorOrderStatus: number;
   cancellationReason?: string;
   cancelledBy?: string;
+  isAgentHeadingToVendor?: boolean;
+  deliveryAgentName?: string;
 }
 
 export interface OrderItemSummary {

@@ -469,6 +469,84 @@
   color: #94a3b8;
 }
 
+.delivery-label {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.delivery-label.pickup-label {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.pickup-address {
+  align-items: flex-start;
+}
+.pickup-location-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pickup-location-info strong {
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.pickup-location-info span {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+/* Delivery Location in Details */
+.delivery-location-section { margin-top: 4px; }
+.delivery-location-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+.delivery-location-card.home {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+.delivery-location-card.pickup {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+.delivery-location-card i {
+  font-size: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.delivery-location-card.home i { color: #3b82f6; }
+.delivery-location-card.pickup i { color: #16a34a; }
+.delivery-location-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.delivery-location-card strong {
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+.delivery-location-card span {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+.delivery-type-label {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  width: fit-content;
+}
+.home-label { background: #dbeafe; color: #1d4ed8; }
+.pickup-label-detail { background: #dcfce7; color: #15803d; }
+
 .progress-info {
   display: flex;
   align-items: center;
@@ -1775,4 +1853,41 @@
 
 .pickup-btn i {
   font-size: 0.875rem;
+}
+
+/* Delivery Destination in Order Card */
+.delivery-dest {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+.delivery-dest.pickup {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.delivery-dest i {
+  color: #3b82f6;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.delivery-dest.pickup i {
+  color: #16a34a;
+}
+.delivery-dest div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.delivery-dest strong {
+  font-size: 0.8rem;
+  color: #1e293b;
+}
+.delivery-dest span {
+  font-size: 0.72rem;
+  color: #64748b;
 }

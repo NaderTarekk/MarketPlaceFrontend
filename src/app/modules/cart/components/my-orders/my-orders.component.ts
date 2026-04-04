@@ -5,6 +5,7 @@ import { MyOrdersService } from '../../services/my-orders.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../environment';
 import { BarcodeService } from '../../../../core/services/barcode.service';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-my-orders',
@@ -22,6 +23,12 @@ export class MyOrdersComponent implements OnInit {
   isLoadingDetails = false;
   showDetailsModal = false;
   activeFilter: 'all' | OrderStatus = 'all';
+
+  // Cancel Modal
+  showCancelModal = false;
+  cancelOrderId: number | null = null;
+  cancelReason = '';
+  isCancelling = false;
 
   // Toast
   toast = {
@@ -93,6 +100,9 @@ export class MyOrdersComponent implements OnInit {
         this.isLoadingDetails = false;
         this.cdr.detectChanges();
         this.renderOrderBarcode();
+        if (this.selectedOrder?.deliveryType === 0 && this.selectedOrder?.pickupPointLatitude) {
+          this.initPickupPointMap();
+        }
       },
       error: (err) => {
         console.error('Error loading order details:', err);
@@ -111,6 +121,7 @@ export class MyOrdersComponent implements OnInit {
   closeDetailsModal(): void {
     this.showDetailsModal = false;
     this.selectedOrder = null;
+    this.destroyPickupMap();
   }
 
   renderOrderBarcode(): void {
@@ -130,16 +141,25 @@ export class MyOrdersComponent implements OnInit {
     this.barcodeService.downloadAsPng(orderNumber, `${orderNumber}-qr.png`);
   }
 
-  cancelOrder(orderId: number): void {
-    if (!confirm(
-      this.i18n.currentLang === 'ar'
-        ? 'هل أنت متأكد من إلغاء هذا الطلب؟'
-        : 'Are you sure you want to cancel this order?'
-    )) {
+  openCancelModal(orderId: number): void {
+    this.cancelOrderId = orderId;
+    this.cancelReason = '';
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+    this.cancelOrderId = null;
+    this.cancelReason = '';
+  }
+
+  confirmCancelOrder(): void {
+    if (!this.cancelOrderId || !this.cancelReason.trim()) {
+      this.showToast(this.i18n.currentLang === 'ar' ? 'أدخل سبب الإلغاء' : 'Enter cancellation reason', 'error');
       return;
     }
-
-    this.ordersService.cancelOrder(orderId).subscribe({
+    this.isCancelling = true;
+    this.ordersService.cancelOrder(this.cancelOrderId, this.cancelReason).subscribe({
       next: (res: any) => {
         if (res.success) {
           this.showToast(
@@ -148,11 +168,13 @@ export class MyOrdersComponent implements OnInit {
               : 'Order cancelled successfully',
             'success'
           );
+          this.closeCancelModal();
           this.loadOrders();
           this.closeDetailsModal();
         } else {
           this.showToast(res.message, 'error');
         }
+        this.isCancelling = false;
       },
       error: (err) => {
         this.showToast(
@@ -547,4 +569,40 @@ export class MyOrdersComponent implements OnInit {
   //     last: index === steps.length - 1
   //   }));
   // }
+
+  // ═══════════════════════════════════════════════
+  // PICKUP POINT MAP
+  // ═══════════════════════════════════════════════
+  private pickupMap: L.Map | null = null;
+
+  initPickupPointMap(): void {
+    if (!this.selectedOrder?.pickupPointLatitude) return;
+    setTimeout(() => {
+      if (this.pickupMap) { this.pickupMap.remove(); this.pickupMap = null; }
+      const el = document.getElementById('orderPickupMap');
+      if (!el) return;
+
+      const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+      const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+      const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
+      L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl });
+
+      const lat = this.selectedOrder!.pickupPointLatitude!;
+      const lng = this.selectedOrder!.pickupPointLongitude!;
+      this.pickupMap = L.map(el).setView([lat, lng], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(this.pickupMap);
+
+      const name = this.i18n.currentLang === 'ar' ? this.selectedOrder!.pickupPointNameAr : this.selectedOrder!.pickupPointNameEn;
+      const addr = this.i18n.currentLang === 'ar' ? this.selectedOrder!.pickupPointAddressAr : this.selectedOrder!.pickupPointAddressEn;
+      L.marker([lat, lng]).addTo(this.pickupMap).bindPopup(`<b>${name}</b><br>${addr}`).openPopup();
+
+      setTimeout(() => this.pickupMap?.invalidateSize(), 300);
+    }, 400);
+  }
+
+  destroyPickupMap(): void {
+    if (this.pickupMap) { this.pickupMap.remove(); this.pickupMap = null; }
+  }
 }
