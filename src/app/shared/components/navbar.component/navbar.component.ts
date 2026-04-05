@@ -210,7 +210,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   getProductImage(image: string): string {
-    if (!image) return 'assets/images/placeholder.png';
+    if (!image) return 'assets/images/placeholder.svg';
     if (image.startsWith('http') || image.startsWith('data:')) return image;
     return `${environment.baseApi}${image}`;
   }
@@ -403,6 +403,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   handleCategoryImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/placeholder.png';
+    if (!img.src.includes('placeholder.svg')) {
+      img.src = 'assets/images/placeholder.svg';
+    }
   }
 }

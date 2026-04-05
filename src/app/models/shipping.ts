@@ -12,6 +12,7 @@ export enum ShipmentStatus {
 export enum VendorOrderStatus {
   Pending = 0,
   Assigned = 1,
+  ReadyForPickup = 7,
   PickedFromVendor = 2,
   InWarehouse = 3,
   OutForDelivery = 4,

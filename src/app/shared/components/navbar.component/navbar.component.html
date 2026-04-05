@@ -11,7 +11,7 @@
         routerLink="">
         <i class="fa-solid fa-location-dot text-5xl"></i>
         <span class="text-5xl font-bold tracking-wide" style="font-family: 'Poppins', sans-serif;">
-          {{ currentLang === 'ar' ? 'نقطة' : 'NOQTA' }}
+          {{ currentLang === 'ar' ? 'ويلد ماركت' : 'Wild Market' }}
         </span>
       </div>
       <!-- <div class="logo cursor-pointer" routerLink="">
@@ -61,7 +61,7 @@
       <div class="search-wrapper-ozon desktop-search">
         <div class="search-input-ozon">
           <i class="fa-solid fa-search search-icon-ozon"></i>
-          <input type="text" [placeholder]="currentLang === 'ar' ? 'ابحث في نقطة...' : 'Search on Noqta'"
+          <input type="text" [placeholder]="currentLang === 'ar' ? 'ابحث في نقطة...' : 'Search on Wild Market'"
             [(ngModel)]="searchQuery" (input)="onSearchInput($event)" (keyup.enter)="onSearch()"
             (focus)="searchQuery.length >= 2 && (showSearchDropdown = true)" />
           <button *ngIf="searchQuery" class="clear-btn-ozon" (click)="searchQuery = ''; showSearchDropdown = false">

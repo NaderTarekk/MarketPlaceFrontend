@@ -642,6 +642,9 @@
                                     <option [ngValue]="VendorOrderStatus.Assigned">
                                         {{ i18n.currentLang === 'ar' ? 'يتم التجهيز' : 'Processing' }}
                                     </option>
+                                    <option [ngValue]="VendorOrderStatus.ReadyForPickup">
+                                        {{ i18n.currentLang === 'ar' ? 'جاهز للاستلام' : 'Ready for Pickup' }}
+                                    </option>
                                 </select>
 
                                 <span *ngIf="order.status === 'Cancelled' || +order.status === 8" class="status-badge cancelled">
@@ -660,6 +663,9 @@
                                     <i class="fa-solid fa-motorcycle"></i>
                                     {{ i18n.currentLang === 'ar' ? 'المندوب في الطريق' : 'Agent on the way' }}
                                     <span *ngIf="order.deliveryAgentName" class="agent-name">{{ order.deliveryAgentName }}</span>
+                                    <a *ngIf="order.deliveryAgentPhone" class="agent-phone" [href]="'tel:' + order.deliveryAgentPhone">
+                                        <i class="fa-solid fa-phone"></i> {{ order.deliveryAgentPhone }}
+                                    </a>
                                 </div>
                             </td>
                             <td>
@@ -991,6 +997,28 @@
 
             <!-- Order Details -->
             <div *ngIf="!isLoadingOrder && orderDetails" class="order-details-content">
+
+                <!-- QR Code Section -->
+                <div class="detail-section qr-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-qrcode"></i>
+                        {{ i18n.currentLang === 'ar' ? 'QR رقم الطلب' : 'Order QR Code' }}
+                    </h3>
+                    <div class="qr-container">
+                        <canvas id="vendor-order-barcode"></canvas>
+                        <span class="qr-label">{{ orderDetails.orderNumber }}</span>
+                    </div>
+                    <div class="qr-actions">
+                        <button class="btn-qr-download" (click)="downloadOrderBarcodeImage()">
+                            <i class="fa-solid fa-image"></i>
+                            {{ i18n.currentLang === 'ar' ? 'تحميل صورة' : 'Download Image' }}
+                        </button>
+                        <button class="btn-qr-pdf" (click)="downloadOrderBarcodePdf()">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            {{ i18n.currentLang === 'ar' ? 'تحميل PDF' : 'Download PDF' }}
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Order Summary -->
                 <div class="detail-section">

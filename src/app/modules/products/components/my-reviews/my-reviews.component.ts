@@ -215,7 +215,7 @@ export class MyReviewsComponent implements OnInit {
   }
 
   getImageUrl(image: string | null | undefined): string {
-    if (!image) return 'assets/images/placeholder.png';
+    if (!image) return 'assets/images/placeholder.svg';
     if (image.startsWith('http') || image.startsWith('data:')) return image;
     return `${environment.baseApi}${image}`;
   }

@@ -12,6 +12,7 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../environment';
 import { OrderService } from '../../../cart/services/order.service';
+import { BarcodeService } from '../../../../core/services/barcode.service';
 
 @Component({
   selector: 'app-vendor',
@@ -48,6 +49,7 @@ export class VendorDashboardComponent implements OnInit {
   VendorOrderStatus = {
     Pending: 0,
     Assigned: 1,
+    ReadyForPickup: 7,
     PickedFromVendor: 2,
     InWarehouse: 3,
     OutForDelivery: 4,
@@ -174,6 +176,7 @@ export class VendorDashboardComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private orderService: OrderService,
+    private barcodeService: BarcodeService,
   ) { }
 
   ngOnInit(): void {
@@ -206,16 +209,16 @@ export class VendorDashboardComponent implements OnInit {
     clearanceDate.setDate(clearanceDate.getDate() - this.clearancePeriodDays);
 
     this.dashboard.recentOrders.forEach(order => {
-      const orderTotal = order.totalAmount || 0;
-      const orderCommission = (orderTotal * this.commissionRate) / 100;
-      const orderProfit = orderTotal - orderCommission;
+      const orderSubTotal = order.vendorSubTotal || 0;
+      const orderProfit = orderSubTotal / (1 + this.commissionRate / 100);
+      const orderCommission = orderSubTotal - orderProfit;
 
       // 1. Total Revenue (Delivered only)
       if (order.vendorOrderStatus === this.VendorOrderStatus.Delivered) {
-        this.totalRevenue += orderTotal;
+        this.totalRevenue += orderSubTotal;
 
         // 5. Pending Clearance (تم التسليم لكن داخل فترة التقييد)
-        const deliveredDate = new Date(order.createdAt); // أو order.deliveredAt لو متاح
+        const deliveredDate = new Date(order.createdAt);
         if (deliveredDate > clearanceDate) {
           this.pendingClearance += orderProfit;
         }
@@ -231,10 +234,10 @@ export class VendorDashboardComponent implements OnInit {
     });
 
     // 2. Total Commission
-    this.totalCommission = (this.totalRevenue * this.commissionRate) / 100;
+    this.totalCommission = this.totalRevenue - (this.totalRevenue / (1 + this.commissionRate / 100));
 
     // 3. Net Profit
-    this.netProfit = this.totalRevenue - this.totalCommission;
+    this.netProfit = this.totalRevenue / (1 + this.commissionRate / 100);
 
     // 6. Available Balance (نفترض إنه = صافي الربح - Pending Clearance - Pending Withdrawal)
     // ✅ هنا لازم تجيب الـ Pending Withdrawal من الـ backend
@@ -257,16 +260,17 @@ export class VendorDashboardComponent implements OnInit {
     this.totalWithdrawn = 0;
   }
 
-  // Calculate profit for individual order
+  // Calculate profit for individual order (vendor's share without commission)
   calculateOrderProfit(order: any): number {
-    const total = order.totalAmount || 0;
-    const commission = (total * this.commissionRate) / 100;
-    return total - commission;
+    const total = order.vendorSubTotal || 0;
+    return total / (1 + this.commissionRate / 100);
   }
 
   // Calculate commission for individual order
   calculateOrderCommission(order: any): number {
-    return ((order.totalAmount || 0) * this.commissionRate) / 100;
+    const total = order.vendorSubTotal || 0;
+    const vendorShare = total / (1 + this.commissionRate / 100);
+    return total - vendorShare;
   }
 
   // Check if order profit is confirmed
@@ -369,10 +373,40 @@ export class VendorDashboardComponent implements OnInit {
         }
         this.isLoadingOrder = false;
         this.cdr.detectChanges();
+        this.renderOrderBarcode();
       },
       error: () => {
         this.isLoadingOrder = false;
       }
+    });
+  }
+
+  renderOrderBarcode(): void {
+    const orderNumber = this.orderDetails?.orderNumber;
+    if (!orderNumber) return;
+    setTimeout(() => {
+      const canvas = document.getElementById('vendor-order-barcode') as HTMLCanvasElement;
+      if (canvas) {
+        this.barcodeService.renderToCanvas(canvas, orderNumber, { size: 180 });
+      }
+    }, 100);
+  }
+
+  downloadOrderBarcodeImage(): void {
+    const orderNumber = this.orderDetails?.orderNumber;
+    if (!orderNumber) return;
+    this.barcodeService.downloadAsPng(orderNumber, `${orderNumber}-qr.png`);
+  }
+
+  downloadOrderBarcodePdf(): void {
+    const orderNumber = this.orderDetails?.orderNumber;
+    if (!orderNumber) return;
+    this.barcodeService.downloadAsPdf({
+      barcodeValue: orderNumber,
+      orderNumber,
+      totalAmount: this.orderDetails?.totalAmount || this.orderDetails?.total || 0,
+      customerName: this.orderDetails?.customerName || '',
+      filename: `${orderNumber}-qr.pdf`
     });
   }
 
@@ -428,7 +462,8 @@ export class VendorDashboardComponent implements OnInit {
 
   canCancelOrder(order: any): boolean {
     if (order.status === 'Cancelled' || order.status === 'Delivered') return false;
-    if (order.vendorOrderStatus >= 2) return false; // PickedFromVendor or later
+    if (order.vendorOrderStatus >= 2 && order.vendorOrderStatus !== 7) return false; // PickedFromVendor or later
+    if (order.vendorOrderStatus === 7) return false; // ReadyForPickup
     const s = typeof order.status === 'string' ? parseInt(order.status) : order.status;
     return isNaN(s) || (s !== 8 && s !== 6);
   }
@@ -436,7 +471,8 @@ export class VendorDashboardComponent implements OnInit {
   canUpdateVendorOrderStatus(vendorOrderStatus: number | string): boolean {
     const statusNum = typeof vendorOrderStatus === 'string' ? parseInt(vendorOrderStatus) : vendorOrderStatus;
     return statusNum === this.VendorOrderStatus.Pending ||
-      statusNum === this.VendorOrderStatus.Assigned;
+      statusNum === this.VendorOrderStatus.Assigned ||
+      statusNum === this.VendorOrderStatus.ReadyForPickup;
   }
 
   getVendorOrderStatusBadge(vendorOrderStatus: number | string): { text: string; class: string } {
@@ -444,8 +480,9 @@ export class VendorDashboardComponent implements OnInit {
 
     const statusMap: { [key: number]: { ar: string; en: string; class: string } } = {
       [this.VendorOrderStatus.Pending]: { ar: 'قيد الانتظار', en: 'Pending', class: 'pending' },
-      [this.VendorOrderStatus.Assigned]: { ar: 'يتم التجهيز', en: 'Processing', class: 'processing' },
-      [this.VendorOrderStatus.PickedFromVendor]: { ar: 'جاهز للاستلام', en: 'Ready for Pickup', class: 'ready-pickup' },
+      [this.VendorOrderStatus.Assigned]: { ar: 'جاري التجهيز', en: 'Processing', class: 'processing' },
+      [this.VendorOrderStatus.ReadyForPickup]: { ar: 'جاهز للاستلام', en: 'Ready for Pickup', class: 'ready-pickup' },
+      [this.VendorOrderStatus.PickedFromVendor]: { ar: 'تم الاستلام', en: 'Picked', class: 'picked' },
       [this.VendorOrderStatus.InWarehouse]: { ar: 'في المخزن', en: 'In Warehouse', class: 'warehouse' },
       [this.VendorOrderStatus.OutForDelivery]: { ar: 'في الطريق', en: 'Out for Delivery', class: 'out-for-delivery' },
       [this.VendorOrderStatus.Delivered]: { ar: 'تم التسليم', en: 'Delivered', class: 'delivered' },
@@ -896,7 +933,7 @@ export class VendorDashboardComponent implements OnInit {
   }
 
   getImageUrl(image: string | null): string {
-    if (!image) return 'assets/images/placeholder.png';
+    if (!image) return 'assets/images/placeholder.svg';
     if (image.startsWith('http') || image.startsWith('data:')) return image;
     return `${environment.baseApi}${image}`;
   }

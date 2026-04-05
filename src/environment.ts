@@ -1,5 +1,5 @@
-const productionApi = 'https://noqta-egypt.com/api';
-const productionBaseApi = 'https://noqta-egypt.com';
+const productionApi = 'https://wildmarketeg.com/api';
+const productionBaseApi = 'https://wildmarketeg.com';
 const localApi = 'http://localhost:5078/api';
 const localBaseApi = 'http://localhost:5078';
 

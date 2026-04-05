@@ -448,7 +448,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   getCategoryName(c: any): string { return this.i18n.currentLang === 'ar' ? c.nameAr : c.nameEn; }
 
   getProductImage(img: string): string {
-    if (!img) return 'assets/images/placeholder.png';
+    if (!img) return 'assets/images/placeholder.svg';
     if (img.startsWith('http') || img.startsWith('data:')) return img;
     return `${environment.baseApi}${img}`;
   }
@@ -458,7 +458,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     return `${environment.baseApi}${img}`;
   }
   handleImgError(e: Event): void {
-    (e.target as HTMLImageElement).src = 'assets/images/placeholder.png';
+    const img = e.target as HTMLImageElement;
+    if (!img.src.includes('placeholder.svg')) {
+      img.src = 'assets/images/placeholder.svg';
+    }
   }
 
   getStars(rating: number): number[] { return Array(5).fill(0).map((_, i) => i < rating ? 1 : 0); }
