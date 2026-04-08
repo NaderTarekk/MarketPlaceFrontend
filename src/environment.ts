@@ -22,7 +22,8 @@ export const environment = {
     addressUrl: `${productionApi}/Address`,
     siteSettingsUrl: `${productionApi}/SiteSettings`,
     pickupPointUrl: `${productionApi}/PickupPoints`,
-    baseApi: `${productionBaseApi}`
+    baseApi: `${productionBaseApi}`,
+    googleClientId: '179993097510-6h4o4pbhf5opbik8pn0uhcggo0rvgrus.apps.googleusercontent.com'
 };
 
 

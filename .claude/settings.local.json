@@ -26,7 +26,9 @@
       "Bash(grep -n \"activeTab === ''''settings''''\\\\|activeTab === ''''withdrawals''''\\\\|class=\"\"main-container\"\"\" \"d:\\\\Angular\\\\MarketPlace\\\\src\\\\app\\\\modules\\\\adamin\\\\components\\\\admin\\\\admin.component.html\")",
       "Bash(head -10 grep -n \"cancel\\\\|Cancel\" d:AngularMarketPlacesrcappmodulesproductscomponentsvendor-dashboardvendor-dashboard.component.ts)",
       "Bash(find d:AngularMarketPlacesrc -name vendor* -type f)",
-      "Bash(\"d:/Angular/MarketPlace/src/app/modules/vendor/components/vendor/vendor-dashboard.component.css\")"
+      "Bash(\"d:/Angular/MarketPlace/src/app/modules/vendor/components/vendor/vendor-dashboard.component.css\")",
+      "Read(//c/Users/EL11_gazy/source/repos/MarketPlace.API/**)",
+      "Bash(dotnet add:*)"
     ]
   }
 }

@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { interval, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { environment } from '../../../../environment';
 
 declare const google: any;
 
@@ -115,6 +116,61 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/']);
       return;
+    }
+    this.initGoogleSignIn();
+  }
+
+  private initGoogleSignIn(retries: number = 0): void {
+    if (typeof google !== 'undefined' && google?.accounts?.id) {
+      try {
+        google.accounts.id.initialize({
+          client_id: environment.googleClientId,
+          callback: (response: any) =>
+            this.ngZone.run(() => this.handleGoogleCallback(response)),
+          auto_select: false,
+          cancel_on_tap_outside: true,
+          context: 'signin',
+          ux_mode: 'popup',
+          use_fedcm_for_prompt: true,
+          itp_support: true,
+        });
+        setTimeout(() => this.renderGoogleButton(), 0);
+      } catch (e) {
+        console.error('Google Sign-In init failed:', e);
+      }
+      return;
+    }
+    if (retries < 20) {
+      setTimeout(() => this.initGoogleSignIn(retries + 1), 200);
+    }
+  }
+
+  private renderGoogleButton(): void {
+    const containers = ['googleBtn', 'googleBtnRegister'];
+    containers.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el && (window as any).google?.accounts?.id?.renderButton) {
+        el.innerHTML = '';
+        (window as any).google.accounts.id.renderButton(el, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'rectangular',
+          logo_alignment: 'left',
+          width: 320,
+        });
+      }
+    });
+  }
+
+  loginWithGoogle(): void {
+    if (typeof google !== 'undefined' && google?.accounts?.id) {
+      google.accounts.id.prompt();
+    } else {
+      this.toastr.error(
+        this.i18n.currentLang === 'ar' ? 'خطأ في تحميل Google Sign-In' : 'Failed to load Google Sign-In'
+      );
     }
   }
 
@@ -612,14 +668,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   });
 }
 
-  loginWithGoogle(): void {
-    if (typeof google !== 'undefined') {
-      google.accounts.id.prompt();
-    } else {
-      this.toastr.error(this.i18n.currentLang === 'ar' ? 'خطأ في تحميل Google Sign-In' : 'Failed to load Google Sign-In');
-    }
-  }
-
   onPhoneInput() {
     // يشيل أي حاجة غير أرقام
     this.registerPhone = this.registerPhone.replace(/\D/g, '');
@@ -642,23 +690,34 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       this.authService.googleLogin({ token }).subscribe({
         next: (res) => {
-          this.isLoading = false;
-          if (res.success) {
-            if (res.isNewUser) {
-              this.showCompleteProfileModal = true;
-            } else {
-              if (res.token && res.role) {
+          this.ngZone.run(() => {
+            this.isLoading = false;
+            if (res.success) {
+              if (res.isNewUser) {
+                this.showCompleteProfileModal = true;
+              } else if (res.token && res.role) {
                 this.authService.saveToken(res.token, res.role);
                 this.toastr.success(this.i18n.currentLang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful');
                 this.router.navigate(['/']);
               }
+            } else {
+              this.toastr.error(res.message || (this.i18n.currentLang === 'ar' ? 'فشل تسجيل الدخول' : 'Login failed'));
             }
-          }
+            this.cdr.detectChanges();
+          });
         },
         error: (err) => {
-          this.isLoading = false;
-          console.error('Google login error:', err);
-          this.toastr.error(this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول بجوجل' : 'Google login failed');
+          this.ngZone.run(() => {
+            this.isLoading = false;
+            console.error('Google login error:', err);
+            // If backend returned isNewUser in BadRequest body, still open the modal
+            if (err.error?.isNewUser) {
+              this.showCompleteProfileModal = true;
+            } else {
+              this.toastr.error(this.i18n.currentLang === 'ar' ? 'خطأ في تسجيل الدخول بجوجل' : 'Google login failed');
+            }
+            this.cdr.detectChanges();
+          });
         }
       });
     } catch (error) {
@@ -668,14 +727,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   completeProfile(): void {
-    if (!this.profileFullName || !this.profilePhoneNumber || !this.profileAge) {
+    if (!this.profileFullName || !this.profilePhoneNumber) {
       this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء ملء جميع الحقول' : 'Please fill all fields');
       return;
     }
 
-    const age = parseInt(this.profileAge);
-    if (isNaN(age) || age < 13 || age > 120) {
-      this.toastr.error(this.i18n.currentLang === 'ar' ? 'الرجاء إدخال عمر صحيح' : 'Please enter a valid age');
+    const phone = this.profilePhoneNumber.replace(/\D/g, '');
+    if (phone.length !== 11 || !phone.startsWith('01')) {
+      this.toastr.error(this.i18n.currentLang === 'ar' ? 'رقم تليفون غير صحيح' : 'Invalid phone number');
       return;
     }
 
@@ -685,8 +744,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       email: this.googleEmail,
       googleToken: this.googleToken,
       fullName: this.profileFullName,
-      phoneNumber: this.profilePhoneNumber,
-      age: age
+      phoneNumber: phone,
+      age: 0
     }).subscribe({
       next: (res) => {
         this.isLoading = false;

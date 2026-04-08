@@ -208,6 +208,9 @@
           data-text="signin_with" data-size="large" data-locale="ar" data-logo_alignment="left">
         </div> -->
 
+        <!-- Google Sign-In Button -->
+        <div id="googleBtn" class="w-full flex justify-center min-h-[44px]"></div>
+
         <!-- Register Link -->
         <p class="text-center text-sm text-gray-500 mt-2">
           {{ i18n.t('dont_have') }}
@@ -539,6 +542,9 @@
           </span>
         </button> -->
 
+        <!-- Google Sign-In Button (Register) -->
+        <div id="googleBtnRegister" class="w-full flex justify-center min-h-[44px]"></div>
+
         <!-- Login Link -->
         <p class="text-center text-sm text-gray-500 mt-2">
           {{ i18n.t('already_have') }}
@@ -792,6 +798,68 @@
         </button>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- COMPLETE PROFILE MODAL (Google new user) -->
+<div *ngIf="showCompleteProfileModal"
+  class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm"
+  [attr.dir]="i18n.isRtl() ? 'rtl' : 'ltr'">
+  <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <div class="relative bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600 px-6 py-7 text-white text-center overflow-hidden">
+      <div class="absolute -top-10 -end-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+      <div class="absolute -bottom-10 -start-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+      <div class="relative">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
+          <i class="fa-solid fa-user-plus text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-1">
+          {{ i18n.currentLang === 'ar' ? 'أكمل بياناتك' : 'Complete Your Profile' }}
+        </h2>
+        <p class="text-sm text-white/85">
+          {{ i18n.currentLang === 'ar' ? 'محتاجين معلومات إضافية لإنشاء حسابك' : 'A few more details to create your account' }}
+        </p>
+      </div>
+    </div>
+    <div class="p-6 space-y-5">
+      <div>
+        <label class="text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider block">
+          {{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email' }}
+        </label>
+        <input type="email" [value]="googleEmail" disabled
+          class="w-full px-4 py-3 rounded-xl bg-slate-100 text-slate-500 text-sm font-medium border border-slate-200 cursor-not-allowed" />
+      </div>
+      <div>
+        <label class="text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider block">
+          {{ i18n.currentLang === 'ar' ? 'الاسم الكامل' : 'Full Name' }}
+        </label>
+        <input type="text" [(ngModel)]="profileFullName" name="profileFullName"
+          [placeholder]="i18n.currentLang === 'ar' ? 'مثال: أحمد محمد' : 'e.g. John Doe'"
+          class="w-full px-4 py-3 rounded-xl bg-white text-slate-800 text-sm font-medium border-2 border-slate-200 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/10 transition-all" />
+      </div>
+      <div>
+        <label class="text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider block">
+          {{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}
+        </label>
+        <input type="tel" [(ngModel)]="profilePhoneNumber" name="profilePhoneNumber"
+          maxlength="11" placeholder="01XXXXXXXXX"
+          class="w-full px-4 py-3 rounded-xl bg-white text-slate-800 text-sm font-medium border-2 border-slate-200 focus:border-pink-500 focus:outline-none focus:ring-4 focus:ring-pink-500/10 transition-all tabular-nums" />
+        <p class="text-[11px] text-slate-400 mt-1.5">
+          {{ i18n.currentLang === 'ar' ? '11 رقم يبدأ بـ 01' : '11 digits starting with 01' }}
+        </p>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" (click)="showCompleteProfileModal = false"
+          class="flex-1 py-3 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all cursor-pointer">
+          {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+        </button>
+        <button type="button" (click)="completeProfile()" [disabled]="isLoading"
+          class="flex-1 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 hover:shadow-lg hover:shadow-purple-500/40 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer">
+          <span *ngIf="!isLoading">{{ i18n.currentLang === 'ar' ? 'حفظ والمتابعة' : 'Save & Continue' }}</span>
+          <span *ngIf="isLoading">{{ i18n.currentLang === 'ar' ? 'جاري الحفظ...' : 'Saving...' }}</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
