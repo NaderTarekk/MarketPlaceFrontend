@@ -6,6 +6,7 @@ export interface Governorate {
   isFreeShipping: boolean;
   isActive: boolean;
   sortOrder: number;
+  estimatedDeliveryDays: number;
 }
 
 export interface CreateGovernorate {
@@ -14,6 +15,7 @@ export interface CreateGovernorate {
   shippingCost: number;
   isFreeShipping?: boolean;
   sortOrder?: number;
+  estimatedDeliveryDays?: number;
 }
 
 export interface UpdateGovernorate {
@@ -23,4 +25,5 @@ export interface UpdateGovernorate {
   isFreeShipping?: boolean;
   isActive?: boolean;
   sortOrder?: number;
+  estimatedDeliveryDays?: number;
 }

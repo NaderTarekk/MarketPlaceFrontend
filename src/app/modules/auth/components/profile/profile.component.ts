@@ -40,6 +40,11 @@ export class ProfileComponent implements OnInit {
   imagePreview: string | null = null;
   isUploadingImage = false;
 
+  // Store Logo Upload
+  selectedStoreLogo: File | null = null;
+  storeLogoPreview: string | null = null;
+  isUploadingStoreLogo = false;
+
   isChecked = false;
 
   // ✅ Address Management
@@ -310,6 +315,62 @@ export class ProfileComponent implements OnInit {
   cancelImageUpload(): void {
     this.selectedImage = null;
     this.imagePreview = null;
+  }
+
+  onStoreLogoSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      if (!file.type.startsWith('image/')) {
+        this.showToast(this.t('invalid_image'), 'error');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        this.showToast(this.t('image_too_large'), 'error');
+        return;
+      }
+
+      this.selectedStoreLogo = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.storeLogoPreview = reader.result as string;
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  uploadStoreLogo(): void {
+    if (!this.selectedStoreLogo) return;
+
+    this.isUploadingStoreLogo = true;
+    this.profileService.uploadStoreLogo(this.selectedStoreLogo).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم رفع لوجو المتجر' : 'Store logo uploaded',
+            'success'
+          );
+          this.loadProfile();
+          this.selectedStoreLogo = null;
+          this.storeLogoPreview = null;
+        }
+        this.isUploadingStoreLogo = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isUploadingStoreLogo = false;
+        this.showToast(this.t('error_uploading'), 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cancelStoreLogoUpload(): void {
+    this.selectedStoreLogo = null;
+    this.storeLogoPreview = null;
   }
 
   logout(): void {

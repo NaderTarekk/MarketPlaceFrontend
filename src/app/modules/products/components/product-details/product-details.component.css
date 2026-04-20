@@ -120,6 +120,28 @@
   transform: scale(1.05);
 }
 
+.main-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  border-radius: 20px;
+}
+
+.video-thumb {
+  background: linear-gradient(135deg, #1e1b4b, #4c1d95) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.video-thumb i {
+  color: #fff;
+  font-size: 18px;
+}
+.video-thumb.active {
+  border-color: #8b5cf6 !important;
+}
+
 .discount-badge {
   position: absolute;
   top: 16px;
@@ -262,6 +284,10 @@
   color: #667eea; font-size: 12px; font-weight: 600;
   text-decoration: none; border: 1px solid #667eea44;
   transition: background 0.2s;
+}
+.store-badge-logo {
+  width: 20px; height: 20px; border-radius: 50%;
+  object-fit: cover;
 }
 .meta-info .store-badge:hover { background: linear-gradient(135deg, #667eea33, #764ba233); }
 
@@ -484,6 +510,104 @@
   gap: 12px;
 }
 
+/* Delivery Estimate */
+.delivery-estimate-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8fafc, #f0fdf4);
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.delivery-estimate-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.delivery-estimate-header i {
+  color: #16a34a;
+  font-size: 16px;
+}
+.delivery-gov-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.detect-location-btn {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #16a34a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.detect-location-btn:hover {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+.detecting-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-inline-start: auto;
+}
+.delivery-gov-select {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+}
+.delivery-gov-select:focus {
+  outline: none;
+  border-color: #16a34a;
+}
+.delivery-estimate-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.delivery-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #166534;
+}
+.delivery-date-range i {
+  color: #16a34a;
+}
+.delivery-days-badge {
+  padding: 4px 12px;
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .btn-add-cart,
 .btn-buy-now {
   flex: 1;
@@ -553,34 +677,136 @@
   color: #ef4444;
 }
 
-/* Out of Stock */
-.out-of-stock-message {
+/* ═══════════════════════════════════════════════ */
+/* OUT OF STOCK CARD                              */
+/* ═══════════════════════════════════════════════ */
+.oos-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: 24px;
-  background: #fef2f2;
-  border-radius: 16px;
+  padding: 36px 28px 32px;
+  background: linear-gradient(160deg, #fff5f5 0%, #fef2f2 40%, #fff7ed 100%);
+  border: 1.5px solid #fecaca;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-.out-of-stock-message i {
-  font-size: 32px;
+.oos-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.oos-card::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  left: -30px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(251, 146, 60, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.oos-icon-wrap {
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.oos-icon-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15);
+  animation: oos-pulse 2.5s ease-in-out infinite;
+}
+
+.oos-icon-ring i {
+  font-size: 28px;
   color: #dc2626;
-  margin-bottom: 12px;
 }
 
-.out-of-stock-message p {
+@keyframes oos-pulse {
+  0%, 100% { box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15); }
+  50% { box-shadow: 0 8px 32px rgba(239, 68, 68, 0.25); }
+}
+
+.oos-content {
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.oos-title {
+  font-size: 18px;
+  font-weight: 700;
   color: #991b1b;
-  margin: 0 0 16px;
+  margin: 0 0 8px;
 }
 
+.oos-text {
+  font-size: 14px;
+  color: #b45309;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 340px;
+}
+
+/* Notify Button */
 .btn-notify {
-  padding: 12px 24px;
-  background: #dc2626;
+  position: relative;
+  z-index: 1;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+}
+
+.btn-notify:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(220, 38, 38, 0.45);
+}
+
+.btn-notify:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-notify--done {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  cursor: default;
+}
+
+.btn-notify--done:hover {
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.btn-notify:disabled:not(.btn-notify--done) {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Product Meta */

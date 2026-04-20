@@ -97,6 +97,12 @@ public role$ = this.roleSubject.asObservable();
     return this.http.post<ApiResponse<string>>(`${environment.profileUrl}/upload-image`, formData);
   }
 
+  uploadStoreLogo(file: File): Observable<ApiResponse<string>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<string>>(`${environment.profileUrl}/upload-store-logo`, formData);
+  }
+
   getProfileStats(): Observable<ApiResponse<ProfileStats>> {
     return this.http.get<ApiResponse<ProfileStats>>(`${environment.profileUrl}/stats`);
   }

@@ -47,10 +47,13 @@
             </a>
           </div>
 
-          <a routerLink="/products" (click)="isCatalogOpen = false" class="catalog-view-all">
-            <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>
-            <i class="fa-solid fa-arrow-left"></i>
-          </a>
+          <div class="catalog-footer">
+            <a routerLink="/products" (click)="isCatalogOpen = false" class="catalog-view-all">
+              <i class="fa-solid fa-th-large"></i>
+              <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>
+              <i class="fa-solid fa-arrow-left catalog-arrow"></i>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -416,10 +419,13 @@
     </div>
 
     <!-- View All -->
-    <a routerLink="/products" (click)="closeCategoriesDropdown()" class="categories-dropdown-view-all">
-      <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>
-      <i class="fa-solid fa-arrow-left"></i>
-    </a>
+    <div class="dropdown-footer">
+      <a routerLink="/products" (click)="closeCategoriesDropdown()" class="categories-dropdown-view-all">
+        <i class="fa-solid fa-th-large"></i>
+        <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>
+        <i class="fa-solid fa-arrow-left dropdown-arrow"></i>
+      </a>
+    </div>
   </div>
 </div>
 

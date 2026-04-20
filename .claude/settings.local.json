@@ -29,6 +29,12 @@
       "Bash(\"d:/Angular/MarketPlace/src/app/modules/vendor/components/vendor/vendor-dashboard.component.css\")",
       "Read(//c/Users/EL11_gazy/source/repos/MarketPlace.API/**)",
       "Bash(dotnet add:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\EL11_gazy\\source\\repos\\MarketPlace.API\\MarketPlace.Application\\Interfaces",
+      "C:\\Users\\EL11_gazy\\source\\repos\\MarketPlace.API\\MarketPlace.Infrastructure\\Repositories",
+      "C:\\Users\\EL11_gazy\\source\\repos\\MarketPlace.API\\MarketPlace.Infrastructure\\Models",
+      "C:\\Users\\EL11_gazy\\source\\repos\\MarketPlace.API\\MarketPlace.API\\Controllers"
     ]
   }
 }

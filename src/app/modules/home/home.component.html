@@ -16,7 +16,7 @@
     ════════════════════════════════════════════════════════════ -->
     <div class="relative lg:hidden">
       <div class="flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <span class="pl-4 text-gray-400 text-sm"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <span class="ps-4 pe-2 text-gray-400 text-sm"><i class="fa-solid fa-magnifying-glass"></i></span>
         <input type="text" [(ngModel)]="searchQuery" (input)="onSearchInput($event)" (keyup.enter)="onSearch()"
           (focus)="searchQuery.length >= 2 && (showSearchDropdown = true)" (blur)="closeSearchDropdown()"
           [placeholder]="i18n.currentLang==='ar' ? 'ابحث عن منتج...' : 'Search products...'"
@@ -360,8 +360,9 @@
       <!-- Dynamic product grid -->
       <div *ngIf="!isLoadingFallback && fallbackProducts.length > 0"
         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        <a *ngFor="let p of fallbackProducts; trackBy: trackById" [routerLink]="['/products', p.id]"
-          class="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer">
+        <a *ngFor="let p of fallbackProducts; let i = index; trackBy: trackById" [routerLink]="['/products', p.id]"
+          class="product-reveal group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 overflow-hidden flex flex-col cursor-pointer"
+          [style.transition-delay]="(i % fallbackPageSize) * 60 + 'ms'">
 
           <!-- discount pill -->
           <span *ngIf="p.originalPrice && p.originalPrice > p.price"
@@ -382,8 +383,10 @@
           <!-- image -->
           <div class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-violet-50/20">
             <img [src]="getProductImage(p.mainImage)" [alt]="getProductName(p)" (error)="handleImgError($event)"
-              class="w-full aspect-square object-contain p-3 group-hover:scale-110 transition-transform duration-500" />
-            <div
+              class="w-full aspect-square object-contain p-3 group-hover:scale-110 transition-transform duration-500"
+              [style.filter]="p.stock <= 0 ? 'grayscale(50%)' : 'none'"
+              [style.opacity]="p.stock <= 0 ? '0.5' : '1'" />
+            <div *ngIf="p.stock > 0"
               class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
               <button (click)="addToCart(p, $event)"
                 class="flex items-center gap-2 bg-white text-gray-900 text-[11px] font-black px-4 py-2 rounded-xl shadow-lg active:scale-95 transition-all cursor-pointer">
@@ -417,6 +420,14 @@
                 {{ p.originalPrice | number:'1.0-0' }}
               </span>
             </div>
+            <span *ngIf="p.stock <= 0" class="inline-flex items-center gap-1 w-max text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full mt-1">
+              <i class="fa-solid fa-ban text-[8px]"></i>
+              {{ i18n.currentLang==='ar' ? 'غير متوفر' : 'Out of Stock' }}
+            </span>
+            <div *ngIf="userDeliveryDays" class="flex items-center gap-1 mt-1">
+              <i class="fa-solid fa-truck-fast text-[9px] text-emerald-500"></i>
+              <span class="text-[10px] text-emerald-600 font-semibold">{{ getDeliveryText() }}</span>
+            </div>
           </div>
         </a>
       </div>
@@ -428,13 +439,23 @@
         <p class="text-sm">{{ i18n.currentLang==='ar' ? 'لا توجد منتجات حالياً' : 'No products available' }}</p>
       </div>
 
-      <div class="flex justify-center">
-        <a routerLink="/products"
-          class="group relative px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border-2 border-gray-900 text-gray-900 hover:text-white active:scale-95 transition-all duration-300 cursor-pointer overflow-hidden">
-          <span
-            class="absolute inset-0 bg-gray-900 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-          <span class="relative z-[1]">{{ i18n.t('view_all') }}</span>
-        </a>
+      <!-- Scroll sentinel for infinite scroll -->
+      <div #scrollSentinel class="h-1"></div>
+
+      <!-- Loading more indicator -->
+      <div *ngIf="isLoadingMore" class="flex justify-center py-8 product-fade-up">
+        <div class="flex items-center gap-3 text-violet-500">
+          <div class="w-7 h-7 border-[3px] border-violet-200 border-t-violet-500 rounded-full animate-spin"></div>
+          <span class="text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'جاري تحميل المزيد...' : 'Loading more...' }}</span>
+        </div>
+      </div>
+
+      <!-- No more products -->
+      <div *ngIf="!hasMoreProducts && fallbackProducts.length > 0" class="flex justify-center py-6 product-fade-up">
+        <span class="text-xs text-gray-400 flex items-center gap-2">
+          <i class="fa-solid fa-check-circle text-violet-400"></i>
+          {{ i18n.currentLang === 'ar' ? 'تم عرض كل المنتجات' : 'All products loaded' }}
+        </span>
       </div>
     </div>
 

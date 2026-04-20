@@ -17,6 +17,7 @@ export interface Profile {
   taxNumber: string | null;
   businessAddress: string | null;
   nationalId: string | null;
+  storeLogo: string | null;
   isApproved: boolean;
 }
 
@@ -40,4 +41,5 @@ export interface UpdateProfile {
   businessName?: string;
   nationalId?: string;
   businessAddress?: string;
+  storeLogo?: string;
 }

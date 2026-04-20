@@ -12,6 +12,7 @@ export interface Product {
   stock: number;
   mainImage: string;
   images: string[];
+  videoUrl?: string;
   categoryId: number;
   categoryNameAr: string | null;
   categoryNameEn: string | null;
@@ -20,6 +21,7 @@ export interface Product {
   brandNameEn: string | null;
   vendorId: string;
   vendorName: string | null;
+  vendorStoreLogo: string | null;
   vendorIsVerified: boolean;
   status: number;
   isActive: boolean;
@@ -46,6 +48,7 @@ export interface ProductList {
   originalPrice: number | null;
   discountPercentage: number | null;
   mainImage: string;
+  videoUrl?: string;
   stock: number;
   isActive: boolean;
   rating: number;
@@ -83,6 +86,7 @@ export interface Store {
   vendorName: string;
   vendorAddress: string | null;
   phoneNumber: string | null;
+  storeLogo: string | null;
   productCount: number;
   totalOrders: number;
   averageRating: number;

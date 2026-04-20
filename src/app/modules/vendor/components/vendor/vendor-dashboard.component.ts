@@ -115,13 +115,17 @@ export class VendorDashboardComponent implements OnInit {
     mainImage: '',
     isActive: true,
     images: [] as string[],
+    videoUrl: '' as string,
     hasVariants: false,
     variants: [] as ProductVariant[]
   };
   selectedMainImage: File | null = null;
   selectedImages: File[] = [];
+  selectedVideo: File | null = null;
   mainImagePreview: string | null = null;
   imagesPreview: string[] = [];
+  videoPreview: string | null = null;
+  isUploadingVideo = false;
   isSubmitting = false;
 
   // Delete Dialog
@@ -698,7 +702,7 @@ export class VendorDashboardComponent implements OnInit {
   this.isEditMode = true;
   this.selectedProduct = product;
 
-  this.productsService.getById(product.id).subscribe({
+  this.productsService.getById(product.id, true).subscribe({
     next: (res) => {
       if (res.success) {
         const p = res.data;
@@ -718,6 +722,7 @@ export class VendorDashboardComponent implements OnInit {
           isFeatured: p.isFeatured,
           mainImage: p.mainImage,
           images: p.images || [],
+          videoUrl: p.videoUrl || '',
           hasVariants: p.hasVariants || false,
           variants: p.variants?.map((v: any) => ({
             id: v.id,
@@ -729,6 +734,7 @@ export class VendorDashboardComponent implements OnInit {
         };
         this.mainImagePreview = p.mainImage ? this.getImageUrl(p.mainImage) : null;
         this.imagesPreview = p.images?.map((img: string) => this.getImageUrl(img)) || [];
+        this.videoPreview = p.videoUrl ? this.getImageUrl(p.videoUrl) : null;
         this.showProductDialog = true;
         document.body.style.overflow = 'hidden';
         this.cdr.detectChanges();
@@ -760,13 +766,38 @@ export class VendorDashboardComponent implements OnInit {
       isFeatured: false,
       mainImage: '',
       images: [],
-      hasVariants: false,  // ✅
+      videoUrl: '',
+      hasVariants: false,
       variants: []
     };
     this.selectedMainImage = null;
     this.selectedImages = [];
+    this.selectedVideo = null;
     this.mainImagePreview = null;
     this.imagesPreview = [];
+    this.videoPreview = null;
+  }
+
+  onVideoSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+      this.showToast(this.i18n.currentLang === 'ar' ? 'حجم الفيديو يجب أن يكون أقل من 15 ميجا' : 'Video must be under 15MB', 'error');
+      return;
+    }
+    const allowed = ['video/mp4', 'video/webm', 'video/quicktime'];
+    if (!allowed.includes(file.type)) {
+      this.showToast(this.i18n.currentLang === 'ar' ? 'صيغة غير مدعومة. MP4, WebM, MOV فقط' : 'Only MP4, WebM, MOV allowed', 'error');
+      return;
+    }
+    this.selectedVideo = file;
+    this.videoPreview = URL.createObjectURL(file);
+  }
+
+  removeVideo(): void {
+    this.selectedVideo = null;
+    this.videoPreview = null;
+    this.productForm.videoUrl = '';
   }
 
   onMainImageSelected(event: Event): void {
@@ -837,10 +868,23 @@ export class VendorDashboardComponent implements OnInit {
         }
       }
 
+      let videoUrl = this.productForm.videoUrl;
+      if (this.selectedVideo) {
+        const vRes = await this.productsService.uploadVideo(this.selectedVideo).toPromise();
+        if (vRes?.success) {
+          videoUrl = vRes.data;
+        }
+      }
+
       const data = {
         ...this.productForm,
+        stock: Number(this.productForm.stock) || 0,
+        price: Number(this.productForm.price) || 0,
+        originalPrice: this.productForm.originalPrice ? Number(this.productForm.originalPrice) : null,
+        costPrice: this.productForm.costPrice ? Number(this.productForm.costPrice) : null,
         mainImage: mainImageUrl || 'https://via.placeholder.com/400',
-        images: imageUrls.length > 0 ? imageUrls : this.productForm.images
+        images: imageUrls.length > 0 ? imageUrls : this.productForm.images,
+        videoUrl: videoUrl || null
       };
 
       const request = this.isEditMode && this.selectedProduct

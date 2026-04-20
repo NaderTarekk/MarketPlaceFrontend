@@ -21,9 +21,9 @@
     <div class="product-main">
       <!-- Gallery Section -->
       <div class="gallery-section">
-        <!-- Main Image -->
+        <!-- Main Image / Video -->
         <div class="main-image-container">
-          <span *ngIf="getDiscountPercentage()" class="discount-badge">
+          <span *ngIf="getDiscountPercentage() && !showVideo" class="discount-badge">
             -{{ getDiscountPercentage() }}%
           </span>
           <span *ngIf="product.isFeatured" class="featured-badge">
@@ -31,23 +31,29 @@
             {{ i18n.currentLang === 'ar' ? 'مميز' : 'Featured' }}
           </span>
 
-          <button class="nav-btn prev" (click)="prevImage()" *ngIf="allImages.length > 1 && currentImageIndex > 0">
+          <button class="nav-btn prev" (click)="prevImage()" *ngIf="!showVideo && allImages.length > 1 && currentImageIndex > 0">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
 
-          <img [src]="selectedImage" [alt]="getName(product)" class="main-image" />
+          <img *ngIf="!showVideo" [src]="selectedImage" [alt]="getName(product)" class="main-image" />
+
+          <video *ngIf="showVideo && product.videoUrl" [src]="getImageUrl(product.videoUrl)" controls playsinline class="main-video"></video>
 
           <button class="nav-btn next" (click)="nextImage()"
-            *ngIf="allImages.length > 1 && currentImageIndex < allImages.length - 1">
+            *ngIf="!showVideo && allImages.length > 1 && currentImageIndex < allImages.length - 1">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
         </div>
 
         <!-- Thumbnails -->
-        <div class="thumbnails" *ngIf="allImages.length > 1">
-          <button *ngFor="let img of allImages; let i = index" class="thumb" [class.active]="currentImageIndex === i"
-            (click)="selectImage(img, i)">
+        <div class="thumbnails" *ngIf="allImages.length > 1 || product.videoUrl">
+          <button *ngFor="let img of allImages; let i = index" class="thumb" [class.active]="currentImageIndex === i && !showVideo"
+            (click)="showVideo = false; selectImage(img, i)">
             <img [src]="getImageUrl(img)" [alt]="'Image ' + (i + 1)" />
+          </button>
+          <button *ngIf="product.videoUrl" class="thumb video-thumb" [class.active]="showVideo"
+            (click)="showVideo = true">
+            <i class="fa-solid fa-play"></i>
           </button>
         </div>
       </div>
@@ -57,7 +63,8 @@
         <!-- Category & Brand -->
         <div class="meta-info">
           <a class="store-badge" [routerLink]="['/products']" [queryParams]="{vendorId: product.vendorId, storeName: product.vendorName}" *ngIf="product.vendorName">
-            <i class="fa-solid fa-store"></i>
+            <img *ngIf="product.vendorStoreLogo" [src]="getImageUrl(product.vendorStoreLogo)" class="store-badge-logo" [alt]="product.vendorName" />
+            <i *ngIf="!product.vendorStoreLogo" class="fa-solid fa-store"></i>
             {{ product.vendorName }}
           </a>
           <span class="category" *ngIf="product.categoryNameAr || product.categoryNameEn">
@@ -206,6 +213,38 @@
             </button>
           </div>
 
+          <!-- Delivery Estimate -->
+          <div class="delivery-estimate-section">
+            <div class="delivery-estimate-header">
+              <i class="fa-solid fa-truck-fast"></i>
+              <span>{{ i18n.currentLang === 'ar' ? 'مدة التوصيل المتوقعة' : 'Estimated Delivery' }}</span>
+              <span *ngIf="isDetectingLocation" class="detecting-badge">
+                <i class="fa-solid fa-location-crosshairs fa-spin"></i>
+                {{ i18n.currentLang === 'ar' ? 'جاري تحديد موقعك...' : 'Detecting location...' }}
+              </span>
+            </div>
+            <div class="delivery-gov-row">
+              <select class="delivery-gov-select" [(ngModel)]="selectedGovernorateId" (ngModelChange)="onGovernorateChange($event)">
+                <option [ngValue]="null" disabled>{{ i18n.currentLang === 'ar' ? 'اختر محافظتك' : 'Select your governorate' }}</option>
+                <option *ngFor="let gov of governorates" [ngValue]="gov.id">
+                  {{ i18n.currentLang === 'ar' ? gov.nameAr : gov.nameEn }}
+                </option>
+              </select>
+              <button *ngIf="!isDetectingLocation" class="detect-location-btn" (click)="detectUserLocation()" [title]="i18n.currentLang === 'ar' ? 'تحديد موقعي' : 'Detect my location'">
+                <i class="fa-solid fa-location-crosshairs"></i>
+              </button>
+            </div>
+            <div *ngIf="deliveryEstimate" class="delivery-estimate-result">
+              <div class="delivery-date-range">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>{{ deliveryEstimate.from }} — {{ deliveryEstimate.to }}</span>
+              </div>
+              <div class="delivery-days-badge">
+                {{ deliveryEstimate.days }} {{ i18n.currentLang === 'ar' ? 'أيام عمل' : 'business days' }}
+              </div>
+            </div>
+          </div>
+
           <!-- Secondary Actions -->
           <div class="secondary-actions">
             <button class="icon-btn" [class.active]="isInWishlist" (click)="toggleWishlist()">
@@ -297,11 +336,35 @@
         </div>
 
         <!-- Out of Stock Message -->
-        <div class="out-of-stock-message" *ngIf="product.stock === 0">
-          <i class="fa-solid fa-bell"></i>
-          <p>{{ i18n.currentLang === 'ar' ? 'هذا المنتج غير متوفر حالياً' : 'This product is currently unavailable' }}</p>
-          <button class="btn-notify">
-            {{ i18n.currentLang === 'ar' ? 'أبلغني عند التوفر' : 'Notify me when available' }}
+        <div class="oos-card" *ngIf="product.stock === 0">
+          <div class="oos-icon-wrap">
+            <div class="oos-icon-ring">
+              <i class="fa-solid fa-box-open"></i>
+            </div>
+          </div>
+          <div class="oos-content">
+            <h3 class="oos-title">
+              {{ i18n.currentLang === 'ar' ? 'نفد من المخزون' : 'Out of Stock' }}
+            </h3>
+            <p class="oos-text">
+              {{ i18n.currentLang === 'ar'
+                ? 'هذا المنتج غير متوفر حالياً. سجّل بريدك وسنبلغك فور توفره!'
+                : 'This product is currently unavailable. Subscribe and we\'ll notify you when it\'s back!' }}
+            </p>
+          </div>
+          <button
+            class="btn-notify"
+            [class.btn-notify--done]="isNotifyRequested"
+            (click)="notifyWhenAvailable()"
+            [disabled]="isSubmittingNotify || isNotifyRequested">
+            <i *ngIf="isSubmittingNotify" class="fa-solid fa-spinner fa-spin"></i>
+            <i *ngIf="isNotifyRequested && !isSubmittingNotify" class="fa-solid fa-circle-check"></i>
+            <i *ngIf="!isNotifyRequested && !isSubmittingNotify" class="fa-solid fa-bell"></i>
+            <span>
+              {{ isNotifyRequested
+                ? (i18n.currentLang === 'ar' ? 'تم التسجيل — سنبلغك عند التوفر' : 'Subscribed — We\'ll notify you')
+                : (i18n.currentLang === 'ar' ? 'أبلغني عند التوفر' : 'Notify me when available') }}
+            </span>
           </button>
         </div>
 

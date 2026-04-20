@@ -30,8 +30,9 @@ export class ProductsService {
     return this.http.get<PagedResponse<ProductList[]>>(`${environment.productsUrl}?${params}`);
   }
 
-  getById(id: number): Observable<ApiResponse<Product>> {
-    return this.http.get<ApiResponse<Product>>(`${environment.productsUrl}/${id}`);
+  getById(id: number, raw: boolean = false): Observable<ApiResponse<Product>> {
+    const params = raw ? '?raw=true' : '';
+    return this.http.get<ApiResponse<Product>>(`${environment.productsUrl}/${id}${params}`);
   }
 
   getFeatured(count: number = 8): Observable<ApiResponse<ProductList[]>> {
@@ -127,6 +128,16 @@ export class ProductsService {
     formData.append('file', file);
     return this.http.post<ApiResponse<string>>(
       `${environment.productsUrl}/upload-image`,
+      formData,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  uploadVideo(file: File): Observable<ApiResponse<string>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<string>>(
+      `${environment.productsUrl}/upload-video`,
       formData,
       { headers: this.getHeaders() }
     );
@@ -263,6 +274,21 @@ export class ProductsService {
     return this.http.patch<ApiResponse<Product>>(
       `${environment.productsUrl}/${id}/status`,
       { status: 2 }, // ProductStatus.Rejected = 2
+      { headers: this.getHeaders() }
+    );
+  }
+
+  notifyWhenAvailable(productId: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${environment.productsUrl}/${productId}/notify-availability`,
+      {},
+      { headers: this.getHeaders() }
+    );
+  }
+
+  checkNotifySubscription(productId: number): Observable<ApiResponse<boolean>> {
+    return this.http.get<ApiResponse<boolean>>(
+      `${environment.productsUrl}/${productId}/notify-availability/check`,
       { headers: this.getHeaders() }
     );
   }

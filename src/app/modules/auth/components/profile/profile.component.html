@@ -415,6 +415,40 @@
                         </div>
                     </div>
 
+                    <!-- Store Logo -->
+                    <div class="info-item full-width">
+                        <label>
+                            <i class="fa-solid fa-image"></i>
+                            {{ i18n.currentLang === 'ar' ? 'لوجو المتجر' : 'Store Logo' }}
+                        </label>
+                        <div class="store-logo-section">
+                            <div class="store-logo-preview">
+                                <img *ngIf="storeLogoPreview || profile.storeLogo"
+                                    [src]="storeLogoPreview || getImageUrl(profile.storeLogo)"
+                                    [alt]="profile.businessName || 'Store'" class="store-logo-img" />
+                                <div *ngIf="!storeLogoPreview && !profile.storeLogo" class="store-logo-placeholder">
+                                    <i class="fa-solid fa-store"></i>
+                                </div>
+                            </div>
+                            <div class="store-logo-actions">
+                                <label class="btn-choose-logo">
+                                    <input type="file" accept="image/*" (change)="onStoreLogoSelect($event)" hidden />
+                                    <i class="fa-solid fa-upload"></i>
+                                    {{ i18n.currentLang === 'ar' ? 'اختر صورة' : 'Choose Image' }}
+                                </label>
+                                <div *ngIf="storeLogoPreview" class="logo-confirm-actions">
+                                    <button class="btn-save-logo" (click)="uploadStoreLogo()" [disabled]="isUploadingStoreLogo">
+                                        <i class="fa-solid" [ngClass]="isUploadingStoreLogo ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                                        {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+                                    </button>
+                                    <button class="btn-cancel-logo" (click)="cancelStoreLogoUpload()">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Business Name -->
                     <div class="info-item readonly">
                         <label>

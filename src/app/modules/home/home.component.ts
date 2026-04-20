@@ -1,6 +1,6 @@
 // src/app/modules/home/home.component.ts
 import {
-  ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit
+  ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
@@ -10,6 +10,7 @@ import { ProductsService } from '../products/services/products.service';
 import { CartService } from '../cart/services/cart.service';
 import { Category } from '../../models/category';
 import { environment } from '../../../environment';
+import { GovernorateService } from '../adamin/services/governorate.service';
 
 // ─── kept for product-card compatibility ───────────────────────────────────────
 export interface Product {
@@ -128,6 +129,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Fallback products (shown when no featured sections) ────────────────────
   fallbackProducts: any[] = [];
   isLoadingFallback = false;
+  fallbackPage = 1;
+  fallbackPageSize = 12;
+  hasMoreProducts = true;
+  isLoadingMore = false;
+
+  // ── Delivery Estimate ─────────────────────────────────────────────────────
+  userDeliveryDays: number | null = null;
 
   // ── Newsletter ─────────────────────────────────────────────────────────────
   newsletterEmail = '';
@@ -144,14 +152,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     private productsService: ProductsService,
     private cartService: CartService,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private governorateService: GovernorateService
   ) { }
 
   // ══════════════════════════════════════════════════════════════════════════
   ngOnInit(): void {
     this.loadCategories();
     this.loadBanners();
-    this.loadTopSellingProducts(); // ✅ خليها هنا
+    this.loadTopSellingProducts();
+    this.loadUserDeliveryDays();
     // this.loadFeaturedSections();
     this.isLoadingSections = false;
     this.loadStats();
@@ -163,6 +173,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.bannerTimer) clearInterval(this.bannerTimer);
     this.statTimers.forEach(t => clearInterval(t));
+    this.scrollObserver?.disconnect();
+    this.revealObserver?.disconnect();
   }
 
   // ── Data loaders ───────────────────────────────────────────────────────────
@@ -230,33 +242,118 @@ export class HomeComponent implements OnInit, OnDestroy {
   // }
 
   loadTopSellingProducts(): void {
-    // this.isLoadingFallback = true;
-    this.productsService.getTopSelling(12).subscribe({
+    this.isLoadingFallback = true;
+    this.productsService.getAll({
+      page: 1,
+      pageSize: this.fallbackPageSize,
+      sortBy: 'salesCount',
+      sortDesc: true
+    }).subscribe({
       next: (res: any) => this.ngZone.run(() => {
         if (res.success && res.data) {
-          this.fallbackProducts = res.data.map((p: any) => ({
-            id: p.id,
-            nameAr: p.nameAr,
-            nameEn: p.nameEn,
-            mainImage: p.mainImage,
-            descriptionAr: p.descriptionAr,
-            descriptionEn: p.descriptionEn,
-            price: p.price,
-            originalPrice: p.originalPrice,
-            rating: p.rating || 0,
-            reviewCount: p.reviewCount || 0,
-            isWishlisted: false
-          }));
+          this.fallbackProducts = this.mapProducts(res.data);
+          this.hasMoreProducts = res.data.length >= this.fallbackPageSize;
+          this.fallbackPage = 2;
         }
-
         this.isLoadingFallback = false;
         this.cdr.detectChanges();
+        this.setupScrollObserver();
       }),
-      error: (err) => this.ngZone.run(() => {
+      error: () => this.ngZone.run(() => {
         this.isLoadingFallback = false;
         this.cdr.detectChanges();
       })
     });
+  }
+
+  loadMoreProducts(): void {
+    if (this.isLoadingMore || !this.hasMoreProducts) return;
+    this.isLoadingMore = true;
+    this.cdr.detectChanges();
+
+    this.productsService.getAll({
+      page: this.fallbackPage,
+      pageSize: this.fallbackPageSize,
+      sortBy: 'salesCount',
+      sortDesc: true
+    }).subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        if (res.success && res.data) {
+          this.fallbackProducts = [...this.fallbackProducts, ...this.mapProducts(res.data)];
+          this.hasMoreProducts = res.data.length >= this.fallbackPageSize;
+          this.fallbackPage++;
+        }
+        this.isLoadingMore = false;
+        this.cdr.detectChanges();
+        this.observeNewCards();
+      }),
+      error: () => this.ngZone.run(() => {
+        this.isLoadingMore = false;
+        this.cdr.detectChanges();
+      })
+    });
+  }
+
+  private mapProducts(data: any[]): any[] {
+    return data.map((p: any) => ({
+      id: p.id,
+      nameAr: p.nameAr,
+      nameEn: p.nameEn,
+      mainImage: p.mainImage,
+      descriptionAr: p.descriptionAr,
+      descriptionEn: p.descriptionEn,
+      price: p.price,
+      originalPrice: p.originalPrice,
+      rating: p.rating || 0,
+      reviewCount: p.reviewCount || 0,
+      stock: p.stock ?? 1,
+      isWishlisted: false
+    }));
+  }
+
+  @ViewChild('scrollSentinel') scrollSentinel!: ElementRef;
+  private scrollObserver?: IntersectionObserver;
+  private revealObserver?: IntersectionObserver;
+
+  setupScrollObserver(): void {
+    setTimeout(() => {
+      const el = this.scrollSentinel?.nativeElement;
+      if (!el) return;
+      this.scrollObserver?.disconnect();
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && this.hasMoreProducts && !this.isLoadingMore) {
+            this.ngZone.run(() => this.loadMoreProducts());
+          }
+        },
+        { rootMargin: '400px' }
+      );
+      this.scrollObserver.observe(el);
+      this.setupRevealObserver();
+    }, 500);
+  }
+
+  setupRevealObserver(): void {
+    this.revealObserver?.disconnect();
+    this.revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            this.revealObserver?.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+    this.observeNewCards();
+  }
+
+  observeNewCards(): void {
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.product-reveal:not(.visible)');
+      cards.forEach(card => this.revealObserver?.observe(card));
+    }, 100);
   }
 
   loadFallbackProducts(): void {
@@ -462,6 +559,30 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!img.src.includes('placeholder.svg')) {
       img.src = 'assets/images/placeholder.svg';
     }
+  }
+
+  // ── Delivery Estimate ─────────────────────────────────────────────────────
+  loadUserDeliveryDays(): void {
+    const savedGovId = localStorage.getItem('selectedGovernorateId');
+    if (!savedGovId) return;
+    this.governorateService.getAll(true).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          const gov = res.data.find((g: any) => g.id === +savedGovId);
+          if (gov) {
+            this.userDeliveryDays = gov.estimatedDeliveryDays || 3;
+            this.cdr.detectChanges();
+          }
+        }
+      }
+    });
+  }
+
+  getDeliveryText(): string {
+    if (!this.userDeliveryDays) return '';
+    return this.i18n.currentLang === 'ar'
+      ? `🚚 التوصيل خلال ${this.userDeliveryDays} أيام عمل`
+      : `🚚 Delivery in ${this.userDeliveryDays} business days`;
   }
 
   getStars(rating: number): number[] { return Array(5).fill(0).map((_, i) => i < rating ? 1 : 0); }

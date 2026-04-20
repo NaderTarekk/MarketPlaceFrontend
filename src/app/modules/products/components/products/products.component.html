@@ -4,28 +4,85 @@
     <!-- Hero -->
     <section class="hero">
         <div class="hero-bg"></div>
+        <div class="hero-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+        <div class="hero-grid-lines"></div>
         <div class="hero-content">
-            <h1>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</h1>
-            <p>{{ i18n.currentLang === 'ar' ? 'اكتشف مجموعتنا المميزة من المنتجات' : 'Discover our amazing collection'
-                }}</p>
-            <a routerLink="/products/stores" class="stores-hero-btn">
-                <i class="fa-solid fa-store"></i>
-                {{ i18n.currentLang === 'ar' ? 'تصفح المتاجر' : 'Browse Stores' }}
-            </a>
+            <span class="hero-badge">
+                <span class="badge-dot"></span>
+                {{ i18n.currentLang === 'ar' ? 'تشكيلة حصرية' : 'Exclusive Collection' }}
+            </span>
+            <h1>
+                {{ i18n.currentLang === 'ar' ? 'اكتشف عالم' : 'Discover a World of' }}
+                <span class="hero-highlight">{{ i18n.currentLang === 'ar' ? 'التسوّق' : 'Shopping' }}</span>
+            </h1>
+            <p>{{ i18n.currentLang === 'ar' ? 'أفضل العلامات التجارية · أسعار لا تُقاوم · توصيل سريع' : 'Top Brands · Unbeatable Prices · Fast Delivery' }}</p>
+            <div class="hero-actions">
+                <a routerLink="/products/stores" class="stores-hero-btn primary" style="color: #fff;">
+                    <i class="fa-solid fa-store"></i>
+                    {{ i18n.currentLang === 'ar' ? 'تصفح المتاجر' : 'Browse Stores' }}
+                    <i class="fa-solid fa-arrow-right hero-arrow"></i>
+                </a>
+            </div>
         </div>
     </section>
 
-    <!-- Store Filter Banner -->
-    <div class="store-filter-banner" *ngIf="filter.vendorId && activeStoreName">
-        <i class="fa-solid fa-store"></i>
-        <span>
-            {{ i18n.currentLang === 'ar' ? 'منتجات متجر:' : 'Products from store:' }}
-            <strong>{{ activeStoreName }}</strong>
-        </span>
-        <a routerLink="/products" class="clear-store-filter">
-            <i class="fa-solid fa-times"></i>
-            {{ i18n.currentLang === 'ar' ? 'عرض الكل' : 'View All' }}
-        </a>
+    <!-- Store Profile Header -->
+    <div class="store-profile-header" *ngIf="filter.vendorId && activeStoreName">
+        <div class="store-profile-container">
+            <!-- Logo -->
+            <div class="store-profile-logo">
+                <img *ngIf="activeStore?.storeLogo" [src]="getStoreLogoUrl(activeStore!.storeLogo)" [alt]="activeStoreName" />
+                <div *ngIf="!activeStore?.storeLogo" class="store-profile-initials">
+                    {{ getStoreInitials(activeStoreName) }}
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="store-profile-info">
+                <div class="store-profile-name-row">
+                    <h2>{{ activeStoreName }}</h2>
+                    <span *ngIf="activeStore?.isVerified" class="store-verified-badge">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ i18n.currentLang === 'ar' ? 'موثق' : 'Verified' }}
+                    </span>
+                </div>
+                <p *ngIf="activeStore?.vendorAddress" class="store-profile-address">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {{ activeStore!.vendorAddress }}
+                </p>
+            </div>
+
+            <!-- Stats -->
+            <div class="store-profile-stats" *ngIf="activeStore">
+                <div class="store-stat">
+                    <i class="fa-solid fa-box"></i>
+                    <div class="store-stat-data">
+                        <span class="store-stat-value">{{ activeStore.productCount }}</span>
+                        <span class="store-stat-label">{{ i18n.currentLang === 'ar' ? 'منتج' : 'Products' }}</span>
+                    </div>
+                </div>
+                <div class="store-stat">
+                    <i class="fa-solid fa-shopping-bag"></i>
+                    <div class="store-stat-data">
+                        <span class="store-stat-value">{{ activeStore.totalOrders }}</span>
+                        <span class="store-stat-label">{{ i18n.currentLang === 'ar' ? 'طلب' : 'Orders' }}</span>
+                    </div>
+                </div>
+                <div class="store-stat" *ngIf="activeStore.averageRating > 0">
+                    <i class="fa-solid fa-star"></i>
+                    <div class="store-stat-data">
+                        <span class="store-stat-value">{{ activeStore.averageRating }}</span>
+                        <span class="store-stat-label">{{ i18n.currentLang === 'ar' ? 'التقييم' : 'Rating' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Close (hidden) -->
+        </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════ -->
@@ -78,7 +135,11 @@
             </div>
 
             <!-- Products Scroll -->
-            <div class="brand-products-track" *ngIf="!isBrandLoading">
+            <div class="brand-products-wrapper" *ngIf="!isBrandLoading">
+            <button class="scroll-arrow scroll-left" (click)="scrollBrandProducts('left')">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="brand-products-track" #brandProductsTrack>
                 <a *ngFor="let product of brandBestSellers" [routerLink]="['/products', product.id]"
                     class="brand-product-card">
                     <div class="brand-product-img">
@@ -102,6 +163,10 @@
                         </div>
                     </div>
                 </a>
+            </div>
+            <button class="scroll-arrow scroll-right" (click)="scrollBrandProducts('right')">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
             </div>
 
             <!-- Loading -->
@@ -356,8 +421,10 @@
 
                 <!-- Grid View -->
                 <div *ngIf="!isLoading && products.length > 0 && viewMode === 'grid'" class="products-grid">
-                    <div *ngFor="let product of products; trackBy: trackByProduct" class="product-card"
-                        [class.inactive]="!product.isActive">
+                    <div *ngFor="let product of products; let i = index; trackBy: trackByProduct"
+                        class="product-card product-reveal"
+                        [class.inactive]="!product.isActive"
+                        [style.transition-delay]="(i % 9) * 60 + 'ms'">
                         <!-- Inactive Badge -->
                         <span *ngIf="!product.isActive" class="inactive-badge">
                             <i class="fa-solid fa-eye-slash"></i>
@@ -388,8 +455,13 @@
                             <i class="fa-solid fa-star"></i>
                         </span>
 
+                        <span *ngIf="product.stock <= 0" class="sold-out-overlay">
+                            <i class="fa-solid fa-ban"></i>
+                            {{ i18n.currentLang === 'ar' ? 'نفذت الكمية' : 'Sold Out' }}
+                        </span>
+
                         <!-- Image - Clickable -->
-                        <div class="product-image" (click)="goToProduct(product.id)">
+                        <div class="product-image" (click)="goToProduct(product.id)" [class.grayscale]="product.stock <= 0">
                             <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" loading="lazy" />
                             <div class="image-overlay">
                                 <button class="quick-view-btn" (click)="goToProduct(product.id)">
@@ -426,6 +498,12 @@
                                 : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock')
                                 }}
                             </span>
+                        </div>
+
+                        <!-- Delivery Estimate -->
+                        <div *ngIf="userDeliveryDays" class="delivery-badge-card">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            {{ getDeliveryText() }}
                         </div>
 
                         <!-- Add to Cart -->
@@ -487,44 +565,20 @@
                     </a>
                 </div>
 
-                <!-- Pagination -->
-                <div *ngIf="!isLoading && products.length > 0 && totalPages > 1" class="pagination">
-                    <button class="page-btn prev" (click)="prevPage()" [disabled]="!hasPrev"
-                        [class.disabled]="!hasPrev">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'السابق' : 'Previous' }}</span>
-                    </button>
+                <!-- Scroll sentinel -->
+                <div #productsSentinel class="h-1"></div>
 
-                    <div class="page-numbers">
-                        <button *ngIf="getPageNumbers()[0] > 1" class="page-num" (click)="goToPage(1)">1</button>
-                        <span *ngIf="getPageNumbers()[0] > 2" class="dots">...</span>
-
-                        <button *ngFor="let page of getPageNumbers()" class="page-num"
-                            [class.active]="page === currentPage" (click)="goToPage(page)">
-                            {{ page }}
-                        </button>
-
-                        <span *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1"
-                            class="dots">...</span>
-                        <button *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages" class="page-num"
-                            (click)="goToPage(totalPages)">
-                            {{ totalPages }}
-                        </button>
-                    </div>
-
-                    <button class="page-btn next" (click)="nextPage()" [disabled]="!hasNext"
-                        [class.disabled]="!hasNext">
-                        <span class="btn-text">{{ i18n.currentLang === 'ar' ? 'التالي' : 'Next' }}</span>
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
+                <!-- Loading more -->
+                <div *ngIf="isLoadingMore" class="loading-more">
+                    <div class="loading-more-spinner"></div>
+                    <span>{{ i18n.currentLang === 'ar' ? 'جاري تحميل المزيد...' : 'Loading more...' }}</span>
                 </div>
 
-                <!-- Page Info -->
-                <div *ngIf="!isLoading && products.length > 0" class="page-info">
-                    {{ i18n.currentLang === 'ar' ? 'صفحة' : 'Page' }} {{ currentPage }}
-                    {{ i18n.currentLang === 'ar' ? 'من' : 'of' }} {{ totalPages }}
-                    <span class="separator">|</span>
-                    {{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
+                <!-- All loaded -->
+                <div *ngIf="!isLoading && !hasNext && products.length > 0" class="all-loaded">
+                    <i class="fa-solid fa-check-circle"></i>
+                    {{ i18n.currentLang === 'ar' ? 'تم عرض كل المنتجات' : 'All products loaded' }}
+                    <span class="total-badge">{{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}</span>
                 </div>
             </main>
         </div>

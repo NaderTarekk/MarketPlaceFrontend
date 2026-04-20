@@ -1,5 +1,15 @@
 /* src/app/modules/home/home.component.css */
 
+.product-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.product-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;

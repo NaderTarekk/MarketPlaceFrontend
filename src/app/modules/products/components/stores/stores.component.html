@@ -37,9 +37,10 @@
     <div *ngIf="!isLoading && filteredStores.length > 0" class="stores-grid">
       <div *ngFor="let store of filteredStores" class="store-card" (click)="browseStore(store)">
         <!-- Avatar -->
-        <div class="store-avatar">
+        <div class="store-avatar" *ngIf="!store.storeLogo">
           <span>{{ getInitials(store.vendorName) }}</span>
         </div>
+        <img *ngIf="store.storeLogo" class="store-logo" [src]="getImageUrl(store.storeLogo)" [alt]="store.vendorName" />
 
         <!-- Info -->
         <div class="store-info">

@@ -914,6 +914,30 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- فيديو المنتج -->
+                <div class="form-group full-width">
+                    <label>
+                        <i class="fa-solid fa-video"></i>
+                        {{ i18n.currentLang === 'ar' ? 'فيديو المنتج (اختياري - حد أقصى 15 ميجا)' : 'Product Video (optional - max 15MB)' }}
+                    </label>
+                    <div class="multi-upload">
+                        <input type="file" id="videoVendor" accept="video/mp4,video/webm,video/quicktime"
+                            (change)="onVideoSelected($event)" hidden />
+                        <label *ngIf="!videoPreview" for="videoVendor" class="upload-box small video-upload-box">
+                            <i class="fa-solid fa-film"></i>
+                        </label>
+                        <div *ngIf="videoPreview" class="video-preview-box">
+                            <video [src]="videoPreview" class="video-thumb-preview"></video>
+                            <button class="remove-btn" (click)="removeVideo()">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                            <span class="video-label">
+                                <i class="fa-solid fa-play"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Note -->

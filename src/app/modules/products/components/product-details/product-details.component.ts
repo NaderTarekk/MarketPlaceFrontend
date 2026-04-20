@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductsService } from '../../services/products.service';
 import { environment } from '../../../../../environment';
 import { AuthService } from '../../../auth/services/auth.service';
+import { GovernorateService } from '../../../adamin/services/governorate.service';
+import { Governorate } from '../../../../models/governorate';
 import { ReviewFilter, ReviewResponse } from '../../../../models/review';
 import { CartService } from '../../../cart/services/cart.service';
 import { ComplaintsService } from '../../../complaints/services/complaints.service';
@@ -48,6 +50,12 @@ export class ProductDetailsComponent implements OnInit {
   // Gallery
   selectedImage: string = '';
   currentImageIndex = 0;
+  showVideo = false;
+
+  // Delivery Estimate
+  governorates: Governorate[] = [];
+  selectedGovernorateId: number | null = null;
+  deliveryEstimate: { from: string; to: string; days: number } | null = null;
 
   // Complaint
   showComplaintForm = false;
@@ -64,6 +72,10 @@ export class ProductDetailsComponent implements OnInit {
   // Wishlist
   isInWishlist = false;
 
+  // Notify
+  isNotifyRequested = false;
+  isSubmittingNotify = false;
+
   // Toast
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
@@ -76,7 +88,8 @@ export class ProductDetailsComponent implements OnInit {
     private authService: AuthService,
     private cartService: CartService,
     private complaintsService: ComplaintsService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private governorateService: GovernorateService
   ) { }
 
   ngOnInit(): void {
@@ -86,6 +99,7 @@ export class ProductDetailsComponent implements OnInit {
         this.loadProduct(id);
       }
     });
+    this.loadGovernorates();
   }
 
   loadProduct(id: number): void {
@@ -97,6 +111,7 @@ export class ProductDetailsComponent implements OnInit {
           this.selectedImage = this.getImageUrl(this.product.mainImage);
           this.loadRelatedProducts(id);
           this.checkWishlist(id);
+          this.checkNotifySubscription(id);
           this.loadReviews(id);
         } else {
           this.router.navigate(['/products']);
@@ -530,4 +545,176 @@ export class ProductDetailsComponent implements OnInit {
     }, 3000);
   }
 
+  // ═══════════════════════════════════════════════
+  // DELIVERY ESTIMATE
+  // ═══════════════════════════════════════════════
+
+  loadGovernorates(): void {
+    this.governorateService.getAll(true).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.governorates = res.data;
+          // Auto-select if user has a saved address
+          this.autoSelectGovernorate();
+        }
+      }
+    });
+  }
+
+  autoSelectGovernorate(): void {
+    const savedGovId = localStorage.getItem('selectedGovernorateId');
+    if (savedGovId) {
+      this.selectedGovernorateId = +savedGovId;
+      this.calculateDeliveryEstimate();
+    } else {
+      this.detectUserLocation();
+    }
+  }
+
+  isDetectingLocation = false;
+
+  detectUserLocation(): void {
+    if (!navigator.geolocation) return;
+    this.isDetectingLocation = true;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`)
+          .then(r => r.json())
+          .then(data => {
+            const state = data.address?.state || data.address?.governorate || data.address?.city || '';
+            this.matchGovernorate(state);
+            this.isDetectingLocation = false;
+            this.cdr.detectChanges();
+          })
+          .catch(() => { this.isDetectingLocation = false; this.cdr.detectChanges(); });
+      },
+      () => { this.isDetectingLocation = false; this.cdr.detectChanges(); },
+      { timeout: 5000 }
+    );
+  }
+
+  private matchGovernorate(locationName: string): void {
+    if (!locationName || !this.governorates.length) return;
+    const name = locationName.toLowerCase().replace(/governorate|محافظة/gi, '').trim();
+
+    const gov = this.governorates.find(g =>
+      g.nameEn.toLowerCase().includes(name) ||
+      name.includes(g.nameEn.toLowerCase()) ||
+      g.nameAr.includes(name) ||
+      name.includes(g.nameAr)
+    );
+
+    if (gov) {
+      this.selectedGovernorateId = gov.id;
+      localStorage.setItem('selectedGovernorateId', String(gov.id));
+      this.calculateDeliveryEstimate();
+    }
+  }
+
+  onGovernorateChange(govId: number): void {
+    this.selectedGovernorateId = govId;
+    localStorage.setItem('selectedGovernorateId', String(govId));
+    this.calculateDeliveryEstimate();
+  }
+
+  calculateDeliveryEstimate(): void {
+    if (!this.selectedGovernorateId) {
+      this.deliveryEstimate = null;
+      return;
+    }
+    const gov = this.governorates.find(g => g.id === this.selectedGovernorateId);
+    if (!gov) return;
+
+    const days = gov.estimatedDeliveryDays || 3;
+    const fromDate = this.addBusinessDays(new Date(), Math.max(1, days - 1));
+    const toDate = this.addBusinessDays(new Date(), days + 1);
+
+    this.deliveryEstimate = {
+      from: this.formatDeliveryDate(fromDate),
+      to: this.formatDeliveryDate(toDate),
+      days
+    };
+    this.cdr.detectChanges();
+  }
+
+  private addBusinessDays(start: Date, days: number): Date {
+    const result = new Date(start);
+    let added = 0;
+    while (added < days) {
+      result.setDate(result.getDate() + 1);
+      if (result.getDay() !== 5) { // skip Friday
+        added++;
+      }
+    }
+    return result;
+  }
+
+  private formatDeliveryDate(date: Date): string {
+    const lang = this.i18n.currentLang;
+    return date.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  getSelectedGovernorateName(): string {
+    const gov = this.governorates.find(g => g.id === this.selectedGovernorateId);
+    if (!gov) return '';
+    return this.i18n.currentLang === 'ar' ? gov.nameAr : gov.nameEn;
+  }
+
+  checkNotifySubscription(productId: number): void {
+    if (this.authService.isLoggedIn()) {
+      this.productService.checkNotifySubscription(productId).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.isNotifyRequested = res.data;
+            this.cdr.markForCheck();
+          }
+        }
+      });
+    }
+  }
+
+  notifyWhenAvailable(): void {
+    if (!this.product) return;
+
+    if (!this.authService.isLoggedIn()) {
+      this.showToast(
+        this.i18n.currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first',
+        'error'
+      );
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.isSubmittingNotify = true;
+    this.productService.notifyWhenAvailable(this.product.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.isNotifyRequested = true;
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? 'سيتم إبلاغك عند توفر المنتج'
+              : 'You will be notified when this product is available',
+            'success'
+          );
+        } else {
+          this.showToast(res.message, 'error');
+        }
+        this.isSubmittingNotify = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showToast(
+          err.error?.message || (this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'An error occurred'),
+          'error'
+        );
+        this.isSubmittingNotify = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }

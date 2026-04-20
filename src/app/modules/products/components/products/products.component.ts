@@ -1,6 +1,6 @@
 // products.component.ts
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
-import { ProductFilter, ProductList } from '../../../../models/products';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ProductFilter, ProductList, Store } from '../../../../models/products';
 import { Category } from '../../../../models/category';
 import { Brand } from '../../../../models/brand';
 import { I18nService } from '../../../../core/services/i18n.service';
@@ -10,6 +10,7 @@ import { environment } from '../../../../../environment';
 import { AuthService } from '../../../auth/services/auth.service';
 import { CartService } from '../../../cart/services/cart.service';
 import { forkJoin } from 'rxjs';
+import { GovernorateService } from '../../../adamin/services/governorate.service';
 
 @Component({
   selector: 'app-products',
@@ -18,7 +19,14 @@ import { forkJoin } from 'rxjs';
   styleUrl: './products.component.css',
   changeDetection: ChangeDetectionStrategy.Default
 })
-export class ProductsComponent implements OnInit {
+export class ProductsComponent implements OnInit, OnDestroy {
+  @ViewChild('brandProductsTrack') brandProductsTrack!: ElementRef;
+  @ViewChild('productsSentinel') productsSentinel!: ElementRef;
+  private scrollObserver?: IntersectionObserver;
+  private revealObserver?: IntersectionObserver;
+  isLoadingMore = false;
+  userDeliveryDays: number | null = null;
+
   showAddDialog = false;
   showEditDialog = false;
   showDeleteDialog = false;
@@ -62,7 +70,6 @@ export class ProductsComponent implements OnInit {
 
   isLoading = true;
   isAdmin = false;
-  isLoadingMore = false;
 
   // Filter
   filter: ProductFilter = {
@@ -101,6 +108,7 @@ export class ProductsComponent implements OnInit {
 
   selectedSort = 'newest';
   activeStoreName: string | null = null;
+  activeStore: Store | null = null;
 
   selectedBrand: Brand | null = null;
   selectedBrandId: number | null = null;
@@ -119,7 +127,8 @@ export class ProductsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private cartService: CartService,
     private authService: AuthService,
-    private ngZone: NgZone 
+    private ngZone: NgZone,
+    private governorateService: GovernorateService
   ) { }
 
   ngOnInit(): void {
@@ -129,6 +138,7 @@ export class ProductsComponent implements OnInit {
 
     this.loadCategoriesHierarchy();
     this.loadBrands();
+    this.loadUserDeliveryDays();
 
     // Read query params
     this.route.queryParams.subscribe(params => {
@@ -156,6 +166,9 @@ export class ProductsComponent implements OnInit {
       if (params['vendorId']) {
         this.filter.vendorId = params['vendorId'];
         this.activeStoreName = params['storeName'] || null;
+        this.loadStoreInfo(params['vendorId']);
+      } else {
+        this.activeStore = null;
       }
 
       this.loadProducts();
@@ -168,6 +181,7 @@ export class ProductsComponent implements OnInit {
 
   loadProducts(): void {
     this.isLoading = true;
+    this.filter.page = 1;
 
     this.productService.getAll(this.filter).subscribe({
       next: (res) => {
@@ -185,11 +199,107 @@ export class ProductsComponent implements OnInit {
         }
         this.isLoading = false;
         this.cdr.markForCheck();
+        this.setupScrollAndReveal();
       },
       error: () => {
         this.isLoading = false;
       }
     });
+  }
+
+  loadMoreProducts(): void {
+    if (this.isLoadingMore || !this.hasNext) return;
+    this.isLoadingMore = true;
+    this.filter.page = this.currentPage + 1;
+
+    this.productService.getAll(this.filter).subscribe({
+      next: (res) => {
+        if (res.success) {
+          const newProducts = res.data.filter((p: ProductList) => {
+            const brand = this.brands.find(b => b.id === p.brandId);
+            return !brand || !brand.isBlocked;
+          });
+          this.products = [...this.products, ...newProducts];
+          this.totalCount = res.pagination.totalCount;
+          this.totalPages = res.pagination.totalPages;
+          this.currentPage = res.pagination.currentPage;
+          this.hasPrev = res.pagination.hasPrevious;
+          this.hasNext = res.pagination.hasNext;
+        }
+        this.isLoadingMore = false;
+        this.cdr.markForCheck();
+        this.observeNewCards();
+      },
+      error: () => {
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
+  private setupScrollAndReveal(): void {
+    setTimeout(() => {
+      // Infinite scroll observer
+      const sentinel = this.productsSentinel?.nativeElement;
+      if (sentinel) {
+        this.scrollObserver?.disconnect();
+        this.scrollObserver = new IntersectionObserver(
+          (entries) => {
+            if (entries[0].isIntersecting && this.hasNext && !this.isLoadingMore) {
+              this.loadMoreProducts();
+            }
+          },
+          { rootMargin: '400px' }
+        );
+        this.scrollObserver.observe(sentinel);
+      }
+
+      // Reveal observer
+      this.revealObserver?.disconnect();
+      this.revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              this.revealObserver?.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '50px' }
+      );
+      this.observeNewCards();
+    }, 300);
+  }
+
+  private observeNewCards(): void {
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.product-reveal:not(.visible)');
+      cards.forEach(card => this.revealObserver?.observe(card));
+    }, 100);
+  }
+
+  loadUserDeliveryDays(): void {
+    const savedGovId = localStorage.getItem('selectedGovernorateId');
+    if (!savedGovId) return;
+    this.governorateService.getAll(true).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          const gov = res.data.find((g: any) => g.id === +savedGovId);
+          if (gov) this.userDeliveryDays = gov.estimatedDeliveryDays || 3;
+        }
+      }
+    });
+  }
+
+  getDeliveryText(): string {
+    if (!this.userDeliveryDays) return '';
+    return this.i18n.currentLang === 'ar'
+      ? `التوصيل خلال ${this.userDeliveryDays} أيام عمل`
+      : `Delivery in ${this.userDeliveryDays} business days`;
+  }
+
+  ngOnDestroy(): void {
+    this.scrollObserver?.disconnect();
+    this.revealObserver?.disconnect();
   }
 
   // 🆕 Load categories with hierarchy
@@ -242,6 +352,27 @@ export class ProductsComponent implements OnInit {
   // Legacy method for compatibility
   loadCategories(): void {
     this.loadCategoriesHierarchy();
+  }
+
+  loadStoreInfo(vendorId: string): void {
+    this.productService.getStores().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.activeStore = res.data.find(s => s.vendorId === vendorId) || null;
+          this.cdr.markForCheck();
+        }
+      }
+    });
+  }
+
+  getStoreLogoUrl(logo: string | null): string {
+    if (!logo) return '';
+    if (logo.startsWith('http') || logo.startsWith('data:')) return logo;
+    return `${environment.baseApi}${logo}`;
+  }
+
+  getStoreInitials(name: string): string {
+    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
   }
 
   loadBrands(): void {
@@ -694,7 +825,7 @@ export class ProductsComponent implements OnInit {
 
   openEditDialog(product: ProductList): void {
     this.selectedProduct = product;
-    this.productService.getById(product.id).subscribe({
+    this.productService.getById(product.id, true).subscribe({
       next: (res) => {
         if (res.success) {
           const p = res.data;
@@ -832,6 +963,8 @@ export class ProductsComponent implements OnInit {
 
       const data = {
         ...this.productForm,
+        stock: Number(this.productForm.stock) || 0,
+        price: Number(this.productForm.price) || 0,
         mainImage: mainImageUrl || 'https://via.placeholder.com/400',
         images: imageUrls.length > 0 ? imageUrls : this.productForm.images
       };
@@ -1039,5 +1172,12 @@ export class ProductsComponent implements OnInit {
 
   handleBrandImgError(event: Event): void {
     (event.target as HTMLImageElement).src = this.brandPlaceholder;
+  }
+
+  scrollBrandProducts(direction: 'left' | 'right'): void {
+    const el = this.brandProductsTrack?.nativeElement;
+    if (!el) return;
+    const scrollAmount = el.clientWidth * 0.8;
+    el.scrollBy({ left: direction === 'right' ? scrollAmount : -scrollAmount, behavior: 'smooth' });
   }
 }

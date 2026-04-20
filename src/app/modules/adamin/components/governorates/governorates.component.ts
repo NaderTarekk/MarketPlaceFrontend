@@ -24,7 +24,8 @@ export class GovernoratesComponent implements OnInit {
     nameEn: '',
     shippingCost: 0,
     isFreeShipping: false,
-    sortOrder: 0
+    sortOrder: 0,
+    estimatedDeliveryDays: 3
   };
 
   // Delete
@@ -85,7 +86,8 @@ export class GovernoratesComponent implements OnInit {
       nameEn: gov.nameEn,
       shippingCost: gov.shippingCost,
       isFreeShipping: gov.isFreeShipping,
-      sortOrder: gov.sortOrder
+      sortOrder: gov.sortOrder,
+      estimatedDeliveryDays: gov.estimatedDeliveryDays || 3
     };
     this.showDialog = true;
   }

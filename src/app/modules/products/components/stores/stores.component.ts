@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { ProductsService } from '../../services/products.service';
 import { Store } from '../../../../models/products';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-stores',
@@ -51,5 +52,11 @@ export class StoresComponent implements OnInit {
 
   getInitials(name: string): string {
     return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  getImageUrl(image: string | null): string {
+    if (!image) return '';
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    return `${environment.baseApi}${image}`;
   }
 }
