@@ -9,11 +9,11 @@
             <div class="space-y-4">
                 <div class="flex items-center gap-2">
                     <div
-                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                         <i class="fa-solid fa-location-dot text-white text-xl"></i>
                     </div>
                     <h3
-                        class="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                        class="text-2xl font-bold bg-gradient-to-r from-blue-300 to-blue-500 bg-clip-text text-transparent">
                         Wild Market
                     </h3>
                 </div>
@@ -25,20 +25,17 @@
 
                 <!-- Social Media -->
                 <div class="flex items-center gap-3 pt-2">
-                    <a
-                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
+                    <a href="https://www.facebook.com/share/1DcDKjXQYJ/?mibextid=wwXIfr" target="_blank"
+                        rel="noopener noreferrer"
+                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-blue-400 hover:to-blue-600 flex items-center justify-center transition-all duration-300 group">
                         <i class="fab fa-facebook-f text-gray-400 group-hover:text-white transition-colors"></i>
                     </a>
-                    <a
-                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
-                        <i class="fab fa-twitter text-gray-400 group-hover:text-white transition-colors"></i>
-                    </a>
-                    <a
-                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
+                    <a href="https://www.instagram.com/wildmarket_eg" target="_blank" rel="noopener noreferrer"
+                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-blue-400 hover:to-blue-600 flex items-center justify-center transition-all duration-300 group">
                         <i class="fab fa-instagram text-gray-400 group-hover:text-white transition-colors"></i>
                     </a>
                     <!-- <a href="#"
-                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-500 flex items-center justify-center transition-all duration-300 group">
+                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-blue-400 hover:to-blue-600 flex items-center justify-center transition-all duration-300 group">
                         <i class="fab fa-linkedin-in text-gray-400 group-hover:text-white transition-colors"></i>
                     </a> -->
                 </div>
@@ -47,46 +44,46 @@
             <!-- Quick Links -->
             <div class="space-y-4">
                 <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                    <div class="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                    <div class="w-1 h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full"></div>
                     {{ i18n.currentLang === 'ar' ? 'روابط سريعة' : 'Quick Links' }}
                 </h4>
                 <ul class="space-y-3">
                     <li>
                         <a [routerLink]="['/']"
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
                             {{ i18n.currentLang === 'ar' ? 'الرئيسية' : 'Home' }}
                         </a>
                     </li>
                     <li>
                         <a [routerLink]="['/products']"
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
                             {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
                         </a>
                     </li>
                     <!-- <li>
                         <a [routerLink]="['/about']"
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
                             {{ i18n.currentLang === 'ar' ? 'من نحن' : 'About Us' }}
                         </a>
                     </li>
                     <li>
                         <a [routerLink]="['/contact']"
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
                             {{ i18n.currentLang === 'ar' ? 'اتصل بنا' : 'Contact Us' }}
                         </a>
                     </li> -->
                     <li>
                         <a [routerLink]="['/auth/login']" *ngIf="!isLogged"
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+                            <i class="fa-solid fa-chevron-right text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
                             {{ i18n.currentLang === 'ar' ? 'تسجيل الدخول' : 'Login' }}
                         </a>
@@ -97,42 +94,42 @@
             <!-- Customer Service -->
             <div class="space-y-4">
                 <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                    <div class="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                    <div class="w-1 h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full"></div>
                     {{ i18n.currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Service' }}
                 </h4>
                 <ul class="space-y-3">
                     <li>
                         <a
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                           
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+
                             {{ i18n.currentLang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy' }}
                         </a>
                     </li>
                     <li>
                         <a
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+
                             {{ i18n.currentLang === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions' }}
                         </a>
                     </li>
                     <li>
                         <a
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+
                             {{ i18n.currentLang === 'ar' ? 'سياسة الاسترجاع' : 'Return Policy' }}
                         </a>
                     </li>
                     <li>
                         <a
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+
                             {{ i18n.currentLang === 'ar' ? 'الأسئلة الشائعة' : 'FAQ' }}
                         </a>
                     </li>
                     <li>
                         <a
-                            class="text-gray-400 hover:text-pink-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            
+                            class="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center gap-2 group">
+
                             {{ i18n.currentLang === 'ar' ? 'الشحن والتوصيل' : 'Shipping & Delivery' }}
                         </a>
                     </li>
@@ -142,13 +139,13 @@
             <!-- Contact Info -->
             <div class="space-y-4">
                 <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                    <div class="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                    <div class="w-1 h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full"></div>
                     {{ i18n.currentLang === 'ar' ? 'تواصل معنا' : 'Contact Us' }}
                 </h4>
                 <ul class="space-y-4">
                     <li class="flex items-start gap-3">
                         <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-location-dot text-pink-400"></i>
+                            <i class="fa-solid fa-location-dot text-blue-400"></i>
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address'
@@ -162,26 +159,26 @@
                     </li>
                     <li class="flex items-start gap-3">
                         <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-envelope text-purple-400"></i>
+                            <i class="fa-solid fa-envelope text-blue-400"></i>
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' :
                                 'Email' }}</p>
-                            <a href="mailto:noqtaceo@gmail.com"
-                                class="text-sm text-gray-300 hover:text-pink-400 transition-colors">
-                                noqtaceo@gmail.com
+                            <a href="mailto:wildmarketceo@gmail.com"
+                                class="text-sm text-gray-300 hover:text-blue-400 transition-colors">
+                                wildmarketceo@gmail.com
                             </a>
                         </div>
                     </li>
                     <li class="flex items-start gap-3">
                         <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-phone text-pink-400"></i>
+                            <i class="fa-solid fa-phone text-blue-400"></i>
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}
                             </p>
                             <a href="tel:+201090410585"
-                                class="text-sm text-gray-300 hover:text-pink-400 transition-colors" [dir]="'ltr'">
+                                class="text-sm text-gray-300 hover:text-blue-400 transition-colors" [dir]="'ltr'">
                                 +20 1090410585
                             </a>
                         </div>
@@ -211,9 +208,9 @@
                     <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto md:mx-0">
                         <input type="email"
                             [placeholder]="i18n.currentLang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'"
-                            class="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 focus:bg-white/10 transition-all text-sm">
+                            class="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm">
                         <button
-                            class="px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium text-sm transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/50 whitespace-nowrap">
+                            class="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-medium text-sm transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 whitespace-nowrap">
                             {{ i18n.currentLang === 'ar' ? 'اشترك الآن' : 'Subscribe Now' }}
                         </button>
                     </div>
@@ -230,9 +227,9 @@
                     {{ i18n.currentLang === 'ar' ? 'تم التطوير بواسطة' : 'Developed by' }}
                 </p>
                 <a href="https://nhcsolutions.runasp.net/" target="_blank" rel="noopener noreferrer"
-                    class="flex items-center gap-2 px-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-500/50 transition-all duration-300 group">
+                    class="flex items-center gap-2 px-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 transition-all duration-300 group">
                     <img src="nhc.png" alt="Developer Company" class="w-15 h-15 rounded-lg object-contain">
-                    <!-- <span class="text-white font-semibold group-hover:text-pink-400 transition-colors text-xs">
+                    <!-- <span class="text-white font-semibold group-hover:text-blue-400 transition-colors text-xs">
                         Nile Hash Code Solutions
                     </span> -->
                 </a>
@@ -246,7 +243,7 @@
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
                 <p class="text-center md:text-start">
                     © {{ currentYear }}
-                    <span class="text-pink-400 font-semibold">Wild Market</span>.
+                    <span class="text-blue-400 font-semibold">Wild Market</span>.
                     {{ i18n.currentLang === 'ar' ? 'جميع الحقوق محفوظة' : 'All rights reserved' }}.
                 </p>
 

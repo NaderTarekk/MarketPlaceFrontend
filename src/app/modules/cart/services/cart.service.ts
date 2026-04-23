@@ -30,18 +30,20 @@ export class CartService {
   }
 
  addItem(
-  productId: number, 
+  productId: number,
   quantity: number = 1,
   selectedSize?: string,
   selectedColor?: string,
-  priceAdjustment?: number
+  priceAdjustment?: number,
+  promotionId?: number
 ): Observable<ApiResponse<CartResponse>> {
-  return this.http.post<ApiResponse<CartResponse>>(environment.cartUrl, { 
-    productId, 
+  return this.http.post<ApiResponse<CartResponse>>(environment.cartUrl, {
+    productId,
     quantity,
     selectedSize,
     selectedColor,
-    priceAdjustment
+    priceAdjustment,
+    promotionId
   }).pipe(
     tap(res => {
       if (res.success) {

@@ -1,6 +1,6 @@
 // navbar.component.ts
 
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { combineLatest, debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
 import { I18nService, Lang } from '../../../core/services/i18n.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -70,11 +70,26 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // أضف في الـ properties
   isCatalogOpen = false;
   searchResults: any[] = [];
+  storeResults: any[] = [];
   isSearching = false;
   showSearchDropdown = false;
+  private allStores: any[] = [];
   private searchSubject = new Subject<string>();
   readonly placeholderImage = 'https://placehold.co/150x150/e2e8f0/94a3b8?text=No+Image';
   isInLoginPage = false;
+  isNavbarHidden = false;
+  private lastScrollY = 0;
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > this.lastScrollY && currentScrollY > 200) {
+      this.isNavbarHidden = true;
+    } else {
+      this.isNavbarHidden = false;
+    }
+    this.lastScrollY = currentScrollY;
+  }
 
   constructor(
     public i18n: I18nService,
@@ -122,6 +137,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     });
 
+    // Load stores for search
+    this.productsService.getStores().subscribe({
+      next: (res: any) => { if (res.success) this.allStores = res.data || []; },
+      error: () => {}
+    });
+
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -138,14 +159,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.isSearching = false;
         if (res.success) {
-          this.searchResults = res.data.slice(0, 6); // Max 6 results
-          this.showSearchDropdown = this.searchResults.length > 0;
+          this.searchResults = res.data.slice(0, 5);
+          // Filter stores matching search query
+          const q = this.searchQuery.toLowerCase();
+          this.storeResults = this.allStores.filter((s: any) =>
+            s.vendorName?.toLowerCase().includes(q)
+          ).slice(0, 3);
+          this.showSearchDropdown = this.searchResults.length > 0 || this.storeResults.length > 0;
         }
         this.cdr.detectChanges();
       },
       error: () => {
         this.isSearching = false;
         this.searchResults = [];
+        this.storeResults = [];
       }
     });
 
@@ -189,7 +216,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.showSearchDropdown = false;
     this.searchQuery = '';
     this.searchResults = [];
+    this.storeResults = [];
     this.router.navigate(['/products', product.id]);
+  }
+
+  goToStore(store: any): void {
+    this.showSearchDropdown = false;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.storeResults = [];
+    this.router.navigate(['/products'], { queryParams: { vendorId: store.vendorId, storeName: store.vendorName } });
   }
 
   onSearch(): void {

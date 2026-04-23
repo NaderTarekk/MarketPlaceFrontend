@@ -72,13 +72,25 @@
                         <span class="store-stat-label">{{ i18n.currentLang === 'ar' ? 'طلب' : 'Orders' }}</span>
                     </div>
                 </div>
-                <div class="store-stat" *ngIf="activeStore.averageRating > 0">
-                    <i class="fa-solid fa-star"></i>
+                <div class="store-stat">
+                    <i class="fa-solid fa-star" style="color:#fbbf24"></i>
                     <div class="store-stat-data">
-                        <span class="store-stat-value">{{ activeStore.averageRating }}</span>
+                        <span class="store-stat-value">{{ activeStore.averageRating || 0 }}</span>
                         <span class="store-stat-label">{{ i18n.currentLang === 'ar' ? 'التقييم' : 'Rating' }}</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Star Rating Visual -->
+            <div class="store-rating-visual" *ngIf="activeStore">
+                <div class="store-stars">
+                    <i *ngFor="let s of [1,2,3,4,5]" class="fa-solid fa-star"
+                        [style.color]="s <= (activeStore.averageRating || 0) ? '#fbbf24' : '#e5e7eb'"></i>
+                </div>
+                <span class="store-rating-text">
+                    {{ activeStore.averageRating || 0 }}/5
+                    <span *ngIf="activeStore.totalReviews">({{ activeStore.totalReviews }} {{ i18n.currentLang === 'ar' ? 'تقييم' : 'reviews' }})</span>
+                </span>
             </div>
 
             <!-- Close (hidden) -->

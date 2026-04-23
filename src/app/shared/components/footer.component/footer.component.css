@@ -15,7 +15,7 @@ footer a::after {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(to right, #ec4899, #a855f7);
+  background: linear-gradient(to right, #2d7ab8, #5aabe0);
   transition: width 0.3s ease;
 }
 

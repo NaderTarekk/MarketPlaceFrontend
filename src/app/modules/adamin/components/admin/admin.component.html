@@ -78,6 +78,14 @@
         <i class="fa-solid fa-map-location-dot"></i>
         <span>{{ i18n.currentLang === 'ar' ? 'نقاط الاستلام' : 'Pickup Points' }}</span>
       </button>
+      <button class="tab" [class.active]="activeTab === 'promoCodes'" (click)="switchTab('promoCodes')">
+        <i class="fa-solid fa-ticket"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'أكواد الخصم' : 'Promo Codes' }}</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'promotions'" (click)="switchTab('promotions')">
+        <i class="fa-solid fa-bullhorn"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'العروض' : 'Promotions' }}</span>
+      </button>
     </div>
   </div>
 
@@ -626,9 +634,100 @@
     <!-- ═══════════════════════════════════════════════ -->
     <div *ngIf="activeTab === 'withdrawals'" class="tab-content">
 
-      <!-- Loading -->
+      <!-- Withdrawal Requests Section -->
+      <div class="section-header">
+        <h2><i class="fa-solid fa-money-bill-transfer"></i> {{ i18n.currentLang === 'ar' ? 'طلبات السحب' : 'Withdrawal Requests' }}</h2>
+      </div>
+
+      <!-- Filter -->
+      <div class="withdrawal-filters">
+        <button [class.active]="withdrawalFilter === -1" (click)="onWithdrawalFilterChange(-1)">
+          {{ i18n.currentLang === 'ar' ? 'الكل' : 'All' }}
+        </button>
+        <button [class.active]="withdrawalFilter === 0" (click)="onWithdrawalFilterChange(0)">
+          {{ i18n.currentLang === 'ar' ? 'قيد المراجعة' : 'Pending' }}
+          <span *ngIf="getPendingWithdrawalsCount() > 0" class="filter-count">{{ getPendingWithdrawalsCount() }}</span>
+        </button>
+        <button [class.active]="withdrawalFilter === 1" (click)="onWithdrawalFilterChange(1)">
+          {{ i18n.currentLang === 'ar' ? 'تمت الموافقة' : 'Approved' }}
+        </button>
+        <button [class.active]="withdrawalFilter === 2" (click)="onWithdrawalFilterChange(2)">
+          {{ i18n.currentLang === 'ar' ? 'مرفوض' : 'Rejected' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingWithdrawals2" class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>
+
+      <div *ngIf="!isLoadingWithdrawals2 && withdrawalRequestsList.length === 0" class="empty-state-card">
+        <i class="fa-solid fa-money-bill-transfer"></i>
+        <p>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات سحب' : 'No withdrawal requests' }}</p>
+      </div>
+
+      <div class="withdrawal-requests-grid" *ngIf="withdrawalRequestsList.length > 0">
+        <div *ngFor="let req of withdrawalRequestsList" class="wd-card" [class.wd-pending]="req.status === 0" [class.wd-approved]="req.status === 1" [class.wd-rejected]="req.status === 2">
+          <div class="wd-card-header">
+            <div class="wd-vendor">
+              <i class="fa-solid fa-store"></i>
+              <strong>{{ req.vendorName }}</strong>
+            </div>
+            <span class="wd-status-badge" [ngClass]="{'pending': req.status===0, 'approved': req.status===1, 'rejected': req.status===2}">
+              {{ req.statusText }}
+            </span>
+          </div>
+          <div class="wd-card-body">
+            <div class="wd-amount">{{ req.amount | number:'1.2-2' }} EGP</div>
+            <div class="wd-detail"><i class="fa-solid fa-credit-card"></i> {{ req.paymentMethod }}</div>
+            <div class="wd-detail"><i class="fa-solid fa-hashtag"></i> {{ req.accountNumber }}</div>
+            <div class="wd-detail"><i class="fa-solid fa-user"></i> {{ req.accountName }}</div>
+            <div class="wd-detail" *ngIf="req.notes"><i class="fa-solid fa-note-sticky"></i> {{ req.notes }}</div>
+            <div class="wd-detail"><i class="fa-solid fa-calendar"></i> {{ req.createdAt | date:'short' }}</div>
+            <div class="wd-detail wd-reject-reason" *ngIf="req.rejectionReason"><i class="fa-solid fa-circle-xmark"></i> {{ req.rejectionReason }}</div>
+          </div>
+          <div class="wd-card-actions" *ngIf="req.status === 0">
+            <button class="btn-wd-approve" (click)="openApproveDialog(req.id)">
+              <i class="fa-solid fa-check"></i>
+              {{ i18n.currentLang === 'ar' ? 'موافقة' : 'Approve' }}
+            </button>
+            <button class="btn-wd-reject" (click)="openRejectWithdrawalDialog(req.id)">
+              <i class="fa-solid fa-times"></i>
+              {{ i18n.currentLang === 'ar' ? 'رفض' : 'Reject' }}
+            </button>
+          </div>
+          <div class="wd-processed" *ngIf="req.processedAt">
+            <i class="fa-solid fa-clock"></i> {{ req.processedAt | date:'short' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Reject Dialog -->
+      <div *ngIf="showRejectDialog" class="admin-dialog-open" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999999" (click)="showRejectDialog = false">
+        <div style="background:#fff;border-radius:20px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);overflow:hidden" (click)="$event.stopPropagation()">
+          <div class="pp-modal-header">
+            <h3>{{ i18n.currentLang === 'ar' ? 'سبب الرفض' : 'Rejection Reason' }}</h3>
+            <button class="modal-close-btn" (click)="showRejectDialog = false"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="pp-modal-body">
+            <div class="pp-field">
+              <label>{{ i18n.currentLang === 'ar' ? 'اكتب سبب الرفض' : 'Enter rejection reason' }} *</label>
+              <textarea [(ngModel)]="rejectReason" rows="3" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit"></textarea>
+            </div>
+          </div>
+          <div class="pp-modal-footer">
+            <button class="btn-modal-back" (click)="showRejectDialog = false">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+            <button class="btn-modal-confirm" style="background:#dc2626" (click)="confirmReject()" [disabled]="!rejectReason.trim()">
+              <i class="fa-solid fa-ban"></i> {{ i18n.currentLang === 'ar' ? 'تأكيد الرفض' : 'Confirm Reject' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+     
+
+      <hr style="margin:30px 0;border:none;border-top:1px solid #e2e8f0">
+
+      <!-- Loading (existing withdrawals) -->
       <div *ngIf="isLoadingWithdrawals" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
       </div>
 
       <!-- Withdrawals Grid -->
@@ -637,11 +736,11 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-money-bill-transfer text-purple-600 mr-2"></i>
+            <i class="fa-solid fa-money-bill-transfer text-blue-600 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة سحوبات التجار' : 'Vendor Withdrawals Management' }}
           </h2>
           <button (click)="openWithdrawalHistory()"
-            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm">
             <i class="fa-solid fa-history mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'History' }}
           </button>
@@ -657,7 +756,7 @@
         <div *ngIf="vendorWithdrawals.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                 <tr>
                   <th class="px-6 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'التاجر' :
                     'Vendor' }}</th>
@@ -675,13 +774,13 @@
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr *ngFor="let vendor of vendorWithdrawals; trackBy: trackByVendorWithdrawal"
-                  class="hover:bg-purple-50 transition-colors duration-200">
+                  class="hover:bg-blue-50 transition-colors duration-200">
 
                   <!-- Vendor Info -->
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
                       <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {{ vendor.vendorName.charAt(0) }}
                       </div>
                       <div class="min-w-0">
@@ -979,7 +1078,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingVendors" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
       </div>
 
       <!-- Vendors Grid -->
@@ -988,7 +1087,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-store text-purple-600 mr-2"></i>
+            <i class="fa-solid fa-store text-blue-600 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة التجار' : 'Vendors Management' }}
           </h2>
           <div class="text-sm text-gray-600">
@@ -1006,7 +1105,7 @@
         <div *ngIf="vendors.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                 <tr>
                   <th class="px-4 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'التاجر' :
                     'Vendor' }}</th>
@@ -1028,13 +1127,13 @@
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr *ngFor="let vendor of vendors; trackBy: trackByVendor"
-                  class="hover:bg-purple-50 transition-colors duration-200">
+                  class="hover:bg-blue-50 transition-colors duration-200">
 
                   <!-- Vendor Info -->
                   <td class="px-4 py-4">
                     <div class="flex items-center gap-3">
                       <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {{ vendor.fullName.charAt(0) }}
                       </div>
                       <div class="min-w-0">
@@ -1092,7 +1191,7 @@
                         <i class="fa-solid" [class.fa-badge-check]="vendor.isVerified" [class.fa-circle-check]="!vendor.isVerified"></i>
                       </button>
                       <button (click)="openVendorModal(vendor)"
-                        class="p-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+                        class="p-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
                         [title]="i18n.currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details'">
                         <i class="fa-solid fa-eye"></i>
                       </button>
@@ -1124,7 +1223,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingAgents" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
       </div>
 
       <!-- Agents Grid -->
@@ -1133,7 +1232,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-truck text-purple-600 mr-2"></i>
+            <i class="fa-solid fa-truck text-blue-600 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة المناديب' : 'Delivery Agents Management' }}
           </h2>
           <div class="text-sm text-gray-600">
@@ -1156,7 +1255,7 @@
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                  class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
                   {{ agent.fullName.charAt(0) }}
                 </div>
                 <div>
@@ -1187,7 +1286,7 @@
 
             <!-- Action Button -->
             <button (click)="openAgentModal(agent)"
-              class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
+              class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
               <i class="fa-solid fa-eye mr-2"></i>
               {{ i18n.currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details' }}
             </button>
@@ -1198,7 +1297,7 @@
         <div *ngIf="deliveryAgents.length > 0" class="hidden lg:block bg-white rounded-2xl shadow-lg overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+              <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                 <tr>
                   <th class="px-6 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'المندوب' :
                     'Agent' }}</th>
@@ -1221,7 +1320,7 @@
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
                       <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
                         {{ agent.fullName.charAt(0) }}
                       </div>
                       <span class="font-semibold text-gray-900">{{ agent.fullName }}</span>
@@ -1253,7 +1352,7 @@
 
                   <td class="px-6 py-4 text-center">
                     <button (click)="openAgentModal(agent)"
-                      class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-semibold text-sm">
+                      class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm">
                       <i class="fa-solid fa-eye mr-1"></i>
                       {{ i18n.currentLang === 'ar' ? 'تفاصيل' : 'Details' }}
                     </button>
@@ -1273,7 +1372,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingEmployees" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
       </div>
 
       <!-- Employees Grid -->
@@ -1282,7 +1381,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-warehouse text-purple-600 mr-2"></i>
+            <i class="fa-solid fa-warehouse text-blue-600 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة موظفي الشحن' : 'Shipping Employees Management' }}
           </h2>
           <div class="text-sm text-gray-600">
@@ -1424,7 +1523,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingFinancial" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
       </div>
 
       <!-- Financial Report -->
@@ -1433,11 +1532,11 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-chart-pie text-purple-600 mr-2"></i>
+            <i class="fa-solid fa-chart-pie text-blue-600 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'التقارير المالية' : 'Financial Reports' }}
           </h2>
           <button (click)="loadSettlementsHistory()"
-            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm">
             <i class="fa-solid fa-history mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'سجل التسويات' : 'Settlement History' }}
           </button>
@@ -1471,7 +1570,7 @@
           </div>
 
           <!-- Admin Expected Revenue -->
-          <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl p-6 text-white">
+          <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl shadow-xl p-6 text-white">
             <div class="flex items-center justify-between mb-4">
               <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                 <i class="fa-solid fa-chart-line text-2xl"></i>
@@ -1564,7 +1663,7 @@
         <!-- Breakdown Table (if needed) -->
         <div *ngIf="financialReport.breakdown && financialReport.breakdown.length > 0"
           class="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600">
+          <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
             <h3 class="text-lg font-bold text-white">
               <i class="fa-solid fa-list-check mr-2"></i>
               {{ i18n.currentLang === 'ar' ? 'تفصيل الإيرادات' : 'Revenue Breakdown' }}
@@ -1615,7 +1714,7 @@
 
         <!-- Header -->
         <div
-          class="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+          class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
           <h3 class="text-2xl font-bold">
             <i class="fa-solid fa-store mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'تفاصيل التاجر' : 'Vendor Details' }}
@@ -1630,29 +1729,29 @@
 
           <!-- Personal Info -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-purple-50 rounded-2xl p-6">
-              <h4 class="text-lg font-bold text-purple-900 mb-4">
+            <div class="bg-blue-50 rounded-2xl p-6">
+              <h4 class="text-lg font-bold text-blue-900 mb-4">
                 <i class="fa-solid fa-user mr-2"></i>
                 {{ i18n.currentLang === 'ar' ? 'المعلومات الشخصية' : 'Personal Information' }}
               </h4>
               <div class="space-y-3">
                 <div>
-                  <label class="text-sm text-purple-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name'
+                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name'
                     }}</label>
                   <p class="text-gray-900 font-medium">{{ selectedVendor.fullName }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-purple-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'البريد
+                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'البريد
                     الإلكتروني' : 'Email' }}</label>
                   <p class="text-gray-900">{{ selectedVendor.email || '-' }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-purple-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' :
+                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' :
                     'Phone' }}</label>
                   <p class="text-gray-900">{{ selectedVendor.phoneNumber || '-' }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-purple-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'تاريخ التسجيل' :
+                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'تاريخ التسجيل' :
                     'Joined Date' }}</label>
                   <p class="text-gray-900">{{ formatDate(selectedVendor.createdAt) }}</p>
                 </div>
@@ -1702,7 +1801,7 @@
               </div>
               <div class="text-xl font-bold">{{ formatPrice(selectedVendor.vendorEarnings) }}</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+            <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white">
               <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'نصيب الإدارة' : 'Admin Share' }}
               </div>
               <div class="text-xl font-bold">{{ formatPrice(selectedVendor.adminEarnings) }}</div>
@@ -1716,9 +1815,9 @@
 
           <!-- Stats -->
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="bg-white border-2 border-purple-200 rounded-xl p-4 text-center">
-              <div class="text-sm text-purple-600 mb-1">{{ i18n.currentLang === 'ar' ? 'العمولة' : 'Commission' }}</div>
-              <div class="text-2xl font-bold text-purple-700">{{ selectedVendor.commissionRate }}%</div>
+            <div class="bg-white border-2 border-blue-200 rounded-xl p-4 text-center">
+              <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'العمولة' : 'Commission' }}</div>
+              <div class="text-2xl font-bold text-blue-700">{{ selectedVendor.commissionRate }}%</div>
             </div>
             <div class="bg-white border-2 border-blue-200 rounded-xl p-4 text-center">
               <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</div>
@@ -1763,7 +1862,7 @@
 
           <!-- Order Breakdown -->
           <div *ngIf="selectedVendor.orderBreakdown.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
               <h4 class="text-lg font-bold text-white">
                 <i class="fa-solid fa-receipt mr-2"></i>
                 {{ i18n.currentLang === 'ar' ? 'تفصيل الطلبات' : 'Order Breakdown' }}
@@ -1787,13 +1886,13 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                   <tr *ngFor="let order of selectedVendor.orderBreakdown.slice(0, 10)" class="hover:bg-gray-50">
-                    <td class="px-4 py-3 text-sm font-medium text-purple-600">{{ order.orderNumber }}</td>
+                    <td class="px-4 py-3 text-sm font-medium text-blue-600">{{ order.orderNumber }}</td>
                     <td class="px-4 py-3 text-sm text-gray-700">{{ formatDate(order.orderDate) }}</td>
                     <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">{{ formatPrice(order.orderTotal)
                       }}</td>
                     <td class="px-4 py-3 text-sm text-right font-medium text-green-600">{{
                       formatPrice(order.vendorShare) }}</td>
-                    <td class="px-4 py-3 text-sm text-right font-medium text-purple-600">{{
+                    <td class="px-4 py-3 text-sm text-right font-medium text-blue-600">{{
                       formatPrice(order.adminShare) }}</td>
                   </tr>
                 </tbody>
@@ -1909,6 +2008,419 @@
       </div>
     </div>
 
+    <!-- PROMO CODES TAB -->
+    <div *ngIf="activeTab === 'promoCodes'" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-ticket"></i> {{ i18n.currentLang === 'ar' ? 'أكواد الخصم' : 'Promo Codes' }}</h2>
+        <button class="btn-add" (click)="openPromoDialog()">
+          <i class="fa-solid fa-plus"></i>
+          {{ i18n.currentLang === 'ar' ? 'إضافة كود' : 'Add Code' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingPromos" class="loading-spinner">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+
+      <div *ngIf="!isLoadingPromos && promoCodes.length === 0" class="empty-state-card">
+        <i class="fa-solid fa-ticket"></i>
+        <p>{{ i18n.currentLang === 'ar' ? 'لا توجد أكواد خصم بعد' : 'No promo codes yet' }}</p>
+      </div>
+
+      <div class="promo-grid" *ngIf="promoCodes.length > 0">
+        <div *ngFor="let promo of promoCodes" class="promo-card" [class.inactive-card]="!promo.isActive">
+          <div class="promo-card-header">
+            <span class="promo-code-tag">{{ promo.code }}</span>
+            <span class="promo-type-badge" [class.percentage]="promo.type === 'Percentage'" [class.fixed]="promo.type !== 'Percentage'">
+              {{ promo.type === 'Percentage' ? promo.value + '%' : promo.value + ' EGP' }}
+            </span>
+          </div>
+
+          <div class="promo-card-body">
+            <div class="promo-detail">
+              <i class="fa-solid fa-bullseye"></i>
+              <span>{{ getScopeLabel(promo.scope) }}</span>
+            </div>
+            <div class="promo-detail" *ngIf="promo.startDate">
+              <i class="fa-solid fa-calendar"></i>
+              <span>{{ promo.startDate | date:'shortDate' }} — {{ promo.endDate | date:'shortDate' }}</span>
+            </div>
+            <div class="promo-detail">
+              <i class="fa-solid fa-users"></i>
+              <span>{{ promo.usedCount }}/{{ promo.maxUsageCount || '∞' }} {{ i18n.currentLang === 'ar' ? 'استخدام' : 'uses' }}</span>
+            </div>
+            <div class="promo-detail" *ngIf="promo.minOrderAmount">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <span>{{ i18n.currentLang === 'ar' ? 'أقل طلب:' : 'Min order:' }} {{ promo.minOrderAmount }} EGP</span>
+            </div>
+          </div>
+
+          <div class="promo-card-actions">
+            <button class="btn-toggle-active" (click)="togglePromoStatus(promo)"
+              [title]="promo.isActive ? (i18n.currentLang === 'ar' ? 'تعطيل' : 'Deactivate') : (i18n.currentLang === 'ar' ? 'تفعيل' : 'Activate')">
+              <i class="fa-solid" [class.fa-toggle-on]="promo.isActive" [class.fa-toggle-off]="!promo.isActive"></i>
+            </button>
+            <button class="btn-delete-point" (click)="deletePromoCode(promo.id)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROMOTIONS TAB -->
+    <div *ngIf="activeTab === 'promotions'" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-bullhorn"></i> {{ i18n.currentLang === 'ar' ? 'العروض' : 'Promotions' }}</h2>
+        <button class="btn-add" (click)="openPromotionDialog()">
+          <i class="fa-solid fa-plus"></i>
+          {{ i18n.currentLang === 'ar' ? 'إضافة عرض' : 'Add Promotion' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingPromotions" class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>
+
+      <div *ngIf="!isLoadingPromotions && promotions.length === 0" class="empty-state-card">
+        <i class="fa-solid fa-bullhorn"></i>
+        <p>{{ i18n.currentLang === 'ar' ? 'لا توجد عروض بعد' : 'No promotions yet' }}</p>
+      </div>
+
+      <!-- Promotions Grid -->
+      <div class="pickup-points-grid" *ngIf="promotions.length > 0">
+        <div *ngFor="let promo of promotions" class="pickup-card" [class.inactive]="!promo.isActive">
+          <div class="pickup-card-header">
+            <h3>{{ i18n.currentLang === 'ar' ? promo.titleAr : promo.titleEn }}</h3>
+            <span class="pickup-status" [class.active]="promo.isActive" [class.inactive-status]="!promo.isActive">
+              {{ promo.isActive ? (i18n.currentLang === 'ar' ? 'نشط' : 'Active') : (i18n.currentLang === 'ar' ? 'غير نشط' : 'Inactive') }}
+            </span>
+          </div>
+          <div class="pickup-card-body">
+            <div *ngIf="promo.bannerImage" style="margin-bottom:10px;border-radius:10px;overflow:hidden;height:100px">
+              <img [src]="getImageUrl(promo.bannerImage)" style="width:100%;height:100%;object-fit:cover" />
+            </div>
+            <div class="pickup-info-row">
+              <i class="fa-solid fa-box"></i>
+              <span>{{ promo.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}</span>
+            </div>
+            <div class="pickup-info-row" *ngIf="promo.discountPercentage > 0">
+              <i class="fa-solid fa-percent" style="color:#ef4444"></i>
+              <span style="font-weight:700;color:#ef4444">{{ i18n.currentLang === 'ar' ? 'خصم' : 'Discount' }} {{ promo.discountPercentage }}%</span>
+            </div>
+            <div class="pickup-info-row" *ngIf="promo.badgeText">
+              <i class="fa-solid fa-tag"></i>
+              <span>{{ promo.badgeText }}</span>
+            </div>
+            <div class="pickup-info-row" *ngIf="promo.startDate">
+              <i class="fa-solid fa-calendar"></i>
+              <span>{{ promo.startDate | date:'shortDate' }} — {{ promo.endDate | date:'shortDate' }}</span>
+            </div>
+          </div>
+          <div class="pickup-card-actions">
+            <button class="btn-map" (click)="viewPromotionProducts(promo)" [title]="i18n.currentLang === 'ar' ? 'المنتجات' : 'Products'">
+              <i class="fa-solid fa-list"></i>
+            </button>
+            <button class="btn-edit-point" (click)="openPromotionDialog(promo)">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn-toggle-active" (click)="togglePromotionActive(promo)">
+              <i class="fa-solid" [class.fa-toggle-on]="promo.isActive" [class.fa-toggle-off]="!promo.isActive"></i>
+            </button>
+            <button class="btn-delete-point" (click)="deletePromotion(promo.id)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products View -->
+      <div *ngIf="selectedPromotionForProducts" style="margin-top:24px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h3 style="margin:0;font-size:16px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:8px">
+            <i class="fa-solid fa-box-open" style="color:#4a9bd6"></i>
+            {{ i18n.currentLang === 'ar' ? 'منتجات العرض:' : 'Promotion Products:' }}
+            {{ i18n.currentLang === 'ar' ? selectedPromotionForProducts.titleAr : selectedPromotionForProducts.titleEn }}
+          </h3>
+          <div style="display:flex;gap:8px">
+            <button class="btn-add" (click)="openAddProductToPromotion()">
+              <i class="fa-solid fa-plus"></i> {{ i18n.currentLang === 'ar' ? 'إضافة منتج' : 'Add Product' }}
+            </button>
+            <button style="padding:8px 14px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;color:#64748b" (click)="closeProductsView()">
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="selectedPromotionForProducts.products.length === 0" style="text-align:center;padding:30px;color:#94a3b8">
+          {{ i18n.currentLang === 'ar' ? 'لا توجد منتجات في هذا العرض' : 'No products in this promotion' }}
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+          <div *ngFor="let p of selectedPromotionForProducts.products" style="background:#f8fafc;border-radius:12px;padding:12px;border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:8px">
+            <img [src]="getImageUrl(p.mainImage)" style="width:100%;height:120px;object-fit:cover;border-radius:8px" />
+            <strong style="font-size:13px;color:#1e293b">{{ i18n.currentLang === 'ar' ? p.nameAr : p.nameEn }}</strong>
+            <span style="font-size:14px;font-weight:700;color:#378bcb">{{ p.price }} EGP</span>
+            <button style="padding:6px;border:none;border-radius:8px;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:12px" (click)="removeProductFromPromotion(p.productId)">
+              <i class="fa-solid fa-trash"></i> {{ i18n.currentLang === 'ar' ? 'إزالة' : 'Remove' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Product Dialog -->
+        <div *ngIf="showAddProductDialog" style="margin-top:16px;padding:16px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px">
+          <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:12px">
+            <div style="flex:1">
+              <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px">{{ i18n.currentLang === 'ar' ? 'ابحث عن منتج بالاسم' : 'Search product by name' }}</label>
+              <div style="position:relative">
+                <i class="fa-solid fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px"></i>
+                <input type="text" [(ngModel)]="productSearchQuery" (input)="searchProducts()"
+                  [placeholder]="i18n.currentLang === 'ar' ? 'اكتب اسم المنتج...' : 'Type product name...'"
+                  style="width:100%;padding:10px 10px 10px 36px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px" />
+              </div>
+            </div>
+            <button style="padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;color:#64748b" (click)="showAddProductDialog = false; productSearchQuery = ''; productSearchResults = []">
+              {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="isSearchingProducts" style="text-align:center;padding:12px;color:#94a3b8">
+            <i class="fa-solid fa-spinner fa-spin"></i> {{ i18n.currentLang === 'ar' ? 'جاري البحث...' : 'Searching...' }}
+          </div>
+
+          <!-- Search Results -->
+          <div *ngIf="productSearchResults.length > 0" style="display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto">
+            <div *ngFor="let p of productSearchResults"
+              style="display:flex;align-items:center;gap:12px;padding:10px;background:#fff;border:1.5px solid #f1f5f9;border-radius:10px;cursor:pointer;transition:all 0.2s"
+              (click)="selectProductForPromotion(p)">
+              <img [src]="getImageUrl(p.mainImage)" style="width:48px;height:48px;border-radius:8px;object-fit:cover" />
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  {{ i18n.currentLang === 'ar' ? p.nameAr : p.nameEn }}
+                </div>
+                <div style="font-size:12px;color:#64748b">ID: {{ p.id }} · {{ p.price }} EGP</div>
+              </div>
+              <button style="padding:6px 12px;background:#16a34a;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- No Results -->
+          <div *ngIf="!isSearchingProducts && productSearchQuery.length >= 2 && productSearchResults.length === 0" style="text-align:center;padding:12px;color:#94a3b8;font-size:13px">
+            {{ i18n.currentLang === 'ar' ? 'لا توجد نتائج' : 'No results found' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Promotion Dialog -->
+  <div class="pp-overlay" [class.show]="showPromotionDialog" (click)="closePromotionDialog()">
+    <div class="pp-modal" (click)="$event.stopPropagation()" style="max-width:600px">
+      <div class="pp-modal-header">
+        <h3>{{ editingPromotionId ? (i18n.currentLang === 'ar' ? 'تعديل عرض' : 'Edit Promotion') : (i18n.currentLang === 'ar' ? 'إضافة عرض' : 'Add Promotion') }}</h3>
+        <button class="modal-close-btn" (click)="closePromotionDialog()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="pp-modal-body">
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Title (Arabic)' }} *</label>
+            <input type="text" [(ngModel)]="promotionForm.titleAr" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'Title (English)' }}</label>
+            <input type="text" [(ngModel)]="promotionForm.titleEn" />
+          </div>
+        </div>
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالعربي' : 'Description (Arabic)' }}</label>
+            <input type="text" [(ngModel)]="promotionForm.descriptionAr" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالإنجليزي' : 'Description (English)' }}</label>
+            <input type="text" [(ngModel)]="promotionForm.descriptionEn" />
+          </div>
+        </div>
+        <div class="pp-form-row" style="grid-template-columns:1fr">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'صورة البانر' : 'Banner Image' }}</label>
+            <div *ngIf="!promotionBannerPreview" style="position:relative">
+              <input type="file" accept="image/*" (change)="onPromotionBannerSelected($event)" id="promoBannerInput" style="display:none" />
+              <label for="promoBannerInput" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:24px;border:2px dashed #cbd5e1;border-radius:10px;cursor:pointer;color:#64748b;font-size:14px;transition:all 0.2s">
+                <i class="fa-solid fa-cloud-upload-alt" style="font-size:20px;color:#4a9bd6"></i>
+                {{ i18n.currentLang === 'ar' ? 'اختر صورة البانر' : 'Choose banner image' }}
+              </label>
+            </div>
+            <div *ngIf="promotionBannerPreview" style="position:relative;border-radius:10px;overflow:hidden;height:140px">
+              <img [src]="promotionBannerPreview" style="width:100%;height:100%;object-fit:cover" />
+              <button (click)="removePromotionBanner()" style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <i class="fa-solid fa-times" style="font-size:12px"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'نسبة الخصم %' : 'Discount %' }} *</label>
+            <input type="number" [(ngModel)]="promotionForm.discountPercentage" min="0" max="100" placeholder="e.g. 50" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'نص الشارة' : 'Badge Text' }}</label>
+            <input type="text" [(ngModel)]="promotionForm.badgeText" [placeholder]="i18n.currentLang === 'ar' ? 'مثال: خصم 50%' : 'e.g. 50% OFF'" />
+          </div>
+        </div>
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'ترتيب العرض' : 'Display Order' }}</label>
+            <input type="number" [(ngModel)]="promotionForm.displayOrder" min="0" />
+          </div>
+        </div>
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date' }}</label>
+            <input type="datetime-local" [(ngModel)]="promotionForm.startDate" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date' }}</label>
+            <input type="datetime-local" [(ngModel)]="promotionForm.endDate" />
+          </div>
+        </div>
+      </div>
+      <div class="pp-modal-footer">
+        <button class="btn-modal-back" (click)="closePromotionDialog()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+        <button class="btn-modal-confirm" (click)="savePromotion()" [disabled]="isSavingPromotion || !promotionForm.titleAr">
+          <i *ngIf="isSavingPromotion" class="fa-solid fa-spinner fa-spin"></i>
+          <i *ngIf="!isSavingPromotion" class="fa-solid fa-check"></i>
+          {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Promo Code Dialog -->
+  <div class="pp-overlay" [class.show]="showPromoDialog" (click)="closePromoDialog()">
+    <div class="pp-modal" (click)="$event.stopPropagation()" style="max-width:640px">
+      <div class="pp-modal-header">
+        <h3>{{ i18n.currentLang === 'ar' ? 'إضافة كود خصم' : 'Add Promo Code' }}</h3>
+        <button class="modal-close-btn" (click)="closePromoDialog()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="pp-modal-body">
+        <!-- Code -->
+        <div class="pp-form-row" style="grid-template-columns:1fr">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'كود الخصم' : 'Promo Code' }} *</label>
+            <input type="text" [(ngModel)]="promoForm.code" maxlength="20"
+              (input)="promoForm.code = promoForm.code.toUpperCase()"
+              [placeholder]="i18n.currentLang === 'ar' ? 'مثال: SAVE20' : 'e.g. SAVE20'"
+              style="text-align:center;font-family:monospace;font-weight:700;letter-spacing:3px;text-transform:uppercase" />
+          </div>
+        </div>
+
+        <!-- Type & Value -->
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'نوع الخصم' : 'Discount Type' }}</label>
+            <select [(ngModel)]="promoForm.type">
+              <option [value]="0">{{ i18n.currentLang === 'ar' ? '٪ نسبة مئوية' : '% Percentage' }}</option>
+              <option [value]="1">{{ i18n.currentLang === 'ar' ? 'مبلغ ثابت' : 'Fixed Amount' }}</option>
+            </select>
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'القيمة' : 'Value' }} *</label>
+            <input type="number" [(ngModel)]="promoForm.value" min="0" />
+          </div>
+        </div>
+
+        <!-- Scope -->
+        <div class="pp-form-row" style="grid-template-columns:1fr">
+          <div class="pp-field">
+            <label><i class="fa-solid fa-bullseye" style="color:#4a9bd6;margin-inline-end:6px"></i>{{ i18n.currentLang === 'ar' ? 'نطاق التطبيق' : 'Apply To' }}</label>
+            <select [(ngModel)]="promoForm.scope">
+              <option [value]="0">{{ i18n.currentLang === 'ar' ? 'كل المنتجات' : 'All Products' }}</option>
+              <option [value]="1">{{ i18n.currentLang === 'ar' ? 'براند محدد' : 'Specific Brand' }}</option>
+              <option [value]="2">{{ i18n.currentLang === 'ar' ? 'منتجات محددة' : 'Specific Products' }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Brand selector (scope=1) -->
+        <div *ngIf="promoForm.scope == 1" class="pp-form-row" style="grid-template-columns:1fr">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'اختر البراند' : 'Select Brand' }}</label>
+            <select [(ngModel)]="promoForm.brandId">
+              <option [ngValue]="null" disabled>{{ i18n.currentLang === 'ar' ? '-- اختر --' : '-- Select --' }}</option>
+              <option *ngFor="let b of brands" [ngValue]="b.id">{{ i18n.currentLang === 'ar' ? b.nameAr : b.nameEn }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Product IDs (scope=2) -->
+        <div *ngIf="promoForm.scope == 2" class="pp-form-row" style="grid-template-columns:1fr">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'أرقام المنتجات (مفصولة بفاصلة)' : 'Product IDs (comma separated)' }}</label>
+            <input type="text" [(ngModel)]="promoForm.productIds" placeholder="1,5,12,34" />
+          </div>
+        </div>
+
+        <!-- Limits -->
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'أقصى خصم' : 'Max Discount' }}</label>
+            <input type="number" [(ngModel)]="promoForm.maxDiscount" min="0" [placeholder]="i18n.currentLang === 'ar' ? 'بدون حد' : 'No limit'" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'أقل قيمة للطلب' : 'Min Order Amount' }}</label>
+            <input type="number" [(ngModel)]="promoForm.minOrderAmount" min="0" [placeholder]="i18n.currentLang === 'ar' ? 'بدون حد' : 'No minimum'" />
+          </div>
+        </div>
+
+        <!-- Usage -->
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'عدد الاستخدام الكلي' : 'Total Usage Limit' }}</label>
+            <input type="number" [(ngModel)]="promoForm.maxUsageCount" min="1" [placeholder]="i18n.currentLang === 'ar' ? 'غير محدود' : 'Unlimited'" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'لكل مستخدم' : 'Per User Limit' }}</label>
+            <input type="number" [(ngModel)]="promoForm.maxUsagePerUser" min="1" [placeholder]="i18n.currentLang === 'ar' ? 'غير محدود' : 'Unlimited'" />
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date' }}</label>
+            <input type="datetime-local" [(ngModel)]="promoForm.startDate" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date' }}</label>
+            <input type="datetime-local" [(ngModel)]="promoForm.endDate" />
+          </div>
+        </div>
+
+        <!-- Descriptions -->
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالعربية' : 'Arabic Description' }}</label>
+            <input type="text" [(ngModel)]="promoForm.descriptionAr" [placeholder]="i18n.currentLang === 'ar' ? 'خصم خاص...' : 'Special discount...'" />
+          </div>
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالإنجليزية' : 'English Description' }}</label>
+            <input type="text" [(ngModel)]="promoForm.descriptionEn" placeholder="Special discount..." />
+          </div>
+        </div>
+      </div>
+      <div class="pp-modal-footer">
+        <button class="btn-modal-back" (click)="closePromoDialog()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+        <button class="btn-modal-confirm" (click)="savePromoCode()" [disabled]="isSavingPromo || !promoForm.code || !promoForm.value">
+          <i *ngIf="isSavingPromo" class="fa-solid fa-spinner fa-spin"></i>
+          <i *ngIf="!isSavingPromo" class="fa-solid fa-check"></i>
+          {{ i18n.currentLang === 'ar' ? 'إنشاء الكود' : 'Create Code' }}
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Pickup Point Form Modal -->
@@ -2111,6 +2623,28 @@
   </div>
 </div>
 
+ <!-- Approve Dialog -->
+      <div *ngIf="showApproveDialog" class="admin-dialog-open" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999999" (click)="showApproveDialog = false">
+        <div style="background:#fff;border-radius:20px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);overflow:hidden" (click)="$event.stopPropagation()">
+          <div class="pp-modal-header">
+            <h3>{{ i18n.currentLang === 'ar' ? 'تأكيد الموافقة' : 'Confirm Approval' }}</h3>
+            <button class="modal-close-btn" (click)="showApproveDialog = false"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="pp-modal-body" style="text-align:center;padding:30px 24px">
+            <div style="width:64px;height:64px;margin:0 auto 16px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center">
+              <i class="fa-solid fa-check" style="font-size:28px;color:#16a34a"></i>
+            </div>
+            <p style="font-size:15px;color:#374151;margin:0 0 8px">{{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من الموافقة على طلب السحب هذا؟' : 'Are you sure you want to approve this withdrawal request?' }}</p>
+            <p style="font-size:13px;color:#94a3b8;margin:0">{{ i18n.currentLang === 'ar' ? 'سيتم خصم المبلغ من رصيد التاجر' : 'The amount will be deducted from the vendor balance' }}</p>
+          </div>
+          <div class="pp-modal-footer">
+            <button class="btn-modal-back" (click)="showApproveDialog = false">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+            <button class="btn-modal-confirm" style="background:#16a34a" (click)="confirmApprove()">
+              <i class="fa-solid fa-check"></i> {{ i18n.currentLang === 'ar' ? 'تأكيد الموافقة' : 'Confirm Approve' }}
+            </button>
+          </div>
+        </div>
+      </div>
 <!-- ═══════════════════════════════════════════════ -->
 <!-- DIALOGS -->
 <!-- ═══════════════════════════════════════════════ -->
@@ -2329,7 +2863,7 @@
 
     <!-- Header -->
     <div
-      class="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+      class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
       <h3 class="text-2xl font-bold">
         <i class="fa-solid fa-truck mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'تفاصيل المندوب' : 'Agent Details' }}
@@ -2346,7 +2880,7 @@
       <div class="bg-blue-50 rounded-2xl p-6">
         <div class="flex items-center gap-4 mb-4">
           <div
-            class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl">
+            class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
             {{ selectedAgent.fullName.charAt(0) }}
           </div>
           <div>
@@ -2368,7 +2902,7 @@
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'مكتملة' : 'Completed' }}</div>
           <div class="text-2xl font-bold">{{ selectedAgent.completedOrders }}</div>
         </div>
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+        <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white">
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders' }}</div>
           <div class="text-2xl font-bold">{{ selectedAgent.totalOrders }}</div>
         </div>
@@ -2409,7 +2943,7 @@
 
       <!-- Orders Table -->
       <div *ngIf="selectedAgent.orders.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
           <h4 class="text-lg font-bold text-white">
             <i class="fa-solid fa-list mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}
@@ -2531,7 +3065,7 @@
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'مكتملة' : 'Completed' }}</div>
           <div class="text-2xl font-bold">{{ selectedEmployee.completedPickups }}</div>
         </div>
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+        <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white">
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الاستلامات' : 'Total Pickups' }}
           </div>
           <div class="text-2xl font-bold">{{ selectedEmployee.totalPickups }}</div>
@@ -2653,7 +3187,7 @@
   <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md" (click)="$event.stopPropagation()">
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-5 rounded-t-3xl">
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl">
       <h3 class="text-xl font-bold">
         <i class="fa-solid fa-percent mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'تحديث نسبة العمولة' : 'Update Commission Rate' }}
@@ -2687,10 +3221,10 @@
           </div>
           <div class="text-xl font-bold text-green-700">{{ 100 - newCommissionRate }}%</div>
         </div>
-        <div class="bg-purple-50 rounded-xl p-4">
-          <div class="text-xs text-purple-600 mb-1">{{ i18n.currentLang === 'ar' ? 'نصيب الإدارة' : 'Admin Share' }}
+        <div class="bg-blue-50 rounded-xl p-4">
+          <div class="text-xs text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'نصيب الإدارة' : 'Admin Share' }}
           </div>
-          <div class="text-xl font-bold text-purple-700">{{ newCommissionRate }}%</div>
+          <div class="text-xl font-bold text-blue-700">{{ newCommissionRate }}%</div>
         </div>
       </div>
 
@@ -2702,7 +3236,7 @@
         </button>
         <button (click)="updateCommission()"
           [disabled]="isProcessing || newCommissionRate < 0 || newCommissionRate > 100"
-          class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
           <span *ngIf="!isProcessing">{{ i18n.currentLang === 'ar' ? 'تحديث' : 'Update' }}</span>
           <span *ngIf="isProcessing">
             <i class="fa-solid fa-spinner fa-spin mr-2"></i>
@@ -2857,7 +3391,7 @@
 
     <!-- Header -->
     <div
-      class="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+      class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
       <h3 class="text-2xl font-bold">
         <i class="fa-solid fa-history mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'سجل التسويات' : 'Settlements History' }}
@@ -2936,9 +3470,9 @@
     <div class="p-6 space-y-6">
 
       <!-- Vendor Info -->
-      <div *ngIf="selectedVendorForWithdrawal" class="bg-purple-50 rounded-xl p-4">
-        <div class="text-sm text-purple-600 mb-1">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</div>
-        <div class="text-lg font-bold text-purple-900">{{ selectedVendorForWithdrawal.vendorName }}</div>
+      <div *ngIf="selectedVendorForWithdrawal" class="bg-blue-50 rounded-xl p-4">
+        <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</div>
+        <div class="text-lg font-bold text-blue-900">{{ selectedVendorForWithdrawal.vendorName }}</div>
         <div class="text-sm text-gray-600 mt-2">
           {{ i18n.currentLang === 'ar' ? 'المتاح للسحب:' : 'Available:' }}
           <span class="font-bold text-green-600">{{ formatPrice(selectedVendorForWithdrawal.availableForWithdrawal)
@@ -2999,7 +3533,7 @@
 
     <!-- Header -->
     <div
-      class="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+      class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
       <h3 class="text-2xl font-bold">
         <i class="fa-solid fa-history mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'Withdrawal History' }}
@@ -3014,7 +3548,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingHistory" class="text-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-600 mx-auto"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600 mx-auto"></div>
       </div>
 
       <!-- Empty State -->
@@ -3145,34 +3679,34 @@
         <!-- Personal Info Section -->
         <div class="mb-8">
           <div
-            class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
+            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
             <i class="fa-solid fa-user"></i>
             <span class="font-bold">{{ i18n.currentLang === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'
               }}</span>
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-purple-500">
-              <label class="block text-purple-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الاسم' :
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
+              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الاسم' :
                 'Name' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.fullName }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-purple-500">
-              <label class="block text-purple-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'البريد
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
+              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'البريد
                 الإلكتروني' : 'Email' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.email || '-' }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-purple-500">
-              <label class="block text-purple-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'رقم
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
+              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'رقم
                 الهاتف' : 'Phone' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.phoneNumber || '-' }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-purple-500">
-              <label class="block text-purple-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'تاريخ
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
+              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'تاريخ
                 التسجيل' : 'Joined Date' }}</label>
               <span class="text-gray-900 font-bold">{{ formatDate(vendorPrintReport.createdAt) }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-purple-500">
-              <label class="block text-purple-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الرقم
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
+              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الرقم
                 القومي' : 'National ID' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.nationalId || '-' }}</span>
             </div>
@@ -3218,7 +3752,7 @@
         <!-- Stats Section -->
         <div class="mb-8">
           <div
-            class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
+            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
             <i class="fa-solid fa-chart-bar"></i>
             <span class="font-bold">{{ i18n.currentLang === 'ar' ? 'الإحصائيات' : 'Statistics' }}</span>
           </div>
@@ -3235,9 +3769,9 @@
                 }}</div>
             </div>
             <div
-              class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 p-4 rounded-xl text-center">
-              <div class="text-3xl font-bold text-purple-700">{{ vendorPrintReport.totalOrders }}</div>
-              <div class="text-sm text-purple-600 mt-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders'
+              class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 p-4 rounded-xl text-center">
+              <div class="text-3xl font-bold text-blue-700">{{ vendorPrintReport.totalOrders }}</div>
+              <div class="text-sm text-blue-600 mt-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders'
                 }}</div>
             </div>
             <div class="bg-gradient-to-br from-teal-50 to-teal-100 border border-teal-200 p-4 rounded-xl text-center">
@@ -3266,7 +3800,7 @@
               <div class="text-sm opacity-90 mt-1">{{ i18n.currentLang === 'ar' ? 'أرباح التاجر' : 'Vendor Earnings' }}
               </div>
             </div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-xl text-center">
+            <div class="bg-gradient-to-br from-blue-400 to-blue-600 text-white p-4 rounded-xl text-center">
               <div class="text-2xl font-bold">{{ formatPrice(vendorPrintReport.adminEarnings) }}</div>
               <div class="text-sm opacity-90 mt-1">{{ i18n.currentLang === 'ar' ? 'عمولة الإدارة' : 'Admin Commission'
                 }}</div>
@@ -3321,7 +3855,7 @@
         <!-- Orders Table -->
         <div class="mb-8" *ngIf="vendorPrintReport.orders && vendorPrintReport.orders.length > 0">
           <div
-            class="bg-gradient-to-r from-rose-600 to-pink-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
+            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-receipt"></i>
               <span class="font-bold">{{ i18n.currentLang === 'ar' ? 'تفاصيل الطلبات' : 'Orders Details' }}</span>

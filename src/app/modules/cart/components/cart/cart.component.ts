@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CartItem } from '../../../../models/cart';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { CartService } from '../../services/cart.service';
@@ -12,6 +12,7 @@ import { CreatePromoCode, PromoCode } from '../../../../models/promo-code';
   standalone: false,
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class CartComponent implements OnInit {
   cartItems: CartItem[] = [];
@@ -27,6 +28,8 @@ export class CartComponent implements OnInit {
   promoCode = '';
   promoApplied = false;
   promoDiscount = 0;
+  promoDiscountType = '';
+  promoDiscountValue = 0;
 
   // Delete Dialog
   showDeleteDialog = false;
@@ -426,7 +429,9 @@ export class CartComponent implements OnInit {
       next: (res) => {
         if (res.success && res.data.isValid) {
           this.promoApplied = true;
-          this.promoDiscount = res.data.discountAmount; // المبلغ الفعلي للخصم
+          this.promoDiscount = res.data.discountAmount;
+          this.promoDiscountType = res.data.discountType || 'Percentage';
+          this.promoDiscountValue = res.data.discountValue || 0;
           this.calculateSummary();
           this.showToast(res.data.message || this.t('promo_applied'), 'success');
         } else {

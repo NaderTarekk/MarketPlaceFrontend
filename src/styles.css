@@ -20,12 +20,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #3b82f6, #8b5cf6); /* أزرق + موف */
+  background: linear-gradient(180deg, #3b82f6, #4a9bd6); /* أزرق + موف */
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #2563eb, #7c3aed);
+  background: linear-gradient(180deg, #2563eb, #378bcb);
 }
 
 /* في الملف العام */
@@ -36,6 +36,28 @@ app-navbar,
   z-index: 998 !important;
 }
 
+app-footer,
+app-footer footer,
+app-footer > * {
+  z-index: 0 !important;
+  position: relative;
+}
+
 .modal-overlay {
-  z-index: 999999 !important;
+  z-index: 9999999 !important;
+  position: fixed !important;
+}
+
+/* When modal-overlay exists, push navbar below it */
+body:has(.modal-overlay) app-navbar,
+body:has(.modal-overlay) .navbar,
+body:has(.modal-overlay) .mobile-bottom-nav,
+body:has(.modal-overlay) .categories-scroll-bar,
+body:has(.admin-dialog-open) app-navbar,
+body:has(.admin-dialog-open) .navbar,
+body:has(.admin-dialog-open) .mobile-bottom-nav,
+body:has(.admin-dialog-open) .categories-scroll-bar,
+body:has(.admin-dialog-open) .admin-tabs,
+body:has(.admin-dialog-open) .tabs-wrapper {
+  z-index: 0 !important;
 }

@@ -1,18 +1,15 @@
 <app-loader-component *ngIf="isLoading"></app-loader-component>
 
-<header class="navbar">
+<header class="navbar" [class.navbar-hidden]="isNavbarHidden">
   <!-- ═══════════════════════════════════════════════ -->
   <!-- TOP ROW: Logo + Catalog + Search + Icons -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="navbar-top py-3">
     <div class="navbar-container">
       <!-- Logo -->
-      <div class="logo cursor-pointer flex text-6xl items-center gap-3 text-white hover:opacity-90 transition-opacity"
+      <div class="logo cursor-pointer flex items-center gap-3 text-white hover:opacity-90 transition-opacity"
         routerLink="">
-        <i class="fa-solid fa-location-dot text-5xl"></i>
-        <span class="text-5xl font-bold tracking-wide" style="font-family: 'Poppins', sans-serif;">
-          {{ currentLang === 'ar' ? 'ويلد ماركت' : 'Wild Market' }}
-        </span>
+        <img src="wild.png" alt="Wild Market" class="logo-image" />
       </div>
       <!-- <div class="logo cursor-pointer" routerLink="">
          <img src="noqta logo rm.png" alt="MarketPlace Logo" class="logo-image" />
@@ -77,14 +74,47 @@
         </div>
 
         <!-- Search Dropdown -->
-        <div class="search-dropdown" *ngIf="showSearchDropdown && searchResults.length > 0">
+        <div class="search-dropdown" *ngIf="showSearchDropdown && (searchResults.length > 0 || storeResults.length > 0)">
           <div class="dropdown-header">
             <span>{{ currentLang === 'ar' ? 'نتائج البحث' : 'Search Results' }}</span>
             <button (click)="showSearchDropdown = false">
               <i class="fa-solid fa-times"></i>
             </button>
           </div>
-          <div class="search-results">
+
+          <!-- Store Results -->
+          <div *ngIf="storeResults.length > 0" class="search-results">
+            <div class="search-section-label">
+              <i class="fa-solid fa-store"></i>
+              {{ currentLang === 'ar' ? 'متاجر' : 'Stores' }}
+            </div>
+            <a *ngFor="let store of storeResults" class="search-result-item store-result"
+              (mousedown)="goToStore(store)">
+              <div class="result-image store-avatar">
+                <span *ngIf="!store.storeLogo">{{ store.vendorName?.charAt(0) }}</span>
+                <img *ngIf="store.storeLogo" [src]="getProductImage(store.storeLogo)" [alt]="store.vendorName" (error)="handleImageError($event)" />
+              </div>
+              <div class="result-info">
+                <span class="result-name">{{ store.vendorName }}</span>
+                <div class="result-meta">
+                  <span class="store-hint">
+                    <i class="fa-solid fa-box" style="font-size:9px"></i> {{ store.productCount }} {{ currentLang === 'ar' ? 'منتج' : 'products' }}
+                  </span>
+                  <span *ngIf="store.averageRating > 0" class="store-hint">
+                    <i class="fa-solid fa-star" style="color:#fbbf24;font-size:9px"></i> {{ store.averageRating }}
+                  </span>
+                </div>
+              </div>
+              <span class="result-type-badge store-badge">{{ currentLang === 'ar' ? 'متجر' : 'Store' }}</span>
+            </a>
+          </div>
+
+          <!-- Product Results -->
+          <div *ngIf="searchResults.length > 0" class="search-results">
+            <div class="search-section-label" *ngIf="storeResults.length > 0">
+              <i class="fa-solid fa-box-open"></i>
+              {{ currentLang === 'ar' ? 'منتجات' : 'Products' }}
+            </div>
             <a *ngFor="let product of searchResults" class="search-result-item"
               (mousedown)="selectSearchResult(product)">
               <div class="result-image">
@@ -98,9 +128,10 @@
                     'EGP' }}</span>
                 </div>
               </div>
-              <i class="fa-solid fa-chevron-left result-arrow"></i>
+              <span class="result-type-badge product-badge">{{ currentLang === 'ar' ? 'منتج' : 'Product' }}</span>
             </a>
           </div>
+
           <button class="view-all-btn" (mousedown)="onSearch()">
             <span>{{ currentLang === 'ar' ? 'عرض كل النتائج' : 'View All Results' }}</span>
             <i class="fa-solid fa-arrow-left"></i>
@@ -109,7 +140,7 @@
 
         <!-- No Results -->
         <div class="search-dropdown"
-          *ngIf="showSearchDropdown && searchResults.length === 0 && !isSearching && searchQuery.length >= 2">
+          *ngIf="showSearchDropdown && searchResults.length === 0 && storeResults.length === 0 && !isSearching && searchQuery.length >= 2">
           <div class="no-results">
             <i class="fa-solid fa-search"></i>
             <p>{{ currentLang === 'ar' ? 'لا توجد نتائج لـ' : 'No results for' }} "{{ searchQuery }}"</p>

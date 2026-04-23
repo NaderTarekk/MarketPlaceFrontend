@@ -2,7 +2,7 @@
 
 .warehouse-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
 }
 
 /* Hero */
@@ -72,7 +72,7 @@
 }
 
 .tab-btn.active {
-  background: #667eea;
+  background: #378bcb;
   color: white;
 }
 
@@ -122,7 +122,7 @@
 
 .mode-btn i {
   font-size: 2rem;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .mode-btn span {
@@ -131,13 +131,13 @@
 }
 
 .mode-btn:hover {
-  border-color: #667eea;
+  border-color: #378bcb;
   transform: translateY(-2px);
 }
 
 .mode-btn.active {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #378bcb;
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
 }
 
 .mode-btn.active i,
@@ -157,7 +157,7 @@
 
 .scan-icon i {
   font-size: 4rem;
-  color: #667eea;
+  color: #378bcb;
   animation: pulse 2s infinite;
 }
 
@@ -184,13 +184,13 @@
 
 .scan-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #378bcb;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .btn-scan {
   padding: 15px 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -353,7 +353,7 @@
 
 .btn-search {
   padding: 12px 24px;
-  background: #667eea;
+  background: #378bcb;
   color: white;
   border: none;
   border-radius: 8px;
@@ -397,7 +397,7 @@
 }
 
 .shelf-code {
-  background: #667eea;
+  background: #378bcb;
   color: white;
   padding: 4px 12px;
   border-radius: 6px;
@@ -419,7 +419,7 @@
 
 .btn-create {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -450,7 +450,7 @@
 }
 
 .shelf-card:hover {
-  border-color: #667eea;
+  border-color: #378bcb;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
@@ -464,7 +464,7 @@
 .shelf-code {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .btn-delete-shelf {
@@ -502,7 +502,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #667eea;
+  color: #378bcb;
   font-weight: 600;
   margin-top: 10px;
 }
@@ -531,7 +531,7 @@
 }
 
 .shelf-badge {
-  background: #667eea;
+  background: #378bcb;
   color: white;
   padding: 4px 12px;
   border-radius: 6px;
@@ -555,7 +555,7 @@
 .status-badge.on-way { background: #fef3c7; color: #d97706; }
 .status-badge.in-warehouse { background: #dbeafe; color: #2563eb; }
 .status-badge.ready { background: #d1fae5; color: #059669; }
-.status-badge.picked-up { background: #e0e7ff; color: #7c3aed; }
+.status-badge.picked-up { background: #e0e7ff; color: #378bcb; }
 
 /* Modals */
 .modal-overlay {
@@ -633,7 +633,7 @@
 
 .btn-confirm {
   padding: 10px 20px;
-  background: #667eea;
+  background: #378bcb;
   color: white;
   border: none;
   border-radius: 8px;
@@ -666,7 +666,7 @@
 }
 
 .orders-title .count {
-  background: #667eea;
+  background: #378bcb;
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -795,7 +795,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #378bcb;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

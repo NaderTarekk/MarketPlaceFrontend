@@ -19,7 +19,7 @@
 .hero-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+    background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 50%, #2d7ab8 100%);
 }
 
 .hero-bg::before {
@@ -94,12 +94,12 @@
 }
 
 .mobile-filter-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: #378bcb;
+    color: #378bcb;
 }
 
 .filter-badge {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     font-size: 11px;
     padding: 2px 8px;
@@ -157,7 +157,7 @@
 .apply-btn {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     border: none;
     border-radius: 12px;
@@ -202,7 +202,7 @@
 }
 
 .search-input input:focus {
-    border-color: #667eea;
+    border-color: #378bcb;
     outline: none;
 }
 
@@ -227,7 +227,7 @@
 }
 
 .price-inputs input:focus {
-  border-color: #667eea;
+  border-color: #378bcb;
   outline: none;
 }
 
@@ -239,7 +239,7 @@
 .price-btn {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   border: none;
   border-radius: 8px;
@@ -279,8 +279,8 @@
 }
 
 .checkbox-filter input:checked+.checkbox-custom {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-color: #667eea;
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
+    border-color: #378bcb;
 }
 
 .checkbox-filter input:checked+.checkbox-custom::after {
@@ -366,7 +366,7 @@
 }
 
 .results-count i {
-    color: #ec4899;
+    color: #2d7ab8;
 }
 
 .btn-clear-all {
@@ -402,7 +402,7 @@
 }
 
 .sort-dropdown select:focus {
-    border-color: #667eea;
+    border-color: #378bcb;
     outline: none;
 }
 
@@ -427,7 +427,7 @@
 
 .view-btns button.active {
     background: white;
-    color: #667eea;
+    color: #378bcb;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -444,7 +444,7 @@
     width: 50px;
     height: 50px;
     border: 4px solid #f3f4f6;
-    border-top-color: #667eea;
+    border-top-color: #378bcb;
     border-radius: 50%;
     margin: 0 auto 20px;
     animation: spin 1s linear infinite;
@@ -472,7 +472,7 @@
     width: 100px;
     height: 100px;
     margin: 0 auto 24px;
-    background: linear-gradient(135deg, #fce7f3, #ede9fe);
+    background: linear-gradient(135deg, #dbeafe, #ede9fe);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -481,7 +481,7 @@
 
 .empty-icon i {
     font-size: 40px;
-    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    background: linear-gradient(135deg, #2d7ab8, #4a9bd6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -503,7 +503,7 @@
     align-items: center;
     gap: 10px;
     padding: 14px 28px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     border: none;
     border-radius: 12px;
@@ -642,7 +642,7 @@
     background: white;
     border: none;
     border-radius: 50%;
-    color: #667eea;
+    color: #378bcb;
     font-size: 18px;
     cursor: pointer;
     transform: scale(0.8);
@@ -681,7 +681,7 @@
 .current-price {
     font-size: 18px;
     font-weight: 800;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -717,7 +717,7 @@
 .btn-add-cart {
     width: 100%;
     padding: 12px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     border: none;
     border-radius: 10px;

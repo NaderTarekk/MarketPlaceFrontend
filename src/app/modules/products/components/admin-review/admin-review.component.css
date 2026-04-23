@@ -49,7 +49,7 @@
 }
 
 .filters button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
@@ -61,7 +61,7 @@
   justify-content: center;
   align-items: center;
   padding: 4rem;
-  color: #667eea;
+  color: #378bcb;
   font-size: 2rem;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .reviews-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
 }
 
@@ -231,8 +231,8 @@
 }
 
 .pagination button:hover:not(:disabled) {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #378bcb;
+  color: #378bcb;
   transform: translateY(-2px);
 }
 
@@ -318,7 +318,7 @@
 
 /* Approve Header */
 .approve-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
 }
 
 .approve-icon {
@@ -335,7 +335,7 @@
 
 .approve-icon i {
   font-size: 2.5rem;
-  color: #667eea;
+  color: #378bcb;
 }
 
 /* Reject Header */
@@ -387,7 +387,7 @@
   padding: 0.75rem 1rem;
   background: #edf2f7;
   border-radius: 8px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #378bcb;
 }
 
 .warning-text {
@@ -434,7 +434,7 @@
 }
 
 .btn-approve-confirm {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
 }
 
@@ -605,7 +605,7 @@
 [dir="rtl"] .info-text,
 [dir="rtl"] .warning-text {
   border-left: none;
-  border-right: 4px solid #667eea;
+  border-right: 4px solid #378bcb;
 }
 
 [dir="rtl"] .warning-text {

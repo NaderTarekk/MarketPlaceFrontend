@@ -8,6 +8,7 @@ import { AdminReviewComponent } from './components/admin-review/admin-review.com
 import { WishlistsComponent } from './components/wishlists/wishlists.component';
 import { MyReviewsComponent } from './components/my-reviews/my-reviews.component';
 import { StoresComponent } from './components/stores/stores.component';
+import { PromotionDetailComponent } from './components/promotion-detail/promotion-detail.component';
 
 
 
@@ -18,7 +19,8 @@ import { StoresComponent } from './components/stores/stores.component';
     AdminReviewComponent,
     WishlistsComponent,
     MyReviewsComponent,
-    StoresComponent
+    StoresComponent,
+    PromotionDetailComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,204 @@
+<div class="promotion-page" *ngIf="!isLoading && promotion">
+    <!-- Hero Banner -->
+    <section class="promo-hero">
+        <div class="promo-hero-bg">
+            <img [src]="getImageUrl(promotion.bannerImage)" [alt]="getName(promotion)" />
+            <div class="promo-hero-overlay"></div>
+        </div>
+        <div class="promo-hero-content">
+            <span class="promo-badge">
+                <i class="fa-solid fa-tags"></i>
+                {{ i18n.currentLang === 'ar' ? 'عرض حصري' : 'Exclusive Deal' }}
+            </span>
+            <h1>{{ getName(promotion) }}</h1>
+            <p class="promo-desc" *ngIf="promotion.descriptionAr || promotion.descriptionEn">
+                {{ i18n.currentLang === 'ar' ? promotion.descriptionAr : promotion.descriptionEn }}
+            </p>
+
+            <!-- Stats Row -->
+            <div class="promo-stats">
+                <div class="promo-stat" *ngIf="promotion.discountPercentage > 0">
+                    <span class="stat-value">{{ promotion.discountPercentage }}%</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'خصم' : 'OFF' }}</span>
+                </div>
+                <div class="promo-stat">
+                    <span class="stat-value">{{ promotion.products?.length || 0 }}</span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'منتج' : 'Products' }}</span>
+                </div>
+                <div class="promo-stat" *ngIf="promotion.endDate">
+                    <span class="stat-value"><i class="fa-solid fa-clock"></i></span>
+                    <span class="stat-label">{{ i18n.currentLang === 'ar' ? 'عرض محدود' : 'Limited' }}</span>
+                </div>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div class="countdown-bar" *ngIf="promotion.endDate && (countdown.days > 0 || countdown.hours > 0 || countdown.minutes > 0)">
+                <span class="countdown-label">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    {{ i18n.currentLang === 'ar' ? 'ينتهي خلال' : 'Ends in' }}
+                </span>
+                <div class="countdown-units">
+                    <div class="countdown-unit">
+                        <span class="countdown-num">{{ padZero(countdown.days) }}</span>
+                        <span class="countdown-text">{{ i18n.currentLang === 'ar' ? 'يوم' : 'Days' }}</span>
+                    </div>
+                    <span class="countdown-sep">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-num">{{ padZero(countdown.hours) }}</span>
+                        <span class="countdown-text">{{ i18n.currentLang === 'ar' ? 'ساعة' : 'Hrs' }}</span>
+                    </div>
+                    <span class="countdown-sep">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-num">{{ padZero(countdown.minutes) }}</span>
+                        <span class="countdown-text">{{ i18n.currentLang === 'ar' ? 'دقيقة' : 'Min' }}</span>
+                    </div>
+                    <span class="countdown-sep">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-num">{{ padZero(countdown.seconds) }}</span>
+                        <span class="countdown-text">{{ i18n.currentLang === 'ar' ? 'ثانية' : 'Sec' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toolbar -->
+    <section class="promo-toolbar">
+        <div class="toolbar-inner">
+            <!-- Search -->
+            <div class="promo-search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" (input)="onSearch($event)"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'ابحث في منتجات العرض...' : 'Search deal products...'" />
+            </div>
+
+            <!-- Filters -->
+            <div class="promo-filters">
+                <!-- Price Filter -->
+                <select (change)="onPriceFilter($any($event.target).value)" class="filter-select">
+                    <option value="all">{{ i18n.currentLang === 'ar' ? 'كل الأسعار' : 'All Prices' }}</option>
+                    <option value="under100">{{ i18n.currentLang === 'ar' ? 'أقل من 100' : 'Under 100' }}</option>
+                    <option value="under500">{{ i18n.currentLang === 'ar' ? 'أقل من 500' : 'Under 500' }}</option>
+                    <option value="under1000">{{ i18n.currentLang === 'ar' ? 'أقل من 1000' : 'Under 1,000' }}</option>
+                    <option value="above1000">{{ i18n.currentLang === 'ar' ? 'أكثر من 1000' : 'Above 1,000' }}</option>
+                </select>
+
+                <!-- Sort -->
+                <select (change)="onSortChange($any($event.target).value)" class="filter-select">
+                    <option value="default">{{ i18n.currentLang === 'ar' ? 'ترتيب افتراضي' : 'Default Sort' }}</option>
+                    <option value="priceLow">{{ i18n.currentLang === 'ar' ? 'السعر: الأقل' : 'Price: Low to High' }}</option>
+                    <option value="priceHigh">{{ i18n.currentLang === 'ar' ? 'السعر: الأعلى' : 'Price: High to Low' }}</option>
+                    <option value="rating">{{ i18n.currentLang === 'ar' ? 'الأعلى تقييماً' : 'Highest Rated' }}</option>
+                    <option value="discount">{{ i18n.currentLang === 'ar' ? 'الأكثر خصماً' : 'Biggest Discount' }}</option>
+                </select>
+            </div>
+
+            <span class="results-info">
+                {{ filteredProducts.length }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
+            </span>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="promo-products">
+        <!-- Empty State -->
+        <div class="promo-empty" *ngIf="filteredProducts.length === 0">
+            <i class="fa-solid fa-box-open"></i>
+            <p>{{ i18n.currentLang === 'ar' ? 'لا توجد نتائج مطابقة' : 'No matching products found' }}</p>
+            <button class="reset-btn" (click)="searchQuery=''; priceFilter='all'; sortBy='default'; applyFilters()">
+                <i class="fa-solid fa-rotate-left"></i>
+                {{ i18n.currentLang === 'ar' ? 'إعادة ضبط' : 'Reset Filters' }}
+            </button>
+        </div>
+
+        <!-- Grid -->
+        <div class="promo-grid" *ngIf="filteredProducts.length > 0">
+            <div *ngFor="let product of filteredProducts; let i = index"
+                class="promo-card"
+                [style.animation-delay]="i * 50 + 'ms'"
+                (click)="goToProduct(product.productId)">
+
+                <!-- Discount Badge -->
+                <span *ngIf="getDiscountPercentage(product)" class="discount-badge">
+                    -{{ getDiscountPercentage(product) }}%
+                </span>
+
+                <!-- Stock Badge -->
+                <span *ngIf="product.stock <= 3 && product.stock > 0" class="low-stock-badge">
+                    <i class="fa-solid fa-fire"></i>
+                    {{ i18n.currentLang === 'ar' ? 'كمية محدودة' : 'Few Left' }}
+                </span>
+
+                <span *ngIf="product.stock <= 0" class="sold-out-badge">
+                    {{ i18n.currentLang === 'ar' ? 'نفذ' : 'Sold Out' }}
+                </span>
+
+                <!-- Image -->
+                <div class="promo-card-image" [class.grayscale]="product.stock <= 0">
+                    <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" loading="lazy" />
+                    <div class="card-overlay">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="promo-card-info">
+                    <h3>{{ getName(product) }}</h3>
+
+                    <!-- Rating -->
+                    <div class="promo-card-rating">
+                        <div class="stars">
+                            <i *ngFor="let star of getStars(product.rating)" class="fa-solid fa-star"
+                                [class.filled]="star === 1"></i>
+                        </div>
+                        <span class="review-count">({{ product.reviewCount }})</span>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="promo-card-price">
+                        <span class="current-price">{{ formatPrice(product.price) }}</span>
+                        <span *ngIf="product.originalPrice && product.originalPrice > product.price" class="original-price">
+                            {{ formatPrice(product.originalPrice) }}
+                        </span>
+                    </div>
+
+                    <!-- Saved Amount -->
+                    <div class="saved-amount" *ngIf="getSavedAmount(product) > 0">
+                        <i class="fa-solid fa-piggy-bank"></i>
+                        {{ i18n.currentLang === 'ar' ? 'وفّر' : 'Save' }}
+                        {{ formatPrice(getSavedAmount(product)) }}
+                    </div>
+
+                    <!-- Stock Status -->
+                    <span class="stock-status" [class.in-stock]="product.stock > 0" [class.out-of-stock]="product.stock <= 0">
+                        <i class="fa-solid" [class.fa-check-circle]="product.stock > 0" [class.fa-times-circle]="product.stock <= 0"></i>
+                        {{ product.stock > 0
+                            ? (i18n.currentLang === 'ar' ? 'متوفر' : 'In Stock')
+                            : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock')
+                        }}
+                    </span>
+                </div>
+
+                <!-- Add to Cart -->
+                <button class="promo-cart-btn" (click)="addToCart(product, $event)"
+                    [disabled]="product.stock <= 0"
+                    [attr.aria-label]="i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart'">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    <span>{{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}</span>
+                </button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Loading -->
+<div class="promo-loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+</div>
+
+<!-- Toast -->
+<div class="toast" [class.show]="toast.show" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+    <i class="fa-solid" [class.fa-check-circle]="toast.type === 'success'" [class.fa-exclamation-circle]="toast.type === 'error'"></i>
+    <span>{{ toast.message }}</span>
+</div>

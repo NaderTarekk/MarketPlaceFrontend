@@ -9,6 +9,9 @@ import { environment } from '../../../../../environment';
 import { PickupPointService } from '../../../../services/pickup-point.service';
 import { PickupPoint } from '../../../../models/pickup-point';
 import { GovernorateService } from '../../services/governorate.service';
+import { CartService } from '../../../cart/services/cart.service';
+import { WithdrawalService } from '../../../../services/withdrawal.service';
+import { PromotionService } from '../../../../services/promotion.service';
 import html2pdf from 'html2pdf.js';
 import * as L from 'leaflet';
 
@@ -20,10 +23,46 @@ import * as L from 'leaflet';
 })
 export class AdminComponent implements OnInit {
   // Active Tab
-  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' = 'dashboard';
+  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' | 'promoCodes' | 'promotions' = 'dashboard';
 
   siteSettings = { isPickupAvailable: true, vodafoneCashNumber: '', vodafoneCashName: '' };
   vfCashForm = { number: '', name: '' };
+
+  // Promo Codes
+  promoCodes: any[] = [];
+  isLoadingPromos = false;
+  showPromoDialog = false;
+  isSavingPromo = false;
+  promoForm: any = {
+    code: '', type: 0, value: 0, maxDiscount: null, minOrderAmount: null,
+    maxUsageCount: null, maxUsagePerUser: null, startDate: '', endDate: '',
+    descriptionAr: '', descriptionEn: '', scope: 0, brandId: null, productIds: ''
+  };
+  brands: any[] = [];
+
+  // Promotions
+  promotions: any[] = [];
+  isLoadingPromotions = false;
+  showPromotionDialog = false;
+  isSavingPromotion = false;
+  editingPromotionId: number | null = null;
+  promotionForm: any = { titleAr: '', titleEn: '', descriptionAr: '', descriptionEn: '', bannerImage: '', badgeText: '', discountPercentage: 0, startDate: '', endDate: '', displayOrder: 0 };
+  selectedPromotionForProducts: any = null;
+  showAddProductDialog = false;
+  addProductId = '';
+  promotionBannerFile: File | null = null;
+  promotionBannerPreview: string | null = null;
+  productSearchQuery = '';
+  productSearchResults: any[] = [];
+  isSearchingProducts = false;
+
+  // Withdrawal Requests
+  withdrawalRequestsList: any[] = [];
+  isLoadingWithdrawals2 = false;
+  withdrawalFilter = -1; // -1=all, 0=pending, 1=approved, 2=rejected
+  showRejectDialog = false;
+  rejectingId: number | null = null;
+  rejectReason = '';
 
   // Pickup Points
   pickupPoints: PickupPoint[] = [];
@@ -71,8 +110,6 @@ export class AdminComponent implements OnInit {
   };
   selectedProduct: ProductList | null = null;
   showProductModal = false;
-  showRejectDialog = false;
-  rejectReason = '';
 
   // Users Data
   users: AdminUser[] = [];
@@ -201,6 +238,9 @@ export class AdminComponent implements OnInit {
     private productsService: ProductsService,
     private pickupPointService: PickupPointService,
     private governorateService: GovernorateService,
+    private cartService: CartService,
+    private withdrawalService: WithdrawalService,
+    private promotionService: PromotionService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -326,7 +366,7 @@ export class AdminComponent implements OnInit {
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
   // ✅ عدّل الـ switchTab Method
-  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints'): void {
+  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' | 'promoCodes' | 'promotions'): void {
     this.activeTab = tab;
 
     switch (tab) {
@@ -359,6 +399,7 @@ export class AdminComponent implements OnInit {
         break;
       case 'withdrawals':
         if (this.vendorWithdrawals.length === 0) this.loadVendorWithdrawals();
+        this.loadWithdrawalRequests();
         break;
       case 'settings':
         this.loadSiteSettings();
@@ -366,6 +407,13 @@ export class AdminComponent implements OnInit {
       case 'pickupPoints':
         if (this.pickupPoints.length === 0) this.loadPickupPoints();
         if (this.governorates.length === 0) this.loadGovernorates();
+        break;
+      case 'promoCodes':
+        this.loadPromoCodes();
+        if (this.brands.length === 0) this.loadBrandsForPromo();
+        break;
+      case 'promotions':
+        this.loadPromotions();
         break;
     }
     this.cdr.detectChanges();
@@ -1608,7 +1656,7 @@ export class AdminComponent implements OnInit {
       
       <!-- Personal Info -->
       <div style="margin-bottom: 30px;">
-        <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+        <div style="background: linear-gradient(135deg, #6366f1, #4a9bd6); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
           ${isRtl ? '👤 المعلومات الشخصية' : '👤 Personal Information'}
         </div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
@@ -1666,7 +1714,7 @@ export class AdminComponent implements OnInit {
       
       <!-- Statistics -->
       <div style="margin-bottom: 30px;">
-        <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+        <div style="background: linear-gradient(135deg, #4f46e5, #378bcb); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
           ${isRtl ? '📊 الإحصائيات' : '📊 Statistics'}
         </div>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
@@ -1679,7 +1727,7 @@ export class AdminComponent implements OnInit {
             <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'منتجات نشطة' : 'Active Products'}</div>
           </div>
           <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #c4b5fd;">
-            <div style="font-size: 28px; font-weight: 700; color: #7c3aed;">${this.vendorPrintReport!.totalOrders}</div>
+            <div style="font-size: 28px; font-weight: 700; color: #378bcb;">${this.vendorPrintReport!.totalOrders}</div>
             <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'إجمالي الطلبات' : 'Total Orders'}</div>
           </div>
           <div style="background: linear-gradient(135deg, #f0fdfa, #ccfbf1); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #5eead4;">
@@ -1703,7 +1751,7 @@ export class AdminComponent implements OnInit {
             <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.vendorEarnings)}</div>
             <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'أرباح التاجر' : 'Vendor Earnings'}</div>
           </div>
-          <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); padding: 20px; text-align: center; border-radius: 12px; color: white;">
+          <div style="background: linear-gradient(135deg, #4a9bd6, #378bcb); padding: 20px; text-align: center; border-radius: 12px; color: white;">
             <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.adminEarnings)}</div>
             <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'عمولة الإدارة' : 'Admin Commission'}</div>
           </div>
@@ -1797,20 +1845,20 @@ export class AdminComponent implements OnInit {
 
     return `
     <div style="margin-bottom: 30px; page-break-inside: avoid;">
-      <div style="background: linear-gradient(135deg, #e11d48, #ec4899); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+      <div style="background: linear-gradient(135deg, #1d4ed8, #2d7ab8); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
         ${isRtl ? '🧾 تفاصيل الطلبات' : '🧾 Orders Details'} (${this.vendorPrintReport!.orders.length})
       </div>
       <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
         <thead>
           <tr>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'رقم الطلب' : 'Order #'}</th>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'التاريخ' : 'Date'}</th>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'العميل' : 'Customer'}</th>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الحالة' : 'Status'}</th>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'المنتجات' : 'Items'}</th>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الشحن' : 'Shipping'}</th>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الإجمالي' : 'Total'}</th>
-            <th style="background: #e11d48; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'نصيب التاجر' : 'Vendor'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'رقم الطلب' : 'Order #'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'التاريخ' : 'Date'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'العميل' : 'Customer'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الحالة' : 'Status'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'المنتجات' : 'Items'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الشحن' : 'Shipping'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'الإجمالي' : 'Total'}</th>
+            <th style="background: #1d4ed8; color: white; padding: 10px 8px; text-align: ${isRtl ? 'right' : 'left'}; font-weight: 600;">${isRtl ? 'نصيب التاجر' : 'Vendor'}</th>
           </tr>
         </thead>
         <tbody>
@@ -1987,4 +2035,308 @@ export class AdminComponent implements OnInit {
   private destroyFormMap(): void {
     if (this.formMap) { this.formMap.remove(); this.formMap = null; this.formMarker = null; }
   }
+
+  // ═══════════════════════════════════════════════
+  // PROMO CODES
+  // ═══════════════════════════════════════════════
+
+  loadBrandsForPromo(): void {
+    this.productsService.getBrands().subscribe({
+      next: (res: any) => { if (res.success) this.brands = res.data; },
+      error: () => {}
+    });
+  }
+
+  loadPromoCodes(): void {
+    this.isLoadingPromos = true;
+    this.cartService.getAll().subscribe({
+      next: (res: any) => {
+        if (res.success) this.promoCodes = res.data;
+        this.isLoadingPromos = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isLoadingPromos = false; }
+    });
+  }
+
+  openPromoDialog(): void {
+    this.promoForm = {
+      code: '', type: 0, value: 0, maxDiscount: null, minOrderAmount: null,
+      maxUsageCount: null, maxUsagePerUser: null, startDate: '', endDate: '',
+      descriptionAr: '', descriptionEn: '', scope: 0, brandId: null, productIds: ''
+    };
+    this.showPromoDialog = true;
+  }
+
+  closePromoDialog(): void {
+    this.showPromoDialog = false;
+  }
+
+  savePromoCode(): void {
+    if (!this.promoForm.code || !this.promoForm.value) return;
+    this.isSavingPromo = true;
+    this.cartService.create(this.promoForm).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.loadPromoCodes();
+          this.closePromoDialog();
+        }
+        this.isSavingPromo = false;
+      },
+      error: () => { this.isSavingPromo = false; }
+    });
+  }
+
+  togglePromoStatus(promo: any): void {
+    this.cartService.update(promo.id, { isActive: !promo.isActive }).subscribe({
+      next: (res: any) => { if (res.success) promo.isActive = !promo.isActive; }
+    });
+  }
+
+  deletePromoCode(id: number): void {
+    if (!confirm(this.i18n.currentLang === 'ar' ? 'حذف كود الخصم؟' : 'Delete promo code?')) return;
+    this.cartService.delete(id).subscribe({
+      next: (res: any) => { if (res.success) this.loadPromoCodes(); }
+    });
+  }
+
+  getScopeLabel(scope: number): string {
+    if (scope === 1) return this.i18n.currentLang === 'ar' ? 'براند محدد' : 'Specific Brand';
+    if (scope === 2) return this.i18n.currentLang === 'ar' ? 'منتجات محددة' : 'Specific Products';
+    return this.i18n.currentLang === 'ar' ? 'كل المنتجات' : 'All Products';
+  }
+
+  // ═══════════════════════════════════════════════
+  // WITHDRAWAL REQUESTS
+  // ═══════════════════════════════════════════════
+
+  loadWithdrawalRequests(): void {
+    this.isLoadingWithdrawals2 = true;
+    const status = this.withdrawalFilter >= 0 ? this.withdrawalFilter : undefined;
+    this.withdrawalService.getAll(status).subscribe({
+      next: (res: any) => {
+        if (res.success) this.withdrawalRequestsList = res.data;
+        this.isLoadingWithdrawals2 = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isLoadingWithdrawals2 = false; }
+    });
+  }
+
+  onWithdrawalFilterChange(filter: number): void {
+    this.withdrawalFilter = filter;
+    this.loadWithdrawalRequests();
+  }
+
+  showApproveDialog = false;
+  approvingId: number | null = null;
+
+  openApproveDialog(id: number): void {
+    this.approvingId = id;
+    this.showApproveDialog = true;
+  }
+
+  confirmApprove(): void {
+    if (!this.approvingId) return;
+    this.withdrawalService.approve(this.approvingId, {}).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.showApproveDialog = false;
+          this.loadWithdrawalRequests();
+          this.loadVendorWithdrawals();
+        }
+      }
+    });
+  }
+
+  openRejectWithdrawalDialog(id: number): void {
+    this.rejectingId = id;
+    this.rejectReason = '';
+    this.showRejectDialog = true;
+  }
+
+  confirmReject(): void {
+    if (!this.rejectingId || !this.rejectReason.trim()) return;
+    this.withdrawalService.reject(this.rejectingId, { rejectionReason: this.rejectReason }).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.showRejectDialog = false;
+          this.loadWithdrawalRequests();
+        }
+      }
+    });
+  }
+
+  getPendingWithdrawalsCount(): number {
+    return this.withdrawalRequestsList.filter(w => w.status === 0).length;
+  }
+
+  // ═══════════════════════════════════════════════
+  // PROMOTIONS
+  // ═══════════════════════════════════════════════
+
+  loadPromotions(): void {
+    this.isLoadingPromotions = true;
+    this.promotionService.getAll(false).subscribe({
+      next: (res: any) => {
+        if (res.success) this.promotions = res.data;
+        this.isLoadingPromotions = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isLoadingPromotions = false; }
+    });
+  }
+
+  openPromotionDialog(promo?: any): void {
+    this.promotionBannerFile = null;
+    if (promo) {
+      this.editingPromotionId = promo.id;
+      this.promotionForm = {
+        titleAr: promo.titleAr, titleEn: promo.titleEn,
+        descriptionAr: promo.descriptionAr || '', descriptionEn: promo.descriptionEn || '',
+        bannerImage: promo.bannerImage || '', badgeText: promo.badgeText || '',
+        discountPercentage: promo.discountPercentage || 0,
+        startDate: promo.startDate ? new Date(promo.startDate).toISOString().slice(0, 16) : '',
+        endDate: promo.endDate ? new Date(promo.endDate).toISOString().slice(0, 16) : '',
+        displayOrder: promo.displayOrder || 0
+      };
+      this.promotionBannerPreview = promo.bannerImage ? this.getImageUrl(promo.bannerImage) : null;
+    } else {
+      this.editingPromotionId = null;
+      this.promotionForm = { titleAr: '', titleEn: '', descriptionAr: '', descriptionEn: '', bannerImage: '', badgeText: '', discountPercentage: 0, startDate: '', endDate: '', displayOrder: 0 };
+      this.promotionBannerPreview = null;
+    }
+    this.showPromotionDialog = true;
+  }
+
+  closePromotionDialog(): void { this.showPromotionDialog = false; }
+
+  async savePromotion(): Promise<void> {
+    if (!this.promotionForm.titleAr) return;
+    this.isSavingPromotion = true;
+
+    try {
+      if (this.promotionBannerFile) {
+        const uploadRes = await this.productsService.uploadImage(this.promotionBannerFile).toPromise();
+        if (uploadRes?.success) {
+          this.promotionForm.bannerImage = uploadRes.data;
+        }
+      }
+
+      const req = this.editingPromotionId
+        ? this.promotionService.update(this.editingPromotionId, this.promotionForm)
+        : this.promotionService.create(this.promotionForm);
+
+      req.subscribe({
+        next: (res: any) => {
+          if (res.success) { this.loadPromotions(); this.closePromotionDialog(); }
+          this.isSavingPromotion = false;
+        },
+        error: () => { this.isSavingPromotion = false; }
+      });
+    } catch {
+      this.isSavingPromotion = false;
+    }
+  }
+
+  deletePromotion(id: number): void {
+    if (!confirm(this.i18n.currentLang === 'ar' ? 'حذف العرض؟' : 'Delete promotion?')) return;
+    this.promotionService.delete(id).subscribe({
+      next: (res: any) => { if (res.success) this.loadPromotions(); }
+    });
+  }
+
+  togglePromotionActive(promo: any): void {
+    this.promotionService.update(promo.id, { isActive: !promo.isActive }).subscribe({
+      next: (res: any) => { if (res.success) promo.isActive = !promo.isActive; }
+    });
+  }
+
+  viewPromotionProducts(promo: any): void {
+    this.selectedPromotionForProducts = null;
+    this.promotionService.getById(promo.id).subscribe({
+      next: (res: any) => {
+        if (res.success) { this.selectedPromotionForProducts = res.data; this.cdr.detectChanges(); }
+      }
+    });
+  }
+
+  openAddProductToPromotion(): void {
+    this.addProductId = '';
+    this.showAddProductDialog = true;
+  }
+
+  addProductToPromotion(): void {
+    if (!this.addProductId || !this.selectedPromotionForProducts) return;
+    this.promotionService.addProduct(this.selectedPromotionForProducts.id, +this.addProductId).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.showAddProductDialog = false;
+          this.viewPromotionProducts(this.selectedPromotionForProducts);
+          this.loadPromotions();
+        }
+      }
+    });
+  }
+
+  removeProductFromPromotion(productId: number): void {
+    if (!this.selectedPromotionForProducts) return;
+    this.promotionService.removeProduct(this.selectedPromotionForProducts.id, productId).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.viewPromotionProducts(this.selectedPromotionForProducts);
+          this.loadPromotions();
+        }
+      }
+    });
+  }
+
+  onPromotionBannerSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.promotionBannerFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.promotionBannerPreview = reader.result as string;
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removePromotionBanner(): void {
+    this.promotionBannerFile = null;
+    this.promotionBannerPreview = null;
+    this.promotionForm.bannerImage = '';
+  }
+
+  searchProducts(): void {
+    const q = this.productSearchQuery?.trim();
+    if (!q || q.length < 2) { this.productSearchResults = []; return; }
+    this.isSearchingProducts = true;
+    this.productsService.search(q).subscribe({
+      next: (res: any) => {
+        this.productSearchResults = res.success ? res.data : [];
+        this.isSearchingProducts = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isSearchingProducts = false; }
+    });
+  }
+
+  selectProductForPromotion(product: any): void {
+    if (!this.selectedPromotionForProducts) return;
+    this.promotionService.addProduct(this.selectedPromotionForProducts.id, product.id).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.showAddProductDialog = false;
+          this.productSearchQuery = '';
+          this.productSearchResults = [];
+          this.viewPromotionProducts(this.selectedPromotionForProducts);
+          this.loadPromotions();
+        }
+      }
+    });
+  }
+
+  closeProductsView(): void { this.selectedPromotionForProducts = null; }
 }

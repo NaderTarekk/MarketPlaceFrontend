@@ -1,5 +1,73 @@
 /* src/app/modules/home/home.component.css */
 
+/* Welcome Popup */
+.welcome-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999999;
+  animation: welcomeFadeIn 0.4s ease-out;
+}
+
+.welcome-popup {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 36px;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+  animation: welcomeSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.5s ease;
+}
+
+.welcome-popup.hide {
+  opacity: 0;
+  transform: translateY(30px) scale(0.9);
+}
+
+.welcome-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, #4a9bd6, #5aabe0);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(74, 155, 214, 0.3);
+}
+
+.welcome-popup h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0a2540;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+}
+
+.welcome-popup p {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.6;
+}
+
+@keyframes welcomeFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes welcomeSlideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .product-reveal {
   opacity: 0;
   transform: translateY(40px);

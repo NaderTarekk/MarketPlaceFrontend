@@ -188,9 +188,9 @@
                             </svg>
                         </div>
                         <span class="label">{{ i18n.currentLang === 'ar' ? 'ارسل صورة البطاقة من الأمام والخلف والسجل
-                            التجاري والرقم الضريبي على الجيميل التالي : noqtaceo@gmail.com' : 'Send a photo of the card
+                            التجاري والرقم الضريبي على الجيميل التالي : wildmarketceo@gmail.com' : 'Send a photo of the card
                             (front and back), commercial registration, and tax ID number to the following Gmail address:
-                            noqtaceo@gmail.com' }}</span>
+                            wildmarketceo@gmail.com' }}</span>
                     </label>
 
 
@@ -539,7 +539,7 @@
 
         <!-- Header -->
         <div
-            class="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-purple-600 to-pink-600 flex-shrink-0">
+            class="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-blue-500 to-blue-600 flex-shrink-0">
             <h3 class="text-base sm:text-lg font-bold text-white m-0">
                 {{ isEditingAddress
                 ? (i18n.currentLang === 'ar' ? 'تعديل العنوان' : 'Edit Address')
@@ -565,9 +565,9 @@
                     <button
                         class="flex flex-col items-center gap-2 px-3 py-4 bg-gray-50 border-2 rounded-xl transition-all"
                         [class.border-gray-200]="addressForm.label !== 'Home'"
-                        [class.bg-purple-50]="addressForm.label === 'Home'"
-                        [class.border-purple-500]="addressForm.label === 'Home'"
-                        [class.text-purple-600]="addressForm.label === 'Home'" (click)="addressForm.label = 'Home'">
+                        [class.bg-blue-50]="addressForm.label === 'Home'"
+                        [class.border-blue-500]="addressForm.label === 'Home'"
+                        [class.text-blue-600]="addressForm.label === 'Home'" (click)="addressForm.label = 'Home'">
                         <i class="fa-solid fa-home text-xl sm:text-2xl"></i>
                         <span class="text-xs sm:text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'المنزل' : 'Home'
                             }}</span>
@@ -576,9 +576,9 @@
                     <button
                         class="flex flex-col items-center gap-2 px-3 py-4 bg-gray-50 border-2 rounded-xl transition-all"
                         [class.border-gray-200]="addressForm.label !== 'Work'"
-                        [class.bg-purple-50]="addressForm.label === 'Work'"
-                        [class.border-purple-500]="addressForm.label === 'Work'"
-                        [class.text-purple-600]="addressForm.label === 'Work'" (click)="addressForm.label = 'Work'">
+                        [class.bg-blue-50]="addressForm.label === 'Work'"
+                        [class.border-blue-500]="addressForm.label === 'Work'"
+                        [class.text-blue-600]="addressForm.label === 'Work'" (click)="addressForm.label = 'Work'">
                         <i class="fa-solid fa-briefcase text-xl sm:text-2xl"></i>
                         <span class="text-xs sm:text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'العمل' : 'Work'
                             }}</span>
@@ -587,9 +587,9 @@
                     <button
                         class="flex flex-col items-center gap-2 px-3 py-4 bg-gray-50 border-2 rounded-xl transition-all"
                         [class.border-gray-200]="addressForm.label !== 'Other'"
-                        [class.bg-purple-50]="addressForm.label === 'Other'"
-                        [class.border-purple-500]="addressForm.label === 'Other'"
-                        [class.text-purple-600]="addressForm.label === 'Other'" (click)="addressForm.label = 'Other'">
+                        [class.bg-blue-50]="addressForm.label === 'Other'"
+                        [class.border-blue-500]="addressForm.label === 'Other'"
+                        [class.text-blue-600]="addressForm.label === 'Other'" (click)="addressForm.label = 'Other'">
                         <i class="fa-solid fa-location-dot text-xl sm:text-2xl"></i>
                         <span class="text-xs sm:text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'آخر' : 'Other'
                             }}</span>
@@ -604,7 +604,7 @@
                         {{ i18n.currentLang === 'ar' ? 'الاسم الكامل' : 'Full Name' }} *
                     </label>
                     <input type="text" [(ngModel)]="addressForm.fullName"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all" />
                 </div>
 
                 <div>
@@ -612,7 +612,7 @@
                         {{ i18n.currentLang === 'ar' ? 'رقم الهاتف' : 'Phone Number' }} *
                     </label>
                     <input type="tel" [(ngModel)]="addressForm.phoneNumber"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all" />
                 </div>
             </div>
 
@@ -622,7 +622,7 @@
                     {{ i18n.currentLang === 'ar' ? 'العنوان بالتفصيل' : 'Address Line' }} *
                 </label>
                 <textarea [(ngModel)]="addressForm.addressLine" rows="2"
-                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base resize-none focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all"></textarea>
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base resize-none focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all"></textarea>
             </div>
 
             <!-- City & Country -->
@@ -632,7 +632,7 @@
                         {{ i18n.currentLang === 'ar' ? 'المدينة' : 'City' }} *
                     </label>
                     <input type="text" [(ngModel)]="addressForm.city"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all" />
                 </div>
 
                 <div>
@@ -640,7 +640,7 @@
                         {{ i18n.currentLang === 'ar' ? 'الدولة' : 'Country' }} *
                     </label>
                     <input type="text" [(ngModel)]="addressForm.country"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all" />
                 </div>
             </div>
 
@@ -651,7 +651,7 @@
                         {{ i18n.currentLang === 'ar' ? 'المحافظة' : 'State' }}
                     </label>
                     <input type="text" [(ngModel)]="addressForm.state"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all" />
                 </div>
 
                 <div>
@@ -659,7 +659,7 @@
                         {{ i18n.currentLang === 'ar' ? 'الرمز البريدي' : 'Postal Code' }}
                     </label>
                     <input type="text" [(ngModel)]="addressForm.postalCode"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100 transition-all" />
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all" />
                 </div>
             </div>
 
@@ -667,7 +667,7 @@
             <div class="mb-0">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
                     <input type="checkbox" [(ngModel)]="addressForm.isDefault"
-                        class="w-5 h-5 cursor-pointer accent-purple-600 rounded" />
+                        class="w-5 h-5 cursor-pointer accent-blue-600 rounded" />
                     <span class="text-sm font-medium text-gray-700">
                         {{ i18n.currentLang === 'ar' ? 'تعيين كعنوان افتراضي' : 'Set as default address' }}
                     </span>
@@ -685,7 +685,7 @@
             </button>
 
             <button
-                class="flex-[2] px-6 py-3 sm:py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                class="flex-[2] px-6 py-3 sm:py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                 (click)="saveAddress()" [disabled]="isSaving">
                 <i *ngIf="isSaving" class="fa-solid fa-spinner fa-spin"></i>
                 <span>{{ isSaving

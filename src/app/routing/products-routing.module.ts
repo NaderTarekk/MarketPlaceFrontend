@@ -6,6 +6,7 @@ import { AdminReviewComponent } from '../modules/products/components/admin-revie
 import { WishlistsComponent } from '../modules/products/components/wishlists/wishlists.component';
 import { MyReviewsComponent } from '../modules/products/components/my-reviews/my-reviews.component';
 import { StoresComponent } from '../modules/products/components/stores/stores.component';
+import { PromotionDetailComponent } from '../modules/products/components/promotion-detail/promotion-detail.component';
 
 const routes: Routes = [
   { path: '', component: ProductsComponent },
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: 'wishlist', component: WishlistsComponent },
   { path: 'my-reviews', component: MyReviewsComponent },
   { path: 'category/:id', component: ProductsComponent },
+  { path: 'promotion/:id', component: PromotionDetailComponent },
   { path: ':id', component: ProductDetailsComponent },
 ];
 

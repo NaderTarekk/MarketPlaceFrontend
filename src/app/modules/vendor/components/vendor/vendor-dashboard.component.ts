@@ -13,7 +13,9 @@ import { Router } from '@angular/router';
 import { environment } from '../../../../../environment';
 import { OrderService } from '../../../cart/services/order.service';
 import { BarcodeService } from '../../../../core/services/barcode.service';
+import { WithdrawalService } from '../../../../services/withdrawal.service';
 
+// force rebuild
 @Component({
   selector: 'app-vendor',
   standalone: false,
@@ -128,6 +130,18 @@ export class VendorDashboardComponent implements OnInit {
   isUploadingVideo = false;
   isSubmitting = false;
 
+  // Withdrawals
+  withdrawalRequests: any[] = [];
+  showWithdrawalDialog = false;
+  isSubmittingWithdrawal = false;
+  withdrawalForm = {
+    amount: 0,
+    paymentMethod: 'VodafoneCash',
+    accountNumber: '',
+    accountName: '',
+    notes: ''
+  };
+
   // Delete Dialog
   showDeleteDialog = false;
   productToDelete: ProductList | null = null;
@@ -170,7 +184,7 @@ export class VendorDashboardComponent implements OnInit {
   totalWithdrawn = 0;
 
   // Clearance period in days (يجي من الـ backend أو ثابت)
-  clearancePeriodDays = 3;
+  clearancePeriodDays = 0;
 
   constructor(
     public i18n: I18nService,
@@ -181,6 +195,7 @@ export class VendorDashboardComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private orderService: OrderService,
     private barcodeService: BarcodeService,
+    private withdrawalService: WithdrawalService,
   ) { }
 
   ngOnInit(): void {
@@ -243,12 +258,8 @@ export class VendorDashboardComponent implements OnInit {
     // 3. Net Profit
     this.netProfit = this.totalRevenue / (1 + this.commissionRate / 100);
 
-    // 6. Available Balance (نفترض إنه = صافي الربح - Pending Clearance - Pending Withdrawal)
-    // ✅ هنا لازم تجيب الـ Pending Withdrawal من الـ backend
-    this.pendingWithdrawal = this.dashboard.pendingWithdrawal || 0;
-    this.totalWithdrawn = this.dashboard.totalWithdrawn || 0;
-
-    this.availableBalance = this.netProfit - this.pendingClearance - this.pendingWithdrawal;
+    // 6. Available Balance — will be recalculated after loadWithdrawals
+    this.availableBalance = this.netProfit - this.pendingClearance;
 
     this.cdr.detectChanges();
   }
@@ -309,6 +320,8 @@ export class VendorDashboardComponent implements OnInit {
 
           // ✅ Calculate financials after loading dashboard
           this.calculateFinancials();
+          // ✅ Load withdrawals AFTER financials are calculated
+          this.loadWithdrawals();
         }
         this.isLoadingDashboard = false;
         this.cdr.detectChanges();
@@ -1109,5 +1122,90 @@ export class VendorDashboardComponent implements OnInit {
   getTotalProductsSold(): number {
     if (!this.salesReport || this.salesReport.length === 0) return 0;
     return this.salesReport.reduce((sum, day) => sum + day.productsSold, 0);
+  }
+
+  // ═══════════════════════════════════════════════
+  // WITHDRAWALS
+  // ═══════════════════════════════════════════════
+
+  loadWithdrawals(): void {
+    try {
+      this.withdrawalService.getMyRequests().subscribe({
+        next: (res: any) => {
+          if (res?.success) {
+            this.withdrawalRequests = res.data || [];
+            // Calculate from actual withdrawal requests
+            this.pendingWithdrawal = this.withdrawalRequests
+              .filter((r: any) => r.status === 0)
+              .reduce((sum: number, r: any) => sum + r.amount, 0);
+            this.totalWithdrawn = this.withdrawalRequests
+              .filter((r: any) => r.status === 1)
+              .reduce((sum: number, r: any) => sum + r.amount, 0);
+            // Recalculate available balance
+            this.availableBalance = this.netProfit - this.pendingClearance - this.totalWithdrawn;
+            if (this.availableBalance < 0) this.availableBalance = 0;
+            this.cdr.detectChanges();
+          }
+        },
+        error: () => {}
+      });
+    } catch (e) {}
+  }
+
+  openWithdrawalDialog(): void {
+    this.withdrawalForm = { amount: 0, paymentMethod: 'VodafoneCash', accountNumber: '', accountName: '', notes: '' };
+    this.showWithdrawalDialog = true;
+    this.cdr.detectChanges();
+  }
+
+  closeWithdrawalDialog(): void {
+    this.showWithdrawalDialog = false;
+    this.cdr.detectChanges();
+  }
+
+  withdrawAll(): void {
+    this.withdrawalForm.amount = this.availableBalance;
+  }
+
+  submitWithdrawal(): void {
+    if (this.withdrawalForm.amount <= 0 || !this.withdrawalForm.accountNumber) return;
+    this.isSubmittingWithdrawal = true;
+    this.withdrawalService.createRequest(this.withdrawalForm).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.showToast(this.i18n.currentLang === 'ar' ? 'تم إرسال طلب السحب' : 'Withdrawal request sent', 'success');
+          this.closeWithdrawalDialog();
+          this.loadWithdrawals();
+        } else {
+          this.showToast(res.message, 'error');
+        }
+        this.isSubmittingWithdrawal = false;
+      },
+      error: (err: any) => {
+        this.showToast(err.error?.message || 'Error', 'error');
+        this.isSubmittingWithdrawal = false;
+      }
+    });
+  }
+
+  getWithdrawalStatusClass(status: number): string {
+    if (status === 1) return 'approved';
+    if (status === 2) return 'rejected';
+    return 'pending';
+  }
+
+  getWithdrawalStatusText(status: number): string {
+    if (status === 1) return this.i18n.currentLang === 'ar' ? 'تم التحويل' : 'Approved';
+    if (status === 2) return this.i18n.currentLang === 'ar' ? 'مرفوض' : 'Rejected';
+    return this.i18n.currentLang === 'ar' ? 'قيد المراجعة' : 'Pending';
+  }
+
+  getPaymentMethodLabel(method: string): string {
+    const map: any = {
+      'VodafoneCash': this.i18n.currentLang === 'ar' ? 'فودافون كاش' : 'Vodafone Cash',
+      'BankTransfer': this.i18n.currentLang === 'ar' ? 'تحويل بنكي' : 'Bank Transfer',
+      'InstaPay': 'InstaPay'
+    };
+    return map[method] || method;
   }
 }

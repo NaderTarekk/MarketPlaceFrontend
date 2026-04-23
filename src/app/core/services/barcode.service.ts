@@ -51,7 +51,7 @@ export class BarcodeService {
     QRCode.toDataURL(options.barcodeValue, { width: 240, margin: 2 }).then(qrDataUrl => {
       const logoHtml = options.logoUrl
         ? `<img src="${options.logoUrl}" style="height:50px;margin-bottom:8px;" />`
-        : `<div style="font-size:22px;font-weight:900;color:#7c3aed;letter-spacing:2px;margin-bottom:8px;">Wild Market</div>`;
+        : `<div style="font-size:22px;font-weight:900;color:#378bcb;letter-spacing:2px;margin-bottom:8px;">Wild Market</div>`;
 
       const customerLine = options.customerName
         ? `<div style="font-size:12px;color:#374151;margin-top:6px;">العميل / Customer: <strong>${options.customerName}</strong></div>`

@@ -11,6 +11,7 @@ import { CartService } from '../cart/services/cart.service';
 import { Category } from '../../models/category';
 import { environment } from '../../../environment';
 import { GovernorateService } from '../adamin/services/governorate.service';
+import { PromotionService } from '../../services/promotion.service';
 
 // ─── kept for product-card compatibility ───────────────────────────────────────
 export interface Product {
@@ -122,6 +123,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Search ─────────────────────────────────────────────────────────────────
   searchQuery = '';
   searchResults: any[] = [];
+  storeSearchResults: any[] = [];
+  allStores: any[] = [];
   isSearching = false;
   showSearchDropdown = false;
   private searchSubject = new Subject<string>();
@@ -136,6 +139,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ── Delivery Estimate ─────────────────────────────────────────────────────
   userDeliveryDays: number | null = null;
+
+  // ── Promotions ─────────────────────────────────────────────────────────────
+  activePromotions: any[] = [];
+
+  // ── Welcome Popup ──────────────────────────────────────────────────────────
+  showWelcomePopup = false;
+  hideWelcomePopup = false;
 
   // ── Newsletter ─────────────────────────────────────────────────────────────
   newsletterEmail = '';
@@ -153,7 +163,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
-    private governorateService: GovernorateService
+    private governorateService: GovernorateService,
+    private promotionService: PromotionService
   ) { }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -162,6 +173,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadBanners();
     this.loadTopSellingProducts();
     this.loadUserDeliveryDays();
+    this.triggerWelcomePopup();
+    this.loadPromotions();
+    this.productsService.getStores().subscribe({
+      next: (res: any) => { if (res.success) this.allStores = res.data || []; },
+      error: () => {}
+    });
     // this.loadFeaturedSections();
     this.isLoadingSections = false;
     this.loadStats();
@@ -485,8 +502,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.isSearching = false;
         if (res.success) {
-          this.searchResults = res.data.slice(0, 6);
-          this.showSearchDropdown = this.searchResults.length > 0 || this.searchQuery.length >= 2;
+          this.searchResults = res.data.slice(0, 5);
+          const q = this.searchQuery.toLowerCase();
+          this.storeSearchResults = this.allStores.filter((s: any) =>
+            s.vendorName?.toLowerCase().includes(q)
+          ).slice(0, 3);
+          this.showSearchDropdown = this.searchResults.length > 0 || this.storeSearchResults.length > 0 || this.searchQuery.length >= 2;
         }
         this.cdr.detectChanges();
       },
@@ -500,8 +521,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.searchSubject.next(q);
   }
   selectSearchResult(p: any): void {
-    this.showSearchDropdown = false; this.searchQuery = ''; this.searchResults = [];
+    this.showSearchDropdown = false; this.searchQuery = ''; this.searchResults = []; this.storeSearchResults = [];
     this.router.navigate(['/products', p.id]);
+  }
+  goToStore(store: any): void {
+    this.showSearchDropdown = false; this.searchQuery = ''; this.searchResults = []; this.storeSearchResults = [];
+    this.router.navigate(['/products'], { queryParams: { vendorId: store.vendorId, storeName: store.vendorName } });
   }
   onSearch(): void {
     if (!this.searchQuery.trim()) return;
@@ -554,6 +579,41 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (img.startsWith('http') || img.startsWith('data:')) return img;
     return `${environment.baseApi}${img}`;
   }
+  loadPromotions(): void {
+    this.promotionService.getAll(true).subscribe({
+      next: (res: any) => {
+        if (res.success) this.activePromotions = res.data;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
+  }
+
+  triggerWelcomePopup(): void {
+    const lastShown = localStorage.getItem('welcomePopupShown');
+    const now = Date.now();
+    // Show once per session (or every 24h)
+    if (lastShown && now - +lastShown < 24 * 60 * 60 * 1000) return;
+
+    setTimeout(() => {
+      this.showWelcomePopup = true;
+      this.cdr.detectChanges();
+
+      // Auto hide after 3 seconds
+      setTimeout(() => {
+        this.hideWelcomePopup = true;
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.showWelcomePopup = false;
+          this.hideWelcomePopup = false;
+          this.cdr.detectChanges();
+        }, 500);
+      }, 3000);
+
+      localStorage.setItem('welcomePopupShown', String(now));
+    }, 800);
+  }
+
   handleImgError(e: Event): void {
     const img = e.target as HTMLImageElement;
     if (!img.src.includes('placeholder.svg')) {

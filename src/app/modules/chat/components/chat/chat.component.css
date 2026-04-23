@@ -3,7 +3,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     height: calc(100vh - 140px);
   min-height: 500px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   border-radius: 20px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
@@ -144,7 +144,7 @@
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: #ffffff;
   flex-shrink: 0;
 }

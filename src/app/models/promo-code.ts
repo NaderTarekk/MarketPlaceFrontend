@@ -13,6 +13,9 @@ export interface PromoCode {
   startDate?: string;
   endDate?: string;
   isActive: boolean;
+  scope: number; // 0=All, 1=Brand, 2=Products
+  brandId?: number;
+  productIds?: string;
   createdAt: string;
 }
 
@@ -36,4 +39,7 @@ export interface CreatePromoCode {
   maxUsagePerUser?: number;
   startDate?: string;
   endDate?: string;
+  scope?: number;
+  brandId?: number;
+  productIds?: string;
 }

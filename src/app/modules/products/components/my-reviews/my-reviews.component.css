@@ -97,7 +97,7 @@
 }
 
 .stat-card.total .stat-icon {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .stat-card.average .stat-icon {
-    background: linear-gradient(135deg, #ec4899, #db2777);
+    background: linear-gradient(135deg, #2d7ab8, #1d6a9f);
     color: white;
 }
 

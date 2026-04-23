@@ -21,7 +21,7 @@
 .hero-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+    background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 50%, #2d7ab8 100%);
 }
 
 .hero-bg::before {
@@ -75,7 +75,7 @@
     width: 50px;
     height: 50px;
     border: 4px solid #f3f4f6;
-    border-top-color: #667eea;
+    border-top-color: #378bcb;
     border-radius: 50%;
     margin: 0 auto 20px;
     animation: spin 1s linear infinite;
@@ -99,7 +99,7 @@
     width: 100px;
     height: 100px;
     margin: 0 auto 24px;
-    background: linear-gradient(135deg, #ede9fe, #fce7f3);
+    background: linear-gradient(135deg, #ede9fe, #dbeafe);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -108,7 +108,7 @@
 
 .empty-icon i {
     font-size: 40px;
-    background: linear-gradient(135deg, #667eea, #ec4899);
+    background: linear-gradient(135deg, #378bcb, #2d7ab8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -130,7 +130,7 @@
     align-items: center;
     gap: 10px;
     padding: 14px 28px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     border: none;
     border-radius: 12px;
@@ -179,7 +179,7 @@
 }
 
 .section-header h2 i {
-    color: #667eea;
+    color: #378bcb;
 }
 
 .items-count {
@@ -278,7 +278,7 @@
 }
 
 .item-name:hover {
-    color: #667eea;
+    color: #378bcb;
 }
 
 .item-price {
@@ -290,7 +290,7 @@
 .current-price {
     font-size: 16px;
     font-weight: 700;
-    color: #667eea;
+    color: #378bcb;
 }
 
 .original-price {
@@ -340,7 +340,7 @@
 }
 
 .qty-btn:hover:not(:disabled) {
-    background: #667eea;
+    background: #378bcb;
     color: white;
 }
 
@@ -383,7 +383,7 @@
 .total-value {
     font-size: 18px;
     font-weight: 800;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -450,13 +450,13 @@
 }
 
 .promo-input input:focus {
-    border-color: #667eea;
+    border-color: #378bcb;
     outline: none;
 }
 
 .promo-input button {
     padding: 12px 20px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     border: none;
     border-radius: 10px;
@@ -560,7 +560,7 @@
 .total-amount {
     font-size: 24px;
     font-weight: 800;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -569,7 +569,7 @@
 .btn-checkout {
     width: 100%;
     padding: 16px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     border: none;
     border-radius: 12px;
@@ -604,7 +604,7 @@
 }
 
 .continue-shopping:hover {
-    color: #667eea;
+    color: #378bcb;
 }
 
 /* Trust Badges */
@@ -628,7 +628,7 @@
 
 .badge i {
     font-size: 20px;
-    color: #667eea;
+    color: #378bcb;
 }
 
 .badge span {
@@ -954,7 +954,7 @@
 }
 
 .admin-header h3 i {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 20px;
@@ -965,7 +965,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   border: none;
   border-radius: 10px;
@@ -989,7 +989,7 @@
 .loading-mini {
   text-align: center;
   padding: 40px;
-  color: #667eea;
+  color: #378bcb;
   font-size: 24px;
 }
 
@@ -1011,7 +1011,7 @@
 }
 
 .promo-item:hover {
-  border-color: #a855f7;
+  border-color: #5aabe0;
   background: white;
 }
 
@@ -1028,7 +1028,7 @@
 }
 
 .promo-code-badge {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   padding: 4px 12px;
   border-radius: 6px;
@@ -1154,7 +1154,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   flex-shrink: 0;
 }
@@ -1232,7 +1232,7 @@
 
 .promo-dialog .form-group input:focus,
 .promo-dialog .form-group select:focus {
-  border-color: #667eea;
+  border-color: #378bcb;
   outline: none;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
@@ -1251,7 +1251,7 @@
   letter-spacing: 2px;
   text-align: center;
   background: linear-gradient(135deg, #f8f7ff, #fef5ff);
-  border-color: #a855f7;
+  border-color: #5aabe0;
 }
 
 /* Form Rows */
@@ -1301,7 +1301,7 @@
 .promo-dialog .btn-save {
   flex: 2;
   padding: 14px 24px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   border: none;
   border-radius: 12px;
   font-size: 15px;
@@ -1516,7 +1516,7 @@
 }
 
 .dialog-icon.delete-promo i {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 28px;
@@ -1535,7 +1535,7 @@
 }
 
 .delete-promo-preview .promo-code-badge {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   padding: 6px 14px;
   border-radius: 8px;
@@ -1581,7 +1581,7 @@
 
 /* Header - Compact */
 .payment-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+    background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 50%, #2d7ab8 100%);
     padding: 20px 20px 28px;
     text-align: center;
     position: relative;
@@ -1724,7 +1724,7 @@
 }
 
 .payment-option.selected {
-    border-color: #667eea;
+    border-color: #378bcb;
     background: linear-gradient(135deg, #f5f3ff, #eef2ff);
     box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
 }
@@ -1785,7 +1785,7 @@
 }
 
 .payment-option.selected .option-name {
-    color: #667eea;
+    color: #378bcb;
 }
 
 .option-desc {
@@ -1801,7 +1801,7 @@
 }
 
 .payment-option.selected .option-check i {
-    color: #667eea;
+    color: #378bcb;
 }
 
 .payment-option.selected .option-check i.fa-circle-check {
@@ -1865,7 +1865,7 @@
     padding: 12px;
     border: none;
     border-radius: 12px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #378bcb, #1c5a8a);
     color: white;
     font-size: 14px;
     font-weight: 800;
@@ -1927,17 +1927,17 @@
 .login-warning i { font-size: 15px; }
 
 .login-warning a {
-    color: #667eea;
+    color: #378bcb;
     text-decoration: none;
     font-weight: 700;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid #378bcb;
     padding-bottom: 1px;
     transition: all 0.2s;
 }
 
 .login-warning a:hover {
-    color: #764ba2;
-    border-color: #764ba2;
+    color: #1c5a8a;
+    border-color: #1c5a8a;
 }
 
 @keyframes warningShake {
@@ -2024,7 +2024,7 @@
 
 .variant-tag.size {
     background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-    color: #7c3aed;
+    color: #378bcb;
 }
 
 .variant-tag.size i {
@@ -2032,8 +2032,8 @@
 }
 
 .variant-tag.color {
-    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
-    color: #db2777;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1d6a9f;
 }
 
 .color-dot {

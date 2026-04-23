@@ -90,6 +90,7 @@ export interface Store {
   productCount: number;
   totalOrders: number;
   averageRating: number;
+  totalReviews: number;
   isVerified: boolean;
 }
 

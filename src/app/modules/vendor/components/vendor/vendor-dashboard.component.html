@@ -165,7 +165,97 @@
                         </div>
                     </div>
                 </div>
-            </div>
+
+            </div> <!-- close earnings-section -->
+
+            <!-- Withdrawal Request Button - OUTSIDE earnings section -->
+            <div style="text-align:center;margin:20px 0">
+                <button style="padding:12px 30px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px" (click)="showWithdrawalDialog = !showWithdrawalDialog">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                        {{ showWithdrawalDialog ? (i18n.currentLang === 'ar' ? 'إخفاء النموذج' : 'Hide Form') : (i18n.currentLang === 'ar' ? 'طلب سحب أرباح' : 'Request Withdrawal') }}
+                    </button>
+                </div>
+
+                <!-- Withdrawal Form (inline - no popup) -->
+                <div *ngIf="showWithdrawalDialog" style="background:#fff;border-radius:16px;border:2px solid #e2e8f0;padding:24px;margin-top:16px">
+                    <h3 style="margin:0 0 16px;font-size:17px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:8px">
+                        <i class="fa-solid fa-money-bill-transfer" style="color:#16a34a"></i>
+                        {{ i18n.currentLang === 'ar' ? 'طلب سحب أرباح' : 'Request Withdrawal' }}
+                    </h3>
+
+                    <div class="withdrawal-balance-card">
+                        <span class="balance-label">{{ i18n.currentLang === 'ar' ? 'الرصيد المتاح' : 'Available Balance' }}</span>
+                        <span class="balance-value">{{ formatPrice(availableBalance) }}</span>
+                    </div>
+
+                    <div class="withdrawal-field">
+                        <label>{{ i18n.currentLang === 'ar' ? 'المبلغ المطلوب' : 'Amount' }} *</label>
+                        <div class="amount-input-row">
+                            <input type="number" [(ngModel)]="withdrawalForm.amount" [max]="availableBalance" min="1" />
+                            <button class="btn-withdraw-all" (click)="withdrawAll()">{{ i18n.currentLang === 'ar' ? 'سحب الكل' : 'Withdraw All' }}</button>
+                        </div>
+                    </div>
+
+                    <div class="withdrawal-field">
+                        <label>{{ i18n.currentLang === 'ar' ? 'طريقة الاستلام' : 'Payment Method' }} *</label>
+                        <select [(ngModel)]="withdrawalForm.paymentMethod">
+                            <option value="VodafoneCash">{{ i18n.currentLang === 'ar' ? 'فودافون كاش' : 'Vodafone Cash' }}</option>
+                            <option value="InstaPay">InstaPay</option>
+                            <option value="BankTransfer">{{ i18n.currentLang === 'ar' ? 'تحويل بنكي' : 'Bank Transfer' }}</option>
+                        </select>
+                    </div>
+
+                    <div class="withdrawal-field">
+                        <label>{{ withdrawalForm.paymentMethod === 'BankTransfer' ? (i18n.currentLang === 'ar' ? 'رقم الحساب' : 'Account Number') : (i18n.currentLang === 'ar' ? 'رقم الموبايل' : 'Mobile Number') }} *</label>
+                        <input type="text" [(ngModel)]="withdrawalForm.accountNumber" [placeholder]="withdrawalForm.paymentMethod === 'BankTransfer' ? 'IBAN' : '01XXXXXXXXX'" />
+                    </div>
+
+                    <div class="withdrawal-field">
+                        <label>{{ i18n.currentLang === 'ar' ? 'اسم صاحب الحساب' : 'Account Holder Name' }} *</label>
+                        <input type="text" [(ngModel)]="withdrawalForm.accountName" />
+                    </div>
+
+                    <div class="withdrawal-field">
+                        <label>{{ i18n.currentLang === 'ar' ? 'ملاحظات (اختياري)' : 'Notes (optional)' }}</label>
+                        <textarea [(ngModel)]="withdrawalForm.notes" rows="2"></textarea>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:16px;justify-content:flex-end">
+                        <button style="padding:10px 20px;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff;color:#64748b;font-size:14px;font-weight:600;cursor:pointer" (click)="showWithdrawalDialog = false">
+                            {{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}
+                        </button>
+                        <button style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:10px;background:#16a34a;color:#fff;font-size:14px;font-weight:600;cursor:pointer" (click)="submitWithdrawal()"
+                            [disabled]="isSubmittingWithdrawal || withdrawalForm.amount <= 0 || !withdrawalForm.accountNumber || !withdrawalForm.accountName"
+                            [style.opacity]="isSubmittingWithdrawal || withdrawalForm.amount <= 0 || !withdrawalForm.accountNumber || !withdrawalForm.accountName ? '0.5' : '1'">
+                            <i *ngIf="isSubmittingWithdrawal" class="fa-solid fa-spinner fa-spin"></i>
+                            <i *ngIf="!isSubmittingWithdrawal" class="fa-solid fa-paper-plane"></i>
+                            {{ i18n.currentLang === 'ar' ? 'إرسال الطلب' : 'Submit Request' }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Withdrawal History -->
+                <div *ngIf="withdrawalRequests.length > 0" class="withdrawal-history">
+                    <h4>
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        {{ i18n.currentLang === 'ar' ? 'سجل طلبات السحب' : 'Withdrawal History' }}
+                    </h4>
+                    <div class="withdrawal-list">
+                        <div *ngFor="let req of withdrawalRequests" class="withdrawal-item">
+                            <div class="withdrawal-item-info">
+                                <span class="withdrawal-amount">{{ formatPrice(req.amount) }}</span>
+                                <span class="withdrawal-method">{{ getPaymentMethodLabel(req.paymentMethod) }} · {{ req.accountNumber }}</span>
+                                <span class="withdrawal-date">{{ formatDate(req.createdAt) }}</span>
+                            </div>
+                            <span class="withdrawal-status" [ngClass]="getWithdrawalStatusClass(req.status)">
+                                {{ getWithdrawalStatusText(req.status) }}
+                            </span>
+                            <div *ngIf="req.status === 2 && req.rejectionReason" class="withdrawal-reject-reason">
+                                <i class="fa-solid fa-circle-info"></i> {{ req.rejectionReason }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             <!-- Stats Cards -->
             <div class="stats-grid">
@@ -1196,4 +1286,6 @@
             </button>
         </div>
     </div>
-</div>
+
+<!-- Withdrawal dialog moved inline -->
+</div> <!-- close vendor-dashboard -->

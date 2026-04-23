@@ -18,7 +18,7 @@
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 50%, #2d7ab8 100%);
 }
 
 .hero-shapes {
@@ -81,20 +81,20 @@
   position: absolute;
   inset: 0;
   border: 4px solid transparent;
-  border-top-color: #667eea;
+  border-top-color: #378bcb;
   border-radius: 50%;
   animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
 .loader-ring:nth-child(2) {
   inset: 8px;
-  border-top-color: #764ba2;
+  border-top-color: #1c5a8a;
   animation-delay: 0.15s;
 }
 
 .loader-ring:nth-child(3) {
   inset: 16px;
-  border-top-color: #ec4899;
+  border-top-color: #2d7ab8;
   animation-delay: 0.3s;
 }
 
@@ -154,7 +154,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2, #ec4899);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a, #2d7ab8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,7 +182,7 @@
   right: 0;
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -225,7 +225,7 @@
 }
 
 .role-badge.customer-service {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: linear-gradient(135deg, #4a9bd6, #378bcb);
   color: white;
 }
 
@@ -235,7 +235,7 @@
 }
 
 .role-badge.customer {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
 }
 
@@ -307,7 +307,7 @@
 }
 
 .member-since i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 /* Stats */
@@ -347,8 +347,8 @@
 }
 
 .stat-icon.wishlist {
-  background: #fce7f3;
-  color: #ec4899;
+  background: #dbeafe;
+  color: #2d7ab8;
 }
 
 .stat-icon.reviews {
@@ -383,7 +383,7 @@
 .btn-edit {
   flex: 1;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   border: none;
   border-radius: 12px;
@@ -465,7 +465,7 @@
 
 .tab.active {
   background: white;
-  color: #667eea;
+  color: #378bcb;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
@@ -506,7 +506,7 @@
 }
 
 .info-item label i {
-  color: #667eea;
+  color: #378bcb;
   font-size: 14px;
 }
 
@@ -544,7 +544,7 @@
 .info-item input:focus,
 .info-item select:focus,
 .info-item textarea:focus {
-  border-color: #667eea;
+  border-color: #378bcb;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
@@ -605,7 +605,7 @@
 .store-logo-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -903,7 +903,7 @@
   width: 100%;
   padding: 1rem;
   border-radius: 1rem;
-  background: linear-gradient(135deg, #ec4899, #a855f7);
+  background: linear-gradient(135deg, #2d7ab8, #5aabe0);
   color: white;
   font-weight: bold;
   display: flex;
@@ -916,7 +916,7 @@
 
 .btn-upgrade:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 10px 30px rgba(45, 122, 184, 0.3);
 }
 
 .modal-overlay {
@@ -944,7 +944,7 @@
   padding: 1rem;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #ec4899, #a855f7);
+  background: linear-gradient(135deg, #2d7ab8, #5aabe0);
   color: white;
   font-weight: 700;
   font-size: 14px;
@@ -958,7 +958,7 @@
 
 .btn-upgrade:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 10px 30px rgba(45, 122, 184, 0.3);
 }
 
 .modal-overlay {
@@ -1025,12 +1025,12 @@
 }
 
 .role-option:hover {
-  border-color: #a855f7;
+  border-color: #5aabe0;
   transform: translateY(-2px);
 }
 
 .role-option.active {
-  border-color: #a855f7;
+  border-color: #5aabe0;
   background: #faf5ff;
 }
 
@@ -1041,7 +1041,7 @@
 }
 
 .role-option.active i {
-  color: #a855f7;
+  color: #5aabe0;
 }
 
 .role-option span {
@@ -1072,8 +1072,8 @@
 
 .vendor-fields input:focus,
 .vendor-fields textarea:focus {
-  border-color: #a855f7;
-  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+  border-color: #5aabe0;
+  box-shadow: 0 0 0 4px rgba(55, 139, 203, 0.1);
 }
 
 .vendor-fields textarea {
@@ -1107,13 +1107,13 @@
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #ec4899, #a855f7);
+  background: linear-gradient(135deg, #2d7ab8, #5aabe0);
   color: white;
 }
 
 .btn-submit:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 8px 25px rgba(45, 122, 184, 0.4);
 }
 
 .btn-submit:disabled {
@@ -1258,7 +1258,7 @@
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   font-size: 11px;
   font-weight: 700;
@@ -1292,7 +1292,7 @@
 }
 
 .addresses-header h3 i {
-  color: #667eea;
+  color: #378bcb;
   font-size: 22px;
 }
 
@@ -1302,7 +1302,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   border: none;
   border-radius: 12px;
@@ -1328,7 +1328,7 @@
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  color: #667eea;
+  color: #378bcb;
   font-size: 32px;
 }
 
@@ -1368,7 +1368,7 @@
   align-items: center;
   gap: 8px;
   padding: 14px 28px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
   border: none;
   border-radius: 12px;
@@ -1402,7 +1402,7 @@
 }
 
 .address-card:hover {
-  border-color: #667eea;
+  border-color: #378bcb;
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
   transform: translateY(-4px);
 }
@@ -1445,7 +1445,7 @@
 
 .address-label i {
   font-size: 20px;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .address-label span {
@@ -1489,7 +1489,7 @@
 
 .address-full i {
   font-size: 16px;
-  color: #667eea;
+  color: #378bcb;
   margin-top: 2px;
   flex-shrink: 0;
 }
@@ -1612,8 +1612,8 @@
 
 .label-option.active {
   background: linear-gradient(135deg, #f0f4ff, #fef5ff);
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #378bcb;
+  color: #378bcb;
 }
 
 .label-option i {
@@ -1654,7 +1654,7 @@
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: #378bcb;
 }
 
 .checkbox-label span {
@@ -1723,7 +1723,7 @@
 }
 
 .delete-preview .preview-label i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 .delete-preview p {

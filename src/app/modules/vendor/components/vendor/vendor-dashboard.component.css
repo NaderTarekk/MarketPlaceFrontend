@@ -183,7 +183,7 @@ th {
 }
 
 .stat-card.products .stat-icon {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: linear-gradient(135deg, #4a9bd6, #378bcb);
   color: white;
 }
 
@@ -1310,8 +1310,8 @@ th {
 
 /* Video Upload */
 .video-upload-box {
-  background: linear-gradient(135deg, #1e1b4b, #4c1d95) !important;
-  border-color: #7c3aed !important;
+  background: linear-gradient(135deg, #0a2540, #1c5a8a) !important;
+  border-color: #378bcb !important;
 }
 .video-upload-box i { color: #c4b5fd !important; }
 .video-preview-box {
@@ -1320,7 +1320,7 @@ th {
   height: 80px;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid #7c3aed;
+  border: 2px solid #378bcb;
 }
 .video-thumb-preview {
   width: 100%;
@@ -1804,7 +1804,7 @@ th {
 }
 
 .status-badge.assigned {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #4a9bd6 0%, #378bcb 100%);
 }
 
 .status-badge.picked {
@@ -2050,7 +2050,7 @@ th {
 /* ═══════════════════════════════════════════════ */
 
 .earnings-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   border-radius: 20px;
   padding: 32px;
   color: white;
@@ -2284,7 +2284,7 @@ th {
 }
 
 .btn-add-variant {
-  background: linear-gradient(135deg, #a855f7, #ec4899);
+  background: linear-gradient(135deg, #5aabe0, #2d7ab8);
   color: white;
   border: none;
   padding: 6px 12px;
@@ -2347,12 +2347,12 @@ th {
 
 .variant-tag.size {
     background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-    color: #7c3aed;
+    color: #378bcb;
 }
 
 .variant-tag.color {
-    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
-    color: #db2777;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1d6a9f;
 }
 
 .color-dot {
@@ -2624,5 +2624,171 @@ th {
 .btn-modal-cancel:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* Withdrawals */
+.withdrawal-action-row {
+    margin-top: 16px;
+    text-align: center;
+}
+.btn-request-withdrawal {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+}
+.btn-request-withdrawal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+}
+.withdrawal-history {
+    margin-top: 20px;
+}
+.withdrawal-history h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.withdrawal-history h4 i { color: #6366f1; }
+.withdrawal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.withdrawal-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+}
+.withdrawal-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.withdrawal-amount {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+.withdrawal-method {
+    font-size: 12px;
+    color: #64748b;
+}
+.withdrawal-date {
+    font-size: 11px;
+    color: #94a3b8;
+}
+.withdrawal-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.withdrawal-status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+.withdrawal-status.approved {
+    background: #dcfce7;
+    color: #166534;
+}
+.withdrawal-status.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.withdrawal-reject-reason {
+    width: 100%;
+    font-size: 12px;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+/* Withdrawal Dialog */
+.withdrawal-balance-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1.5px solid #86efac;
+    border-radius: 14px;
+    margin-bottom: 16px;
+}
+.balance-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #166534;
+}
+.balance-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #15803d;
+}
+.withdrawal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+.withdrawal-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+.withdrawal-field input,
+.withdrawal-field select,
+.withdrawal-field textarea {
+    padding: 10px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+}
+.withdrawal-field input:focus,
+.withdrawal-field select:focus,
+.withdrawal-field textarea:focus {
+    outline: none;
+    border-color: #16a34a;
+}
+.amount-input-row {
+    display: flex;
+    gap: 8px;
+}
+.amount-input-row input { flex: 1; }
+.btn-withdraw-all {
+    padding: 8px 14px;
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    border-radius: 10px;
+    color: #16a34a;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.btn-withdraw-all:hover {
+    background: #dcfce7;
 }
 

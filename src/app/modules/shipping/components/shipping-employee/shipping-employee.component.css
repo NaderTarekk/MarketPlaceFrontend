@@ -1,6 +1,6 @@
 /* ==================== Hero Section ==================== */
 .hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   padding: 2.5rem 1.5rem;
   text-align: center;
   color: white;
@@ -76,7 +76,7 @@
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
@@ -105,7 +105,7 @@
   width: 48px;
   height: 48px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #378bcb;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -161,7 +161,7 @@
 .select-all input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #667eea;
+  accent-color: #378bcb;
   cursor: pointer;
 }
 
@@ -170,7 +170,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -244,7 +244,7 @@
 }
 
 .order-card.selected {
-  border-color: #667eea;
+  border-color: #378bcb;
   background: #faf5ff;
 }
 
@@ -266,7 +266,7 @@
 .checkbox-wrapper input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  accent-color: #667eea;
+  accent-color: #378bcb;
   cursor: pointer;
 }
 
@@ -298,8 +298,8 @@
 }
 
 .status-badge.partial {
-  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-  color: #9d174d;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
 }
 
 .status-badge.ready {
@@ -382,7 +382,7 @@
   position: absolute;
   bottom: -4px;
   right: -4px;
-  background: #667eea;
+  background: #378bcb;
   color: white;
   font-size: 0.65rem;
   font-weight: 600;
@@ -559,7 +559,7 @@
 .progress-info span {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .progress-bar {
@@ -572,7 +572,7 @@
 
 .progress {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #378bcb, #1c5a8a);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -637,7 +637,7 @@
 .agent-avatar {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -675,7 +675,7 @@
   display: block;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .stat .label {
@@ -727,7 +727,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
 }
 
@@ -776,7 +776,7 @@
 }
 
 .selected-count strong {
-  color: #667eea;
+  color: #378bcb;
   font-size: 1.25rem;
 }
 
@@ -806,7 +806,7 @@
 
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #378bcb;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -833,7 +833,7 @@
 }
 
 .radio-option.selected {
-  border-color: #667eea;
+  border-color: #378bcb;
   background: #f5f3ff;
 }
 
@@ -847,7 +847,7 @@
 }
 
 .radio-option.selected i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 .radio-option span {
@@ -857,7 +857,7 @@
 }
 
 .radio-option.selected span {
-  color: #667eea;
+  color: #378bcb;
 }
 
 /* ==================== Modal Footer ==================== */
@@ -895,7 +895,7 @@
   gap: 0.5rem;
   padding: 0.85rem;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -931,7 +931,7 @@
 }
 
 .section h4 i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 .section p {
@@ -968,7 +968,7 @@
 }
 
 .vo-agent i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 .btn-action {
@@ -978,7 +978,7 @@
   gap: 0.5rem;
   padding: 0.85rem 1.5rem;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1624,7 +1624,7 @@
 
 .redirect-card i {
   font-size: 4rem;
-  color: #667eea;
+  color: #378bcb;
   margin-bottom: 20px;
   display: block;
 }
@@ -1646,7 +1646,7 @@
   align-items: center;
   gap: 10px;
   padding: 15px 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   text-decoration: none;
   border-radius: 12px;

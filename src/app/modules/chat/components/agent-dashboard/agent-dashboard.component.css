@@ -120,7 +120,7 @@
 .session-card .avatar {
   width: 45px;
   height: 45px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -259,7 +259,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: #fff;
 }
 
@@ -350,7 +350,7 @@
 }
 
 .message.agent .bubble {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: #fff;
   border-radius: 16px 16px 4px 16px;
 }
@@ -388,7 +388,7 @@
 .message .bubble .sender {
   font-size: 11px;
   font-weight: 600;
-  color: #667eea;
+  color: #378bcb;
   margin-bottom: 4px;
 }
 
@@ -476,7 +476,7 @@
 }
 
 .input-area input:focus {
-  border-color: #667eea;
+  border-color: #378bcb;
 }
 
 .input-area input:disabled {
@@ -485,7 +485,7 @@
 }
 
 .input-area .send-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: #fff;
   border: none;
   padding: 12px 24px;

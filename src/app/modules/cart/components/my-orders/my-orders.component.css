@@ -4,7 +4,7 @@
 
 .orders-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   padding-bottom: 80px;
 }
 
@@ -43,7 +43,7 @@
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   opacity: 0.9;
 }
 
@@ -278,7 +278,7 @@
 
 .filter-btn.active {
   background: white;
-  color: #667eea;
+  color: #378bcb;
   border-color: white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
@@ -292,7 +292,7 @@
 }
 
 .filter-btn.active .count {
-  background: #667eea;
+  background: #378bcb;
   color: white;
 }
 
@@ -312,7 +312,7 @@
   width: 120px;
   height: 120px;
   margin: 0 auto 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -342,7 +342,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   border: none;
   border-radius: 50px;
@@ -401,7 +401,7 @@
 
 .order-number i {
   font-size: 0.9rem;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .status-badge {
@@ -433,7 +433,7 @@
 }
 
 .status-badge.out-for-delivery {
-  background: #fce7f3;
+  background: #dbeafe;
   color: #9f1239;
 }
 
@@ -486,7 +486,7 @@
 
 .total-row .info-value {
   font-size: 1.1rem;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .btn-view-details {
@@ -496,7 +496,7 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 0.9rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -589,7 +589,7 @@
 }
 
 .modal-title i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 .btn-close {
@@ -626,7 +626,7 @@
 }
 
 .loader-small .loader-ring {
-  border-top-color: #667eea;
+  border-top-color: #378bcb;
 }
 
 .modal-body {
@@ -639,7 +639,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 .order-summary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
   border-radius: 16px;
   padding: 1.75rem;
   margin-bottom: 2rem;
@@ -717,7 +717,7 @@
 }
 
 .section-title i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 .info-grid {
@@ -817,7 +817,7 @@
 
 .item-price {
   font-weight: 600;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .item-total {
@@ -882,7 +882,7 @@
 .price-row.total .price-value {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #667eea;
+  color: #378bcb;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1023,7 +1023,7 @@
 }
 
 .tracking-section .section-title i {
-  color: #667eea;
+  color: #378bcb;
 }
 
 /* Shipment Barcode */
@@ -1047,7 +1047,7 @@
 }
 
 .shipment-barcode i {
-  color: #667eea;
+  color: #378bcb;
   font-size: 1.1rem;
 }
 
@@ -1107,7 +1107,7 @@
 }
 
 .timeline-step.active::before {
-  background: linear-gradient(180deg, #667eea 0%, #dee2e6 100%);
+  background: linear-gradient(180deg, #378bcb 0%, #dee2e6 100%);
 }
 
 /* ── Step icon circle ── */
@@ -1137,9 +1137,9 @@
 }
 
 .timeline-step.active .step-icon {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #378bcb, #1c5a8a);
   color: white;
-  border-color: #667eea;
+  border-color: #378bcb;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.25);
   animation: pulse-active 2s infinite;
 }
@@ -1196,7 +1196,7 @@
 
 .step-desc {
   font-size: 0.8rem;
-  color: #667eea;
+  color: #378bcb;
   font-weight: 500;
 }
 
@@ -1229,7 +1229,7 @@
 .vendor-count {
   font-size: 1rem;
   font-weight: 700;
-  color: #667eea;
+  color: #378bcb;
 }
 
 .vendor-progress-bar {
@@ -1241,7 +1241,7 @@
 
 .vendor-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #378bcb, #1c5a8a);
   border-radius: 5px;
   transition: width 0.5s ease;
 }
