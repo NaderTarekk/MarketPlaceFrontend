@@ -2102,6 +2102,15 @@
               <i class="fa-solid fa-box"></i>
               <span>{{ promo.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}</span>
             </div>
+            <div class="pickup-info-row">
+              <i class="fa-solid" [class.fa-cube]="promo.type === 1" [class.fa-layer-group]="promo.type === 0" [class.fa-tag]="promo.type === 2" style="color:#378bcb"></i>
+              <span style="font-size:12px;color:#378bcb;font-weight:600">
+                {{ promo.type === 1 ? (i18n.currentLang === 'ar' ? 'منتج واحد' : 'Single Product') :
+                   promo.type === 2 ? (i18n.currentLang === 'ar' ? 'براند' : 'Brand') :
+                   (i18n.currentLang === 'ar' ? 'منتجات متعددة' : 'Multi Products') }}
+                <span *ngIf="promo.type === 2 && promo.brandNameEn"> · {{ i18n.currentLang === 'ar' ? promo.brandNameAr : promo.brandNameEn }}</span>
+              </span>
+            </div>
             <div class="pickup-info-row" *ngIf="promo.discountPercentage > 0">
               <i class="fa-solid fa-percent" style="color:#ef4444"></i>
               <span style="font-weight:700;color:#ef4444">{{ i18n.currentLang === 'ar' ? 'خصم' : 'Discount' }} {{ promo.discountPercentage }}%</span>
@@ -2125,7 +2134,7 @@
             <button class="btn-toggle-active" (click)="togglePromotionActive(promo)">
               <i class="fa-solid" [class.fa-toggle-on]="promo.isActive" [class.fa-toggle-off]="!promo.isActive"></i>
             </button>
-            <button class="btn-delete-point" (click)="deletePromotion(promo.id)">
+            <button class="btn-delete-point" (click)="openDeletePromotionDialog(promo.id)">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
@@ -2243,6 +2252,33 @@
             <input type="text" [(ngModel)]="promotionForm.descriptionEn" />
           </div>
         </div>
+        <!-- Promotion Type -->
+        <div class="pp-form-row">
+          <div class="pp-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'نوع العرض' : 'Promotion Type' }} *</label>
+            <select [(ngModel)]="promotionForm.type" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px">
+              <option [ngValue]="0">{{ i18n.currentLang === 'ar' ? 'منتجات متعددة' : 'Multiple Products' }}</option>
+              <option [ngValue]="1">{{ i18n.currentLang === 'ar' ? 'منتج واحد' : 'Single Product' }}</option>
+              <option [ngValue]="2">{{ i18n.currentLang === 'ar' ? 'براند (علامة تجارية)' : 'Brand' }}</option>
+            </select>
+          </div>
+          <div class="pp-field" *ngIf="promotionForm.type === 2">
+            <label>{{ i18n.currentLang === 'ar' ? 'اختر البراند' : 'Select Brand' }} *</label>
+            <select [(ngModel)]="promotionForm.brandId" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px">
+              <option [ngValue]="null">{{ i18n.currentLang === 'ar' ? '-- اختر --' : '-- Select --' }}</option>
+              <option *ngFor="let b of brands" [ngValue]="b.id">{{ i18n.currentLang === 'ar' ? b.nameAr : b.nameEn }}</option>
+            </select>
+          </div>
+        </div>
+        <div *ngIf="promotionForm.type === 1" style="padding:8px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:12px;color:#9a3412;margin-bottom:8px">
+          <i class="fa-solid fa-info-circle"></i>
+          {{ i18n.currentLang === 'ar' ? 'بعد الحفظ، أضف منتج واحد فقط وسيتم توجيه العميل لصفحة المنتج مباشرة' : 'After saving, add one product. Customer will be redirected to product page directly.' }}
+        </div>
+        <div *ngIf="promotionForm.type === 2" style="padding:8px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:12px;color:#1e40af;margin-bottom:8px">
+          <i class="fa-solid fa-info-circle"></i>
+          {{ i18n.currentLang === 'ar' ? 'لو مضفتش منتجات، الخصم هيطبق على كل منتجات البراند. لو ضفت منتجات محددة، الخصم هيطبق عليهم بس.' : 'If no products added, discount applies to ALL brand products. If specific products added, discount applies only to those.' }}
+        </div>
+
         <div class="pp-form-row" style="grid-template-columns:1fr">
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'صورة البانر' : 'Banner Image' }}</label>
@@ -2294,6 +2330,32 @@
           <i *ngIf="isSavingPromotion" class="fa-solid fa-spinner fa-spin"></i>
           <i *ngIf="!isSavingPromotion" class="fa-solid fa-check"></i>
           {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Promotion Confirm Dialog -->
+  <div class="pp-overlay" [class.show]="showDeletePromotionDialog" (click)="showDeletePromotionDialog = false">
+    <div class="pp-modal" (click)="$event.stopPropagation()" style="max-width:420px">
+      <div class="pp-modal-header" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff">
+        <h3><i class="fa-solid fa-trash" style="margin-inline-end:8px"></i>{{ i18n.currentLang === 'ar' ? 'حذف العرض' : 'Delete Promotion' }}</h3>
+        <button class="modal-close-btn" (click)="showDeletePromotionDialog = false" style="color:#fff"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="pp-modal-body" style="text-align:center;padding:30px">
+        <i class="fa-solid fa-exclamation-triangle" style="font-size:48px;color:#ef4444;margin-bottom:16px"></i>
+        <p style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:8px">
+          {{ i18n.currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا العرض؟' : 'Are you sure you want to delete this promotion?' }}
+        </p>
+        <p style="font-size:13px;color:#64748b">
+          {{ i18n.currentLang === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء' : 'This action cannot be undone' }}
+        </p>
+      </div>
+      <div class="pp-modal-footer">
+        <button class="btn-modal-back" (click)="showDeletePromotionDialog = false">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+        <button style="padding:10px 24px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer" (click)="confirmDeletePromotion()">
+          <i class="fa-solid fa-trash" style="margin-inline-end:6px"></i>
+          {{ i18n.currentLang === 'ar' ? 'حذف' : 'Delete' }}
         </button>
       </div>
     </div>

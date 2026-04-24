@@ -93,13 +93,24 @@
           </span>
         </div>
 
+        <!-- Promotion Banner -->
+        <div *ngIf="promoDiscount > 0" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;padding:10px 16px;border-radius:10px;display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <i class="fa-solid fa-fire" style="font-size:18px"></i>
+          <span style="font-weight:700;font-size:14px">{{ i18n.currentLang === 'ar' ? 'عرض خاص - خصم' : 'Special Offer -' }} {{ promoDiscount }}% {{ i18n.currentLang === 'ar' ? '' : 'OFF' }}</span>
+        </div>
+
         <!-- Price -->
         <div class="price-section">
-          <span class="current-price">{{ formatPrice(product.price) }}</span>
-          <span *ngIf="product.originalPrice && product.originalPrice > product.price" class="original-price">
+          <span class="current-price" *ngIf="promoDiscount <= 0">{{ formatPrice(product.price) }}</span>
+          <span class="current-price" *ngIf="promoDiscount > 0">{{ formatPrice(getPromoPrice()) }}</span>
+          <span *ngIf="promoDiscount > 0" class="original-price">{{ formatPrice(product.price) }}</span>
+          <span *ngIf="promoDiscount <= 0 && product.originalPrice && product.originalPrice > product.price" class="original-price">
             {{ formatPrice(product.originalPrice) }}
           </span>
-          <span *ngIf="getDiscountPercentage()" class="discount-text">
+          <span *ngIf="promoDiscount > 0" class="discount-text" style="background:#fee2e2;color:#dc2626">
+            {{ i18n.currentLang === 'ar' ? 'وفر' : 'Save' }} {{ promoDiscount }}%
+          </span>
+          <span *ngIf="promoDiscount <= 0 && getDiscountPercentage()" class="discount-text">
             {{ i18n.currentLang === 'ar' ? 'وفر' : 'Save' }} {{ getDiscountPercentage() }}%
           </span>
         </div>

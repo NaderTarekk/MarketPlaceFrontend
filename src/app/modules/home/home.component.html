@@ -377,7 +377,9 @@
         {{ i18n.currentLang==='ar' ? 'عروض حصرية' : 'Exclusive Deals' }}
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <a *ngFor="let promo of activePromotions" [routerLink]="['/products/promotion', promo.id]"
+        <a *ngFor="let promo of activePromotions"
+          [routerLink]="promo.type === 1 && promo.singleProductId ? ['/products', promo.singleProductId] : ['/products/promotion', promo.id]"
+          [queryParams]="promo.type === 1 && promo.singleProductId ? {promoId: promo.id} : {}"
           class="group relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
           <div class="relative h-40 sm:h-48 bg-gradient-to-br from-blue-600 to-fuchsia-500">
             <img *ngIf="promo.bannerImage" [src]="getProductImage(promo.bannerImage)" class="w-full h-full object-cover" />

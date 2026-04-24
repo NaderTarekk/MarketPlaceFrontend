@@ -12,6 +12,7 @@ import { CartService } from '../../../cart/services/cart.service';
 import { ComplaintsService } from '../../../complaints/services/complaints.service';
 import { ToastrComponent } from '../../../../shared/components/toastr/toastr.component';
 import { ToastrService } from 'ngx-toastr';
+import { PromotionService } from '../../../../services/promotion.service';
 
 @Component({
   selector: 'app-product-details',
@@ -27,6 +28,8 @@ export class ProductDetailsComponent implements OnInit {
   selectedColor?: string;
   selectedVariant?: any;
   quantity: number = 1;
+  promoId: number | null = null;
+  promoDiscount: number = 0;
 
   filter: ReviewFilter = {
     isApproved: undefined,
@@ -89,10 +92,14 @@ export class ProductDetailsComponent implements OnInit {
     private cartService: CartService,
     private complaintsService: ComplaintsService,
     private toastr: ToastrService,
-    private governorateService: GovernorateService
+    private governorateService: GovernorateService,
+    private promotionService: PromotionService
   ) { }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(qp => {
+      this.promoId = qp['promoId'] ? +qp['promoId'] : null;
+    });
     this.route.params.subscribe(params => {
       const id = +params['id'];
       if (id) {
@@ -113,6 +120,7 @@ export class ProductDetailsComponent implements OnInit {
           this.checkWishlist(id);
           this.checkNotifySubscription(id);
           this.loadReviews(id);
+          if (this.promoId) this.loadPromoDiscount(this.promoId, id);
         } else {
           this.router.navigate(['/products']);
         }
@@ -403,6 +411,26 @@ export class ProductDetailsComponent implements OnInit {
   // ACTIONS
   // ═══════════════════════════════════════════════
 
+  loadPromoDiscount(promoId: number, productId: number): void {
+    this.promotionService.getById(promoId).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data.discountPercentage > 0) {
+          const promo = res.data;
+          const productInPromo = promo.products?.some((p: any) => p.productId === productId);
+          if (productInPromo || promo.type === 2) {
+            this.promoDiscount = promo.discountPercentage;
+            this.cdr.markForCheck();
+          }
+        }
+      }
+    });
+  }
+
+  getPromoPrice(): number {
+    if (!this.product || this.promoDiscount <= 0) return 0;
+    return Math.round(this.product.price * (1 - this.promoDiscount / 100));
+  }
+
   addToCart(): void {
   if (!this.product) return;
 
@@ -428,11 +456,12 @@ export class ProductDetailsComponent implements OnInit {
   const priceAdjustment = this.selectedVariant?.priceAdjustment || 0;
 
   this.cartService.addItem(
-    this.product.id, 
-    this.quantity, 
-    this.selectedSize, 
+    this.product.id,
+    this.quantity,
+    this.selectedSize,
     this.selectedColor,
-    priceAdjustment
+    priceAdjustment,
+    this.promoId || undefined
   ).subscribe({
     next: (res) => {
       if (res.success) {

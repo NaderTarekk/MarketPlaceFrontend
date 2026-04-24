@@ -46,7 +46,7 @@ export class AdminComponent implements OnInit {
   showPromotionDialog = false;
   isSavingPromotion = false;
   editingPromotionId: number | null = null;
-  promotionForm: any = { titleAr: '', titleEn: '', descriptionAr: '', descriptionEn: '', bannerImage: '', badgeText: '', discountPercentage: 0, startDate: '', endDate: '', displayOrder: 0 };
+  promotionForm: any = { titleAr: '', titleEn: '', descriptionAr: '', descriptionEn: '', bannerImage: '', badgeText: '', discountPercentage: 0, type: 0, brandId: null, startDate: '', endDate: '', displayOrder: 0 };
   selectedPromotionForProducts: any = null;
   showAddProductDialog = false;
   addProductId = '';
@@ -414,6 +414,7 @@ export class AdminComponent implements OnInit {
         break;
       case 'promotions':
         this.loadPromotions();
+        if (this.brands.length === 0) this.loadBrandsForPromo();
         break;
     }
     this.cdr.detectChanges();
@@ -2196,6 +2197,7 @@ export class AdminComponent implements OnInit {
         descriptionAr: promo.descriptionAr || '', descriptionEn: promo.descriptionEn || '',
         bannerImage: promo.bannerImage || '', badgeText: promo.badgeText || '',
         discountPercentage: promo.discountPercentage || 0,
+        type: promo.type || 0, brandId: promo.brandId || null,
         startDate: promo.startDate ? new Date(promo.startDate).toISOString().slice(0, 16) : '',
         endDate: promo.endDate ? new Date(promo.endDate).toISOString().slice(0, 16) : '',
         displayOrder: promo.displayOrder || 0
@@ -2203,7 +2205,7 @@ export class AdminComponent implements OnInit {
       this.promotionBannerPreview = promo.bannerImage ? this.getImageUrl(promo.bannerImage) : null;
     } else {
       this.editingPromotionId = null;
-      this.promotionForm = { titleAr: '', titleEn: '', descriptionAr: '', descriptionEn: '', bannerImage: '', badgeText: '', discountPercentage: 0, startDate: '', endDate: '', displayOrder: 0 };
+      this.promotionForm = { titleAr: '', titleEn: '', descriptionAr: '', descriptionEn: '', bannerImage: '', badgeText: '', discountPercentage: 0, type: 0, brandId: null, startDate: '', endDate: '', displayOrder: 0 };
       this.promotionBannerPreview = null;
     }
     this.showPromotionDialog = true;
@@ -2239,10 +2241,22 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  deletePromotion(id: number): void {
-    if (!confirm(this.i18n.currentLang === 'ar' ? 'حذف العرض؟' : 'Delete promotion?')) return;
-    this.promotionService.delete(id).subscribe({
-      next: (res: any) => { if (res.success) this.loadPromotions(); }
+  promotionToDeleteId: number | null = null;
+  showDeletePromotionDialog = false;
+
+  openDeletePromotionDialog(id: number): void {
+    this.promotionToDeleteId = id;
+    this.showDeletePromotionDialog = true;
+  }
+
+  confirmDeletePromotion(): void {
+    if (!this.promotionToDeleteId) return;
+    this.promotionService.delete(this.promotionToDeleteId).subscribe({
+      next: (res: any) => {
+        if (res.success) this.loadPromotions();
+        this.showDeletePromotionDialog = false;
+        this.promotionToDeleteId = null;
+      }
     });
   }
 
