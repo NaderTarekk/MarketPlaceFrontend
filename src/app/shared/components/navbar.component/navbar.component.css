@@ -167,6 +167,11 @@
   z-index: 999 !important;
   padding: 8px 0;
   padding-bottom: env(safe-area-inset-bottom, 8px);
+  transition: transform 0.35s ease;
+}
+
+.mobile-bottom-nav.mobile-nav-hidden {
+  transform: translateY(100%);
 }
 
 .mobile-bottom-nav {

@@ -24,6 +24,7 @@ export const environment = {
     pickupPointUrl: `${productionApi}/PickupPoints`,
     promotionUrl: `${productionApi}/Promotions`,
     withdrawalUrl: `${productionApi}/Withdrawals`,
+    translationUrl: `${productionApi}/Translation`,
     baseApi: `${productionBaseApi}`,
     googleClientId: '179993097510-6h4o4pbhf5opbik8pn0uhcggo0rvgrus.apps.googleusercontent.com'
 };

@@ -5,6 +5,7 @@ import { Category, CategoryFilterParams, CreateCategoryDto, UpdateCategoryDto } 
 import { I18nService } from '../../../../core/services/i18n.service';
 import { CategoriesService } from '../../services/categories.service';
 import { environment } from '../../../../../environment';
+import { TranslationService } from '../../../../services/translation.service';
 
 @Component({
   selector: 'app-categories',
@@ -75,7 +76,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   constructor(
     public i18n: I18nService,
     private categoriesService: CategoriesService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translationService: TranslationService
   ) { }
 
   ngOnInit(): void {
@@ -475,6 +477,20 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     }
     // Exclude the category being edited from parent options
     return this.parentCategories.filter(p => p.id !== this.selectedCategory!.id);
+  }
+
+  onArBlur(form: any, arField: string, enField: string): void {
+    if (!form[arField]?.trim()) return;
+    this.translationService.translateArToEn(form[arField]).subscribe({
+      next: (t: string) => { if (t) { form[enField] = t; } }
+    });
+  }
+
+  onEnBlur(form: any, arField: string, enField: string): void {
+    if (!form[enField]?.trim()) return;
+    this.translationService.translateEnToAr(form[enField]).subscribe({
+      next: (t: string) => { if (t) { form[arField] = t; } }
+    });
   }
 
   // Toast

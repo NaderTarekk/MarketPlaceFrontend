@@ -195,6 +195,7 @@
                         {{ i18n.currentLang === 'ar' ? 'العنوان (إنجليزي)' : 'Title (English)' }} *
                     </label>
                     <input type="text" [(ngModel)]="bannerForm.title"
+                        (blur)="onEnBlur(bannerForm, 'titleAr', 'title')"
                         placeholder="Up to 50% OFF"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
@@ -203,6 +204,7 @@
                         {{ i18n.currentLang === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)' }} *
                     </label>
                     <input type="text" [(ngModel)]="bannerForm.titleAr" dir="rtl"
+                        (blur)="onArBlur(bannerForm, 'titleAr', 'title')"
                         placeholder="خصم حتى 50%"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
@@ -215,6 +217,7 @@
                         {{ i18n.currentLang === 'ar' ? 'العنوان الفرعي (إنجليزي)' : 'Subtitle (English)' }}
                     </label>
                     <input type="text" [(ngModel)]="bannerForm.subtitle"
+                        (blur)="onEnBlur(bannerForm, 'subtitleAr', 'subtitle')"
                         placeholder="Limited time offer"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
@@ -223,6 +226,7 @@
                         {{ i18n.currentLang === 'ar' ? 'العنوان الفرعي (عربي)' : 'Subtitle (Arabic)' }}
                     </label>
                     <input type="text" [(ngModel)]="bannerForm.subtitleAr" dir="rtl"
+                        (blur)="onArBlur(bannerForm, 'subtitleAr', 'subtitle')"
                         placeholder="عرض لفترة محدودة"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
@@ -235,6 +239,7 @@
                         {{ i18n.currentLang === 'ar' ? 'نص الزر (إنجليزي)' : 'Button Text (English)' }}
                     </label>
                     <input type="text" [(ngModel)]="bannerForm.buttonText"
+                        (blur)="onEnBlur(bannerForm, 'buttonTextAr', 'buttonText')"
                         placeholder="Shop Now"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
@@ -243,19 +248,70 @@
                         {{ i18n.currentLang === 'ar' ? 'نص الزر (عربي)' : 'Button Text (Arabic)' }}
                     </label>
                     <input type="text" [(ngModel)]="bannerForm.buttonTextAr" dir="rtl"
+                        (blur)="onArBlur(bannerForm, 'buttonTextAr', 'buttonText')"
                         placeholder="تسوق الآن"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
             </div>
 
-            <!-- Button Link -->
+            <!-- Link Type -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    {{ i18n.currentLang === 'ar' ? 'رابط الزر' : 'Button Link' }}
+                    {{ i18n.currentLang === 'ar' ? 'عند الضغط يوجه إلى' : 'Links to' }}
                 </label>
-                <input type="text" [(ngModel)]="bannerForm.buttonLink"
-                    placeholder="/products?category=1"
-                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-mono text-sm">
+                <select [(ngModel)]="bannerForm.linkType"
+                    (ngModelChange)="bannerForm.linkTargetId = null; productSearchQuery = ''"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-all">
+                    <option [ngValue]="0">{{ i18n.currentLang === 'ar' ? 'رابط مخصص' : 'Custom URL' }}</option>
+                    <option [ngValue]="1">{{ i18n.currentLang === 'ar' ? 'منتج' : 'Product' }}</option>
+                    <option [ngValue]="2">{{ i18n.currentLang === 'ar' ? 'براند' : 'Brand' }}</option>
+                    <option [ngValue]="3">{{ i18n.currentLang === 'ar' ? 'تصنيف' : 'Category' }}</option>
+                    <option [ngValue]="4">{{ i18n.currentLang === 'ar' ? 'عرض' : 'Promotion' }}</option>
+                </select>
+            </div>
+
+            <!-- Custom URL -->
+            <div *ngIf="bannerForm.linkType === 0">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">{{ i18n.currentLang === 'ar' ? 'الرابط' : 'URL' }}</label>
+                <input type="text" [(ngModel)]="bannerForm.buttonLink" placeholder="/products"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-all font-mono text-sm">
+            </div>
+
+            <!-- Product Search -->
+            <div *ngIf="bannerForm.linkType === 1">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">{{ i18n.currentLang === 'ar' ? 'ابحث عن المنتج' : 'Search Product' }}</label>
+                <input type="text" [(ngModel)]="productSearchQuery" (input)="searchProducts(productSearchQuery)"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'اكتب اسم المنتج...' : 'Type product name...'"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-all">
+                <div *ngIf="productSearchResults.length > 0" class="mt-2 max-h-36 overflow-y-auto border rounded-xl">
+                    <div *ngFor="let p of productSearchResults" (click)="selectProduct(p)"
+                        class="flex items-center gap-3 px-3 py-2 hover:bg-blue-50 cursor-pointer border-b last:border-0 text-sm">
+                        {{ i18n.currentLang === 'ar' ? p.nameAr : p.nameEn }}
+                        <span class="text-xs text-gray-400 ml-auto">ID: {{ p.id }}</span>
+                    </div>
+                </div>
+                <p *ngIf="bannerForm.linkTargetId" class="mt-1 text-xs text-green-600 font-semibold">
+                    <i class="fa-solid fa-check-circle"></i> ID: {{ bannerForm.linkTargetId }}
+                </p>
+            </div>
+
+            <!-- Brand -->
+            <div *ngIf="bannerForm.linkType === 2">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">{{ i18n.currentLang === 'ar' ? 'اختر البراند' : 'Select Brand' }}</label>
+                <select [(ngModel)]="bannerForm.linkTargetId"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-all">
+                    <option [ngValue]="null">--</option>
+                    <option *ngFor="let b of brands" [ngValue]="b.id">{{ i18n.currentLang === 'ar' ? b.nameAr : b.nameEn }}</option>
+                </select>
+            </div>
+
+            <!-- Category / Promotion ID -->
+            <div *ngIf="bannerForm.linkType === 3 || bannerForm.linkType === 4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ bannerForm.linkType === 3 ? (i18n.currentLang === 'ar' ? 'رقم التصنيف' : 'Category ID') : (i18n.currentLang === 'ar' ? 'رقم العرض' : 'Promotion ID') }}
+                </label>
+                <input type="number" [(ngModel)]="bannerForm.linkTargetId" placeholder="e.g. 5"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-all">
             </div>
 
             <!-- Active Toggle -->

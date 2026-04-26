@@ -79,6 +79,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isInLoginPage = false;
   isNavbarHidden = false;
   private lastScrollY = 0;
+  selectedCategoryForSub: any = null;
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -283,19 +284,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
   loadCategories(): void {
     this.isLoading = true;
-    this.homeService.getCategories(true).subscribe({
+    this.productsService.getCategoriesHierarchy().subscribe({
       next: (response: any) => {
         if (response.success) {
-          this.categories = response.data
-            .filter((cat: any) => !cat.parentId)
-            .map((cat: any) => ({
-              id: cat.id,
-              nameAr: cat.nameAr,
-              nameEn: cat.nameEn,
-              image: cat.image,
-              productCount: cat.productCount,
-              hasChildren: cat.productCount > 0
-            }));
+          this.categories = response.data;
         }
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -347,7 +339,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   closeCategoriesDropdown(): void {
     this.isCategoriesDropdownOpen = false;
+    this.selectedCategoryForSub = null;
     document.body.classList.remove('menu-open');
+  }
+
+  selectCategoryForSub(cat: any, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (cat.children && cat.children.length > 0) {
+      this.selectedCategoryForSub = this.selectedCategoryForSub?.id === cat.id ? null : cat;
+    } else {
+      this.router.navigate(['/products'], { queryParams: { category: cat.id } });
+      this.closeCategoriesDropdown();
+    }
+  }
+
+  navigateToSubcategory(childId: number): void {
+    this.router.navigate(['/products'], { queryParams: { category: childId } });
+    this.closeCategoriesDropdown();
   }
 
   handleNavClick(link: any): void {

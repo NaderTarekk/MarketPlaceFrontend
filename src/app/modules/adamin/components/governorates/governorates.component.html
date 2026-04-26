@@ -118,12 +118,12 @@
         <div class="dialog-body">
             <div class="form-group">
                 <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
-                <input type="text" [(ngModel)]="form.nameAr" placeholder="مثال: القاهرة">
+                <input type="text" [(ngModel)]="form.nameAr" placeholder="مثال: القاهرة" (blur)="onArBlur(form, 'nameAr', 'nameEn')">
             </div>
 
             <div class="form-group">
                 <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
-                <input type="text" [(ngModel)]="form.nameEn" placeholder="e.g. Cairo">
+                <input type="text" [(ngModel)]="form.nameEn" placeholder="e.g. Cairo" (blur)="onEnBlur(form, 'nameAr', 'nameEn')">
             </div>
 
             <div class="form-group">

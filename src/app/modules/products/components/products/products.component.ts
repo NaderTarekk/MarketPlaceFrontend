@@ -11,6 +11,7 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { CartService } from '../../../cart/services/cart.service';
 import { forkJoin } from 'rxjs';
 import { GovernorateService } from '../../../adamin/services/governorate.service';
+import { TranslationService } from '../../../../services/translation.service';
 
 @Component({
   selector: 'app-products',
@@ -56,6 +57,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   selectedImages: File[] = [];
   mainImagePreview: string | null = null;
   imagesPreview: string[] = [];
+
 
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
@@ -128,7 +130,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private authService: AuthService,
     private ngZone: NgZone,
-    private governorateService: GovernorateService
+    private governorateService: GovernorateService,
+    private translationService: TranslationService
   ) { }
 
   ngOnInit(): void {
@@ -817,6 +820,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════
   // DIALOGS
   // ═══════════════════════════════════════════════
+
+  onArBlur(form: any, arField: string, enField: string): void {
+    if (!form[arField]?.trim()) return;
+    this.translationService.translateArToEn(form[arField]).subscribe({
+      next: (t: string) => { if (t) { form[enField] = t; } }
+    });
+  }
+
+  onEnBlur(form: any, arField: string, enField: string): void {
+    if (!form[enField]?.trim()) return;
+    this.translationService.translateEnToAr(form[enField]).subscribe({
+      next: (t: string) => { if (t) { form[arField] = t; } }
+    });
+  }
 
   openAddDialog(): void {
     this.resetForm();

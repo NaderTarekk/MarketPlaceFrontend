@@ -14,6 +14,7 @@ import { environment } from '../../../../../environment';
 import { OrderService } from '../../../cart/services/order.service';
 import { BarcodeService } from '../../../../core/services/barcode.service';
 import { WithdrawalService } from '../../../../services/withdrawal.service';
+import { TranslationService } from '../../../../services/translation.service';
 
 // force rebuild
 @Component({
@@ -186,6 +187,7 @@ export class VendorDashboardComponent implements OnInit {
   // Clearance period in days (يجي من الـ backend أو ثابت)
   clearancePeriodDays = 0;
 
+
   constructor(
     public i18n: I18nService,
     private vendorService: VendorService,
@@ -196,6 +198,7 @@ export class VendorDashboardComponent implements OnInit {
     private orderService: OrderService,
     private barcodeService: BarcodeService,
     private withdrawalService: WithdrawalService,
+    private translationService: TranslationService,
   ) { }
 
   ngOnInit(): void {
@@ -702,6 +705,20 @@ export class VendorDashboardComponent implements OnInit {
   // ═══════════════════════════════════════════════
   // PRODUCT CRUD (Keep all existing methods)
   // ═══════════════════════════════════════════════
+
+  onArBlur(form: any, arField: string, enField: string): void {
+    if (!form[arField]?.trim()) return;
+    this.translationService.translateArToEn(form[arField]).subscribe({
+      next: (t: string) => { if (t) { form[enField] = t; } }
+    });
+  }
+
+  onEnBlur(form: any, arField: string, enField: string): void {
+    if (!form[enField]?.trim()) return;
+    this.translationService.translateEnToAr(form[enField]).subscribe({
+      next: (t: string) => { if (t) { form[arField] = t; } }
+    });
+  }
 
   openAddProductDialog(): void {
     this.isEditMode = false;

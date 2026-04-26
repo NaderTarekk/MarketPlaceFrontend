@@ -476,6 +476,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   goToBanner(i: number): void { this.currentBannerIndex = i; }
 
+  // ── Touch swipe ──
+  private touchStartX = 0;
+
+  onBannerTouchStart(e: TouchEvent): void {
+    this.touchStartX = e.touches[0].clientX;
+  }
+
+  onBannerTouchEnd(e: TouchEvent): void {
+    const diff = this.touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? this.nextBanner() : this.prevBanner();
+    }
+  }
+
   // ── Testimonial carousel ───────────────────────────────────────────────────
 
   nextTestimonial(): void {
@@ -565,6 +579,25 @@ export class HomeComponent implements OnInit, OnDestroy {
   getBannerTitle(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.titleAr : b.title; }
   getBannerSubtitle(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.subtitleAr : b.subtitle; }
   getBannerBtn(b: ApiBanner): string { return this.i18n.currentLang === 'ar' ? b.buttonTextAr : b.buttonText; }
+
+  getBannerLink(b: any): string {
+    switch (b.linkType) {
+      case 1: return '/products/' + (b.linkTargetId || '');
+      case 2: return '/products';
+      case 3: return '/products';
+      case 4: return '/products/promotion/' + (b.linkTargetId || '');
+      default: return b.buttonLink || '/products';
+    }
+  }
+
+  getBannerQueryParams(b: any): any {
+    switch (b.linkType) {
+      case 2: return { brand: b.linkTargetId };
+      case 3: return { category: b.linkTargetId };
+      default: return {};
+    }
+  }
+
   getSectionTitle(s: FeaturedSection): string { return this.i18n.currentLang === 'ar' ? s.titleAr : s.title; }
   getTestimonialComment(t: Testimonial): string { return this.i18n.currentLang === 'ar' ? t.commentAr : t.comment; }
   getCategoryName(c: any): string { return this.i18n.currentLang === 'ar' ? c.nameAr : c.nameEn; }

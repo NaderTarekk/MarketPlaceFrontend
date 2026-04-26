@@ -12,6 +12,7 @@ import { GovernorateService } from '../../services/governorate.service';
 import { CartService } from '../../../cart/services/cart.service';
 import { WithdrawalService } from '../../../../services/withdrawal.service';
 import { PromotionService } from '../../../../services/promotion.service';
+import { TranslationService } from '../../../../services/translation.service';
 import html2pdf from 'html2pdf.js';
 import * as L from 'leaflet';
 
@@ -241,8 +242,28 @@ export class AdminComponent implements OnInit {
     private cartService: CartService,
     private withdrawalService: WithdrawalService,
     private promotionService: PromotionService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translationService: TranslationService
   ) { }
+
+  // ═══════════════════════════════════════════════
+  // AUTO-TRANSLATE HELPER
+  // ═══════════════════════════════════════════════
+  private translators = new Map<string, any>();
+
+  onArBlur(form: any, arField: string, enField: string): void {
+    if (!form[arField]?.trim()) return;
+    this.translationService.translateArToEn(form[arField]).subscribe({
+      next: (t) => { if (t) { form[enField] = t; this.cdr.detectChanges(); } }
+    });
+  }
+
+  onEnBlur(form: any, arField: string, enField: string): void {
+    if (!form[enField]?.trim()) return;
+    this.translationService.translateEnToAr(form[enField]).subscribe({
+      next: (t) => { if (t) { form[arField] = t; this.cdr.detectChanges(); } }
+    });
+  }
 
   ngOnInit(): void {
     this.loadDashboard();

@@ -5,6 +5,7 @@ import { BrandService } from '../../services/brand.service';
 import { environment } from '../../../../../environment';
 import Swal from 'sweetalert2';
 import { ComplaintsService } from '../../../complaints/services/complaints.service';
+import { TranslationService } from '../../../../services/translation.service';
 
 @Component({
   selector: 'app-brand',
@@ -45,6 +46,7 @@ export class BrandComponent implements OnInit {
     private brandService: BrandService,
     private cdr: ChangeDetectorRef,
     private complaintService: ComplaintsService,
+    private translationService: TranslationService,
   ) { }
 
   ngOnInit(): void {
@@ -388,6 +390,20 @@ export class BrandComponent implements OnInit {
           }
         });
       }
+    });
+  }
+
+  onArBlur(form: any, arField: string, enField: string): void {
+    if (!form[arField]?.trim()) return;
+    this.translationService.translateArToEn(form[arField]).subscribe({
+      next: (t: string) => { if (t) { form[enField] = t; } }
+    });
+  }
+
+  onEnBlur(form: any, arField: string, enField: string): void {
+    if (!form[enField]?.trim()) return;
+    this.translationService.translateEnToAr(form[enField]).subscribe({
+      next: (t: string) => { if (t) { form[arField] = t; } }
     });
   }
 

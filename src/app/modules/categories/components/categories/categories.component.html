@@ -366,7 +366,7 @@
                 <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }} *</label>
                 <input type="text" [(ngModel)]="formData.nameAr" [class.error]="formErrors.nameAr"
                     [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم الفئة بالعربي' : 'Enter category name in Arabic'"
-                    dir="rtl" />
+                    dir="rtl" (blur)="onArBlur(formData, 'nameAr', 'nameEn')" />
                 <span *ngIf="formErrors.nameAr" class="error-msg">{{ formErrors.nameAr }}</span>
             </div>
 
@@ -374,7 +374,7 @@
             <div class="form-group">
                 <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }} *</label>
                 <input type="text" [(ngModel)]="formData.nameEn" [class.error]="formErrors.nameEn"
-                    placeholder="Enter category name in English" dir="ltr" />
+                    placeholder="Enter category name in English" dir="ltr" (blur)="onEnBlur(formData, 'nameAr', 'nameEn')" />
                 <span *ngIf="formErrors.nameEn" class="error-msg">{{ formErrors.nameEn }}</span>
             </div>
 

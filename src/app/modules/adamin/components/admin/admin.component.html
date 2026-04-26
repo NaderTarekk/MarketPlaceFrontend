@@ -2235,21 +2235,21 @@
         <div class="pp-form-row">
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Title (Arabic)' }} *</label>
-            <input type="text" [(ngModel)]="promotionForm.titleAr" />
+            <input type="text" [(ngModel)]="promotionForm.titleAr" (blur)="onArBlur(promotionForm, 'titleAr', 'titleEn')" />
           </div>
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'Title (English)' }}</label>
-            <input type="text" [(ngModel)]="promotionForm.titleEn" />
+            <input type="text" [(ngModel)]="promotionForm.titleEn" (blur)="onEnBlur(promotionForm, 'titleAr', 'titleEn')" />
           </div>
         </div>
         <div class="pp-form-row">
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالعربي' : 'Description (Arabic)' }}</label>
-            <input type="text" [(ngModel)]="promotionForm.descriptionAr" />
+            <input type="text" [(ngModel)]="promotionForm.descriptionAr" (blur)="onArBlur(promotionForm, 'descriptionAr', 'descriptionEn')" />
           </div>
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالإنجليزي' : 'Description (English)' }}</label>
-            <input type="text" [(ngModel)]="promotionForm.descriptionEn" />
+            <input type="text" [(ngModel)]="promotionForm.descriptionEn" (blur)="onEnBlur(promotionForm, 'descriptionAr', 'descriptionEn')" />
           </div>
         </div>
         <!-- Promotion Type -->
@@ -2466,11 +2466,11 @@
         <div class="pp-form-row">
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالعربية' : 'Arabic Description' }}</label>
-            <input type="text" [(ngModel)]="promoForm.descriptionAr" [placeholder]="i18n.currentLang === 'ar' ? 'خصم خاص...' : 'Special discount...'" />
+            <input type="text" [(ngModel)]="promoForm.descriptionAr" (blur)="onArBlur(promoForm, 'descriptionAr', 'descriptionEn')" [placeholder]="i18n.currentLang === 'ar' ? 'خصم خاص...' : 'Special discount...'" />
           </div>
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالإنجليزية' : 'English Description' }}</label>
-            <input type="text" [(ngModel)]="promoForm.descriptionEn" placeholder="Special discount..." />
+            <input type="text" [(ngModel)]="promoForm.descriptionEn" (blur)="onEnBlur(promoForm, 'descriptionAr', 'descriptionEn')" placeholder="Special discount..." />
           </div>
         </div>
       </div>
@@ -2505,11 +2505,11 @@
         <div class="pp-form-row">
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Name (Arabic)' }} *</label>
-            <input type="text" [(ngModel)]="pickupPointForm.nameAr" />
+            <input type="text" [(ngModel)]="pickupPointForm.nameAr" (blur)="onArBlur(pickupPointForm, 'nameAr', 'nameEn')" />
           </div>
           <div class="pp-field">
             <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'Name (English)' }}</label>
-            <input type="text" [(ngModel)]="pickupPointForm.nameEn" />
+            <input type="text" [(ngModel)]="pickupPointForm.nameEn" (blur)="onEnBlur(pickupPointForm, 'nameAr', 'nameEn')" />
           </div>
         </div>
         <div class="pp-form-row">

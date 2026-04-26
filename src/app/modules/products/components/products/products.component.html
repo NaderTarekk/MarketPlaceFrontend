@@ -618,6 +618,7 @@
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
                     <input type="text" [(ngModel)]="productForm.nameAr"
+                        (blur)="onArBlur(productForm, 'nameAr', 'nameEn')"
                         [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم المنتج بالعربية' : 'Enter Arabic name'" />
                 </div>
 
@@ -625,6 +626,7 @@
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
                     <input type="text" [(ngModel)]="productForm.nameEn"
+                        (blur)="onEnBlur(productForm, 'nameAr', 'nameEn')"
                         [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم المنتج بالإنجليزية' : 'Enter English name'" />
                 </div>
 
@@ -632,6 +634,7 @@
                 <div class="form-group full-width">
                     <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالعربية' : 'Arabic Description' }}</label>
                     <textarea [(ngModel)]="productForm.descriptionAr" rows="3"
+                        (blur)="onArBlur(productForm, 'descriptionAr', 'descriptionEn')"
                         [placeholder]="i18n.currentLang === 'ar' ? 'أدخل وصف المنتج بالعربية' : 'Enter Arabic description'"></textarea>
                 </div>
 
@@ -639,6 +642,7 @@
                 <div class="form-group full-width">
                     <label>{{ i18n.currentLang === 'ar' ? 'الوصف بالإنجليزية' : 'English Description' }}</label>
                     <textarea [(ngModel)]="productForm.descriptionEn" rows="3"
+                        (blur)="onEnBlur(productForm, 'descriptionAr', 'descriptionEn')"
                         [placeholder]="i18n.currentLang === 'ar' ? 'أدخل وصف المنتج بالإنجليزية' : 'Enter English description'"></textarea>
                 </div>
 

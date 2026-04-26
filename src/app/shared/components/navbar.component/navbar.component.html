@@ -74,7 +74,8 @@
         </div>
 
         <!-- Search Dropdown -->
-        <div class="search-dropdown" *ngIf="showSearchDropdown && (searchResults.length > 0 || storeResults.length > 0)">
+        <div class="search-dropdown"
+          *ngIf="showSearchDropdown && (searchResults.length > 0 || storeResults.length > 0)">
           <div class="dropdown-header">
             <span>{{ currentLang === 'ar' ? 'نتائج البحث' : 'Search Results' }}</span>
             <button (click)="showSearchDropdown = false">
@@ -92,13 +93,15 @@
               (mousedown)="goToStore(store)">
               <div class="result-image store-avatar">
                 <span *ngIf="!store.storeLogo">{{ store.vendorName?.charAt(0) }}</span>
-                <img *ngIf="store.storeLogo" [src]="getProductImage(store.storeLogo)" [alt]="store.vendorName" (error)="handleImageError($event)" />
+                <img *ngIf="store.storeLogo" [src]="getProductImage(store.storeLogo)" [alt]="store.vendorName"
+                  (error)="handleImageError($event)" />
               </div>
               <div class="result-info">
                 <span class="result-name">{{ store.vendorName }}</span>
                 <div class="result-meta">
                   <span class="store-hint">
-                    <i class="fa-solid fa-box" style="font-size:9px"></i> {{ store.productCount }} {{ currentLang === 'ar' ? 'منتج' : 'products' }}
+                    <i class="fa-solid fa-box" style="font-size:9px"></i> {{ store.productCount }} {{ currentLang ===
+                    'ar' ? 'منتج' : 'products' }}
                   </span>
                   <span *ngIf="store.averageRating > 0" class="store-hint">
                     <i class="fa-solid fa-star" style="color:#fbbf24;font-size:9px"></i> {{ store.averageRating }}
@@ -198,7 +201,8 @@
           <i class="fa-solid fa-house"></i>
           {{ 'home' | translate }}
         </a>
-        <a routerLink="/products" routerLinkActive="active" *ngIf="role !='ShippingEmployee' && role != 'DeliveryAgent'" class="nav-link-ozon">
+        <a routerLink="/products" routerLinkActive="active" *ngIf="role !='ShippingEmployee' && role != 'DeliveryAgent'"
+          class="nav-link-ozon">
           <i class="fa-solid fa-store"></i>
           {{ 'products' | translate }}
         </a>
@@ -299,69 +303,7 @@
 <!-- ═══════════════════════════════════════════════ -->
 <!-- MOBILE BOTTOM NAV BAR -->
 <!-- ═══════════════════════════════════════════════ -->
-<nav class="mobile-bottom-nav" *ngIf="!isInLoginPage">
-  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
-    <i class="fa-solid fa-house"></i>
-    <span>{{ 'home' | translate }}</span>
-  </a>
-
-  <!-- Vendor -->
-  <a *ngIf="isVendor" routerLink="/vendor" routerLinkActive="active" class="bottom-nav-item vendor-item">
-    <i class="fa-solid fa-store"></i>
-    <span>{{ currentLang === 'ar' ? 'متجري' : 'My Store' }}</span>
-  </a>
-
-  <!-- ✅ Shipping Employee -->
-  <a *ngIf="isShippingEmployee" routerLink="/shipping/employee" routerLinkActive="active" class="bottom-nav-item">
-    <i class="fa-solid fa-truck-fast"></i>
-    <span>{{ currentLang === 'ar' ? 'الشحنات' : 'Shipping' }}</span>
-  </a>
-
-  <!-- ✅ Delivery Agent -->
-  <a *ngIf="isDeliveryAgent" routerLink="/shipping/agent" routerLinkActive="active" class="bottom-nav-item">
-    <i class="fa-solid fa-motorcycle"></i>
-    <span>{{ currentLang === 'ar' ? 'مهامي' : 'Tasks' }}</span>
-  </a>
-
-  <!-- Admin -->
-  <button *ngIf="isAdmin" (click)="toggleAdminMenu()" class="bottom-nav-item" [class.active]="isAdminMenuOpen">
-    <i class="fa-solid fa-shield-halved"></i>
-    <span>{{ currentLang === 'ar' ? 'الأدمن' : 'Admin' }}</span>
-  </button>
-
-
-
-  <!-- Cart -->
-  <a routerLink="/cart" routerLinkActive="active" class="bottom-nav-item">
-    <div class="relative">
-      <i class="fa-solid fa-cart-shopping"></i>
-      <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
-    </div>
-    <span>{{ 'cart' | translate }}</span>
-  </a>
-
-
-  <!-- Wishlist (للعملاء العاديين فقط) -->
-  <a *ngIf="!isVendor && !isAdmin && !isShippingEmployee && !isDeliveryAgent" routerLink="products/wishlist"
-    routerLinkActive="active" class="bottom-nav-item">
-    <i class="fa-solid fa-heart"></i>
-    <span>{{ 'fav' | translate }}</span>
-  </a>
-
-  <!-- Profile -->
-  <button *ngIf="isLogged" routerLink="/auth/profile" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
-    <i class="fa-solid fa-user"></i>
-    <span>{{ 'profile' | translate }}</span>
-  </button>
-
-  <!-- Login -->
-  <a *ngIf="!isLogged" routerLink="/auth/login" routerLinkActive="active" class="bottom-nav-item">
-    <i class="fa-solid fa-right-to-bracket"></i>
-    <span>{{ 'login' | translate }}</span>
-  </a>
-</nav>
-
-<nav class="mobile-bottom-nav" *ngIf="!isInLoginPage">
+<nav class="mobile-bottom-nav" [class.mobile-nav-hidden]="isNavbarHidden" *ngIf="!isInLoginPage">
   <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
     <i class="fa-solid fa-house"></i>
     <span>{{ 'home' | translate }}</span>
@@ -423,34 +365,65 @@
   </a>
 </nav>
 
-<!-- ✅ Categories Dropdown Popup - بدل الـ overlay القديم -->
+<!-- ✅ Categories Dropdown Popup -->
 <div class="categories-dropdown-overlay" [class.open]="isCategoriesDropdownOpen" (click)="closeCategoriesDropdown()">
   <div class="categories-dropdown-menu" (click)="$event.stopPropagation()">
 
     <!-- Header -->
     <div class="categories-dropdown-header">
-      <h3>{{ currentLang === 'ar' ? 'تصفح الأقسام' : 'Browse Categories' }}</h3>
+      <h3 *ngIf="!selectedCategoryForSub">{{ currentLang === 'ar' ? 'تصفح الأقسام' : 'Browse Categories' }}</h3>
+      <h3 *ngIf="selectedCategoryForSub" style="display:flex;align-items:center;gap:8px">
+        <button (click)="selectedCategoryForSub = null" style="background:none;border:none;cursor:pointer;color:#378bcb;font-size:16px;padding:4px">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        {{ currentLang === 'ar' ? selectedCategoryForSub.nameAr : selectedCategoryForSub.nameEn }}
+      </h3>
       <button (click)="closeCategoriesDropdown()" class="close-dropdown-btn">
         <i class="fa-solid fa-times"></i>
       </button>
     </div>
 
-    <!-- List Style - Simple Dropdown -->
-    <div class="catalog-grid">
-      <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.id}"
-        (click)="isCatalogOpen = false" class="catalog-card">
+    <!-- Parent Categories -->
+    <div class="catalog-grid" *ngIf="!selectedCategoryForSub">
+      <a *ngFor="let cat of categories" class="catalog-card" (click)="selectCategoryForSub(cat, $event)">
         <div class="catalog-card-image">
           <img [src]="getCategoryImage(cat.image)" [alt]="currentLang === 'ar' ? cat.nameAr : cat.nameEn"
             (error)="handleImageError($event)" />
         </div>
         <span class="catalog-card-name">{{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}</span>
-        <span class="catalog-card-count">{{ cat.productCount }} {{ currentLang === 'ar' ? 'منتج' : 'products'
-          }}</span>
+        <span class="catalog-card-count">
+          {{ cat.children?.length || 0 }} {{ currentLang === 'ar' ? 'قسم فرعي' : 'subcategories' }}
+        </span>
+        <i *ngIf="cat.children && cat.children.length > 0" class="fa-solid fa-chevron-left" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:12px"></i>
+      </a>
+    </div>
+
+    <!-- Subcategories -->
+    <div class="catalog-grid" *ngIf="selectedCategoryForSub">
+      <!-- All in this category -->
+      <a class="catalog-card" style="border:2px solid #378bcb;background:#f0f9ff"
+        (click)="navigateToSubcategory(selectedCategoryForSub.id)">
+        <div class="catalog-card-image" style="background:#dbeafe">
+          <i class="fa-solid fa-th-large" style="font-size:24px;color:#378bcb;display:flex;align-items:center;justify-content:center;height:100%"></i>
+        </div>
+        <span class="catalog-card-name" style="color:#378bcb;font-weight:700">
+          {{ currentLang === 'ar' ? 'كل ' + selectedCategoryForSub.nameAr : 'All ' + selectedCategoryForSub.nameEn }}
+        </span>
+      </a>
+      <!-- Children -->
+      <a *ngFor="let child of selectedCategoryForSub.children" class="catalog-card"
+        (click)="navigateToSubcategory(child.id)">
+        <div class="catalog-card-image">
+          <img [src]="getCategoryImage(child.image)" [alt]="currentLang === 'ar' ? child.nameAr : child.nameEn"
+            (error)="handleImageError($event)" />
+        </div>
+        <span class="catalog-card-name">{{ currentLang === 'ar' ? child.nameAr : child.nameEn }}</span>
+        <span class="catalog-card-count">{{ child.productCount }} {{ currentLang === 'ar' ? 'منتج' : 'products' }}</span>
       </a>
     </div>
 
     <!-- View All -->
-    <div class="dropdown-footer">
+    <div class="dropdown-footer" *ngIf="!selectedCategoryForSub">
       <a routerLink="/products" (click)="closeCategoriesDropdown()" class="categories-dropdown-view-all">
         <i class="fa-solid fa-th-large"></i>
         <span>{{ currentLang === 'ar' ? 'عرض كل المنتجات' : 'View All Products' }}</span>

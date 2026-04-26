@@ -20,6 +20,8 @@ export interface Banner {
   buttonText: string;
   buttonTextAr: string;
   buttonLink: string;
+  linkType: number;
+  linkTargetId: number | null;
   displayOrder: number;
   isActive: boolean;
 }
@@ -32,6 +34,8 @@ export interface CreateBanner {
   buttonText?: string;
   buttonTextAr?: string;
   buttonLink?: string;
+  linkType?: number;
+  linkTargetId?: number | null;
   displayOrder?: number;
   isActive?: boolean;
 }
@@ -62,6 +66,8 @@ export class BannerService {
     formData.append('buttonText', data.buttonText || 'Shop Now');
     formData.append('buttonTextAr', data.buttonTextAr || 'تسوق الآن');
     formData.append('buttonLink', data.buttonLink || '/products');
+    formData.append('linkType', String(data.linkType || 0));
+    if (data.linkTargetId) formData.append('linkTargetId', String(data.linkTargetId));
     formData.append('displayOrder', String(data.displayOrder || 0));
     formData.append('isActive', String(data.isActive ?? true));
 
@@ -78,6 +84,8 @@ export class BannerService {
     formData.append('buttonText', data.buttonText || 'Shop Now');
     formData.append('buttonTextAr', data.buttonTextAr || 'تسوق الآن');
     formData.append('buttonLink', data.buttonLink || '/products');
+    formData.append('linkType', String(data.linkType || 0));
+    if (data.linkTargetId) formData.append('linkTargetId', String(data.linkTargetId));
     formData.append('displayOrder', String(data.displayOrder || 0));
     formData.append('isActive', String(data.isActive ?? true));
 

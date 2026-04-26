@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { Governorate, CreateGovernorate, UpdateGovernorate } from '../../../../models/governorate';
 import { GovernorateService } from '../../services/governorate.service';
+import { TranslationService } from '../../../../services/translation.service';
 
 @Component({
   selector: 'app-governorates',
@@ -43,7 +44,8 @@ export class GovernoratesComponent implements OnInit {
   constructor(
     public i18n: I18nService,
     private governorateService: GovernorateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translationService: TranslationService
   ) { }
 
   ngOnInit(): void {
@@ -266,6 +268,20 @@ export class GovernoratesComponent implements OnInit {
       'seed_error': { ar: 'خطأ في إضافة المحافظات', en: 'Error adding governorates' }
     };
     return translations[key]?.[this.i18n.currentLang] || key;
+  }
+
+  onArBlur(form: any, arField: string, enField: string): void {
+    if (!form[arField]?.trim()) return;
+    this.translationService.translateArToEn(form[arField]).subscribe({
+      next: (t: string) => { if (t) { form[enField] = t; } }
+    });
+  }
+
+  onEnBlur(form: any, arField: string, enField: string): void {
+    if (!form[enField]?.trim()) return;
+    this.translationService.translateEnToAr(form[enField]).subscribe({
+      next: (t: string) => { if (t) { form[arField] = t; } }
+    });
   }
 
   showToast(message: string, type: 'success' | 'error'): void {

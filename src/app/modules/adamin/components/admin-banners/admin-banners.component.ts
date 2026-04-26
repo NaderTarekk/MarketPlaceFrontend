@@ -3,6 +3,8 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { environment } from '../../../../../environment';
 import { Banner, CreateBanner } from '../../../../models/banner';
 import { BannerService } from '../../services/banner.service';
+import { TranslationService } from '../../../../services/translation.service';
+import { ProductsService } from '../../../products/services/products.service';
 
 @Component({
   selector: 'app-admin-banners',
@@ -29,9 +31,14 @@ export class AdminBannersComponent implements OnInit {
     buttonText: 'Shop Now',
     buttonTextAr: 'تسوق الآن',
     buttonLink: '/products',
+    linkType: 0,
+    linkTargetId: null,
     displayOrder: 0,
     isActive: true
   };
+  brands: any[] = [];
+  productSearchQuery = '';
+  productSearchResults: any[] = [];
   selectedImage: File | null = null;
   imagePreview: string | null = null;
 
@@ -46,11 +53,33 @@ export class AdminBannersComponent implements OnInit {
   constructor(
     public i18n: I18nService,
     private bannerService: BannerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translationService: TranslationService,
+    private productsService: ProductsService
   ) {}
 
   ngOnInit(): void {
     this.loadBanners();
+    this.loadBrands();
+  }
+
+  loadBrands(): void {
+    this.productsService.getBrands().subscribe({
+      next: (res: any) => { if (res.success) this.brands = res.data; }
+    });
+  }
+
+  searchProducts(query: string): void {
+    if (!query || query.length < 2) { this.productSearchResults = []; return; }
+    this.productsService.search(query).subscribe({
+      next: (res: any) => { this.productSearchResults = res.success ? res.data : []; this.cdr.detectChanges(); }
+    });
+  }
+
+  selectProduct(p: any): void {
+    this.bannerForm.linkTargetId = p.id;
+    this.productSearchQuery = this.i18n.currentLang === 'ar' ? p.nameAr : p.nameEn;
+    this.productSearchResults = [];
   }
 
   loadBanners(): void {
@@ -105,9 +134,12 @@ export class AdminBannersComponent implements OnInit {
       buttonText: banner.buttonText,
       buttonTextAr: banner.buttonTextAr,
       buttonLink: banner.buttonLink,
+      linkType: (banner as any).linkType || 0,
+      linkTargetId: (banner as any).linkTargetId || null,
       displayOrder: banner.displayOrder,
       isActive: banner.isActive
     };
+    this.productSearchQuery = '';
     this.selectedImage = null;
     this.imagePreview = this.getImageUrl(banner.imageUrl);
     this.showDialog = true;
@@ -300,6 +332,20 @@ export class AdminBannersComponent implements OnInit {
       'banner_deleted': { ar: 'تم حذف البانر', en: 'Banner deleted' }
     };
     return translations[key]?.[this.i18n.currentLang] || key;
+  }
+
+  onArBlur(form: any, arField: string, enField: string): void {
+    if (!form[arField]?.trim()) return;
+    this.translationService.translateArToEn(form[arField]).subscribe({
+      next: (t: string) => { if (t) { form[enField] = t; } }
+    });
+  }
+
+  onEnBlur(form: any, arField: string, enField: string): void {
+    if (!form[enField]?.trim()) return;
+    this.translationService.translateEnToAr(form[enField]).subscribe({
+      next: (t: string) => { if (t) { form[arField] = t; } }
+    });
   }
 
   trackById(index: number, item: Banner): number {

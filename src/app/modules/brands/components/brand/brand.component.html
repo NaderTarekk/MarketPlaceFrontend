@@ -195,11 +195,13 @@
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
                     <input type="text" [(ngModel)]="formData.nameAr"
+                        (blur)="onArBlur(formData, 'nameAr', 'nameEn')"
                         [placeholder]="i18n.currentLang === 'ar' ? 'أدخل الاسم بالعربية' : 'Enter Arabic name'" />
                 </div>
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
                     <input type="text" [(ngModel)]="formData.nameEn"
+                        (blur)="onEnBlur(formData, 'nameAr', 'nameEn')"
                         [placeholder]="i18n.currentLang === 'ar' ? 'أدخل الاسم بالإنجليزية' : 'Enter English name'" />
                 </div>
                 <div class="form-group">
@@ -247,11 +249,13 @@
             <div class="dialog-body">
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }} *</label>
-                    <input type="text" [(ngModel)]="formData.nameAr" />
+                    <input type="text" [(ngModel)]="formData.nameAr"
+                        (blur)="onArBlur(formData, 'nameAr', 'nameEn')" />
                 </div>
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }} *</label>
-                    <input type="text" [(ngModel)]="formData.nameEn" />
+                    <input type="text" [(ngModel)]="formData.nameEn"
+                        (blur)="onEnBlur(formData, 'nameAr', 'nameEn')" />
                 </div>
                 <div class="form-group">
                     <label>{{ i18n.currentLang === 'ar' ? 'الشعار' : 'Logo' }}</label>
