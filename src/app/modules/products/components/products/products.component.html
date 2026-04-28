@@ -189,8 +189,21 @@
     </section>
 
     <div class="main-container">
-        <!-- Mobile Filter Button -->
-        <button class="mobile-filter-btn" (click)="toggleMobileFilters()">
+        <!-- Mobile Top Bar: Search + Filter Icon -->
+        <div class="mobile-top-bar">
+            <div class="mobile-search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" [value]="filter.search || ''" (input)="onSearch($event)"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'بحث في المنتجات...' : 'Search products...'" />
+            </div>
+            <button class="mobile-filter-icon" (click)="toggleMobileFilters()">
+                <i class="fa-solid fa-sliders"></i>
+                <span *ngIf="getActiveFiltersCount() > 0" class="filter-badge-mini">{{ getActiveFiltersCount() }}</span>
+            </button>
+        </div>
+
+        <!-- Old Mobile Filter Button (hidden, replaced by above) -->
+        <button class="mobile-filter-btn" (click)="toggleMobileFilters()" style="display:none!important">
             <i class="fa-solid fa-sliders"></i>
             <span>{{ i18n.currentLang === 'ar' ? 'الفلاتر' : 'Filters' }}</span>
             <span *ngIf="getActiveFiltersCount() > 0" class="filter-badge">{{ getActiveFiltersCount() }}</span>
@@ -357,9 +370,9 @@
                 <div class="toolbar">
                     <div class="toolbar-right">
                         <div class="search-box">
-                            <i class="fa-solid fa-search"></i>
-                            <input type="text" [value]="filter.search || ''" (input)="onSearch($event)"
-                                [placeholder]="i18n.currentLang === 'ar' ? 'بحث في المنتجات...' : 'Search products...'" />
+                            <!-- <i class="fa-solid fa-search"></i> -->
+                            <!-- <input type="text" [value]="filter.search || ''" (input)="onSearch($event)"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'بحث في المنتجات...' : 'Search products...'" /> -->
                         </div>
                         <span class="results-count">
                             {{ totalCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}

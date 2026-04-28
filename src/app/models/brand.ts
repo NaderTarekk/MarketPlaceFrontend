@@ -4,6 +4,8 @@ export interface Brand {
   nameEn: string;
   logo: string | null;
   isActive: boolean;
+  isFeatured: boolean;
+  orderCount: number;
   productCount: number;
   complaintsCount: number;
   isBlocked: boolean;

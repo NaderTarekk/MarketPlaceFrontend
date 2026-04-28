@@ -118,6 +118,16 @@ export class BrandComponent implements OnInit {
     this.showEditDialog = true;
   }
 
+  toggleFeatured(brand: Brand): void {
+    this.brandService.toggleFeatured(brand.id).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          brand.isFeatured = !brand.isFeatured;
+        }
+      }
+    });
+  }
+
   openDeleteDialog(brand: Brand): void {
     this.selectedBrand = brand;
     this.showDeleteDialog = true;

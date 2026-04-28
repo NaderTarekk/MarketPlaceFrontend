@@ -27,17 +27,10 @@
     align-items: center;
     justify-content: center;
     overflow: visible;
-    margin-bottom: 60px;
+    margin-bottom: 0;
 }
 .hero::after {
-    content: '';
-    position: absolute;
-    bottom: -100px;
-    left: 0;
-    width: 100%;
-    height: 160px;
-    background: linear-gradient(to bottom, rgba(45, 122, 184, 0.5) 0%, rgba(45, 122, 184, 0.2) 40%, rgba(45, 122, 184, 0.05) 75%, transparent 100%);
-    filter: blur(14px);
+    display: none;
     pointer-events: none;
 }
 
@@ -1463,7 +1456,7 @@
 /* ═══════════════════════════════════════════════ */
 
 .brands-section {
-    background: linear-gradient(180deg, #fff 0%, #f8f7ff 100%);
+    background: linear-gradient(135deg, #0a2540 0%, #153d64 50%, #1c5a8a 100%);
     border-bottom: none;
     padding-bottom: 8px;
 }
@@ -1479,7 +1472,7 @@
 .brands-title {
     font-size: 20px;
     font-weight: 800;
-    color: #0a2540;
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1510,8 +1503,9 @@
     gap: 10px;
     flex-shrink: 0;
     scroll-snap-align: start;
-    background: #fff;
-    border: 2px solid #f1f0fb;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
     padding: 16px 22px;
     cursor: pointer;
@@ -1520,15 +1514,15 @@
     position: relative;
 }
 .brand-pill:hover {
-    background: linear-gradient(135deg, #faf5ff, #f5f3ff);
-    border-color: rgba(74, 155, 214,0.35);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
     transform: translateY(-5px);
-    box-shadow: 0 10px 28px rgba(74, 155, 214,0.12);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
 }
 .brand-pill--active {
-    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    background: rgba(255, 255, 255, 0.25);
     border-color: #4a9bd6;
-    box-shadow: 0 10px 32px rgba(74, 155, 214,0.2);
+    box-shadow: 0 10px 32px rgba(55, 139, 203, 0.3);
     transform: translateY(-3px);
 }
 .brand-pill--active::after {
@@ -1539,7 +1533,7 @@
     transform: translateX(-50%);
     width: 28px;
     height: 3px;
-    background: linear-gradient(90deg, #378bcb, #4a9bd6);
+    background: linear-gradient(90deg, #60a5fa, #93c5fd);
     border-radius: 3px;
 }
 
@@ -1568,7 +1562,7 @@
 .brand-pill-name {
     font-size: 12.5px;
     font-weight: 700;
-    color: #475569;
+    color: rgba(255, 255, 255, 0.85);
     white-space: nowrap;
     max-width: 85px;
     overflow: hidden;
@@ -1576,10 +1570,7 @@
     letter-spacing: 0.2px;
 }
 .brand-pill--active .brand-pill-name {
-    background: linear-gradient(135deg, #4a9bd6, #378bcb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
 }
 
 .brand-banner {
@@ -1601,7 +1592,9 @@
     gap: 14px;
     margin-bottom: 20px;
     padding: 20px 26px;
-    background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 50%, #ede9fe 100%);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    border-color: rgba(255, 255, 255, 0.15) !important;
     border-radius: 22px;
     border: 1.5px solid rgba(74, 155, 214,0.12);
     box-shadow: 0 4px 24px rgba(74, 155, 214,0.06);
@@ -1625,17 +1618,14 @@
 .brand-banner-title h3 {
     font-size: 20px;
     font-weight: 800;
-    color: #0a2540;
+    color: #ffffff;
     margin: 0 0 3px;
     letter-spacing: -0.4px;
 }
 .brand-banner-title span {
     font-size: 13px;
     font-weight: 700;
-    background: linear-gradient(135deg, #4a9bd6, #378bcb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #93c5fd;
 }
 
 .brand-category-tabs {
@@ -1646,19 +1636,19 @@
 .brand-cat-tab {
     padding: 8px 20px;
     border-radius: 24px;
-    border: 1.5px solid #e2e8f0;
-    background: #fff;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
     font-size: 13px;
     font-weight: 700;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     transition: all 0.25s;
     letter-spacing: 0.1px;
 }
 .brand-cat-tab:hover {
-    border-color: #4a9bd6;
-    color: #378bcb;
-    background: #faf5ff;
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
 }
 .brand-cat-tab.active {
     background: linear-gradient(135deg, #4a9bd6, #5aabe0, #378bcb);
@@ -1689,9 +1679,10 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 2px solid #ede9fe;
-    background: #fff;
-    color: #378bcb;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    color: #ffffff;
     font-size: 15px;
     cursor: pointer;
     z-index: 5;
@@ -1724,23 +1715,25 @@
     width: calc(25% - 14px);
     min-width: 180px;
     scroll-snap-align: start;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
     border-radius: 18px;
     overflow: hidden;
     text-decoration: none;
-    border: 1.5px solid #f1f0fb;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
     transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
 }
 .brand-product-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.1);
-    border-color: rgba(74, 155, 214,0.25);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .brand-product-img {
     position: relative;
     height: 220px;
-    background: linear-gradient(135deg, #fafafa, #f5f3ff);
+    background: rgba(255, 255, 255, 0.05);
     overflow: hidden;
 }
 .brand-product-img img {
@@ -1774,7 +1767,7 @@
 .brand-product-name {
     font-size: 14px;
     font-weight: 700;
-    color: #1e293b;
+    color: #ffffff;
     margin: 0 0 8px;
     white-space: nowrap;
     overflow: hidden;
@@ -1791,14 +1784,11 @@
 .brand-product-current {
     font-size: 16px;
     font-weight: 800;
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #60a5fa;
 }
 .brand-product-original {
     font-size: 11px;
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.4);
     text-decoration: line-through;
 }
 
@@ -1808,6 +1798,12 @@
     gap: 4px;
     font-size: 12px;
     color: #fbbf24;
+}
+.brand-product-rating span {
+    color: rgba(255, 255, 255, 0.6);
+}
+.brand-product-reviews {
+    color: rgba(255, 255, 255, 0.4);
 }
 .brand-product-rating span { color: #374151; font-weight: 700; }
 .brand-product-reviews { color: #94a3b8 !important; font-weight: 400 !important; }
@@ -2615,6 +2611,9 @@
     }
 }
 
+/* Hide mobile-top-bar on desktop */
+.mobile-top-bar { display: none; }
+
 @media (max-width: 768px) {
     .hero { height: 220px; }
     .hero-content { margin-top: 0; }
@@ -2624,7 +2623,90 @@
     .orb-2 { width: 160px; height: 160px; }
 
     .mobile-filter-btn {
+        display: none !important;
+    }
+
+    .mobile-top-bar {
         display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 4px;
+        margin-bottom: 12px;
+    }
+
+    .mobile-search-box {
+        flex: 1;
+        position: relative;
+    }
+
+    .mobile-search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 14px;
+    }
+
+    [dir="rtl"] .mobile-search-box i {
+        left: auto;
+        right: 14px;
+    }
+
+    .mobile-search-box input {
+        width: 100%;
+        padding: 12px 14px 12px 40px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 14px;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    [dir="rtl"] .mobile-search-box input {
+        padding: 12px 40px 12px 14px;
+    }
+
+    .mobile-search-box input:focus {
+        border-color: #378bcb;
+    }
+
+    .mobile-filter-icon {
+        position: relative;
+        width: 48px;
+        height: 48px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 18px;
+        color: #374151;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .mobile-filter-icon:active {
+        background: #f3f4f6;
+    }
+
+    .filter-badge-mini {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        min-width: 18px;
+        height: 18px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .content-wrapper {

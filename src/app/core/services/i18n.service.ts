@@ -87,6 +87,8 @@ export class I18nService {
 
   switch(lang: Lang): void {
     this.lang$.next(lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   }
 
   t(key: string): string {

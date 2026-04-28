@@ -164,6 +164,10 @@
                     <button class="btn-icon edit" (click)="openEditDialog(brand)">
                         <i class="fa-solid fa-pen"></i>
                     </button>
+                    <button class="btn-icon" (click)="toggleFeatured(brand)"
+                        [title]="brand.isFeatured ? (i18n.currentLang === 'ar' ? 'إلغاء التمييز' : 'Unfeature') : (i18n.currentLang === 'ar' ? 'تمييز كمشهور' : 'Feature')">
+                        <i class="fa-solid fa-star" [style.color]="brand.isFeatured ? '#f59e0b' : '#d1d5db'"></i>
+                    </button>
                     <button class="btn-icon delete" (click)="openDeleteDialog(brand)">
                         <i class="fa-solid fa-trash"></i>
                     </button>

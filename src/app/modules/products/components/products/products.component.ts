@@ -386,6 +386,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
         }
       }
     });
+    // Load featured brands for "Popular Brands" section
+    this.productService.getFeaturedBrands().subscribe({
+      next: (res: any) => {
+        if (res.success && res.data.length > 0) {
+          this.brands = res.data;
+        }
+      }
+    });
   }
 
   // ═══════════════════════════════════════════════

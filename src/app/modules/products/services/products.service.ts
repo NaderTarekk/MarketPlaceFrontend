@@ -106,6 +106,10 @@ export class ProductsService {
     return this.http.get<ApiResponse<Brand[]>>(`${environment.brandsUrl}${params}`);
   }
 
+  getFeaturedBrands(minOrders: number = 0): Observable<ApiResponse<Brand[]>> {
+    return this.http.get<ApiResponse<Brand[]>>(`${environment.brandsUrl}/featured?minOrders=${minOrders}`);
+  }
+
   private buildParams(filter: ProductFilter): string {
     const params: string[] = [];
     if (filter.search) params.push(`search=${encodeURIComponent(filter.search)}`);

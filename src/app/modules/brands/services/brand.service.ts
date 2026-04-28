@@ -37,4 +37,12 @@ export class BrandService {
   delete(id: number): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${environment.brandsUrl}/${id}`, { headers: this.getHeaders() });
   }
+
+  getFeatured(minOrders: number = 0): Observable<ApiResponse<Brand[]>> {
+    return this.http.get<ApiResponse<Brand[]>>(`${environment.brandsUrl}/featured?minOrders=${minOrders}`);
+  }
+
+  toggleFeatured(id: number): Observable<any> {
+    return this.http.patch(`${environment.brandsUrl}/${id}/toggle-featured`, {}, { headers: this.getHeaders() });
+  }
 }
