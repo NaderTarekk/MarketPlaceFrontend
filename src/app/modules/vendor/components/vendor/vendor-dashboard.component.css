@@ -178,12 +178,12 @@ th {
 }
 
 .stat-card.orders .stat-icon {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #134e5e, #0b3037);
   color: white;
 }
 
 .stat-card.products .stat-icon {
-  background: linear-gradient(135deg, #4a9bd6, #378bcb);
+  background: linear-gradient(135deg, #1a6b7a, #134e5e);
   color: white;
 }
 
@@ -1310,8 +1310,8 @@ th {
 
 /* Video Upload */
 .video-upload-box {
-  background: linear-gradient(135deg, #0a2540, #1c5a8a) !important;
-  border-color: #378bcb !important;
+  background: linear-gradient(135deg, #0b3037, #0b3037) !important;
+  border-color: #134e5e !important;
 }
 .video-upload-box i { color: #c4b5fd !important; }
 .video-preview-box {
@@ -1320,7 +1320,7 @@ th {
   height: 80px;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid #378bcb;
+  border: 2px solid #134e5e;
 }
 .video-thumb-preview {
   width: 100%;
@@ -1645,7 +1645,7 @@ th {
 
 .btn-view {
   background: #dbeafe;
-  color: #2563eb;
+  color: #0b3037;
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
@@ -1654,7 +1654,7 @@ th {
 }
 
 .btn-view:hover {
-  background: #2563eb;
+  background: #0b3037;
   color: white;
 }
 
@@ -1682,13 +1682,13 @@ th {
 }
 
 .status-select:hover {
-  border-color: #3b82f6;
+  border-color: #134e5e;
 }
 
 .status-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #134e5e;
+  box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
 }
 
 .status-select:disabled {
@@ -1729,14 +1729,14 @@ th {
 }
 
 .status-select:hover:not(:disabled) {
-  border-color: #3b82f6;
+  border-color: #134e5e;
   background-color: #f8fafc;
 }
 
 .status-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #134e5e;
+  box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
 }
 
 .status-select:disabled {
@@ -1787,14 +1787,14 @@ th {
 }
 
 .status-select:hover:not(:disabled) {
-  border-color: #3b82f6;
+  border-color: #134e5e;
   background-color: #f8fafc;
 }
 
 .status-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #134e5e;
+  box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
 }
 
 .status-select:disabled {
@@ -1804,7 +1804,7 @@ th {
 }
 
 .status-badge.assigned {
-  background: linear-gradient(135deg, #4a9bd6 0%, #378bcb 100%);
+  background: linear-gradient(135deg, #1a6b7a 0%, #134e5e 100%);
 }
 
 .status-badge.picked {
@@ -1816,7 +1816,7 @@ th {
 }
 
 .status-badge.out-for-delivery {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
 }
 
 /* Responsive */
@@ -1910,7 +1910,7 @@ th {
 }
 
 .section-title i {
-  color: #3b82f6;
+  color: #134e5e;
 }
 
 .detail-grid {
@@ -1996,7 +1996,7 @@ th {
 .total-price {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: #134e5e;
 }
 
 .price-summary {
@@ -2050,7 +2050,7 @@ th {
 /* ═══════════════════════════════════════════════ */
 
 .earnings-section {
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   border-radius: 20px;
   padding: 32px;
   color: white;
@@ -2284,7 +2284,7 @@ th {
 }
 
 .btn-add-variant {
-  background: linear-gradient(135deg, #5aabe0, #2d7ab8);
+  background: linear-gradient(135deg, #1a6b7a, #0b3037);
   color: white;
   border: none;
   padding: 6px 12px;
@@ -2347,7 +2347,7 @@ th {
 
 .variant-tag.size {
     background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-    color: #378bcb;
+    color: #134e5e;
 }
 
 .variant-tag.color {
@@ -2472,9 +2472,9 @@ th {
     border-color: #10b981;
 }
 .tracking-step.active:not(.cancelled) .step-dot {
-    background: #3b82f6;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    background: #134e5e;
+    border-color: #134e5e;
+    box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.2);
 }
 .tracking-step.cancelled .step-dot {
     background: #fecaca;
@@ -2497,7 +2497,7 @@ th {
     font-weight: 600;
 }
 .tracking-step.active:not(.cancelled) .step-label {
-    color: #3b82f6;
+    color: #134e5e;
     font-weight: 600;
 }
 .tracking-step.cancelled .step-label {

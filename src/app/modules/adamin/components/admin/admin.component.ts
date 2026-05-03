@@ -1678,7 +1678,7 @@ export class AdminComponent implements OnInit {
       
       <!-- Personal Info -->
       <div style="margin-bottom: 30px;">
-        <div style="background: linear-gradient(135deg, #6366f1, #4a9bd6); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+        <div style="background: linear-gradient(135deg, #6366f1, #1a6b7a); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
           ${isRtl ? '👤 المعلومات الشخصية' : '👤 Personal Information'}
         </div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
@@ -1707,28 +1707,28 @@ export class AdminComponent implements OnInit {
       
       <!-- Business Info -->
       <div style="margin-bottom: 30px;">
-        <div style="background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+        <div style="background: linear-gradient(135deg, #134e5e, #06b6d4); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
           ${isRtl ? '🏪 معلومات المتجر' : '🏪 Business Information'}
         </div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
-            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'اسم المتجر' : 'Business Name'}</div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #134e5e;">
+            <div style="color: #134e5e; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'اسم المتجر' : 'Business Name'}</div>
             <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.businessName || '-'}</div>
           </div>
-          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
-            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'السجل التجاري' : 'Commercial Reg.'}</div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #134e5e;">
+            <div style="color: #134e5e; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'السجل التجاري' : 'Commercial Reg.'}</div>
             <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.commercialRegistration || '-'}</div>
           </div>
-          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
-            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'الرقم الضريبي' : 'Tax Number'}</div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #134e5e;">
+            <div style="color: #134e5e; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'الرقم الضريبي' : 'Tax Number'}</div>
             <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.taxNumber || '-'}</div>
           </div>
-          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6;">
-            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'نسبة العمولة' : 'Commission Rate'}</div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #134e5e;">
+            <div style="color: #134e5e; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'نسبة العمولة' : 'Commission Rate'}</div>
             <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.commissionRate}%</div>
           </div>
-          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #3b82f6; grid-column: span 2;">
-            <div style="color: #3b82f6; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'العنوان' : 'Address'}</div>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border-${isRtl ? 'right' : 'left'}: 4px solid #134e5e; grid-column: span 2;">
+            <div style="color: #134e5e; font-size: 12px; margin-bottom: 5px; font-weight: 600;">${isRtl ? 'العنوان' : 'Address'}</div>
             <div style="font-weight: 700; color: #1e293b; font-size: 15px;">${this.vendorPrintReport!.businessAddress || '-'}</div>
           </div>
         </div>
@@ -1736,7 +1736,7 @@ export class AdminComponent implements OnInit {
       
       <!-- Statistics -->
       <div style="margin-bottom: 30px;">
-        <div style="background: linear-gradient(135deg, #4f46e5, #378bcb); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+        <div style="background: linear-gradient(135deg, #4f46e5, #134e5e); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
           ${isRtl ? '📊 الإحصائيات' : '📊 Statistics'}
         </div>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
@@ -1749,7 +1749,7 @@ export class AdminComponent implements OnInit {
             <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'منتجات نشطة' : 'Active Products'}</div>
           </div>
           <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #c4b5fd;">
-            <div style="font-size: 28px; font-weight: 700; color: #378bcb;">${this.vendorPrintReport!.totalOrders}</div>
+            <div style="font-size: 28px; font-weight: 700; color: #134e5e;">${this.vendorPrintReport!.totalOrders}</div>
             <div style="font-size: 12px; color: #475569; margin-top: 5px;">${isRtl ? 'إجمالي الطلبات' : 'Total Orders'}</div>
           </div>
           <div style="background: linear-gradient(135deg, #f0fdfa, #ccfbf1); padding: 20px; text-align: center; border-radius: 12px; border: 1px solid #5eead4;">
@@ -1769,11 +1769,11 @@ export class AdminComponent implements OnInit {
             <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.totalRevenue)}</div>
             <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'إجمالي الإيرادات' : 'Total Revenue'}</div>
           </div>
-          <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); padding: 20px; text-align: center; border-radius: 12px; color: white;">
+          <div style="background: linear-gradient(135deg, #134e5e, #0b3037); padding: 20px; text-align: center; border-radius: 12px; color: white;">
             <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.vendorEarnings)}</div>
             <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'أرباح التاجر' : 'Vendor Earnings'}</div>
           </div>
-          <div style="background: linear-gradient(135deg, #4a9bd6, #378bcb); padding: 20px; text-align: center; border-radius: 12px; color: white;">
+          <div style="background: linear-gradient(135deg, #1a6b7a, #134e5e); padding: 20px; text-align: center; border-radius: 12px; color: white;">
             <div style="font-size: 20px; font-weight: 700;">${this.formatPrice(this.vendorPrintReport!.adminEarnings)}</div>
             <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">${isRtl ? 'عمولة الإدارة' : 'Admin Commission'}</div>
           </div>
@@ -1867,7 +1867,7 @@ export class AdminComponent implements OnInit {
 
     return `
     <div style="margin-bottom: 30px; page-break-inside: avoid;">
-      <div style="background: linear-gradient(135deg, #1d4ed8, #2d7ab8); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+      <div style="background: linear-gradient(135deg, #0b3037, #134e5e); color: white; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; font-weight: 700; font-size: 16px;">
         ${isRtl ? '🧾 تفاصيل الطلبات' : '🧾 Orders Details'} (${this.vendorPrintReport!.orders.length})
       </div>
       <table style="width: 100%; border-collapse: collapse; font-size: 12px;">

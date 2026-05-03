@@ -1,6 +1,6 @@
 /* ==================== Hero Section ==================== */
 .hero {
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   padding: 2.5rem 1.5rem;
   text-align: center;
   color: white;
@@ -76,7 +76,7 @@
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
@@ -105,7 +105,7 @@
   width: 48px;
   height: 48px;
   border: 4px solid #e2e8f0;
-  border-top-color: #378bcb;
+  border-top-color: #134e5e;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -161,7 +161,7 @@
 .select-all input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #378bcb;
+  accent-color: #134e5e;
   cursor: pointer;
 }
 
@@ -170,7 +170,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -244,7 +244,7 @@
 }
 
 .order-card.selected {
-  border-color: #378bcb;
+  border-color: #134e5e;
   background: #faf5ff;
 }
 
@@ -266,7 +266,7 @@
 .checkbox-wrapper input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  accent-color: #378bcb;
+  accent-color: #134e5e;
   cursor: pointer;
 }
 
@@ -382,7 +382,7 @@
   position: absolute;
   bottom: -4px;
   right: -4px;
-  background: #378bcb;
+  background: #134e5e;
   color: white;
   font-size: 0.65rem;
   font-weight: 600;
@@ -522,7 +522,7 @@
   margin-top: 2px;
   flex-shrink: 0;
 }
-.delivery-location-card.home i { color: #3b82f6; }
+.delivery-location-card.home i { color: #134e5e; }
 .delivery-location-card.pickup i { color: #16a34a; }
 .delivery-location-card div {
   display: flex;
@@ -559,7 +559,7 @@
 .progress-info span {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #378bcb;
+  color: #134e5e;
 }
 
 .progress-bar {
@@ -572,7 +572,7 @@
 
 .progress {
   height: 100%;
-  background: linear-gradient(90deg, #378bcb, #1c5a8a);
+  background: linear-gradient(90deg, #134e5e, #0b3037);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -637,7 +637,7 @@
 .agent-avatar {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -675,7 +675,7 @@
   display: block;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #378bcb;
+  color: #134e5e;
 }
 
 .stat .label {
@@ -727,7 +727,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
 }
 
@@ -776,7 +776,7 @@
 }
 
 .selected-count strong {
-  color: #378bcb;
+  color: #134e5e;
   font-size: 1.25rem;
 }
 
@@ -806,7 +806,7 @@
 
 .form-group select:focus {
   outline: none;
-  border-color: #378bcb;
+  border-color: #134e5e;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -833,7 +833,7 @@
 }
 
 .radio-option.selected {
-  border-color: #378bcb;
+  border-color: #134e5e;
   background: #f5f3ff;
 }
 
@@ -847,7 +847,7 @@
 }
 
 .radio-option.selected i {
-  color: #378bcb;
+  color: #134e5e;
 }
 
 .radio-option span {
@@ -857,7 +857,7 @@
 }
 
 .radio-option.selected span {
-  color: #378bcb;
+  color: #134e5e;
 }
 
 /* ==================== Modal Footer ==================== */
@@ -895,7 +895,7 @@
   gap: 0.5rem;
   padding: 0.85rem;
   border: none;
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -931,7 +931,7 @@
 }
 
 .section h4 i {
-  color: #378bcb;
+  color: #134e5e;
 }
 
 .section p {
@@ -968,7 +968,7 @@
 }
 
 .vo-agent i {
-  color: #378bcb;
+  color: #134e5e;
 }
 
 .btn-action {
@@ -978,7 +978,7 @@
   gap: 0.5rem;
   padding: 0.85rem 1.5rem;
   border: none;
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1191,12 +1191,12 @@
 }
 
 .btn-action.success {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
 }
 
 .btn-action.success:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #0b3037 0%, #1d4ed8 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
@@ -1228,12 +1228,12 @@
 }
 
 .btn-action.success {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
 }
 
 .btn-action.success:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #0b3037 0%, #1d4ed8 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
@@ -1284,7 +1284,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #134e5e;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -1307,7 +1307,7 @@
 }
 
 .radio-option:hover {
-  border-color: #3b82f6;
+  border-color: #134e5e;
   background: #f0f9ff;
 }
 
@@ -1446,12 +1446,12 @@
 }
 
 .btn-confirm {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
 }
 
 .btn-confirm:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #0b3037 0%, #1d4ed8 100%);
 }
 
 .btn-confirm:disabled {
@@ -1492,7 +1492,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #134e5e;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -1525,7 +1525,7 @@
 }
 
 .radio-option:hover {
-  border-color: #3b82f6;
+  border-color: #134e5e;
   background: #f0f9ff;
 }
 
@@ -1593,7 +1593,7 @@
 }
 
 .delivery-type-badge.warehouse {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
 }
 
@@ -1624,7 +1624,7 @@
 
 .redirect-card i {
   font-size: 4rem;
-  color: #378bcb;
+  color: #134e5e;
   margin-bottom: 20px;
   display: block;
 }
@@ -1646,7 +1646,7 @@
   align-items: center;
   gap: 10px;
   padding: 15px 30px;
-  background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+  background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
   color: white;
   text-decoration: none;
   border-radius: 12px;
@@ -1871,7 +1871,7 @@
   border-color: #bbf7d0;
 }
 .delivery-dest i {
-  color: #3b82f6;
+  color: #134e5e;
   margin-top: 3px;
   flex-shrink: 0;
 }

@@ -97,7 +97,7 @@
 }
 
 .stat-card.total .stat-icon {
-    background: linear-gradient(135deg, #378bcb, #1c5a8a);
+    background: linear-gradient(135deg, #134e5e, #0b3037);
     color: white;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .stat-card.average .stat-icon {
-    background: linear-gradient(135deg, #2d7ab8, #1d6a9f);
+    background: linear-gradient(135deg, #0b3037, #1d6a9f);
     color: white;
 }
 
@@ -417,7 +417,7 @@
 
 .btn-edit {
     background: #eff6ff;
-    color: #3b82f6;
+    color: #134e5e;
 }
 
 .btn-edit:hover {

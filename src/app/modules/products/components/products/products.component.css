@@ -22,7 +22,7 @@
 .hero {
     position: relative;
     height: 260px;
-    background: linear-gradient(160deg, #061b30 0%, #0d2845 25%, #153d64 50%, #1c5a8a 75%, #2d7ab8 100%);
+    background: linear-gradient(160deg, #0b3037 0%, #0b3037 25%, #134e5e 50%, #0b3037 75%, #0b3037 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -38,9 +38,9 @@
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse 600px 400px at 15% 50%, rgba(55, 139, 203,0.2) 0%, transparent 70%),
-        radial-gradient(ellipse 500px 350px at 85% 30%, rgba(45, 122, 184,0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 400px 300px at 50% 90%, rgba(55, 139, 203,0.15) 0%, transparent 60%);
+        radial-gradient(ellipse 600px 400px at 15% 50%, rgba(19, 78, 94,0.2) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 350px at 85% 30%, rgba(11, 48, 55,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 400px 300px at 50% 90%, rgba(19, 78, 94,0.15) 0%, transparent 60%);
     animation: bgPulse 8s ease-in-out infinite alternate;
 }
 @keyframes bgPulse {
@@ -58,19 +58,19 @@
 }
 .orb-1 {
     width: 300px; height: 300px;
-    background: linear-gradient(135deg, #378bcb, #60a5fa);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     top: -80px; left: -50px;
     animation: orbFloat1 10s ease-in-out infinite;
 }
 .orb-2 {
     width: 250px; height: 250px;
-    background: linear-gradient(135deg, #6366f1, #60a5fa);
+    background: linear-gradient(135deg, #6366f1, #1a6b7a);
     bottom: -60px; right: -30px;
     animation: orbFloat2 12s ease-in-out infinite;
 }
 .orb-3 {
     width: 180px; height: 180px;
-    background: linear-gradient(135deg, #5aabe0, #7bbde8);
+    background: linear-gradient(135deg, #1a6b7a, #7bbde8);
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     animation: orbFloat3 8s ease-in-out infinite;
@@ -155,7 +155,7 @@
     animation: heroFadeIn 0.8s ease-out 0.2s both;
 }
 .hero-highlight {
-    background: linear-gradient(135deg, #60a5fa, #7bbde8, #60a5fa);
+    background: linear-gradient(135deg, #1a6b7a, #7bbde8, #1a6b7a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -168,7 +168,7 @@
     left: 0;
     width: 100%;
     height: 3px;
-    background: linear-gradient(90deg, #60a5fa, #7bbde8, #60a5fa);
+    background: linear-gradient(90deg, #1a6b7a, #7bbde8, #1a6b7a);
     border-radius: 3px;
     opacity: 0.6;
 } */
@@ -210,10 +210,10 @@
     backdrop-filter: blur(12px);
 }
 .stores-hero-btn.primary:hover {
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     border-color: transparent;
     transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(55, 139, 203,0.4);
+    box-shadow: 0 12px 32px rgba(19, 78, 94,0.4);
 }
 
 .hero-arrow {
@@ -228,7 +228,7 @@
 /* STORE PROFILE HEADER                           */
 /* ═══════════════════════════════════════════════ */
 .store-profile-header {
-    background: linear-gradient(135deg, #378bcb 0%, #1c5a8a 100%);
+    background: linear-gradient(135deg, #134e5e 0%, #0b3037 100%);
     position: relative;
     overflow: hidden;
 }
@@ -265,7 +265,7 @@
     padding: 3px 10px; background: rgba(255,255,255,0.2);
     border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: #fff;
 }
-.store-verified-badge i { color: #60a5fa; }
+.store-verified-badge i { color: #1a6b7a; }
 .store-profile-address {
     margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.8);
     display: flex; align-items: center; gap: 6px;
@@ -370,7 +370,7 @@
 }
 
 .filter-badge {
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     color: #fff;
     font-size: 11px;
     padding: 2px 8px;
@@ -470,14 +470,14 @@
 }
 
 .filter-item.active .radio-custom {
-    border-color: #5aabe0;
+    border-color: #1a6b7a;
 }
 
 .filter-item.active .radio-custom::after {
     content: '';
     width: 10px;
     height: 10px;
-    background: #5aabe0;
+    background: #1a6b7a;
     border-radius: 50%;
 }
 
@@ -513,7 +513,7 @@
 
 .price-inputs input:focus {
     outline: none;
-    border-color: #5aabe0;
+    border-color: #1a6b7a;
 }
 
 .price-inputs span {
@@ -523,7 +523,7 @@
 .price-btn {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -556,8 +556,8 @@
 }
 
 .checkbox-filter input:checked + .checkbox-custom {
-    background: #5aabe0;
-    border-color: #5aabe0;
+    background: #1a6b7a;
+    border-color: #1a6b7a;
 }
 
 .checkbox-filter input:checked + .checkbox-custom::after {
@@ -648,7 +648,7 @@
 
 .search-box input:focus {
     outline: none;
-    border-color: #5aabe0;
+    border-color: #1a6b7a;
 }
 
 .results-count {
@@ -692,7 +692,7 @@
 
 .view-btns button.active {
     background: #fff;
-    color: #5aabe0;
+    color: #1a6b7a;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -756,7 +756,7 @@
     width: 40px;
     height: 40px;
     border: 4px solid #e5e7eb;
-    border-top-color: #5aabe0;
+    border-top-color: #1a6b7a;
     border-radius: 50%;
     margin: 0 auto 16px;
     animation: spin 0.8s linear infinite;
@@ -788,7 +788,7 @@
 
 .btn-primary {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -845,7 +845,7 @@
     justify-content: center;
     gap: 12px;
     padding: 30px 0;
-    color: #4a9bd6;
+    color: #1a6b7a;
     font-size: 14px;
     font-weight: 600;
 }
@@ -853,7 +853,7 @@
     width: 24px;
     height: 24px;
     border: 3px solid #ede9fe;
-    border-top-color: #4a9bd6;
+    border-top-color: #1a6b7a;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
 }
@@ -866,7 +866,7 @@
     color: #94a3b8;
     font-size: 13px;
 }
-.all-loaded i { color: #5aabe0; }
+.all-loaded i { color: #1a6b7a; }
 .total-badge {
     background: #f1f5f9;
     padding: 2px 10px;
@@ -1016,7 +1016,7 @@
 .add-to-cart-btn {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #5aabe0, #3490c5);
+    background: linear-gradient(135deg, #1a6b7a, #3490c5);
     color: #fff;
     border: none;
     font-size: 14px;
@@ -1031,7 +1031,7 @@
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #3490c5, #378bcb);
+    background: linear-gradient(135deg, #3490c5, #134e5e);
 }
 
 .add-to-cart-btn:disabled {
@@ -1174,7 +1174,7 @@
 }
 
 .quick-view-btn:hover {
-    background: #5aabe0;
+    background: #1a6b7a;
     color: #fff;
     transform: scale(1.1);
 }
@@ -1381,7 +1381,7 @@
 }
 
 .page-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #378bcb, #1c5a8a);
+    background: linear-gradient(135deg, #134e5e, #0b3037);
     border-color: transparent;
     color: white;
     transform: translateY(-2px);
@@ -1422,12 +1422,12 @@
 }
 
 .page-num:hover:not(.active) {
-    border-color: #378bcb;
-    color: #378bcb;
+    border-color: #134e5e;
+    color: #134e5e;
 }
 
 .page-num.active {
-    background: linear-gradient(135deg, #378bcb, #1c5a8a);
+    background: linear-gradient(135deg, #134e5e, #0b3037);
     border-color: transparent;
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
@@ -1456,7 +1456,7 @@
 /* ═══════════════════════════════════════════════ */
 
 .brands-section {
-    background: linear-gradient(135deg, #0a2540 0%, #153d64 50%, #1c5a8a 100%);
+    background: linear-gradient(135deg, #0b3037 0%, #134e5e 50%, #0b3037 100%);
     border-bottom: none;
     padding-bottom: 8px;
 }
@@ -1521,8 +1521,8 @@
 }
 .brand-pill--active {
     background: rgba(255, 255, 255, 0.25);
-    border-color: #4a9bd6;
-    box-shadow: 0 10px 32px rgba(55, 139, 203, 0.3);
+    border-color: #1a6b7a;
+    box-shadow: 0 10px 32px rgba(19, 78, 94, 0.3);
     transform: translateY(-3px);
 }
 .brand-pill--active::after {
@@ -1533,7 +1533,7 @@
     transform: translateX(-50%);
     width: 28px;
     height: 3px;
-    background: linear-gradient(90deg, #60a5fa, #93c5fd);
+    background: linear-gradient(90deg, #1a6b7a, #93c5fd);
     border-radius: 3px;
 }
 
@@ -1549,8 +1549,8 @@
 }
 .brand-pill:hover .brand-pill-img,
 .brand-pill--active .brand-pill-img {
-    box-shadow: 0 6px 20px rgba(74, 155, 214,0.15);
-    border-color: rgba(74, 155, 214,0.2);
+    box-shadow: 0 6px 20px rgba(26, 107, 122,0.15);
+    border-color: rgba(26, 107, 122,0.2);
 }
 .brand-pill-img img {
     width: 100%;
@@ -1596,8 +1596,8 @@
     backdrop-filter: blur(8px);
     border-color: rgba(255, 255, 255, 0.15) !important;
     border-radius: 22px;
-    border: 1.5px solid rgba(74, 155, 214,0.12);
-    box-shadow: 0 4px 24px rgba(74, 155, 214,0.06);
+    border: 1.5px solid rgba(26, 107, 122,0.12);
+    box-shadow: 0 4px 24px rgba(26, 107, 122,0.06);
 }
 
 .brand-banner-title {
@@ -1651,10 +1651,10 @@
     background: rgba(255, 255, 255, 0.15);
 }
 .brand-cat-tab.active {
-    background: linear-gradient(135deg, #4a9bd6, #5aabe0, #378bcb);
+    background: linear-gradient(135deg, #1a6b7a, #1a6b7a, #134e5e);
     border-color: transparent;
     color: #fff;
-    box-shadow: 0 4px 16px rgba(74, 155, 214,0.35);
+    box-shadow: 0 4px 16px rgba(26, 107, 122,0.35);
 }
 
 .brand-products-track {
@@ -1693,11 +1693,11 @@
     transition: all 0.25s;
 }
 .scroll-arrow:hover {
-    background: linear-gradient(135deg, #4a9bd6, #5aabe0);
+    background: linear-gradient(135deg, #1a6b7a, #1a6b7a);
     color: #fff;
     border-color: transparent;
     transform: translateY(-50%) scale(1.12);
-    box-shadow: 0 6px 24px rgba(74, 155, 214,0.35);
+    box-shadow: 0 6px 24px rgba(26, 107, 122,0.35);
 }
 .scroll-left { left: 0; }
 .scroll-right { right: 0; }
@@ -1784,7 +1784,7 @@
 .brand-product-current {
     font-size: 16px;
     font-weight: 800;
-    color: #60a5fa;
+    color: #1a6b7a;
 }
 .brand-product-original {
     font-size: 11px;
@@ -1817,7 +1817,7 @@
     width: 38px;
     height: 38px;
     border: 3px solid #ede9fe;
-    border-top-color: #4a9bd6;
+    border-top-color: #1a6b7a;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
 }
@@ -1930,13 +1930,13 @@
 }
 
 .category-item.active .category-radio {
-    border-color: #3b82f6;
+    border-color: #134e5e;
 }
 
 .radio-dot {
     width: 10px;
     height: 10px;
-    background: #3b82f6;
+    background: #134e5e;
     border-radius: 50%;
     animation: radioIn 0.2s ease;
 }
@@ -1957,7 +1957,7 @@
 }
 
 .category-item.active .category-icon {
-    color: #3b82f6;
+    color: #134e5e;
 }
 
 .category-name {
@@ -1978,7 +1978,7 @@
 
 .category-item.active .category-count {
     background: rgba(59, 130, 246, 0.15);
-    color: #2563eb;
+    color: #0b3037;
 }
 
 .child-indent {
@@ -2086,7 +2086,7 @@
 .dialog-header h2 {
     font-size: 18px;
     font-weight: 700;
-    color: #0a2540;
+    color: #0b3037;
     margin: 0;
     display: flex;
     align-items: center;
@@ -2097,7 +2097,7 @@
     content: '';
     width: 4px;
     height: 20px;
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     border-radius: 2px;
 }
 
@@ -2192,9 +2192,9 @@
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #5aabe0;
+    border-color: #1a6b7a;
     background: #fff;
-    box-shadow: 0 0 0 4px rgba(55, 139, 203, 0.1);
+    box-shadow: 0 0 0 4px rgba(19, 78, 94, 0.1);
 }
 
 .form-group input::placeholder,
@@ -2253,7 +2253,7 @@
 }
 
 .form-group .checkbox-label:hover {
-    border-color: #5aabe0;
+    border-color: #1a6b7a;
     background: #faf5ff;
 }
 
@@ -2274,7 +2274,7 @@
 }
 
 .form-group .checkbox-label input:checked + .checkmark {
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     border-color: transparent;
 }
 
@@ -2307,14 +2307,14 @@
 }
 
 .upload-box:hover {
-    border-color: #5aabe0;
+    border-color: #1a6b7a;
     background: #faf5ff;
     transform: scale(1.02);
 }
 
 .upload-box i {
     font-size: 36px;
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -2420,7 +2420,7 @@
 .btn-submit {
     flex: 1;
     padding: 14px 20px;
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -2428,12 +2428,12 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 4px 15px rgba(55, 139, 203, 0.4);
+    box-shadow: 0 4px 15px rgba(19, 78, 94, 0.4);
 }
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(55, 139, 203, 0.5);
+    box-shadow: 0 6px 20px rgba(19, 78, 94, 0.5);
 }
 
 .btn-delete {
@@ -2571,7 +2571,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 16px;
-    background: linear-gradient(135deg, #378bcb, #5aabe0);
+    background: linear-gradient(135deg, #134e5e, #1a6b7a);
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -2584,7 +2584,7 @@
 
 .btn-add:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(55, 139, 203, 0.4);
+    box-shadow: 0 4px 12px rgba(19, 78, 94, 0.4);
 }
 
 /* ═══════════════════════════════════════════════ */
@@ -2669,7 +2669,7 @@
     }
 
     .mobile-search-box input:focus {
-        border-color: #378bcb;
+        border-color: #134e5e;
     }
 
     .mobile-filter-icon {
@@ -2780,7 +2780,7 @@
     .apply-btn {
         width: 100%;
         padding: 14px;
-        background: linear-gradient(135deg, #378bcb, #5aabe0);
+        background: linear-gradient(135deg, #134e5e, #1a6b7a);
         color: #fff;
         border: none;
         border-radius: 12px;

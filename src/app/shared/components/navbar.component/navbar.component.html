@@ -9,7 +9,7 @@
       <!-- Logo -->
       <div class="logo cursor-pointer flex items-center gap-3 text-white hover:opacity-90 transition-opacity"
         routerLink="">
-        <img src="wild.png" alt="Wild Market" class="logo-image" />
+        <img src="wild-gold.png" alt="Wild Market" class="logo-image" />
       </div>
       <!-- <div class="logo cursor-pointer" routerLink="">
          <img src="noqta logo rm.png" alt="MarketPlace Logo" class="logo-image" />
@@ -373,7 +373,7 @@
     <div class="categories-dropdown-header">
       <h3 *ngIf="!selectedCategoryForSub">{{ currentLang === 'ar' ? 'تصفح الأقسام' : 'Browse Categories' }}</h3>
       <h3 *ngIf="selectedCategoryForSub" style="display:flex;align-items:center;gap:8px">
-        <button (click)="selectedCategoryForSub = null" style="background:none;border:none;cursor:pointer;color:#378bcb;font-size:16px;padding:4px">
+        <button (click)="selectedCategoryForSub = null" style="background:none;border:none;cursor:pointer;color:#134e5e;font-size:16px;padding:4px">
           <i class="fa-solid fa-arrow-right"></i>
         </button>
         {{ currentLang === 'ar' ? selectedCategoryForSub.nameAr : selectedCategoryForSub.nameEn }}
@@ -401,12 +401,12 @@
     <!-- Subcategories -->
     <div class="catalog-grid" *ngIf="selectedCategoryForSub">
       <!-- All in this category -->
-      <a class="catalog-card" style="border:2px solid #378bcb;background:#f0f9ff"
+      <a class="catalog-card" style="border:2px solid #134e5e;background:#f0f9ff"
         (click)="navigateToSubcategory(selectedCategoryForSub.id)">
         <div class="catalog-card-image" style="background:#dbeafe">
-          <i class="fa-solid fa-th-large" style="font-size:24px;color:#378bcb;display:flex;align-items:center;justify-content:center;height:100%"></i>
+          <i class="fa-solid fa-th-large" style="font-size:24px;color:#134e5e;display:flex;align-items:center;justify-content:center;height:100%"></i>
         </div>
-        <span class="catalog-card-name" style="color:#378bcb;font-weight:700">
+        <span class="catalog-card-name" style="color:#134e5e;font-weight:700">
           {{ currentLang === 'ar' ? 'كل ' + selectedCategoryForSub.nameAr : 'All ' + selectedCategoryForSub.nameEn }}
         </span>
       </a>

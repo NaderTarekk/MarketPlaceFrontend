@@ -20,12 +20,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #3b82f6, #4a9bd6); /* أزرق + موف */
+  background: linear-gradient(180deg, #134e5e, #1a6b7a); /* أزرق + موف */
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #2563eb, #378bcb);
+  background: linear-gradient(180deg, #0b3037, #134e5e);
 }
 
 /* في الملف العام */

@@ -77,7 +77,7 @@
           {{ i18n.currentLang === 'ar' ? 'في الطريق لاستلام طلبك' : 'is on the way to pick up your order' }}
 
           <a *ngIf="order.deliveryAgentPhone" [href]="'tel:' + order.deliveryAgentPhone"
-            (click)="$event.stopPropagation()" class="ml-2 text-blue-600 hover:underline">
+            (click)="$event.stopPropagation()" class="ml-2 text-teal-700 hover:underline">
             <i class="fa-solid fa-phone"></i>
             {{ order.deliveryAgentPhone }}
           </a>
@@ -86,7 +86,7 @@
 
       <!-- Driver to Customer -->
       <div *ngIf="order.status === VendorOrderStatus.OutForDelivery"
-        class="flex items-center gap-2 bg-blue-50 text-blue-700 p-2 rounded-lg text-xs mb-2">
+        class="flex items-center gap-2 bg-stone-100 text-teal-800 p-2 rounded-lg text-xs mb-2">
         <i class="fa-solid fa-truck-fast"></i>
         {{ i18n.currentLang === 'ar' ? 'المندوب في الطريق إلى العميل' : 'Driver is on the way to the customer' }}
       </div>
@@ -217,7 +217,7 @@
 
       <!-- Driver On The Way -->
       <div *ngIf="selectedOrder.status === VendorOrderStatus.OutForDelivery"
-        class="flex gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-blue-800">
+        class="flex gap-3 rounded-2xl border border-teal-200 bg-stone-100 p-4 text-teal-900">
         <div class="pt-1 text-lg">
           <i class="fa-solid fa-truck-fast"></i>
         </div>

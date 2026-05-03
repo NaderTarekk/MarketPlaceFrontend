@@ -727,7 +727,7 @@
 
       <!-- Loading (existing withdrawals) -->
       <div *ngIf="isLoadingWithdrawals" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-700"></div>
       </div>
 
       <!-- Withdrawals Grid -->
@@ -736,11 +736,11 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-money-bill-transfer text-blue-600 mr-2"></i>
+            <i class="fa-solid fa-money-bill-transfer text-teal-700 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة سحوبات التجار' : 'Vendor Withdrawals Management' }}
           </h2>
           <button (click)="openWithdrawalHistory()"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm">
+            class="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 transition-colors font-semibold text-sm">
             <i class="fa-solid fa-history mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'History' }}
           </button>
@@ -756,7 +756,7 @@
         <div *ngIf="vendorWithdrawals.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <thead class="bg-gradient-to-r from-teal-600 to-teal-700 text-white">
                 <tr>
                   <th class="px-6 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'التاجر' :
                     'Vendor' }}</th>
@@ -774,13 +774,13 @@
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr *ngFor="let vendor of vendorWithdrawals; trackBy: trackByVendorWithdrawal"
-                  class="hover:bg-blue-50 transition-colors duration-200">
+                  class="hover:bg-stone-100 transition-colors duration-200">
 
                   <!-- Vendor Info -->
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
                       <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {{ vendor.vendorName.charAt(0) }}
                       </div>
                       <div class="min-w-0">
@@ -825,7 +825,7 @@
                         {{ i18n.currentLang === 'ar' ? 'سحب' : 'Withdraw' }}
                       </button>
                       <button (click)="openWithdrawalHistory(vendor.vendorId)"
-                        class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm">
+                        class="px-4 py-2 bg-stone-200 text-teal-800 rounded-lg hover:bg-teal-200 transition-colors font-semibold text-sm">
                         <i class="fa-solid fa-history mr-1"></i>
                         {{ i18n.currentLang === 'ar' ? 'السجل' : 'History' }}
                       </button>
@@ -1078,7 +1078,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingVendors" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-700"></div>
       </div>
 
       <!-- Vendors Grid -->
@@ -1087,7 +1087,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-store text-blue-600 mr-2"></i>
+            <i class="fa-solid fa-store text-teal-700 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة التجار' : 'Vendors Management' }}
           </h2>
           <div class="text-sm text-gray-600">
@@ -1105,7 +1105,7 @@
         <div *ngIf="vendors.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <thead class="bg-gradient-to-r from-teal-600 to-teal-700 text-white">
                 <tr>
                   <th class="px-4 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'التاجر' :
                     'Vendor' }}</th>
@@ -1127,13 +1127,13 @@
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr *ngFor="let vendor of vendors; trackBy: trackByVendor"
-                  class="hover:bg-blue-50 transition-colors duration-200">
+                  class="hover:bg-stone-100 transition-colors duration-200">
 
                   <!-- Vendor Info -->
                   <td class="px-4 py-4">
                     <div class="flex items-center gap-3">
                       <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {{ vendor.fullName.charAt(0) }}
                       </div>
                       <div class="min-w-0">
@@ -1151,7 +1151,7 @@
                   <!-- Commission -->
                   <td class="px-4 py-4 hidden lg:table-cell">
                     <span
-                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-stone-200 text-teal-900">
                       {{ vendor.commissionRate }}%
                     </span>
                   </td>
@@ -1185,18 +1185,18 @@
                     <div class="flex items-center justify-center gap-2">
                       <button (click)="toggleVerification(vendor)"
                         class="p-2 rounded-lg transition-colors"
-                        [class.bg-blue-100]="!vendor.isVerified" [class.text-blue-600]="!vendor.isVerified" [class.hover:bg-blue-200]="!vendor.isVerified"
+                        [class.bg-stone-200]="!vendor.isVerified" [class.text-teal-700]="!vendor.isVerified" [class.hover:bg-teal-200]="!vendor.isVerified"
                         [class.bg-green-100]="vendor.isVerified" [class.text-green-700]="vendor.isVerified" [class.hover:bg-green-200]="vendor.isVerified"
                         [title]="vendor.isVerified ? (i18n.currentLang === 'ar' ? 'إلغاء التوثيق' : 'Remove Verification') : (i18n.currentLang === 'ar' ? 'توثيق التاجر' : 'Verify Vendor')">
                         <i class="fa-solid" [class.fa-badge-check]="vendor.isVerified" [class.fa-circle-check]="!vendor.isVerified"></i>
                       </button>
                       <button (click)="openVendorModal(vendor)"
-                        class="p-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                        class="p-2 rounded-lg bg-stone-200 text-teal-800 hover:bg-teal-200 transition-colors"
                         [title]="i18n.currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details'">
                         <i class="fa-solid fa-eye"></i>
                       </button>
                       <button (click)="openCommissionDialog(vendor)"
-                        class="p-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                        class="p-2 rounded-lg bg-stone-200 text-teal-800 hover:bg-teal-200 transition-colors"
                         [title]="i18n.currentLang === 'ar' ? 'تعديل العمولة' : 'Edit Commission'">
                         <i class="fa-solid fa-percent"></i>
                       </button>
@@ -1223,7 +1223,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingAgents" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-700"></div>
       </div>
 
       <!-- Agents Grid -->
@@ -1232,7 +1232,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-truck text-blue-600 mr-2"></i>
+            <i class="fa-solid fa-truck text-teal-700 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة المناديب' : 'Delivery Agents Management' }}
           </h2>
           <div class="text-sm text-gray-600">
@@ -1255,7 +1255,7 @@
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
+                  class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold">
                   {{ agent.fullName.charAt(0) }}
                 </div>
                 <div>
@@ -1267,9 +1267,9 @@
 
             <!-- Stats -->
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="bg-blue-50 rounded-lg p-3">
-                <div class="text-xs text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</div>
-                <div class="text-lg font-bold text-blue-700">{{ agent.activeOrders }}</div>
+              <div class="bg-stone-100 rounded-lg p-3">
+                <div class="text-xs text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</div>
+                <div class="text-lg font-bold text-teal-800">{{ agent.activeOrders }}</div>
               </div>
               <div class="bg-green-50 rounded-lg p-3">
                 <div class="text-xs text-green-600 mb-1">{{ i18n.currentLang === 'ar' ? 'مكتمل' : 'Completed' }}</div>
@@ -1286,7 +1286,7 @@
 
             <!-- Action Button -->
             <button (click)="openAgentModal(agent)"
-              class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
+              class="w-full py-3 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
               <i class="fa-solid fa-eye mr-2"></i>
               {{ i18n.currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details' }}
             </button>
@@ -1297,7 +1297,7 @@
         <div *ngIf="deliveryAgents.length > 0" class="hidden lg:block bg-white rounded-2xl shadow-lg overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <thead class="bg-gradient-to-r from-teal-600 to-teal-700 text-white">
                 <tr>
                   <th class="px-6 py-4 text-left text-sm font-semibold">{{ i18n.currentLang === 'ar' ? 'المندوب' :
                     'Agent' }}</th>
@@ -1315,12 +1315,12 @@
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr *ngFor="let agent of deliveryAgents; trackBy: trackByAgent"
-                  class="hover:bg-blue-50 transition-colors">
+                  class="hover:bg-stone-100 transition-colors">
 
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
                       <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold">
                         {{ agent.fullName.charAt(0) }}
                       </div>
                       <span class="font-semibold text-gray-900">{{ agent.fullName }}</span>
@@ -1331,7 +1331,7 @@
 
                   <td class="px-6 py-4 text-center">
                     <span
-                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-stone-200 text-teal-900">
                       {{ agent.activeOrders }}
                     </span>
                   </td>
@@ -1352,7 +1352,7 @@
 
                   <td class="px-6 py-4 text-center">
                     <button (click)="openAgentModal(agent)"
-                      class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm">
+                      class="px-4 py-2 bg-stone-200 text-teal-800 rounded-lg hover:bg-teal-200 transition-colors font-semibold text-sm">
                       <i class="fa-solid fa-eye mr-1"></i>
                       {{ i18n.currentLang === 'ar' ? 'تفاصيل' : 'Details' }}
                     </button>
@@ -1372,7 +1372,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingEmployees" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-700"></div>
       </div>
 
       <!-- Employees Grid -->
@@ -1381,7 +1381,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-warehouse text-blue-600 mr-2"></i>
+            <i class="fa-solid fa-warehouse text-teal-700 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'إدارة موظفي الشحن' : 'Shipping Employees Management' }}
           </h2>
           <div class="text-sm text-gray-600">
@@ -1417,9 +1417,9 @@
 
             <!-- Stats -->
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="bg-blue-50 rounded-lg p-3">
-                <div class="text-xs text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</div>
-                <div class="text-lg font-bold text-blue-700">{{ employee.activePickups }}</div>
+              <div class="bg-stone-100 rounded-lg p-3">
+                <div class="text-xs text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</div>
+                <div class="text-lg font-bold text-teal-800">{{ employee.activePickups }}</div>
               </div>
               <div class="bg-green-50 rounded-lg p-3">
                 <div class="text-xs text-green-600 mb-1">{{ i18n.currentLang === 'ar' ? 'مكتمل' : 'Completed' }}</div>
@@ -1482,7 +1482,7 @@
 
                   <td class="px-6 py-4 text-center">
                     <span
-                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-stone-200 text-teal-900">
                       {{ employee.activePickups }}
                     </span>
                   </td>
@@ -1523,7 +1523,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingFinancial" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-700"></div>
       </div>
 
       <!-- Financial Report -->
@@ -1532,11 +1532,11 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
-            <i class="fa-solid fa-chart-pie text-blue-600 mr-2"></i>
+            <i class="fa-solid fa-chart-pie text-teal-700 mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'التقارير المالية' : 'Financial Reports' }}
           </h2>
           <button (click)="loadSettlementsHistory()"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm">
+            class="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 transition-colors font-semibold text-sm">
             <i class="fa-solid fa-history mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'سجل التسويات' : 'Settlement History' }}
           </button>
@@ -1546,7 +1546,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
           <!-- Total Expected Revenue -->
-          <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 text-white">
+          <div class="bg-gradient-to-br from-teal-600 to-teal-700 rounded-2xl shadow-xl p-6 text-white">
             <div class="flex items-center justify-between mb-4">
               <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                 <i class="fa-solid fa-coins text-2xl"></i>
@@ -1570,7 +1570,7 @@
           </div>
 
           <!-- Admin Expected Revenue -->
-          <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl shadow-xl p-6 text-white">
+          <div class="bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl shadow-xl p-6 text-white">
             <div class="flex items-center justify-between mb-4">
               <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                 <i class="fa-solid fa-chart-line text-2xl"></i>
@@ -1663,7 +1663,7 @@
         <!-- Breakdown Table (if needed) -->
         <div *ngIf="financialReport.breakdown && financialReport.breakdown.length > 0"
           class="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
+          <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-teal-700">
             <h3 class="text-lg font-bold text-white">
               <i class="fa-solid fa-list-check mr-2"></i>
               {{ i18n.currentLang === 'ar' ? 'تفصيل الإيرادات' : 'Revenue Breakdown' }}
@@ -1714,7 +1714,7 @@
 
         <!-- Header -->
         <div
-          class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+          class="sticky top-0 bg-gradient-to-r from-teal-600 to-teal-700 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
           <h3 class="text-2xl font-bold">
             <i class="fa-solid fa-store mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'تفاصيل التاجر' : 'Vendor Details' }}
@@ -1729,29 +1729,29 @@
 
           <!-- Personal Info -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-blue-50 rounded-2xl p-6">
-              <h4 class="text-lg font-bold text-blue-900 mb-4">
+            <div class="bg-stone-100 rounded-2xl p-6">
+              <h4 class="text-lg font-bold text-teal-950 mb-4">
                 <i class="fa-solid fa-user mr-2"></i>
                 {{ i18n.currentLang === 'ar' ? 'المعلومات الشخصية' : 'Personal Information' }}
               </h4>
               <div class="space-y-3">
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name'
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name'
                     }}</label>
                   <p class="text-gray-900 font-medium">{{ selectedVendor.fullName }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'البريد
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'البريد
                     الإلكتروني' : 'Email' }}</label>
                   <p class="text-gray-900">{{ selectedVendor.email || '-' }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' :
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'رقم الهاتف' :
                     'Phone' }}</label>
                   <p class="text-gray-900">{{ selectedVendor.phoneNumber || '-' }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'تاريخ التسجيل' :
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'تاريخ التسجيل' :
                     'Joined Date' }}</label>
                   <p class="text-gray-900">{{ formatDate(selectedVendor.createdAt) }}</p>
                 </div>
@@ -1759,29 +1759,29 @@
             </div>
 
             <!-- Business Info -->
-            <div class="bg-blue-50 rounded-2xl p-6">
-              <h4 class="text-lg font-bold text-blue-900 mb-4">
+            <div class="bg-stone-100 rounded-2xl p-6">
+              <h4 class="text-lg font-bold text-teal-950 mb-4">
                 <i class="fa-solid fa-briefcase mr-2"></i>
                 {{ i18n.currentLang === 'ar' ? 'المعلومات التجارية' : 'Business Information' }}
               </h4>
               <div class="space-y-3">
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'اسم المتجر' :
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'اسم المتجر' :
                     'Business Name' }}</label>
                   <p class="text-gray-900 font-medium">{{ selectedVendor.businessName || '-' }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'السجل التجاري' :
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'السجل التجاري' :
                     'CR Number' }}</label>
                   <p class="text-gray-900">{{ selectedVendor.commercialRegistration || '-' }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'الرقم الضريبي' :
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'الرقم الضريبي' :
                     'Tax Number' }}</label>
                   <p class="text-gray-900">{{ selectedVendor.taxNumber || '-' }}</p>
                 </div>
                 <div>
-                  <label class="text-sm text-blue-600 font-semibold">{{ i18n.currentLang === 'ar' ? 'العنوان' :
+                  <label class="text-sm text-teal-700 font-semibold">{{ i18n.currentLang === 'ar' ? 'العنوان' :
                     'Address' }}</label>
                   <p class="text-gray-900">{{ selectedVendor.businessAddress || '-' }}</p>
                 </div>
@@ -1796,12 +1796,12 @@
                 }}</div>
               <div class="text-xl font-bold">{{ formatPrice(selectedVendor.totalRevenue) }}</div>
             </div>
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+            <div class="bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl p-4 text-white">
               <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'نصيب التاجر' : 'Vendor Earnings' }}
               </div>
               <div class="text-xl font-bold">{{ formatPrice(selectedVendor.vendorEarnings) }}</div>
             </div>
-            <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white">
+            <div class="bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl p-4 text-white">
               <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'نصيب الإدارة' : 'Admin Share' }}
               </div>
               <div class="text-xl font-bold">{{ formatPrice(selectedVendor.adminEarnings) }}</div>
@@ -1815,13 +1815,13 @@
 
           <!-- Stats -->
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="bg-white border-2 border-blue-200 rounded-xl p-4 text-center">
-              <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'العمولة' : 'Commission' }}</div>
-              <div class="text-2xl font-bold text-blue-700">{{ selectedVendor.commissionRate }}%</div>
+            <div class="bg-white border-2 border-teal-200 rounded-xl p-4 text-center">
+              <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'العمولة' : 'Commission' }}</div>
+              <div class="text-2xl font-bold text-teal-800">{{ selectedVendor.commissionRate }}%</div>
             </div>
-            <div class="bg-white border-2 border-blue-200 rounded-xl p-4 text-center">
-              <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</div>
-              <div class="text-2xl font-bold text-blue-700">{{ selectedVendor.totalProducts }}</div>
+            <div class="bg-white border-2 border-teal-200 rounded-xl p-4 text-center">
+              <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</div>
+              <div class="text-2xl font-bold text-teal-800">{{ selectedVendor.totalProducts }}</div>
             </div>
             <div class="bg-white border-2 border-green-200 rounded-xl p-4 text-center">
               <div class="text-sm text-green-600 mb-1">{{ i18n.currentLang === 'ar' ? 'نشط' : 'Active' }}</div>
@@ -1862,7 +1862,7 @@
 
           <!-- Order Breakdown -->
           <div *ngIf="selectedVendor.orderBreakdown.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
+            <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-teal-700">
               <h4 class="text-lg font-bold text-white">
                 <i class="fa-solid fa-receipt mr-2"></i>
                 {{ i18n.currentLang === 'ar' ? 'تفصيل الطلبات' : 'Order Breakdown' }}
@@ -1886,13 +1886,13 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                   <tr *ngFor="let order of selectedVendor.orderBreakdown.slice(0, 10)" class="hover:bg-gray-50">
-                    <td class="px-4 py-3 text-sm font-medium text-blue-600">{{ order.orderNumber }}</td>
+                    <td class="px-4 py-3 text-sm font-medium text-teal-700">{{ order.orderNumber }}</td>
                     <td class="px-4 py-3 text-sm text-gray-700">{{ formatDate(order.orderDate) }}</td>
                     <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">{{ formatPrice(order.orderTotal)
                       }}</td>
                     <td class="px-4 py-3 text-sm text-right font-medium text-green-600">{{
                       formatPrice(order.vendorShare) }}</td>
-                    <td class="px-4 py-3 text-sm text-right font-medium text-blue-600">{{
+                    <td class="px-4 py-3 text-sm text-right font-medium text-teal-700">{{
                       formatPrice(order.adminShare) }}</td>
                   </tr>
                 </tbody>
@@ -2103,8 +2103,8 @@
               <span>{{ promo.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}</span>
             </div>
             <div class="pickup-info-row">
-              <i class="fa-solid" [class.fa-cube]="promo.type === 1" [class.fa-layer-group]="promo.type === 0" [class.fa-tag]="promo.type === 2" style="color:#378bcb"></i>
-              <span style="font-size:12px;color:#378bcb;font-weight:600">
+              <i class="fa-solid" [class.fa-cube]="promo.type === 1" [class.fa-layer-group]="promo.type === 0" [class.fa-tag]="promo.type === 2" style="color:#134e5e"></i>
+              <span style="font-size:12px;color:#134e5e;font-weight:600">
                 {{ promo.type === 1 ? (i18n.currentLang === 'ar' ? 'منتج واحد' : 'Single Product') :
                    promo.type === 2 ? (i18n.currentLang === 'ar' ? 'براند' : 'Brand') :
                    (i18n.currentLang === 'ar' ? 'منتجات متعددة' : 'Multi Products') }}
@@ -2145,7 +2145,7 @@
       <div *ngIf="selectedPromotionForProducts" style="margin-top:24px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <h3 style="margin:0;font-size:16px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:8px">
-            <i class="fa-solid fa-box-open" style="color:#4a9bd6"></i>
+            <i class="fa-solid fa-box-open" style="color:#1a6b7a"></i>
             {{ i18n.currentLang === 'ar' ? 'منتجات العرض:' : 'Promotion Products:' }}
             {{ i18n.currentLang === 'ar' ? selectedPromotionForProducts.titleAr : selectedPromotionForProducts.titleEn }}
           </h3>
@@ -2167,7 +2167,7 @@
           <div *ngFor="let p of selectedPromotionForProducts.products" style="background:#f8fafc;border-radius:12px;padding:12px;border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:8px">
             <img [src]="getImageUrl(p.mainImage)" style="width:100%;height:120px;object-fit:cover;border-radius:8px" />
             <strong style="font-size:13px;color:#1e293b">{{ i18n.currentLang === 'ar' ? p.nameAr : p.nameEn }}</strong>
-            <span style="font-size:14px;font-weight:700;color:#378bcb">{{ p.price }} EGP</span>
+            <span style="font-size:14px;font-weight:700;color:#134e5e">{{ p.price }} EGP</span>
             <button style="padding:6px;border:none;border-radius:8px;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:12px" (click)="removeProductFromPromotion(p.productId)">
               <i class="fa-solid fa-trash"></i> {{ i18n.currentLang === 'ar' ? 'إزالة' : 'Remove' }}
             </button>
@@ -2285,7 +2285,7 @@
             <div *ngIf="!promotionBannerPreview" style="position:relative">
               <input type="file" accept="image/*" (change)="onPromotionBannerSelected($event)" id="promoBannerInput" style="display:none" />
               <label for="promoBannerInput" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:24px;border:2px dashed #cbd5e1;border-radius:10px;cursor:pointer;color:#64748b;font-size:14px;transition:all 0.2s">
-                <i class="fa-solid fa-cloud-upload-alt" style="font-size:20px;color:#4a9bd6"></i>
+                <i class="fa-solid fa-cloud-upload-alt" style="font-size:20px;color:#1a6b7a"></i>
                 {{ i18n.currentLang === 'ar' ? 'اختر صورة البانر' : 'Choose banner image' }}
               </label>
             </div>
@@ -2398,7 +2398,7 @@
         <!-- Scope -->
         <div class="pp-form-row" style="grid-template-columns:1fr">
           <div class="pp-field">
-            <label><i class="fa-solid fa-bullseye" style="color:#4a9bd6;margin-inline-end:6px"></i>{{ i18n.currentLang === 'ar' ? 'نطاق التطبيق' : 'Apply To' }}</label>
+            <label><i class="fa-solid fa-bullseye" style="color:#1a6b7a;margin-inline-end:6px"></i>{{ i18n.currentLang === 'ar' ? 'نطاق التطبيق' : 'Apply To' }}</label>
             <select [(ngModel)]="promoForm.scope">
               <option [value]="0">{{ i18n.currentLang === 'ar' ? 'كل المنتجات' : 'All Products' }}</option>
               <option [value]="1">{{ i18n.currentLang === 'ar' ? 'براند محدد' : 'Specific Brand' }}</option>
@@ -2925,7 +2925,7 @@
 
     <!-- Header -->
     <div
-      class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+      class="sticky top-0 bg-gradient-to-r from-teal-600 to-teal-700 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
       <h3 class="text-2xl font-bold">
         <i class="fa-solid fa-truck mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'تفاصيل المندوب' : 'Agent Details' }}
@@ -2939,10 +2939,10 @@
     <div *ngIf="selectedAgent" class="p-6 space-y-6">
 
       <!-- Agent Info -->
-      <div class="bg-blue-50 rounded-2xl p-6">
+      <div class="bg-stone-100 rounded-2xl p-6">
         <div class="flex items-center gap-4 mb-4">
           <div
-            class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
+            class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold text-2xl">
             {{ selectedAgent.fullName.charAt(0) }}
           </div>
           <div>
@@ -2956,7 +2956,7 @@
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+        <div class="bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl p-4 text-white">
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'طلبات نشطة' : 'Active Orders' }}</div>
           <div class="text-2xl font-bold">{{ selectedAgent.activeOrders }}</div>
         </div>
@@ -2964,7 +2964,7 @@
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'مكتملة' : 'Completed' }}</div>
           <div class="text-2xl font-bold">{{ selectedAgent.completedOrders }}</div>
         </div>
-        <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl p-4 text-white">
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders' }}</div>
           <div class="text-2xl font-bold">{{ selectedAgent.totalOrders }}</div>
         </div>
@@ -2981,9 +2981,9 @@
           </div>
           <div class="text-2xl font-bold text-green-700">{{ formatPrice(selectedAgent.totalCashCollected) }}</div>
         </div>
-        <div class="bg-white border-2 border-blue-200 rounded-xl p-4">
-          <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'تم التسوية' : 'Settled' }}</div>
-          <div class="text-2xl font-bold text-blue-700">{{ formatPrice(selectedAgent.cashSettled) }}</div>
+        <div class="bg-white border-2 border-teal-200 rounded-xl p-4">
+          <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'تم التسوية' : 'Settled' }}</div>
+          <div class="text-2xl font-bold text-teal-800">{{ formatPrice(selectedAgent.cashSettled) }}</div>
         </div>
         <div class="bg-white border-2 border-orange-200 rounded-xl p-4">
           <div class="text-sm text-orange-600 mb-1">{{ i18n.currentLang === 'ar' ? 'آخر تسوية' : 'Last Settlement' }}
@@ -3005,7 +3005,7 @@
 
       <!-- Orders Table -->
       <div *ngIf="selectedAgent.orders.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
+        <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-teal-700">
           <h4 class="text-lg font-bold text-white">
             <i class="fa-solid fa-list mr-2"></i>
             {{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}
@@ -3031,13 +3031,13 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
               <tr *ngFor="let order of selectedAgent.orders.slice(0, 15)" class="hover:bg-gray-50">
-                <td class="px-4 py-3 text-sm font-medium text-blue-600">{{ order.vendorOrderBarcode }}</td>
+                <td class="px-4 py-3 text-sm font-medium text-teal-700">{{ order.vendorOrderBarcode }}</td>
                 <td class="px-4 py-3 text-sm text-gray-700">{{ order.customerName }}</td>
                 <td class="px-4 py-3 text-sm text-right font-bold text-gray-900">{{ formatPrice(order.amount) }}</td>
                 <td class="px-4 py-3 text-center">
                   <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="{
                           'bg-green-100 text-green-800': order.status === 6,
-                          'bg-blue-100 text-blue-800': order.status === 4,
+                          'bg-stone-200 text-teal-900': order.status === 4,
                           'bg-yellow-100 text-yellow-800': order.status < 4
                         }">
                     {{ order.statusAr }}
@@ -3062,7 +3062,7 @@
                     <i class="fa-solid fa-check mr-1"></i>
                     {{ i18n.currentLang === 'ar' ? 'تحصيل' : 'Collect' }}
                   </button>
-                  <span *ngIf="order.isSettled" class="text-xs text-blue-600 font-semibold">
+                  <span *ngIf="order.isSettled" class="text-xs text-teal-700 font-semibold">
                     <i class="fa-solid fa-check-double"></i>
                     {{ i18n.currentLang === 'ar' ? 'تمت التسوية' : 'Settled' }}
                   </span>
@@ -3118,7 +3118,7 @@
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+        <div class="bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl p-4 text-white">
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'استلامات نشطة' : 'Active Pickups' }}
           </div>
           <div class="text-2xl font-bold">{{ selectedEmployee.activePickups }}</div>
@@ -3127,7 +3127,7 @@
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'مكتملة' : 'Completed' }}</div>
           <div class="text-2xl font-bold">{{ selectedEmployee.completedPickups }}</div>
         </div>
-        <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl p-4 text-white">
           <div class="text-xs opacity-90 mb-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الاستلامات' : 'Total Pickups' }}
           </div>
           <div class="text-2xl font-bold">{{ selectedEmployee.totalPickups }}</div>
@@ -3145,9 +3145,9 @@
           </div>
           <div class="text-2xl font-bold text-green-700">{{ formatPrice(selectedEmployee.totalCashCollected) }}</div>
         </div>
-        <div class="bg-white border-2 border-blue-200 rounded-xl p-4">
-          <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'تم التسوية' : 'Settled' }}</div>
-          <div class="text-2xl font-bold text-blue-700">{{ formatPrice(selectedEmployee.cashSettled) }}</div>
+        <div class="bg-white border-2 border-teal-200 rounded-xl p-4">
+          <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'تم التسوية' : 'Settled' }}</div>
+          <div class="text-2xl font-bold text-teal-800">{{ formatPrice(selectedEmployee.cashSettled) }}</div>
         </div>
         <div class="bg-white border-2 border-orange-200 rounded-xl p-4">
           <div class="text-sm text-orange-600 mb-1">{{ i18n.currentLang === 'ar' ? 'آخر تسوية' : 'Last Settlement' }}
@@ -3201,7 +3201,7 @@
                 <td class="px-4 py-3 text-center">
                   <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="{
                           'bg-green-100 text-green-800': pickup.status === 6,
-                          'bg-blue-100 text-blue-800': pickup.status === 3,
+                          'bg-stone-200 text-teal-900': pickup.status === 3,
                           'bg-yellow-100 text-yellow-800': pickup.status < 3
                         }">
                     {{ pickup.statusAr }}
@@ -3226,7 +3226,7 @@
                     <i class="fa-solid fa-check mr-1"></i>
                     {{ i18n.currentLang === 'ar' ? 'تحصيل' : 'Collect' }}
                   </button>
-                  <span *ngIf="pickup.isSettled" class="text-xs text-blue-600 font-semibold">
+                  <span *ngIf="pickup.isSettled" class="text-xs text-teal-700 font-semibold">
                     <i class="fa-solid fa-check-double"></i>
                     {{ i18n.currentLang === 'ar' ? 'تمت التسوية' : 'Settled' }}
                   </span>
@@ -3249,7 +3249,7 @@
   <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md" (click)="$event.stopPropagation()">
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl">
+    <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-6 py-5 rounded-t-3xl">
       <h3 class="text-xl font-bold">
         <i class="fa-solid fa-percent mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'تحديث نسبة العمولة' : 'Update Commission Rate' }}
@@ -3259,10 +3259,10 @@
     <div class="p-6 space-y-6">
 
       <!-- Current Rate -->
-      <div class="bg-blue-50 rounded-xl p-4">
-        <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'النسبة الحالية' : 'Current Rate' }}
+      <div class="bg-stone-100 rounded-xl p-4">
+        <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'النسبة الحالية' : 'Current Rate' }}
         </div>
-        <div class="text-3xl font-bold text-blue-700">{{ newCommissionRate }}%</div>
+        <div class="text-3xl font-bold text-teal-800">{{ newCommissionRate }}%</div>
       </div>
 
       <!-- Input -->
@@ -3271,7 +3271,7 @@
           {{ i18n.currentLang === 'ar' ? 'النسبة الجديدة (%)' : 'New Rate (%)' }}
         </label>
         <input type="number" [(ngModel)]="newCommissionRate" min="0" max="100" step="0.1"
-          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-lg font-semibold">
+          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-teal-600 focus:outline-none text-lg font-semibold">
         <p class="text-xs text-gray-500 mt-2">{{ i18n.currentLang === 'ar' ? 'أدخل رقم بين 0 و 100' : 'Enter a number
           between 0 and 100' }}</p>
       </div>
@@ -3283,10 +3283,10 @@
           </div>
           <div class="text-xl font-bold text-green-700">{{ 100 - newCommissionRate }}%</div>
         </div>
-        <div class="bg-blue-50 rounded-xl p-4">
-          <div class="text-xs text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'نصيب الإدارة' : 'Admin Share' }}
+        <div class="bg-stone-100 rounded-xl p-4">
+          <div class="text-xs text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'نصيب الإدارة' : 'Admin Share' }}
           </div>
-          <div class="text-xl font-bold text-blue-700">{{ newCommissionRate }}%</div>
+          <div class="text-xl font-bold text-teal-800">{{ newCommissionRate }}%</div>
         </div>
       </div>
 
@@ -3298,7 +3298,7 @@
         </button>
         <button (click)="updateCommission()"
           [disabled]="isProcessing || newCommissionRate < 0 || newCommissionRate > 100"
-          class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          class="flex-1 px-4 py-3 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-xl font-semibold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
           <span *ngIf="!isProcessing">{{ i18n.currentLang === 'ar' ? 'تحديث' : 'Update' }}</span>
           <span *ngIf="isProcessing">
             <i class="fa-solid fa-spinner fa-spin mr-2"></i>
@@ -3329,9 +3329,9 @@
     <div class="p-6 space-y-6">
 
       <!-- Agent Info -->
-      <div *ngIf="selectedAgent" class="bg-blue-50 rounded-xl p-4">
-        <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'المندوب' : 'Agent' }}</div>
-        <div class="text-lg font-bold text-blue-900">{{ selectedAgent.fullName }}</div>
+      <div *ngIf="selectedAgent" class="bg-stone-100 rounded-xl p-4">
+        <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'المندوب' : 'Agent' }}</div>
+        <div class="text-lg font-bold text-teal-950">{{ selectedAgent.fullName }}</div>
         <div class="text-sm text-gray-600 mt-2">{{ i18n.currentLang === 'ar' ? 'أموال معلقة:' : 'Pending Cash:' }}
           <span class="font-bold text-orange-600">{{ formatPrice(selectedAgent.cashPending) }}</span>
         </div>
@@ -3395,9 +3395,9 @@
     <div class="p-6 space-y-6">
 
       <!-- Employee Info -->
-      <div *ngIf="selectedEmployee" class="bg-blue-50 rounded-xl p-4">
-        <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'الموظف' : 'Employee' }}</div>
-        <div class="text-lg font-bold text-blue-900">{{ selectedEmployee.fullName }}</div>
+      <div *ngIf="selectedEmployee" class="bg-stone-100 rounded-xl p-4">
+        <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'الموظف' : 'Employee' }}</div>
+        <div class="text-lg font-bold text-teal-950">{{ selectedEmployee.fullName }}</div>
         <div class="text-sm text-gray-600 mt-2">{{ i18n.currentLang === 'ar' ? 'أموال معلقة:' : 'Pending Cash:' }}
           <span class="font-bold text-orange-600">{{ formatPrice(selectedEmployee.cashPending) }}</span>
         </div>
@@ -3453,7 +3453,7 @@
 
     <!-- Header -->
     <div
-      class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+      class="sticky top-0 bg-gradient-to-r from-teal-600 to-teal-700 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
       <h3 class="text-2xl font-bold">
         <i class="fa-solid fa-history mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'سجل التسويات' : 'Settlements History' }}
@@ -3532,9 +3532,9 @@
     <div class="p-6 space-y-6">
 
       <!-- Vendor Info -->
-      <div *ngIf="selectedVendorForWithdrawal" class="bg-blue-50 rounded-xl p-4">
-        <div class="text-sm text-blue-600 mb-1">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</div>
-        <div class="text-lg font-bold text-blue-900">{{ selectedVendorForWithdrawal.vendorName }}</div>
+      <div *ngIf="selectedVendorForWithdrawal" class="bg-stone-100 rounded-xl p-4">
+        <div class="text-sm text-teal-700 mb-1">{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</div>
+        <div class="text-lg font-bold text-teal-950">{{ selectedVendorForWithdrawal.vendorName }}</div>
         <div class="text-sm text-gray-600 mt-2">
           {{ i18n.currentLang === 'ar' ? 'المتاح للسحب:' : 'Available:' }}
           <span class="font-bold text-green-600">{{ formatPrice(selectedVendorForWithdrawal.availableForWithdrawal)
@@ -3595,7 +3595,7 @@
 
     <!-- Header -->
     <div
-      class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
+      class="sticky top-0 bg-gradient-to-r from-teal-600 to-teal-700 text-white px-6 py-5 rounded-t-3xl flex items-center justify-between z-10">
       <h3 class="text-2xl font-bold">
         <i class="fa-solid fa-history mr-2"></i>
         {{ i18n.currentLang === 'ar' ? 'سجل السحوبات' : 'Withdrawal History' }}
@@ -3610,7 +3610,7 @@
 
       <!-- Loading -->
       <div *ngIf="isLoadingHistory" class="text-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600 mx-auto"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-teal-700 mx-auto"></div>
       </div>
 
       <!-- Empty State -->
@@ -3741,34 +3741,34 @@
         <!-- Personal Info Section -->
         <div class="mb-8">
           <div
-            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
+            class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
             <i class="fa-solid fa-user"></i>
             <span class="font-bold">{{ i18n.currentLang === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'
               }}</span>
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الاسم' :
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الاسم' :
                 'Name' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.fullName }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'البريد
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'البريد
                 الإلكتروني' : 'Email' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.email || '-' }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'رقم
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'رقم
                 الهاتف' : 'Phone' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.phoneNumber || '-' }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'تاريخ
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'تاريخ
                 التسجيل' : 'Joined Date' }}</label>
               <span class="text-gray-900 font-bold">{{ formatDate(vendorPrintReport.createdAt) }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الرقم
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الرقم
                 القومي' : 'National ID' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.nationalId || '-' }}</span>
             </div>
@@ -3778,33 +3778,33 @@
         <!-- Business Info Section -->
         <div class="mb-8">
           <div
-            class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
+            class="bg-gradient-to-r from-teal-700 to-cyan-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
             <i class="fa-solid fa-store"></i>
             <span class="font-bold">{{ i18n.currentLang === 'ar' ? 'معلومات المتجر' : 'Business Information' }}</span>
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'اسم المتجر'
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'اسم المتجر'
                 : 'Business Name' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.businessName || '-' }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'السجل
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'السجل
                 التجاري' : 'Commercial Registration' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.commercialRegistration || '-' }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الرقم
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'الرقم
                 الضريبي' : 'Tax Number' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.taxNumber || '-' }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'نسبة
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'نسبة
                 العمولة' : 'Commission Rate' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.commissionRate }}%</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-blue-500 col-span-2">
-              <label class="block text-blue-600 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'العنوان' :
+            <div class="bg-gray-50 p-4 rounded-lg border-s-4 border-teal-600 col-span-2">
+              <label class="block text-teal-700 text-sm font-semibold mb-1">{{ i18n.currentLang === 'ar' ? 'العنوان' :
                 'Address' }}</label>
               <span class="text-gray-900 font-bold">{{ vendorPrintReport.businessAddress || '-' }}</span>
             </div>
@@ -3814,14 +3814,14 @@
         <!-- Stats Section -->
         <div class="mb-8">
           <div
-            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
+            class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
             <i class="fa-solid fa-chart-bar"></i>
             <span class="font-bold">{{ i18n.currentLang === 'ar' ? 'الإحصائيات' : 'Statistics' }}</span>
           </div>
           <div class="grid grid-cols-4 gap-4">
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 p-4 rounded-xl text-center">
-              <div class="text-3xl font-bold text-blue-700">{{ vendorPrintReport.totalProducts }}</div>
-              <div class="text-sm text-blue-600 mt-1">{{ i18n.currentLang === 'ar' ? 'إجمالي المنتجات' : 'Total
+            <div class="bg-gradient-to-br from-stone-100 to-stone-200 border border-teal-200 p-4 rounded-xl text-center">
+              <div class="text-3xl font-bold text-teal-800">{{ vendorPrintReport.totalProducts }}</div>
+              <div class="text-sm text-teal-700 mt-1">{{ i18n.currentLang === 'ar' ? 'إجمالي المنتجات' : 'Total
                 Products' }}</div>
             </div>
             <div
@@ -3831,9 +3831,9 @@
                 }}</div>
             </div>
             <div
-              class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 p-4 rounded-xl text-center">
-              <div class="text-3xl font-bold text-blue-700">{{ vendorPrintReport.totalOrders }}</div>
-              <div class="text-sm text-blue-600 mt-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders'
+              class="bg-gradient-to-br from-stone-100 to-stone-200 border border-teal-200 p-4 rounded-xl text-center">
+              <div class="text-3xl font-bold text-teal-800">{{ vendorPrintReport.totalOrders }}</div>
+              <div class="text-sm text-teal-700 mt-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders'
                 }}</div>
             </div>
             <div class="bg-gradient-to-br from-teal-50 to-teal-100 border border-teal-200 p-4 rounded-xl text-center">
@@ -3857,12 +3857,12 @@
               <div class="text-sm opacity-90 mt-1">{{ i18n.currentLang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue'
                 }}</div>
             </div>
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl text-center">
+            <div class="bg-gradient-to-br from-teal-600 to-teal-700 text-white p-4 rounded-xl text-center">
               <div class="text-2xl font-bold">{{ formatPrice(vendorPrintReport.vendorEarnings) }}</div>
               <div class="text-sm opacity-90 mt-1">{{ i18n.currentLang === 'ar' ? 'أرباح التاجر' : 'Vendor Earnings' }}
               </div>
             </div>
-            <div class="bg-gradient-to-br from-blue-400 to-blue-600 text-white p-4 rounded-xl text-center">
+            <div class="bg-gradient-to-br from-teal-500 to-teal-700 text-white p-4 rounded-xl text-center">
               <div class="text-2xl font-bold">{{ formatPrice(vendorPrintReport.adminEarnings) }}</div>
               <div class="text-sm opacity-90 mt-1">{{ i18n.currentLang === 'ar' ? 'عمولة الإدارة' : 'Admin Commission'
                 }}</div>
@@ -3917,7 +3917,7 @@
         <!-- Orders Table -->
         <div class="mb-8" *ngIf="vendorPrintReport.orders && vendorPrintReport.orders.length > 0">
           <div
-            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
+            class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-receipt"></i>
               <span class="font-bold">{{ i18n.currentLang === 'ar' ? 'تفاصيل الطلبات' : 'Orders Details' }}</span>
