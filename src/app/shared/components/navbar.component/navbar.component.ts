@@ -11,6 +11,7 @@ import { Category } from '../../../models/category';
 import { HomeService } from '../../../modules/home/services/home.service';
 import { CartService } from '../../../modules/cart/services/cart.service';
 import { ProductsService } from '../../../modules/products/services/products.service';
+import { NotificationService } from '../../../services/notification.service';
 import { environment } from '../../../../environment';
 
 export interface NavLink {
@@ -81,6 +82,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private lastScrollY = 0;
   selectedCategoryForSub: any = null;
 
+  // Notifications
+  isNotificationsOpen = false;
+  isLoadingNotifications = false;
+  notifications: any[] = [];
+  unreadNotificationsCount = 0;
+
   @HostListener('window:scroll')
   onScroll(): void {
     const currentScrollY = window.scrollY;
@@ -101,8 +108,55 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private homeService: HomeService,
     private cdr: ChangeDetectorRef,
     private cartService: CartService,
-    private productsService: ProductsService
-  ) { }
+    private productsService: ProductsService,
+    private notificationService: NotificationService
+  ) {
+    this.notificationService.unreadCount.subscribe(count => {
+      this.unreadNotificationsCount = count;
+      this.cdr.detectChanges();
+    });
+  }
+
+  // Notifications
+  toggleNotifications(event: Event): void {
+    event.stopPropagation();
+    this.isNotificationsOpen = !this.isNotificationsOpen;
+    if (this.isNotificationsOpen) this.loadNotifications();
+  }
+
+  loadNotifications(): void {
+    this.isLoadingNotifications = true;
+    this.notificationService.getAll().subscribe({
+      next: (res: any) => {
+        if (res.success) this.notifications = res.data;
+        this.isLoadingNotifications = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isLoadingNotifications = false; }
+    });
+  }
+
+  markAllAsRead(): void {
+    this.notificationService.markAllAsRead().subscribe({
+      next: () => {
+        this.notifications.forEach(n => n.isRead = true);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onNotificationClick(n: any): void {
+    if (!n.isRead) {
+      this.notificationService.markAsRead(n.id).subscribe();
+      n.isRead = true;
+    }
+    if (n.relatedType === 'product' && n.relatedId) {
+      this.router.navigate(['/products', n.relatedId]);
+    } else if (n.relatedType === 'order' && n.relatedId) {
+      this.router.navigate(['/cart/my-orders']);
+    }
+    this.isNotificationsOpen = false;
+  }
 
   ngOnInit(): void {
     this.isInLoginPage = this.router.url.includes('auth/login');
@@ -130,8 +184,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (isLogged) {
         this.loadCartCount();
+        this.notificationService.startPolling();
       } else {
         this.cartCount = 0;
+        this.unreadNotificationsCount = 0;
       }
 
       this.updateNavLinks();

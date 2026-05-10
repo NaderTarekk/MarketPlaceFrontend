@@ -1040,6 +1040,53 @@
                 <i class="fa-solid fa-box"></i>
                 {{ i18n.currentLang === 'ar' ? 'المخزون:' : 'Stock:' }} {{ product.stock }}
               </div>
+
+              <!-- ═══ VENDOR INFO ═══ -->
+              <div *ngIf="product.vendorId" style="margin-top:12px;padding:12px;background:linear-gradient(135deg,#f0fdfa,#ecfeff);border:1.5px solid #99f6e4;border-radius:10px">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                  <div *ngIf="product.vendorStoreLogo" style="width:42px;height:42px;border-radius:50%;overflow:hidden;background:#fff;border:2px solid #14b8a6;flex-shrink:0">
+                    <img [src]="getImageUrl(product.vendorStoreLogo)" style="width:100%;height:100%;object-fit:cover" />
+                  </div>
+                  <div *ngIf="!product.vendorStoreLogo" style="width:42px;height:42px;border-radius:50%;background:#134e5e;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0">
+                    {{ product.vendorName?.charAt(0) }}
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="font-weight:700;font-size:13px;color:#0b3037;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ product.vendorName }}</span>
+                      <i *ngIf="product.vendorIsVerified" class="fa-solid fa-circle-check" style="color:#14b8a6;font-size:12px" title="Verified"></i>
+                    </div>
+                    <div *ngIf="product.vendorBusinessName" style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                      <i class="fa-solid fa-store" style="font-size:9px"></i> {{ product.vendorBusinessName }}
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;font-size:11px">
+                  <div *ngIf="product.vendorEmail" style="color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" [title]="product.vendorEmail">
+                    <i class="fa-solid fa-envelope" style="color:#94a3b8;width:12px"></i> {{ product.vendorEmail }}
+                  </div>
+                  <div *ngIf="product.vendorPhone" style="color:#475569" dir="ltr">
+                    <i class="fa-solid fa-phone" style="color:#94a3b8;width:12px"></i> {{ product.vendorPhone }}
+                  </div>
+                  <div style="color:#475569">
+                    <i class="fa-solid fa-box-open" style="color:#94a3b8;width:12px"></i>
+                    {{ product.vendorTotalProducts || 0 }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}
+                  </div>
+                  <div style="color:#475569">
+                    <i class="fa-solid fa-shopping-bag" style="color:#94a3b8;width:12px"></i>
+                    {{ product.vendorTotalOrders || 0 }} {{ i18n.currentLang === 'ar' ? 'طلب' : 'orders' }}
+                  </div>
+                  <div *ngIf="product.vendorJoinedDate" style="color:#475569;grid-column:span 2">
+                    <i class="fa-solid fa-calendar" style="color:#94a3b8;width:12px"></i>
+                    {{ i18n.currentLang === 'ar' ? 'انضم' : 'Joined' }}: {{ product.vendorJoinedDate | date:'mediumDate' }}
+                  </div>
+                </div>
+
+                <div *ngIf="!product.vendorIsApproved && (!product.vendorTotalProducts || product.vendorTotalProducts === 0)" style="margin-top:8px;padding:6px 10px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;font-size:11px;color:#92400e;font-weight:600">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  {{ i18n.currentLang === 'ar' ? 'تاجر جديد - لم يوافق عليه الأدمن بعد' : 'New vendor - not yet approved by admin' }}
+                </div>
+              </div>
             </div>
 
             <!-- Actions -->

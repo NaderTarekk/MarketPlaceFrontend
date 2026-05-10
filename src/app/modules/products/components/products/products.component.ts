@@ -61,6 +61,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
 
+  // Global search
+  globalSearchQuery = '';
+  globalSearchResults: any[] = [];
+  globalStoreResults: any[] = [];
+  showGlobalSearchDropdown = false;
+  private allStores: any[] = [];
+
   products: ProductList[] = [];
 
   // 🆕 Categories - الهرمية
@@ -142,6 +149,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.loadCategoriesHierarchy();
     this.loadBrands();
     this.loadUserDeliveryDays();
+
+    // Load stores for global search
+    this.productService.getStores().subscribe({
+      next: (res: any) => { if (res.success) this.allStores = res.data || []; }
+    });
 
     // Read query params
     this.route.queryParams.subscribe(params => {
@@ -828,6 +840,31 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════
   // DIALOGS
   // ═══════════════════════════════════════════════
+
+  onGlobalSearch(event: Event): void {
+    const q = (event.target as HTMLInputElement).value?.trim();
+    this.globalSearchQuery = q;
+    if (!q || q.length < 2) {
+      this.globalSearchResults = [];
+      this.globalStoreResults = [];
+      this.showGlobalSearchDropdown = false;
+      return;
+    }
+
+    // Search stores locally
+    this.globalStoreResults = this.allStores.filter((s: any) =>
+      s.vendorName?.toLowerCase().includes(q.toLowerCase())
+    ).slice(0, 3);
+
+    // Search products via API
+    this.productService.search(q).subscribe({
+      next: (res: any) => {
+        this.globalSearchResults = res.success ? res.data?.slice(0, 5) || [] : [];
+        this.showGlobalSearchDropdown = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   onArBlur(form: any, arField: string, enField: string): void {
     if (!form[arField]?.trim()) return;

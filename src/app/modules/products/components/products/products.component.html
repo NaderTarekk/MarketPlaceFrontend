@@ -1,7 +1,7 @@
 <!-- src/app/pages/products/products.component.html -->
 
 <div class="products-page">
-    <!-- Hero -->
+    <!-- Hero (Desktop only) -->
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-orbs">
@@ -26,6 +26,120 @@
                     {{ i18n.currentLang === 'ar' ? 'تصفح المتاجر' : 'Browse Stores' }}
                     <i class="fa-solid fa-arrow-right hero-arrow"></i>
                 </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile: Search + Filter Bar (Amazon style) -->
+    <section class="desktop-filter-bar">
+        <div class="filter-bar-inner">
+            <!-- Mobile Global Search (same as navbar) -->
+            <div class="mobile-global-search" style="position:relative">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" [(ngModel)]="globalSearchQuery" (input)="onGlobalSearch($event)"
+                    (focus)="(globalSearchQuery || '').length >= 2 && (showGlobalSearchDropdown = true)"
+                    [placeholder]="i18n.currentLang === 'ar' ? 'ابحث في ويلد ماركت...' : 'Search on Wild Market...'" />
+
+                <!-- Search Dropdown -->
+                <div *ngIf="showGlobalSearchDropdown && (globalSearchResults.length > 0 || globalStoreResults.length > 0)"
+                    style="position:absolute;top:100%;left:0;right:0;z-index:100;background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-top:4px;box-shadow:0 10px 30px rgba(0,0,0,0.15);max-height:300px;overflow-y:auto">
+
+                    <!-- Stores -->
+                    <div *ngIf="globalStoreResults.length > 0" style="padding:8px 0">
+                        <div style="padding:4px 14px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">
+                            <i class="fa-solid fa-store" style="margin-inline-end:4px"></i>
+                            {{ i18n.currentLang === 'ar' ? 'متاجر' : 'Stores' }}
+                        </div>
+                        <a *ngFor="let store of globalStoreResults" [routerLink]="['/products']" [queryParams]="{vendor: store.vendorId}"
+                            (click)="showGlobalSearchDropdown = false"
+                            style="display:flex;align-items:center;gap:10px;padding:8px 14px;text-decoration:none;color:#1a2332;font-size:13px;cursor:pointer"
+                            class="hover:bg-gray-50">
+                            <span style="font-weight:600">{{ store.vendorName }}</span>
+                            <span style="font-size:10px;color:#9ca3af;margin-inline-start:auto">{{ store.productCount }} {{ i18n.currentLang === 'ar' ? 'منتج' : 'products' }}</span>
+                        </a>
+                    </div>
+
+                    <!-- Products -->
+                    <div *ngIf="globalSearchResults.length > 0" style="padding:8px 0;border-top:1px solid #f3f4f6">
+                        <div style="padding:4px 14px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">
+                            <i class="fa-solid fa-box-open" style="margin-inline-end:4px"></i>
+                            {{ i18n.currentLang === 'ar' ? 'منتجات' : 'Products' }}
+                        </div>
+                        <a *ngFor="let p of globalSearchResults" [routerLink]="['/products', p.id]"
+                            (click)="showGlobalSearchDropdown = false"
+                            style="display:flex;align-items:center;gap:10px;padding:8px 14px;text-decoration:none;color:#1a2332;font-size:13px;cursor:pointer"
+                            class="hover:bg-gray-50">
+                            <img [src]="getImageUrl(p.mainImage)" style="width:36px;height:36px;border-radius:8px;object-fit:cover" />
+                            <div style="flex:1;min-width:0">
+                                <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ getName(p) }}</div>
+                                <div style="font-size:11px;color:#134e5e;font-weight:700">{{ p.price | number:'1.0-0' }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Backdrop -->
+                <div *ngIf="showGlobalSearchDropdown" (click)="showGlobalSearchDropdown = false"
+                    style="position:fixed;inset:0;z-index:99"></div>
+            </div>
+
+            <!-- Results count -->
+            <div class="filter-bar-results">
+                <span class="results-num">{{ totalCount }}</span>
+                {{ i18n.currentLang === 'ar' ? 'نتيجة' : 'results' }}
+            </div>
+
+            <!-- Quick filter chips -->
+            <div class="filter-chips-scroll">
+                <!-- Price chips -->
+                <button class="filter-chip" [class.active]="filter.minPrice === 0 && filter.maxPrice === 100"
+                    (click)="minPrice=0; maxPrice=100; onPriceFilter()">
+                    {{ i18n.currentLang === 'ar' ? 'أقل من 100' : 'Under 100 EGP' }}
+                </button>
+                <button class="filter-chip" [class.active]="filter.minPrice === 100 && filter.maxPrice === 500"
+                    (click)="minPrice=100; maxPrice=500; onPriceFilter()">
+                    100 - 500 {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
+                </button>
+                <button class="filter-chip" [class.active]="filter.minPrice === 500 && filter.maxPrice === 1000"
+                    (click)="minPrice=500; maxPrice=1000; onPriceFilter()">
+                    500 - 1000 {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}
+                </button>
+                <button class="filter-chip" [class.active]="filter.minPrice === 1000 && !filter.maxPrice"
+                    (click)="minPrice=1000; maxPrice=0; onPriceFilter()">
+                    {{ i18n.currentLang === 'ar' ? 'أكثر من 1000' : '1000+ EGP' }}
+                </button>
+
+                <!-- Separator -->
+                <span class="chip-separator"></span>
+
+                <!-- In Stock -->
+                <button class="filter-chip" [class.active]="filter.inStock"
+                    (click)="filter.inStock = !filter.inStock; loadProducts()">
+                    <i class="fa-solid fa-check-circle" style="font-size:10px"></i>
+                    {{ i18n.currentLang === 'ar' ? 'متوفر فقط' : 'In Stock' }}
+                </button>
+
+                <!-- Brand chips -->
+                <button *ngFor="let brand of brands | slice:0:5" class="filter-chip"
+                    [class.active]="filter.brandId === brand.id"
+                    (click)="onBrandChange(filter.brandId === brand.id ? null : brand.id)">
+                    {{ i18n.currentLang === 'ar' ? brand.nameAr : brand.nameEn }}
+                </button>
+
+                <!-- Clear all -->
+                <button *ngIf="getActiveFiltersCount() > 0" class="filter-chip clear-chip" (click)="clearFilters()">
+                    <i class="fa-solid fa-times" style="font-size:10px"></i>
+                    {{ i18n.currentLang === 'ar' ? 'مسح الكل' : 'Clear All' }}
+                </button>
+            </div>
+
+            <!-- Sort -->
+            <div class="filter-bar-sort">
+                <select [(ngModel)]="selectedSort" (change)="onSortChange(selectedSort)">
+                    <option *ngFor="let opt of sortOptions" [value]="opt.value">
+                        {{ i18n.currentLang === 'ar' ? opt.label.ar : opt.label.en }}
+                    </option>
+                </select>
             </div>
         </div>
     </section>
@@ -105,7 +219,7 @@
         <div class="brands-bar">
             <div class="brands-bar-header">
                 <span class="brands-title">
-                    <i class="fa-solid fa-fire"></i>
+                    <i class="fa-solid fa-fire" style="color:#ef4444"></i>
                     {{ i18n.currentLang === 'ar' ? 'البراندات الأكثر شعبية' : 'Popular Brands' }}
                 </span>
             </div>

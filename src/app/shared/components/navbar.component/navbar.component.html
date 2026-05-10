@@ -174,6 +174,15 @@
           <i class="fa-solid fa-box"></i>
           <span>{{ currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
         </a>
+
+        <!-- Notifications Bell -->
+        <button *ngIf="isLogged" class="nav-icon-item" (click)="toggleNotifications($event)" style="position:relative">
+          <div class="cart-icon-wrapper">
+            <i class="fa-solid fa-bell"></i>
+            <span *ngIf="unreadNotificationsCount > 0" class="cart-badge-ozon">{{ unreadNotificationsCount }}</span>
+          </div>
+          <span>{{ currentLang === 'ar' ? 'الإشعارات' : 'Notifications' }}</span>
+        </button>
         <!-- 
         <a routerLink="products/wishlist" class="nav-icon-item">
           <i class="fa-solid fa-heart"></i>
@@ -352,6 +361,15 @@
     <span>{{ 'cart' | translate }}</span>
   </a>
 
+  <!-- Notifications (mobile) -->
+  <button *ngIf="isLogged" (click)="toggleNotifications($event)" class="bottom-nav-item" [class.active]="isNotificationsOpen">
+    <div class="relative">
+      <i class="fa-solid fa-bell"></i>
+      <span *ngIf="unreadNotificationsCount > 0" class="cart-badge">{{ unreadNotificationsCount }}</span>
+    </div>
+    <span>{{ currentLang === 'ar' ? 'إشعارات' : 'Alerts' }}</span>
+  </button>
+
   <!-- Profile -->
   <button *ngIf="isLogged" (click)="toggleProfileMenu()" class="bottom-nav-item" [class.active]="isProfileMenuOpen">
     <i class="fa-solid fa-user"></i>
@@ -507,6 +525,61 @@
 <!-- ═══════════════════════════════════════════════ -->
 <!-- PROFILE MENU POPUP -->
 <!-- ═══════════════════════════════════════════════ -->
+<!-- Notifications Dropdown -->
+<div *ngIf="isNotificationsOpen" (click)="isNotificationsOpen = false" style="position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.4)"></div>
+<div *ngIf="isNotificationsOpen" class="notifications-dropdown" style="position:fixed;width:90%;max-width:380px;max-height:70vh;background:#fff;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:1001;overflow:hidden;display:flex;flex-direction:column;top:80px;left:50%;transform:translateX(-50%)">
+  <!-- Header -->
+  <div style="padding:14px 18px;background:linear-gradient(135deg,#0b3037,#134e5e);color:#fff;display:flex;justify-content:space-between;align-items:center">
+    <h3 style="margin:0;font-size:15px;font-weight:700">
+      <i class="fa-solid fa-bell" style="margin-inline-end:6px"></i>
+      {{ currentLang === 'ar' ? 'الإشعارات' : 'Notifications' }}
+    </h3>
+    <button *ngIf="notifications.length > 0" (click)="markAllAsRead()"
+      style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer">
+      {{ currentLang === 'ar' ? 'تعليم الكل كمقروء' : 'Mark all read' }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoadingNotifications" style="padding:40px;text-align:center;color:#9ca3af">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoadingNotifications && notifications.length === 0" style="padding:50px 20px;text-align:center;color:#9ca3af">
+    <i class="fa-solid fa-bell-slash" style="font-size:32px;margin-bottom:10px"></i>
+    <p style="margin:0;font-size:13px">{{ currentLang === 'ar' ? 'لا توجد إشعارات' : 'No notifications' }}</p>
+  </div>
+
+  <!-- List -->
+  <div *ngIf="!isLoadingNotifications && notifications.length > 0" style="overflow-y:auto;flex:1">
+    <div *ngFor="let n of notifications" (click)="onNotificationClick(n)"
+      [style.background]="n.isRead ? '#fff' : '#f0fdfa'"
+      style="padding:12px 16px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background 0.2s"
+      onmouseover="this.style.background='#f9fafb'"
+      onmouseout="this.style.background = this.dataset.bg">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="width:34px;height:34px;border-radius:50%;background:#dbeafe;color:#0b3037;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px"
+          [style.background]="n.type === 0 ? '#dcfce7' : n.type === 1 ? '#fee2e2' : '#dbeafe'"
+          [style.color]="n.type === 0 ? '#16a34a' : n.type === 1 ? '#dc2626' : '#0b3037'">
+          <i class="fa-solid"
+            [class.fa-check]="n.type === 0"
+            [class.fa-xmark]="n.type === 1"
+            [class.fa-info]="n.type !== 0 && n.type !== 1"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <strong style="font-size:13px;color:#1e293b">{{ currentLang === 'ar' ? n.titleAr : n.titleEn }}</strong>
+            <span *ngIf="!n.isRead" style="width:8px;height:8px;border-radius:50%;background:#0b3037;flex-shrink:0"></span>
+          </div>
+          <p style="font-size:12px;color:#64748b;margin:4px 0 0;line-height:1.5">{{ currentLang === 'ar' ? n.messageAr : n.messageEn }}</p>
+          <span style="font-size:10px;color:#9ca3af;display:block;margin-top:4px">{{ n.createdAt | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="profile-menu-overlay" [class.open]="isProfileMenuOpen" (click)="toggleProfileMenu()">
   <div class="profile-menu" (click)="$event.stopPropagation()">
     <a routerLink="/auth/profile" (click)="toggleProfileMenu()" class="profile-menu-item">

@@ -63,6 +63,20 @@ export interface ProductList {
    hasVariants: boolean;
   sizes?: string;
   colors?: string;
+  // Vendor info (for admin pending review)
+  vendorId?: string;
+  vendorName?: string;
+  vendorEmail?: string;
+  vendorPhone?: string;
+  vendorBusinessName?: string;
+  vendorStoreLogo?: string;
+  vendorIsApproved?: boolean;
+  vendorIsVerified?: boolean;
+  vendorJoinedDate?: string;
+  vendorTotalProducts?: number;
+  vendorTotalOrders?: number;
+  vendorRating?: number;
+  createdAt?: string;
 }
 
 export interface ProductFilter {

@@ -5,7 +5,7 @@
 <div *ngIf="showWelcomePopup" class="welcome-popup-overlay" (click)="showWelcomePopup = false">
   <div class="welcome-popup" [class.hide]="hideWelcomePopup" (click)="$event.stopPropagation()">
     <div class="welcome-icon">
-      <i class="fa-solid fa-bag-shopping"></i>
+      <img src="wild-gold.png" alt="Wild Market" style="width:100%;height:100%;object-fit:contain" />
     </div>
     <h2>{{ i18n.currentLang === 'ar' ? 'أهلاً بك في وايلد ماركت!' : 'Welcome to Wild Market!' }}</h2>
     <p>{{ i18n.currentLang === 'ar' ? 'اكتشف أفضل المنتجات بأسعار لا تُقاوم 🎉' : 'Discover the best products at unbeatable prices 🎉' }}</p>

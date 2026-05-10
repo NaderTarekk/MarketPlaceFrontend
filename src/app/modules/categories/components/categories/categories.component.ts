@@ -63,6 +63,26 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   };
   formErrors: { nameAr?: string; nameEn?: string } = {};
 
+  // Duplicate hint (allows adding but warns)
+  duplicateCategoryName = '';
+
+  checkDuplicate(): void {
+    const ar = this.formData.nameAr?.trim().toLowerCase();
+    const en = this.formData.nameEn?.trim().toLowerCase();
+    if (!ar && !en) { this.duplicateCategoryName = ''; return; }
+
+    const existing = this.categories.find(c => {
+      if (this.selectedCategory && c.id === this.selectedCategory.id) return false;
+      const cAr = c.nameAr?.trim().toLowerCase();
+      const cEn = c.nameEn?.trim().toLowerCase();
+      return (ar && cAr === ar) || (en && cEn === en);
+    });
+
+    this.duplicateCategoryName = existing
+      ? (this.i18n.currentLang === 'ar' ? existing.nameAr : existing.nameEn)
+      : '';
+  }
+
   // Toast
   toast = {
     show: false,
@@ -260,9 +280,17 @@ export class CategoriesComponent implements OnInit, OnDestroy {
       parentId: parentId // 🆕 Pre-select parent if adding subcategory
     };
     this.formErrors = {};
+    this.duplicateCategoryName = '';
+    this.selectedCategory = null;
     this.selectedFile = null;
     this.imagePreview = null;
     this.showAddModal = true;
+  }
+
+  openAddSubcategoryModal(): void {
+    // Pre-select first parent so user is forced to add as subcategory
+    const firstParent = this.parentCategories[0]?.id || null;
+    this.openAddModal(firstParent);
   }
 
   openEditModal(category: Category): void {

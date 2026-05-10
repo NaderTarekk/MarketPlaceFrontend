@@ -61,7 +61,7 @@
                     <i class="fa-solid fa-plus"></i>
                     {{ i18n.currentLang === 'ar' ? 'فئة رئيسية' : 'Main Category' }}
                 </button>
-                <button class="add-btn secondary" (click)="openAddModal(null)" *ngIf="parentCategories.length > 0">
+                <button class="add-btn secondary" (click)="openAddSubcategoryModal()" *ngIf="parentCategories.length > 0">
                     <i class="fa-solid fa-folder-plus"></i>
                     {{ i18n.currentLang === 'ar' ? 'فئة فرعية' : 'Subcategory' }}
                 </button>
@@ -364,7 +364,8 @@
             <!-- Arabic Name -->
             <div class="form-group">
                 <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic Name' }} *</label>
-                <input type="text" [(ngModel)]="formData.nameAr" [class.error]="formErrors.nameAr"
+                <input type="text" [(ngModel)]="formData.nameAr" (ngModelChange)="checkDuplicate()"
+                    [class.error]="formErrors.nameAr"
                     [placeholder]="i18n.currentLang === 'ar' ? 'أدخل اسم الفئة بالعربي' : 'Enter category name in Arabic'"
                     dir="rtl" (blur)="onArBlur(formData, 'nameAr', 'nameEn')" />
                 <span *ngIf="formErrors.nameAr" class="error-msg">{{ formErrors.nameAr }}</span>
@@ -373,9 +374,20 @@
             <!-- English Name -->
             <div class="form-group">
                 <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English Name' }} *</label>
-                <input type="text" [(ngModel)]="formData.nameEn" [class.error]="formErrors.nameEn"
+                <input type="text" [(ngModel)]="formData.nameEn" (ngModelChange)="checkDuplicate()"
+                    [class.error]="formErrors.nameEn"
                     placeholder="Enter category name in English" dir="ltr" (blur)="onEnBlur(formData, 'nameAr', 'nameEn')" />
                 <span *ngIf="formErrors.nameEn" class="error-msg">{{ formErrors.nameEn }}</span>
+            </div>
+
+            <!-- Duplicate Hint -->
+            <div *ngIf="duplicateCategoryName" style="grid-column:1/-1;padding:10px 14px;background:#fef3c7;border:1.5px solid #fcd34d;border-radius:8px;display:flex;align-items:center;gap:8px;font-size:13px;color:#92400e;margin-bottom:12px">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>
+                    {{ i18n.currentLang === 'ar' ? 'تنبيه: يوجد صنف بنفس الاسم بالفعل' : 'Notice: A category with the same name already exists' }}
+                    (<strong>{{ duplicateCategoryName }}</strong>)
+                    {{ i18n.currentLang === 'ar' ? '— يمكنك المتابعة إذا أردت' : '— you can still proceed' }}
+                </span>
             </div>
 
             <!-- Image Upload -->
