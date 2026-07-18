@@ -333,6 +333,65 @@
           </div>
         </div>
 
+        <!-- Pending Store Logo Requests Section -->
+        <div class="stats-section" *ngIf="pendingLogoRequests.length > 0">
+          <h2 class="section-title">
+            <i class="fa-solid fa-image"></i>
+            {{ i18n.currentLang === 'ar' ? 'طلبات تغيير شعار المتجر' : 'Pending Store Logo Requests' }}
+            <span class="badge-count">{{ pendingLogoRequests.length }}</span>
+          </h2>
+
+          <div *ngIf="isLoadingPendingLogos" class="loading-inline">
+            <div class="spinner-sm"></div>
+          </div>
+
+          <div *ngIf="!isLoadingPendingLogos" class="pending-vendors-table">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'اسم المتجر' : 'Business Name' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'الشعار الحالي' : 'Current Logo' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'الشعار الجديد' : 'New Logo' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'إجراءات' : 'Actions' }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let req of pendingLogoRequests">
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">{{ req.fullName?.charAt(0) }}</div>
+                      <span>{{ req.fullName }}</span>
+                    </div>
+                  </td>
+                  <td><strong>{{ req.businessName }}</strong></td>
+                  <td>
+                    <img *ngIf="req.currentStoreLogo" [src]="getProductImage(req.currentStoreLogo)"
+                         alt="current logo" style="width:60px;height:60px;object-fit:cover;border-radius:8px;" />
+                    <span *ngIf="!req.currentStoreLogo">-</span>
+                  </td>
+                  <td>
+                    <img [src]="getProductImage(req.pendingStoreLogo)" alt="new logo"
+                         style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:2px solid #16a34a;" />
+                  </td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="action-btn approve" (click)="approveLogo(req.id)"
+                        [title]="i18n.currentLang === 'ar' ? 'قبول' : 'Approve'">
+                        <i class="fa-solid fa-check"></i>
+                      </button>
+                      <button class="action-btn reject" (click)="rejectLogo(req.id)"
+                        [title]="i18n.currentLang === 'ar' ? 'رفض' : 'Reject'">
+                        <i class="fa-solid fa-times"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Charts & Lists Row -->
         <div class="charts-row">
           <!-- Revenue Chart -->

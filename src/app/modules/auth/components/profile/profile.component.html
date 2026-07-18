@@ -423,12 +423,16 @@
                         </label>
                         <div class="store-logo-section">
                             <div class="store-logo-preview">
-                                <img *ngIf="storeLogoPreview || profile.storeLogo"
-                                    [src]="storeLogoPreview || getImageUrl(profile.storeLogo)"
+                                <img *ngIf="storeLogoPreview || profile.pendingStoreLogo || profile.storeLogo"
+                                    [src]="storeLogoPreview || getImageUrl(profile.pendingStoreLogo || profile.storeLogo)"
                                     [alt]="profile.businessName || 'Store'" class="store-logo-img" />
-                                <div *ngIf="!storeLogoPreview && !profile.storeLogo" class="store-logo-placeholder">
+                                <div *ngIf="!storeLogoPreview && !profile.pendingStoreLogo && !profile.storeLogo" class="store-logo-placeholder">
                                     <i class="fa-solid fa-store"></i>
                                 </div>
+                            </div>
+                            <div *ngIf="profile.pendingStoreLogo && !storeLogoPreview" class="pending-request" style="margin-top:8px;">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'شعار المتجر بانتظار موافقة الإدارة' : 'Store logo pending admin approval' }}</span>
                             </div>
                             <div class="store-logo-actions">
                                 <label class="btn-choose-logo">

@@ -95,6 +95,18 @@ export class AdminReportsService {
     return this.http.post(`${environment.adminUrl}/reject-vendor/${userId}`, {});
   }
 
+  getPendingLogoRequests(): Observable<any> {
+    return this.http.get(`${environment.adminUrl}/pending-logo-requests`);
+  }
+
+  approveStoreLogo(userId: string): Observable<any> {
+    return this.http.post(`${environment.adminUrl}/approve-logo/${userId}`, {});
+  }
+
+  rejectStoreLogo(userId: string): Observable<any> {
+    return this.http.post(`${environment.adminUrl}/reject-logo/${userId}`, {});
+  }
+
   getSalesReport(filter: SalesReportFilter): Observable<ApiResponse<SalesReportSummary>> {
     let params = new HttpParams();
     if (filter.from) params = params.set('from', filter.from);

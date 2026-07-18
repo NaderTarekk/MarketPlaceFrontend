@@ -1,6 +1,32 @@
 <!-- ════════════════════════════════════════════════════════════
      home.component.html  |  Dynamic + Redesigned
 ════════════════════════════════════════════════════════════ -->
+<!-- Push Notifications Prompt -->
+<div *ngIf="showPushPrompt"
+  style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);width:92%;max-width:420px;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:9999;padding:18px;border:1.5px solid #134e5e;display:flex;gap:14px;align-items:flex-start">
+  <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#134e5e,#0b3037);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+    <i class="fa-solid fa-bell" style="color:#e2c275;font-size:20px"></i>
+  </div>
+  <div style="flex:1;min-width:0">
+    <h4 style="margin:0 0 4px;font-size:14px;font-weight:700;color:#0b3037">
+      {{ i18n.currentLang === 'ar' ? 'تفعيل الإشعارات' : 'Enable Notifications' }}
+    </h4>
+    <p style="margin:0 0 10px;font-size:12px;color:#64748b;line-height:1.5">
+      {{ i18n.currentLang === 'ar' ? 'اعرف حالة طلباتك أولاً بأول حتى لو خارج الموقع' : 'Get instant updates about your orders even when offline' }}
+    </p>
+    <div style="display:flex;gap:8px">
+      <button (click)="acceptPush()"
+        style="flex:1;padding:8px 14px;background:#134e5e;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        {{ i18n.currentLang === 'ar' ? 'تفعيل' : 'Enable' }}
+      </button>
+      <button (click)="dismissPush()"
+        style="padding:8px 14px;background:#f3f4f6;color:#64748b;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        {{ i18n.currentLang === 'ar' ? 'لاحقاً' : 'Later' }}
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Welcome Popup -->
 <div *ngIf="showWelcomePopup" class="welcome-popup-overlay" (click)="showWelcomePopup = false">
   <div class="welcome-popup" [class.hide]="hideWelcomePopup" (click)="$event.stopPropagation()">

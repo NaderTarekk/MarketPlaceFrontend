@@ -1,0 +1,25 @@
+{
+  "name": "Wild Market",
+  "short_name": "Wild Market",
+  "description": "Wild Market - Your Online Marketplace",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b3037",
+  "theme_color": "#0b3037",
+  "icons": [
+    {
+      "src": "/wild%20logo%20new%202.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/wild%20logo%20new%202.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

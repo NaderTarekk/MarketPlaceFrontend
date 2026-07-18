@@ -96,6 +96,8 @@ export class AdminComponent implements OnInit {
   isLoadingInventory = false;
   pendingVendorRequests: any[] = [];
   isLoadingPendingVendors = false;
+  pendingLogoRequests: any[] = [];
+  isLoadingPendingLogos = false;
 
   // Dashboard Data
   dashboard: AdminDashboard | null = null;
@@ -268,6 +270,7 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.loadDashboard();
     this.loadPendingVendorRequests();
+    this.loadPendingLogoRequests();
     this.loadSiteSettings();
   }
 
@@ -380,6 +383,62 @@ export class AdminComponent implements OnInit {
           this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error rejecting request',
           'error'
         );
+      }
+    });
+  }
+
+  // Store Logo Requests
+  loadPendingLogoRequests(): void {
+    this.isLoadingPendingLogos = true;
+    this.adminService.getPendingLogoRequests().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.pendingLogoRequests = res.data;
+        }
+        this.isLoadingPendingLogos = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingPendingLogos = false;
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'حدث خطأ في تحميل طلبات الشعار' : 'Error loading logo requests',
+          'error'
+        );
+      }
+    });
+  }
+
+  approveLogo(userId: string): void {
+    this.adminService.approveStoreLogo(userId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم قبول الشعار' : 'Logo approved',
+            'success'
+          );
+          this.loadPendingLogoRequests();
+        }
+      },
+      error: () => {
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error');
+      }
+    });
+  }
+
+  rejectLogo(userId: string): void {
+    if (!confirm(this.i18n.currentLang === 'ar' ? 'رفض طلب الشعار؟' : 'Reject this logo?')) return;
+    this.adminService.rejectStoreLogo(userId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(
+            this.i18n.currentLang === 'ar' ? 'تم رفض الشعار' : 'Logo rejected',
+            'success'
+          );
+          this.loadPendingLogoRequests();
+        }
+      },
+      error: () => {
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error');
       }
     });
   }

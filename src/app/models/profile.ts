@@ -18,6 +18,7 @@ export interface Profile {
   businessAddress: string | null;
   nationalId: string | null;
   storeLogo: string | null;
+  pendingStoreLogo: string | null;
   isApproved: boolean;
 }
 

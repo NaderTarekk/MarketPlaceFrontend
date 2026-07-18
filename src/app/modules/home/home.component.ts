@@ -12,6 +12,7 @@ import { Category } from '../../models/category';
 import { environment } from '../../../environment';
 import { GovernorateService } from '../adamin/services/governorate.service';
 import { PromotionService } from '../../services/promotion.service';
+import { PushService } from '../../services/push.service';
 
 // ─── kept for product-card compatibility ───────────────────────────────────────
 export interface Product {
@@ -155,6 +156,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   private bannerTimer: any = null;
   private statTimers: any[] = [];
 
+  // Push notifications
+  showPushPrompt = false;
+
   constructor(
     public i18n: I18nService,
     private router: Router,
@@ -164,8 +168,42 @@ export class HomeComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
     private governorateService: GovernorateService,
-    private promotionService: PromotionService
-  ) { }
+    private promotionService: PromotionService,
+    private pushService: PushService
+  ) {}
+
+  initPushPrompt(): void {
+    if (!this.pushService.isSupported()) return;
+    if (!localStorage.getItem('NHC_MP_Token')) return; // Only logged in users
+    if (localStorage.getItem('push_subscribed') === '1') return;
+    if (this.pushService.hasDismissedPrompt()) return;
+    if (this.pushService.getPermission() === 'granted') {
+      this.pushService.subscribe();
+      return;
+    }
+    if (this.pushService.getPermission() === 'denied') return;
+
+    // Show prompt after 5 seconds
+    setTimeout(() => {
+      this.showPushPrompt = true;
+      this.cdr.detectChanges();
+    }, 5000);
+  }
+
+  async acceptPush(): Promise<void> {
+    this.showPushPrompt = false;
+    const ok = await this.pushService.subscribe();
+    if (!ok) {
+      console.warn('Push subscription failed');
+    }
+    this.cdr.detectChanges();
+  }
+
+  dismissPush(): void {
+    this.showPushPrompt = false;
+    this.pushService.dismissPrompt();
+    this.cdr.detectChanges();
+  }
 
   // ══════════════════════════════════════════════════════════════════════════
   ngOnInit(): void {
@@ -174,6 +212,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadTopSellingProducts();
     this.loadUserDeliveryDays();
     this.triggerWelcomePopup();
+    this.pushService.init();
+    this.initPushPrompt();
     this.loadPromotions();
     this.productsService.getStores().subscribe({
       next: (res: any) => { if (res.success) this.allStores = res.data || []; },
