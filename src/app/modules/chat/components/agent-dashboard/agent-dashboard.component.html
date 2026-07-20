@@ -82,7 +82,7 @@
     } @else {
       <div class="active-chat">
         <!-- Chat Header -->
-        <div class="chat-header">
+        <div class="chat-header" style="display:flex;justify-content:space-between;align-items:center">
           <div class="customer-info">
             <div class="avatar">👤</div>
             <div class="details">
@@ -90,13 +90,57 @@
               <span class="code">{{ currentSession.sessionCode }}</span>
             </div>
           </div>
-          <div class="actions">
-            <button class="action-btn close" (click)="closeCurrentSession()">
-              <i class="fa fa-times"></i>
-              إنهاء المحادثة
-            </button>
+          <button (click)="openTransferModal()"
+                  style="padding:8px 14px;background:#f59e0b;color:#fff;border:0;border-radius:8px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px">
+            <i class="fa-solid fa-share-from-square"></i>
+            تحويل
+          </button>
+        </div>
+
+        <!-- Transfer Modal -->
+        @if (showTransferModal) {
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px" (click)="closeTransferModal()">
+          <div style="background:#fff;border-radius:14px;max-width:500px;width:100%;padding:24px" (click)="$event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h3 style="margin:0">تحويل المحادثة إلى موظف آخر</h3>
+              <button (click)="closeTransferModal()" style="background:transparent;border:0;font-size:1.5rem;cursor:pointer">&times;</button>
+            </div>
+
+            <input type="text" [(ngModel)]="transferSearch" placeholder="ابحث بالاسم أو الإيميل..."
+                   style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:12px;outline:none;box-sizing:border-box" />
+
+            <div style="max-height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
+              @for (a of filteredTransferAgents; track a.id) {
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer"
+                       [style.border-color]="transferSelectedAgentId === a.id ? '#0ea5e9' : '#e2e8f0'"
+                       [style.background]="transferSelectedAgentId === a.id ? '#e0f2fe' : '#fff'">
+                  <input type="radio" name="tagent" [value]="a.id" [(ngModel)]="transferSelectedAgentId" />
+                  <div style="flex:1">
+                    <div style="font-weight:600">{{ a.fullName }}</div>
+                    <div style="font-size:0.78rem;color:#64748b">
+                      {{ a.email }}
+                      @if (a.departmentNames?.length) {
+                        · @for (n of a.departmentNames; track $index) { <span style="background:#e0f2fe;color:#0369a1;padding:1px 6px;border-radius:999px;margin-inline-start:3px;font-size:0.7rem">{{ n }}</span> }
+                      }
+                    </div>
+                  </div>
+                </label>
+              }
+              @if (filteredTransferAgents.length === 0) {
+                <div style="padding:20px;text-align:center;color:#94a3b8">لا يوجد موظفون</div>
+              }
+            </div>
+
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+              <button (click)="closeTransferModal()" style="padding:10px 18px;background:#e2e8f0;color:#1e293b;border:0;border-radius:8px;cursor:pointer">إلغاء</button>
+              <button (click)="doTransfer()" [disabled]="!transferSelectedAgentId || isTransferring"
+                      style="padding:10px 18px;background:#f59e0b;color:#fff;border:0;border-radius:8px;cursor:pointer;font-weight:600">
+                @if (isTransferring) { جاري التحويل... } @else { تحويل }
+              </button>
+            </div>
           </div>
         </div>
+        }
 
         <!-- Messages -->
         <div class="messages-container" #messagesContainer>

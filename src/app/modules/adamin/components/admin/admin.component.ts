@@ -24,10 +24,18 @@ import * as L from 'leaflet';
 })
 export class AdminComponent implements OnInit {
   // Active Tab
-  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' | 'promoCodes' | 'promotions' = 'dashboard';
+  activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' | 'promoCodes' | 'promotions' | 'orders' | 'support' = 'dashboard';
 
-  siteSettings = { isPickupAvailable: true, vodafoneCashNumber: '', vodafoneCashName: '' };
-  vfCashForm = { number: '', name: '' };
+  siteSettings: any = {
+    isPickupAvailable: true,
+    cashOnDeliveryEnabled: true,
+    vodafoneCashEnabled: true, vodafoneCashNumber: '', vodafoneCashName: '',
+    instaPayEnabled: true, instaPayHandle: '', instaPayName: '',
+    bankEnabled: true, bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankIBAN: ''
+  };
+  vfCashForm = { number: '', name: '', note: '' };
+  instaPayForm = { handle: '', name: '', note: '' };
+  bankForm = { bankName: '', accountHolder: '', accountNumber: '', iban: '', note: '' };
 
   // Promo Codes
   promoCodes: any[] = [];
@@ -98,6 +106,17 @@ export class AdminComponent implements OnInit {
   isLoadingPendingVendors = false;
   pendingLogoRequests: any[] = [];
   isLoadingPendingLogos = false;
+
+  // Orders
+  adminOrders: any[] = [];
+  adminOrdersSearch = '';
+  adminOrdersPage = 1;
+  adminOrdersPageSize = 20;
+  adminOrdersTotal = 0;
+  isLoadingAdminOrders = false;
+  showOrderDetailsModal = false;
+  selectedOrderDetail: any = null;
+  isLoadingOrderDetail = false;
 
   // Dashboard Data
   dashboard: AdminDashboard | null = null;
@@ -281,6 +300,15 @@ export class AdminComponent implements OnInit {
           this.siteSettings = res.data;
           this.vfCashForm.number = res.data.vodafoneCashNumber || '';
           this.vfCashForm.name = res.data.vodafoneCashName || '';
+          this.vfCashForm.note = res.data.vodafoneCashNote || '';
+          this.instaPayForm.handle = res.data.instaPayHandle || '';
+          this.instaPayForm.name = res.data.instaPayName || '';
+          this.instaPayForm.note = res.data.instaPayNote || '';
+          this.bankForm.bankName = res.data.bankName || '';
+          this.bankForm.accountHolder = res.data.bankAccountHolder || '';
+          this.bankForm.accountNumber = res.data.bankAccountNumber || '';
+          this.bankForm.iban = res.data.bankIBAN || '';
+          this.bankForm.note = res.data.bankNote || '';
           this.cdr.detectChanges();
         }
       },
@@ -306,7 +334,7 @@ export class AdminComponent implements OnInit {
       this.showToast(this.i18n.currentLang === 'ar' ? 'أدخل رقم الهاتف' : 'Enter phone number', 'error');
       return;
     }
-    this.adminService.updateVodafoneCash(this.vfCashForm.number, this.vfCashForm.name).subscribe({
+    this.adminService.updateVodafoneCash(this.vfCashForm.number, this.vfCashForm.name, this.vfCashForm.note).subscribe({
       next: (res: any) => {
         if (res.success) {
           this.siteSettings.vodafoneCashNumber = this.vfCashForm.number;
@@ -316,6 +344,79 @@ export class AdminComponent implements OnInit {
         }
       },
       error: () => this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error')
+    });
+  }
+
+  saveInstaPay(): void {
+    if (!this.instaPayForm.handle) {
+      this.showToast(this.i18n.currentLang === 'ar' ? 'أدخل حساب إنستا باي' : 'Enter InstaPay handle', 'error');
+      return;
+    }
+    this.adminService.updateInstaPay(this.instaPayForm.handle, this.instaPayForm.name, this.instaPayForm.note).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.siteSettings.instaPayHandle = this.instaPayForm.handle;
+          this.siteSettings.instaPayName = this.instaPayForm.name;
+          this.showToast(this.i18n.currentLang === 'ar' ? 'تم الحفظ' : 'Saved', 'success');
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error')
+    });
+  }
+
+  saveBank(): void {
+    if (!this.bankForm.bankName || !this.bankForm.accountNumber) {
+      this.showToast(this.i18n.currentLang === 'ar' ? 'أدخل اسم البنك ورقم الحساب' : 'Enter bank name and account number', 'error');
+      return;
+    }
+    this.adminService.updateBank(
+      this.bankForm.bankName,
+      this.bankForm.accountHolder,
+      this.bankForm.accountNumber,
+      this.bankForm.iban,
+      this.bankForm.note
+    ).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.siteSettings.bankName = this.bankForm.bankName;
+          this.siteSettings.bankAccountHolder = this.bankForm.accountHolder;
+          this.siteSettings.bankAccountNumber = this.bankForm.accountNumber;
+          this.siteSettings.bankIBAN = this.bankForm.iban;
+          this.showToast(this.i18n.currentLang === 'ar' ? 'تم الحفظ' : 'Saved', 'success');
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error')
+    });
+  }
+
+  togglePayment(method: 'cash' | 'vodafone' | 'instapay' | 'bank'): void {
+    const keyMap: any = {
+      cash: 'cashOnDeliveryEnabled',
+      vodafone: 'vodafoneCashEnabled',
+      instapay: 'instaPayEnabled',
+      bank: 'bankEnabled'
+    };
+    const key = keyMap[method];
+    const prev = !!this.siteSettings[key];
+    this.siteSettings[key] = !prev;
+
+    this.adminService.togglePaymentMethod(method).subscribe({
+      next: (res: any) => {
+        if (!res.success) {
+          this.siteSettings[key] = prev;
+          this.showToast(res.message || 'Error', 'error');
+        } else {
+          this.showToast(this.i18n.currentLang === 'ar' ? 'تم تحديث حالة طريقة الدفع' : 'Payment method updated', 'success');
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.siteSettings[key] = prev;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error');
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -446,7 +547,7 @@ export class AdminComponent implements OnInit {
   // TAB SWITCHING
   // ═══════════════════════════════════════════════
   // ✅ عدّل الـ switchTab Method
-  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' | 'promoCodes' | 'promotions'): void {
+  switchTab(tab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' | 'promoCodes' | 'promotions' | 'orders' | 'support'): void {
     this.activeTab = tab;
 
     switch (tab) {
@@ -496,8 +597,64 @@ export class AdminComponent implements OnInit {
         this.loadPromotions();
         if (this.brands.length === 0) this.loadBrandsForPromo();
         break;
+      case 'orders':
+        this.loadAdminOrders();
+        break;
     }
     this.cdr.detectChanges();
+  }
+
+  loadAdminOrders(): void {
+    this.isLoadingAdminOrders = true;
+    this.adminService.getAdminOrders(this.adminOrdersSearch, this.adminOrdersPage, this.adminOrdersPageSize).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.adminOrders = res.data || [];
+          this.adminOrdersTotal = res.pagination?.totalCount || 0;
+        }
+        this.isLoadingAdminOrders = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingAdminOrders = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error loading orders', 'error');
+      }
+    });
+  }
+
+  searchAdminOrders(): void {
+    this.adminOrdersPage = 1;
+    this.loadAdminOrders();
+  }
+
+  openOrderDetails(orderId: number): void {
+    this.showOrderDetailsModal = true;
+    this.selectedOrderDetail = null;
+    this.isLoadingOrderDetail = true;
+    this.adminService.getAdminOrderDetails(orderId).subscribe({
+      next: (res: any) => {
+        if (res.success) this.selectedOrderDetail = res.data;
+        this.isLoadingOrderDetail = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingOrderDetail = false;
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error');
+      }
+    });
+  }
+
+  closeOrderDetailsModal(): void {
+    this.showOrderDetailsModal = false;
+    this.selectedOrderDetail = null;
+  }
+
+  changeOrdersPage(delta: number): void {
+    const totalPages = Math.max(1, Math.ceil(this.adminOrdersTotal / this.adminOrdersPageSize));
+    const next = this.adminOrdersPage + delta;
+    if (next < 1 || next > totalPages) return;
+    this.adminOrdersPage = next;
+    this.loadAdminOrders();
   }
 
   // ═══════════════════════════════════════════════
@@ -2045,8 +2202,30 @@ export class AdminComponent implements OnInit {
   }
 
   togglePickupPointActive(point: PickupPoint): void {
-    this.pickupPointService.update(point.id, { isActive: !point.isActive }).subscribe({
-      next: (res: any) => { if (res.success) point.isActive = !point.isActive; }
+    const newState = !point.isActive;
+    this.pickupPointService.update(point.id, { isActive: newState }).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          point.isActive = newState;
+          this.showToast(
+            this.i18n.currentLang === 'ar'
+              ? (newState ? 'تم تفعيل نقطة الاستلام' : 'تم تعطيل نقطة الاستلام')
+              : (newState ? 'Pickup point activated' : 'Pickup point deactivated'),
+            'success'
+          );
+          this.loadPickupPoints();
+        } else {
+          this.showToast(res.message || 'Error', 'error');
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showToast(
+          err?.error?.message || (this.i18n.currentLang === 'ar' ? 'حدث خطأ في التحديث' : 'Error updating'),
+          'error'
+        );
+        this.cdr.detectChanges();
+      }
     });
   }
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import {
   ChatService,
@@ -39,7 +40,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private typingTimeout: any;
   private shouldScrollToBottom = false;
 
-  constructor(private chatService: ChatService, private cdr: ChangeDetectorRef, private ngZone: NgZone) { }
+  constructor(private chatService: ChatService, private cdr: ChangeDetectorRef, private ngZone: NgZone, private route: ActivatedRoute) { }
 
   async ngOnInit(): Promise<void> {
     // ✅ تأكد الـ Token موجود قبل الاتصال
@@ -58,6 +59,35 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.subscribeToEvents();
     this.loadFaq();
+    this.autoOpenExistingSession();
+  }
+
+  private autoOpenExistingSession(): void {
+    this.chatService.getMySessions().subscribe({
+      next: async (res: any) => {
+        if (!res.success || !res.data?.length) return;
+
+        const wantedId = parseInt(this.route.snapshot.queryParamMap.get('sessionId') || '', 10);
+        let target = wantedId
+          ? res.data.find((s: ChatSession) => s.id === wantedId)
+          : res.data.find((s: ChatSession) => s.status !== ChatStatus.Closed && s.type === ChatType.LiveSupport)
+              || res.data.find((s: ChatSession) => s.status !== ChatStatus.Closed);
+
+        if (!target) return;
+
+        this.chatService.getSession(target.id).subscribe({
+          next: async (r: any) => {
+            if (!r.success) return;
+            this.session = r.data;
+            this.messages = r.data.messages || [];
+            this.currentView = 'chat';
+            this.shouldScrollToBottom = true;
+            this.cdr.detectChanges();
+            try { await this.chatService.joinSession(target.id); } catch { }
+          }
+        });
+      }
+    });
   }
 
   ngAfterViewChecked(): void {
@@ -176,18 +206,51 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  async startChat(type: ChatType): Promise<void> {
-    this.isLoading = true;
-    console.log('Starting chat...', type);
+  // Department picker
+  departments: any[] = [];
+  showDepartmentPicker = false;
+  selectedDepartmentId: number | null = null;
+  pendingChatType: ChatType | null = null;
 
-    this.chatService.startChat(type).subscribe({
+  async startChat(type: ChatType): Promise<void> {
+    if (type === ChatType.LiveSupport) {
+      // Ask customer to pick department first
+      this.pendingChatType = type;
+      this.showDepartmentPicker = true;
+      this.selectedDepartmentId = null;
+      this.chatService.getActiveDepartments().subscribe({
+        next: (res: any) => {
+          if (res.success) this.departments = res.data || [];
+          this.cdr.detectChanges();
+        }
+      });
+      return;
+    }
+    this.doStartChat(type, null);
+  }
+
+  confirmDepartmentAndStart(): void {
+    if (!this.pendingChatType) return;
+    // Allow proceeding even without department (skip picker)
+    this.showDepartmentPicker = false;
+    this.doStartChat(this.pendingChatType, this.selectedDepartmentId);
+    this.pendingChatType = null;
+  }
+
+  cancelDepartmentPicker(): void {
+    this.showDepartmentPicker = false;
+    this.pendingChatType = null;
+    this.selectedDepartmentId = null;
+  }
+
+  private doStartChat(type: ChatType, departmentId: number | null): void {
+    this.isLoading = true;
+    this.chatService.startChat(type, departmentId).subscribe({
       next: async (res: any) => {
         if (res.success) {
-          console.log('Response:', res);
           this.session = res.data;
-          this.messages = res.data.messages || []; // ✅ عدل ده
+          this.messages = res.data.messages || [];
           this.currentView = 'chat';
-
           if (this.session) {
             await this.chatService.joinSession(this.session.id);
           }
@@ -196,10 +259,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error('Error:', err);
-        this.isLoading = false;
-      }
+      error: () => { this.isLoading = false; }
     });
   }
 

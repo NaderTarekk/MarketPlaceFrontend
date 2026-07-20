@@ -71,11 +71,18 @@
         </div>
 
         <!-- CTA -->
-        <button class="browse-btn">
-          <i class="fa-solid fa-arrow-left" *ngIf="i18n.currentLang === 'ar'"></i>
-          <i class="fa-solid fa-arrow-right" *ngIf="i18n.currentLang !== 'ar'"></i>
-          {{ i18n.currentLang === 'ar' ? 'تصفح المتجر' : 'Browse Store' }}
-        </button>
+        <div style="display:flex;gap:8px;width:100%">
+          <button class="browse-btn" style="flex:1">
+            <i class="fa-solid fa-arrow-left" *ngIf="i18n.currentLang === 'ar'"></i>
+            <i class="fa-solid fa-arrow-right" *ngIf="i18n.currentLang !== 'ar'"></i>
+            {{ i18n.currentLang === 'ar' ? 'تصفح المتجر' : 'Browse Store' }}
+          </button>
+          <button type="button" (click)="chatWithVendor(store, $event)" [disabled]="chattingVendorId === store.vendorId"
+                  style="padding:10px 14px;background:#0ea5e9;color:#fff;border:0;border-radius:10px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px"
+                  [title]="i18n.currentLang === 'ar' ? 'تحدث مع البائع' : 'Chat with Seller'">
+            <i class="fa-solid" [ngClass]="chattingVendorId === store.vendorId ? 'fa-spinner fa-spin' : 'fa-comments'"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>

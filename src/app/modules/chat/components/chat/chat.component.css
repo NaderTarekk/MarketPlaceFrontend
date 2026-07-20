@@ -497,3 +497,21 @@
   .option-card .option-content h3 { font-size: 16px; }
   .message { max-width: 90%; }
 }
+
+/* Department Picker Modal */
+.dept-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; direction: rtl; }
+.dept-modal { background: #fff; border-radius: 14px; max-width: 480px; width: 100%; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.dept-modal h3 { margin: 0 0 6px; color: #1e293b; font-size: 1.15rem; }
+.dept-hint { margin: 0 0 16px; color: #64748b; font-size: 0.9rem; }
+.dept-empty { padding: 20px; text-align: center; color: #94a3b8; background: #f8fafc; border-radius: 8px; }
+.dept-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 16px; }
+.dept-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.15s; }
+.dept-item:hover { border-color: #0ea5e9; background: #f0f9ff; }
+.dept-item.selected { border-color: #0ea5e9; background: #e0f2fe; }
+.dept-item input { cursor: pointer; accent-color: #0ea5e9; }
+.dept-item span { font-weight: 600; color: #1e293b; }
+.dept-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.dept-actions button { padding: 10px 20px; border: 0; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-cancel { background: #e2e8f0; color: #1e293b; }
+.btn-start { background: #0ea5e9; color: #fff; }
+.btn-start:hover { background: #0284c7; }

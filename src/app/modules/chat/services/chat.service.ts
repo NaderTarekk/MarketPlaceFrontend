@@ -6,7 +6,8 @@ import { environment } from '../../../../environment';
 
 export enum ChatType {
   Bot = 0,
-  LiveSupport = 1
+  LiveSupport = 1,
+  CustomerVendor = 2
 }
 
 export enum ChatStatus {
@@ -18,7 +19,8 @@ export enum ChatStatus {
 export enum MessageSenderType {
   Customer = 0,
   Bot = 1,
-  Agent = 2
+  Agent = 2,
+  Vendor = 3
 }
 
 export interface ChatMessage {
@@ -35,8 +37,13 @@ export interface ChatMessage {
 export interface ChatSession {
   id: number;
   sessionCode: string;
+  customerId?: string;
   customerName: string;
+  agentId?: string;
   agentName?: string;
+  vendorId?: string;
+  vendorName?: string;
+  departmentId?: number | null;
   type: ChatType;
   status: ChatStatus;
   createdAt: Date;
@@ -240,8 +247,43 @@ export class ChatService implements OnDestroy {
   }
 
   // HTTP Methods
-  startChat(type: ChatType): Observable<any> {
-    return this.http.post(`${this.apiUrl}/start`, { type });
+  startChat(type: ChatType, departmentId?: number | null): Observable<any> {
+    return this.http.post(`${this.apiUrl}/start`, { type, departmentId: departmentId ?? null });
+  }
+
+  // Departments
+  getActiveDepartments(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/departments`);
+  }
+
+  getAllDepartments(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/departments`);
+  }
+
+  createDepartment(dto: { nameAr: string; nameEn: string; isActive: boolean }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/departments`, dto);
+  }
+
+  updateDepartment(id: number, dto: { nameAr: string; nameEn: string; isActive: boolean }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/departments/${id}`, dto);
+  }
+
+  deleteDepartment(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/admin/departments/${id}`);
+  }
+
+  // CS agents
+  getCsAgents(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/cs-agents`);
+  }
+
+  setAgentDepartments(agentId: string, departmentIds: number[]): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/agents/${agentId}/departments`, { departmentIds });
+  }
+
+  // Transfer
+  transferSession(sessionId: number, toAgentId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/transfer/${sessionId}`, { toAgentId });
   }
 
   getSession(sessionId: number): Observable<any> {
@@ -258,6 +300,26 @@ export class ChatService implements OnDestroy {
 
   getFaq(): Observable<any> {
     return this.http.get(`${this.apiUrl}/faq`);
+  }
+
+  lookupCustomer(query: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/customer-lookup`, { params: { q: query } });
+  }
+
+  startSessionWithCustomer(customerId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/start-with-customer/${customerId}`, {});
+  }
+
+  startSessionWithVendor(vendorId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/start-with-vendor/${vendorId}`, {});
+  }
+
+  getVendorChats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/vendor-chats`);
+  }
+
+  getAllCustomerVendorChats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/all-customer-vendor-chats`);
   }
 
   // Observables

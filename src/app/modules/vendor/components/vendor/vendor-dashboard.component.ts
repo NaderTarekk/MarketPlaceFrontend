@@ -219,7 +219,7 @@ export class VendorDashboardComponent implements OnInit {
       return;
     }
 
-    this.commissionRate = this.dashboard.commissionRate || 10;
+    this.commissionRate = this.dashboard.commissionRate ?? 10;
 
     // Reset values
     this.totalRevenue = 0;

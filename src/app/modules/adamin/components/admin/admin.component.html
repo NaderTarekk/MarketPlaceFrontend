@@ -70,6 +70,14 @@
         <i class="fa-solid fa-money-bill-transfer"></i>
         <span>{{ i18n.currentLang === 'ar' ? 'سحوبات التجار' : 'Withdrawals' }}</span>
       </button>
+      <button class="tab" [class.active]="activeTab === 'orders'" (click)="switchTab('orders')">
+        <i class="fa-solid fa-receipt"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'support'" (click)="switchTab('support')">
+        <i class="fa-solid fa-headset"></i>
+        <span>{{ i18n.currentLang === 'ar' ? 'الدعم الفني' : 'Support' }}</span>
+      </button>
       <button class="tab" [class.active]="activeTab === 'settings'" (click)="switchTab('settings')">
         <i class="fa-solid fa-gear"></i>
         <span>{{ i18n.currentLang === 'ar' ? 'الإعدادات' : 'Settings' }}</span>
@@ -2009,6 +2017,199 @@
       </div>
     </div>
 
+    <!-- ORDERS TAB -->
+    <div *ngIf="activeTab === 'orders'" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-receipt"></i> {{ i18n.currentLang === 'ar' ? 'كل الطلبات' : 'All Orders' }}</h2>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <input type="text" [(ngModel)]="adminOrdersSearch" (keydown.enter)="searchAdminOrders()"
+               [placeholder]="i18n.currentLang === 'ar' ? 'ابحث برقم الأوردر أو اسم/بريد/تليفون العميل' : 'Search by order # or customer name/email/phone'"
+               style="flex:1;min-width:250px;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;outline:none" />
+        <button (click)="searchAdminOrders()"
+                style="padding:10px 20px;background:#0ea5e9;color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          {{ i18n.currentLang === 'ar' ? 'بحث' : 'Search' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingAdminOrders" class="loading-spinner">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+
+      <div *ngIf="!isLoadingAdminOrders && adminOrders.length === 0" class="empty-state-card">
+        <i class="fa-solid fa-box-open"></i>
+        <p>{{ i18n.currentLang === 'ar' ? 'لا توجد طلبات' : 'No orders' }}</p>
+      </div>
+
+      <div *ngIf="!isLoadingAdminOrders && adminOrders.length > 0" style="background:#fff;border-radius:12px;overflow-x:auto">
+        <table class="modern-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>{{ i18n.currentLang === 'ar' ? 'رقم الأوردر' : 'Order #' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Items' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الخصم' : 'Discount' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الدفع' : 'Payment' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+              <th>{{ i18n.currentLang === 'ar' ? 'التاريخ' : 'Date' }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of adminOrders">
+              <td><strong>{{ o.orderNumber }}</strong></td>
+              <td>
+                <div>{{ o.customerName || '-' }}</div>
+                <small style="color:#94a3b8">{{ o.customerEmail || o.customerPhone || '' }}</small>
+              </td>
+              <td>{{ o.itemsCount }}</td>
+              <td>{{ o.shippingCost | number:'1.0-2' }}</td>
+              <td>{{ o.discount > 0 ? '-' + (o.discount | number:'1.0-2') : '-' }}</td>
+              <td><strong>{{ o.total | number:'1.0-2' }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</strong></td>
+              <td>
+                <div>{{ o.paymentMethod || '-' }}</div>
+                <small style="color:#94a3b8">{{ o.paymentStatus }}</small>
+              </td>
+              <td>
+                <span style="padding:3px 10px;border-radius:999px;font-size:0.78rem;background:#e0f2fe;color:#0369a1">
+                  {{ o.status }}
+                </span>
+              </td>
+              <td>{{ formatDate(o.createdAt) }}</td>
+              <td>
+                <button (click)="openOrderDetails(o.id)" style="padding:6px 12px;background:#0ea5e9;color:#fff;border:0;border-radius:6px;cursor:pointer">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div style="padding:14px;display:flex;justify-content:center;gap:8px;align-items:center">
+          <button (click)="changeOrdersPage(-1)" [disabled]="adminOrdersPage <= 1"
+                  style="padding:6px 14px;background:#e2e8f0;color:#1e293b;border:0;border-radius:6px;cursor:pointer">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <span style="color:#64748b">
+            {{ i18n.currentLang === 'ar' ? 'صفحة' : 'Page' }} {{ adminOrdersPage }}
+          </span>
+          <button (click)="changeOrdersPage(1)" [disabled]="adminOrdersPage * adminOrdersPageSize >= adminOrdersTotal"
+                  style="padding:6px 14px;background:#e2e8f0;color:#1e293b;border:0;border-radius:6px;cursor:pointer">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div *ngIf="showOrderDetailsModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px" (click)="closeOrderDetailsModal()">
+      <div style="background:#fff;border-radius:14px;max-width:900px;width:100%;max-height:90vh;overflow-y:auto;padding:24px" (click)="$event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <h3 style="margin:0"><i class="fa-solid fa-receipt"></i> {{ selectedOrderDetail?.orderNumber || (i18n.currentLang === 'ar' ? 'تفاصيل الطلب' : 'Order Details') }}</h3>
+          <button (click)="closeOrderDetailsModal()" style="background:transparent;border:0;font-size:1.5rem;cursor:pointer">&times;</button>
+        </div>
+
+        <div *ngIf="isLoadingOrderDetail" style="text-align:center;padding:40px">
+          <i class="fa-solid fa-spinner fa-spin fa-2x" style="color:#0ea5e9"></i>
+        </div>
+
+        <div *ngIf="!isLoadingOrderDetail && selectedOrderDetail">
+          <!-- Customer -->
+          <section style="margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:10px">
+            <h4 style="margin:0 0 8px"><i class="fa-solid fa-user"></i> {{ i18n.currentLang === 'ar' ? 'العميل' : 'Customer' }}</h4>
+            <div><strong>{{ selectedOrderDetail.customerName }}</strong></div>
+            <div style="color:#64748b;font-size:0.9rem">{{ selectedOrderDetail.customerEmail }} · {{ selectedOrderDetail.customerPhone }}</div>
+          </section>
+
+          <!-- Shipping -->
+          <section style="margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:10px">
+            <h4 style="margin:0 0 8px"><i class="fa-solid fa-truck"></i> {{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}</h4>
+            <div>{{ selectedOrderDetail.shippingName }} — {{ selectedOrderDetail.shippingPhone }}</div>
+            <div style="color:#64748b">{{ selectedOrderDetail.shippingAddress }}, {{ selectedOrderDetail.shippingCity }}</div>
+            <div *ngIf="selectedOrderDetail.pickupPointName" style="color:#0369a1;margin-top:4px">
+              <i class="fa-solid fa-map-pin"></i> {{ i18n.currentLang === 'ar' ? 'نقطة استلام:' : 'Pickup:' }} {{ selectedOrderDetail.pickupPointName }}
+            </div>
+          </section>
+
+          <!-- Items -->
+          <section style="margin-bottom:16px">
+            <h4 style="margin:0 0 8px"><i class="fa-solid fa-box"></i> {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Items' }}</h4>
+            <table class="modern-table" style="width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:8px">
+              <thead>
+                <tr>
+                  <th>{{ i18n.currentLang === 'ar' ? 'المنتج' : 'Product' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'الكمية' : 'Qty' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'السعر' : 'Price' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let it of selectedOrderDetail.items">
+                  <td>{{ i18n.currentLang === 'ar' ? it.productNameAr : it.productNameEn }}</td>
+                  <td>{{ it.vendorName || '-' }}</td>
+                  <td>{{ it.quantity }}</td>
+                  <td>{{ it.unitPrice | number:'1.0-2' }}</td>
+                  <td><strong>{{ it.total | number:'1.0-2' }}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <!-- Vendor lines -->
+          <section *ngIf="selectedOrderDetail.vendorLines?.length" style="margin-bottom:16px">
+            <h4 style="margin:0 0 8px"><i class="fa-solid fa-shop"></i> {{ i18n.currentLang === 'ar' ? 'حالة التجار' : 'Vendor Status' }}</h4>
+            <table class="modern-table" style="width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:8px">
+              <thead>
+                <tr>
+                  <th>{{ i18n.currentLang === 'ar' ? 'التاجر' : 'Vendor' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                  <th>{{ i18n.currentLang === 'ar' ? 'المندوب' : 'Agent' }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let vl of selectedOrderDetail.vendorLines">
+                  <td>{{ vl.vendorName }}</td>
+                  <td>{{ vl.total | number:'1.0-2' }}</td>
+                  <td>{{ vl.status }}</td>
+                  <td>{{ vl.deliveryAgentName || '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <!-- Financials -->
+          <section style="padding:14px;background:#eff6ff;border-radius:10px">
+            <h4 style="margin:0 0 10px"><i class="fa-solid fa-coins"></i> {{ i18n.currentLang === 'ar' ? 'التفاصيل المالية' : 'Financials' }}</h4>
+            <div style="display:flex;justify-content:space-between;color:#475569"><span>{{ i18n.currentLang === 'ar' ? 'المجموع الفرعي' : 'Subtotal' }}</span><span>{{ selectedOrderDetail.subTotal | number:'1.0-2' }}</span></div>
+            <div style="display:flex;justify-content:space-between;color:#475569"><span>{{ i18n.currentLang === 'ar' ? 'الشحن' : 'Shipping' }}</span><span>{{ selectedOrderDetail.shippingCost | number:'1.0-2' }}</span></div>
+            <div *ngIf="selectedOrderDetail.discount > 0" style="display:flex;justify-content:space-between;color:#dc2626"><span>{{ i18n.currentLang === 'ar' ? 'خصم' : 'Discount' }}</span><span>-{{ selectedOrderDetail.discount | number:'1.0-2' }}</span></div>
+            <div style="display:flex;justify-content:space-between;padding-top:8px;margin-top:8px;border-top:1px dashed #93c5fd;font-weight:700;font-size:1.1rem;color:#1e40af">
+              <span>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</span>
+              <span>{{ selectedOrderDetail.total | number:'1.0-2' }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+            </div>
+            <div style="margin-top:8px;color:#64748b;font-size:0.88rem">
+              <i class="fa-solid fa-credit-card"></i> {{ selectedOrderDetail.paymentMethod || '-' }} — {{ selectedOrderDetail.paymentStatus }}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPPORT SETUP TAB -->
+    <div *ngIf="activeTab === 'support'" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-headset"></i> {{ i18n.currentLang === 'ar' ? 'إعدادات الدعم الفني' : 'Support Setup' }}</h2>
+      </div>
+      <app-support-setup></app-support-setup>
+    </div>
+
     <!-- SETTINGS TAB -->
     <div *ngIf="activeTab === 'settings'" class="tab-content">
       <div class="section-header">
@@ -2031,10 +2232,41 @@
           {{ siteSettings.isPickupAvailable ? (i18n.currentLang === 'ar' ? 'إغلاق نقطة الاستلام مؤقتاً' : 'Close Pickup Temporarily') : (i18n.currentLang === 'ar' ? 'فتح نقطة الاستلام' : 'Open Pickup Point') }}
         </button>
       </div>
+      <!-- Cash on Delivery Settings -->
       <div class="settings-card">
-        <div class="settings-card-header">
-          <i class="fa-solid fa-mobile-screen-button" style="color:#e60000"></i>
-          <h3>{{ i18n.currentLang === 'ar' ? 'فودافون كاش' : 'Vodafone Cash' }}</h3>
+        <div class="settings-card-header" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="fa-solid fa-money-bill-wave" style="color:#059669"></i>
+            <h3>{{ i18n.currentLang === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery' }}</h3>
+          </div>
+          <div class="pm-toggle-wrap">
+            <span class="pm-status-label" [class.on]="siteSettings.cashOnDeliveryEnabled" [class.off]="!siteSettings.cashOnDeliveryEnabled">
+              {{ siteSettings.cashOnDeliveryEnabled ? (i18n.currentLang === 'ar' ? 'مفعلة' : 'Enabled') : (i18n.currentLang === 'ar' ? 'موقفة' : 'Disabled') }}
+            </span>
+            <label class="pm-toggle">
+              <input type="checkbox" [checked]="siteSettings.cashOnDeliveryEnabled" (change)="togglePayment('cash')" />
+              <span class="pm-slider"></span>
+            </label>
+          </div>
+        </div>
+        <p class="settings-desc">{{ i18n.currentLang === 'ar' ? 'إظهار / إخفاء خيار الدفع عند الاستلام للعميل' : 'Show / hide Cash on Delivery for customers' }}</p>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-header" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="fa-solid fa-mobile-screen-button" style="color:#e60000"></i>
+            <h3>{{ i18n.currentLang === 'ar' ? 'فودافون كاش' : 'Vodafone Cash' }}</h3>
+          </div>
+          <div class="pm-toggle-wrap">
+            <span class="pm-status-label" [class.on]="siteSettings.vodafoneCashEnabled" [class.off]="!siteSettings.vodafoneCashEnabled">
+              {{ siteSettings.vodafoneCashEnabled ? (i18n.currentLang === 'ar' ? 'مفعلة' : 'Enabled') : (i18n.currentLang === 'ar' ? 'موقفة' : 'Disabled') }}
+            </span>
+            <label class="pm-toggle">
+              <input type="checkbox" [checked]="siteSettings.vodafoneCashEnabled" (change)="togglePayment('vodafone')" />
+              <span class="pm-slider"></span>
+            </label>
+          </div>
         </div>
         <p class="settings-desc">{{ i18n.currentLang === 'ar' ? 'رقم فودافون كاش الذي سيتم إرسال المدفوعات إليه' : 'Vodafone Cash number to receive payments' }}</p>
         <div class="vf-form">
@@ -2046,7 +2278,95 @@
             <label>{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Account Name' }}</label>
             <input type="text" [(ngModel)]="vfCashForm.name" [placeholder]="i18n.currentLang === 'ar' ? 'اسم الحساب' : 'Account holder name'" />
           </div>
+          <div class="vf-field full-row">
+            <label>{{ i18n.currentLang === 'ar' ? 'ملحوظة للعميل (اختياري)' : 'Note to customer (optional)' }}</label>
+            <textarea rows="3" [(ngModel)]="vfCashForm.note" [placeholder]="i18n.currentLang === 'ar' ? 'ملحوظة تظهر للعميل عند اختيار هذه الطريقة' : 'Shown to customer when this method is selected'"></textarea>
+          </div>
           <button class="btn-save-settings" (click)="saveVodafoneCash()">
+            <i class="fa-solid fa-floppy-disk"></i>
+            {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- InstaPay Settings -->
+      <div class="settings-card">
+        <div class="settings-card-header" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="fa-solid fa-bolt" style="color:#7c3aed"></i>
+            <h3>{{ i18n.currentLang === 'ar' ? 'إنستا باي' : 'InstaPay' }}</h3>
+          </div>
+          <div class="pm-toggle-wrap">
+            <span class="pm-status-label" [class.on]="siteSettings.instaPayEnabled" [class.off]="!siteSettings.instaPayEnabled">
+              {{ siteSettings.instaPayEnabled ? (i18n.currentLang === 'ar' ? 'مفعلة' : 'Enabled') : (i18n.currentLang === 'ar' ? 'موقفة' : 'Disabled') }}
+            </span>
+            <label class="pm-toggle">
+              <input type="checkbox" [checked]="siteSettings.instaPayEnabled" (change)="togglePayment('instapay')" />
+              <span class="pm-slider"></span>
+            </label>
+          </div>
+        </div>
+        <p class="settings-desc">{{ i18n.currentLang === 'ar' ? 'حساب InstaPay الذي سيتم إرسال المدفوعات إليه' : 'InstaPay account to receive payments' }}</p>
+        <div class="vf-form">
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'حساب إنستا باي (Handle)' : 'InstaPay Handle' }}</label>
+            <input type="text" [(ngModel)]="instaPayForm.handle" placeholder="wildmarket@instapay" />
+          </div>
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Account Name' }}</label>
+            <input type="text" [(ngModel)]="instaPayForm.name" [placeholder]="i18n.currentLang === 'ar' ? 'اسم الحساب' : 'Account holder name'" />
+          </div>
+          <div class="vf-field full-row">
+            <label>{{ i18n.currentLang === 'ar' ? 'ملحوظة للعميل (اختياري)' : 'Note to customer (optional)' }}</label>
+            <textarea rows="3" [(ngModel)]="instaPayForm.note" [placeholder]="i18n.currentLang === 'ar' ? 'ملحوظة تظهر للعميل عند اختيار هذه الطريقة' : 'Shown to customer when this method is selected'"></textarea>
+          </div>
+          <button class="btn-save-settings" (click)="saveInstaPay()">
+            <i class="fa-solid fa-floppy-disk"></i>
+            {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Bank Account Settings -->
+      <div class="settings-card">
+        <div class="settings-card-header" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="fa-solid fa-building-columns" style="color:#0369a1"></i>
+            <h3>{{ i18n.currentLang === 'ar' ? 'حساب بنكي' : 'Bank Account' }}</h3>
+          </div>
+          <div class="pm-toggle-wrap">
+            <span class="pm-status-label" [class.on]="siteSettings.bankEnabled" [class.off]="!siteSettings.bankEnabled">
+              {{ siteSettings.bankEnabled ? (i18n.currentLang === 'ar' ? 'مفعلة' : 'Enabled') : (i18n.currentLang === 'ar' ? 'موقفة' : 'Disabled') }}
+            </span>
+            <label class="pm-toggle">
+              <input type="checkbox" [checked]="siteSettings.bankEnabled" (change)="togglePayment('bank')" />
+              <span class="pm-slider"></span>
+            </label>
+          </div>
+        </div>
+        <p class="settings-desc">{{ i18n.currentLang === 'ar' ? 'بيانات الحساب البنكي للتحويل عليه' : 'Bank account details for wire transfers' }}</p>
+        <div class="vf-form">
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'اسم البنك' : 'Bank Name' }}</label>
+            <input type="text" [(ngModel)]="bankForm.bankName" [placeholder]="i18n.currentLang === 'ar' ? 'مثال: البنك الأهلي' : 'e.g. NBE'" />
+          </div>
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'اسم صاحب الحساب' : 'Account Holder' }}</label>
+            <input type="text" [(ngModel)]="bankForm.accountHolder" [placeholder]="i18n.currentLang === 'ar' ? 'اسم صاحب الحساب' : 'Account holder name'" />
+          </div>
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'رقم الحساب' : 'Account Number' }}</label>
+            <input type="text" [(ngModel)]="bankForm.accountNumber" placeholder="0000000000000000" />
+          </div>
+          <div class="vf-field">
+            <label>{{ i18n.currentLang === 'ar' ? 'IBAN (اختياري)' : 'IBAN (optional)' }}</label>
+            <input type="text" [(ngModel)]="bankForm.iban" placeholder="EG..." />
+          </div>
+          <div class="vf-field full-row">
+            <label>{{ i18n.currentLang === 'ar' ? 'ملحوظة للعميل (اختياري)' : 'Note to customer (optional)' }}</label>
+            <textarea rows="3" [(ngModel)]="bankForm.note" [placeholder]="i18n.currentLang === 'ar' ? 'ملحوظة تظهر للعميل عند اختيار هذه الطريقة' : 'Shown to customer when this method is selected'"></textarea>
+          </div>
+          <button class="btn-save-settings" (click)="saveBank()">
             <i class="fa-solid fa-floppy-disk"></i>
             {{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}
           </button>

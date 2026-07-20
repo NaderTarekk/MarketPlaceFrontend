@@ -92,6 +92,14 @@ export interface VendorOrder {
   pickedAt?: Date;
   deliveredAt?: Date;
   totalAmount: number;
+  shippingCost?: number;
+  promoDiscount?: number;
+  customerTotal?: number;
+  orderNumber?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  customerPhone?: string;
+  customerEmail?: string;
   items: VendorOrderItem[];
   customerName?: string;
   shippingAddress?: string;

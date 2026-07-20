@@ -264,7 +264,7 @@
                 </h3>
 
                 <div class="payment-methods">
-                    <label *ngFor="let method of paymentMethods" 
+                    <label *ngFor="let method of visiblePaymentMethods"
                         class="payment-option"
                         [class.selected]="selectedPaymentMethod === method.id"
                         (click)="selectPaymentMethod(method.id)">
@@ -283,32 +283,89 @@
                     </label>
                 </div>
 
-                <!-- Vodafone Cash Phone Input -->
-                <div *ngIf="showVodafoneInput" class="payment-input-section">
-                    <label>
+                <!-- Vodafone Cash Info Block -->
+                <div *ngIf="showVodafoneInfo && vodafoneCashNumber" class="payment-input-section" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px">
+                    <div style="font-weight:700;color:#991b1b;margin-bottom:8px">
                         <i class="fa-solid fa-mobile-screen-button"></i>
-                        {{ i18n.currentLang === 'ar' ? 'رقم فودافون كاش' : 'Vodafone Cash Number' }}
-                    </label>
-                    <input type="tel" 
-                        [(ngModel)]="vodafonePhone"
-                        placeholder="01xxxxxxxxx"
-                        maxlength="11"
-                        pattern="01[0-9]{9}">
-                    <small>{{ i18n.currentLang === 'ar' ? 'أدخل رقم المحفظة' : 'Enter your wallet number' }}</small>
+                        {{ i18n.currentLang === 'ar' ? 'حوّل على رقم فودافون كاش التالي' : 'Transfer to this Vodafone Cash number' }}
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                        <input type="text" readonly [value]="vodafoneCashNumber"
+                               style="flex:1;padding:8px;border:1px solid #fca5a5;border-radius:8px;background:#fff;font-weight:700" />
+                        <button type="button" (click)="copyToClipboard(vodafoneCashNumber)"
+                                style="padding:8px 12px;background:#dc2626;color:#fff;border:0;border-radius:8px;cursor:pointer">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                    <small *ngIf="vodafoneCashName" style="color:#991b1b">{{ vodafoneCashName }}</small>
+                    <div *ngIf="vodafoneCashNote" style="margin-top:10px;padding:10px;background:#fff;border-right:3px solid #dc2626;border-radius:6px;font-size:13px;color:#7f1d1d;white-space:pre-wrap">
+                        <i class="fa-solid fa-circle-info" style="margin-left:4px"></i>
+                        {{ vodafoneCashNote }}
+                    </div>
+                    <p style="margin:8px 0 0;font-size:13px;color:#991b1b">
+                        {{ i18n.currentLang === 'ar' ? 'بعد إتمام الطلب هيظهرلك الغرض اللي هتحطه في التحويل.' : 'After placing the order, the purpose to include in the transfer will be shown.' }}
+                    </p>
                 </div>
 
-                <!-- InstaPay Phone Input -->
-                <div *ngIf="showInstapayInput" class="payment-input-section">
-                    <label>
-                        <i class="fa-solid fa-phone"></i>
-                        {{ i18n.currentLang === 'ar' ? 'رقم الموبايل' : 'Phone Number' }}
-                    </label>
-                    <input type="tel" 
-                        [(ngModel)]="instapayPhone"
-                        placeholder="01xxxxxxxxx"
-                        maxlength="11"
-                        pattern="01[0-9]{9}">
-                    <small>{{ i18n.currentLang === 'ar' ? 'أدخل رقمك المسجل في InstaPay' : 'Enter your InstaPay registered number' }}</small>
+                <!-- InstaPay Info Block -->
+                <div *ngIf="showInstapayInfo && instaPayHandle" class="payment-input-section" style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;padding:14px">
+                    <div style="font-weight:700;color:#5b21b6;margin-bottom:8px">
+                        <i class="fa-solid fa-bolt"></i>
+                        {{ i18n.currentLang === 'ar' ? 'حوّل على حساب InstaPay التالي' : 'Transfer to this InstaPay account' }}
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                        <input type="text" readonly [value]="instaPayHandle"
+                               style="flex:1;padding:8px;border:1px solid #c4b5fd;border-radius:8px;background:#fff;font-weight:700" />
+                        <button type="button" (click)="copyToClipboard(instaPayHandle)"
+                                style="padding:8px 12px;background:#7c3aed;color:#fff;border:0;border-radius:8px;cursor:pointer">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                    <small *ngIf="instaPayName" style="color:#6b21a8">{{ instaPayName }}</small>
+                    <div *ngIf="instaPayNote" style="margin-top:10px;padding:10px;background:#fff;border-right:3px solid #7c3aed;border-radius:6px;font-size:13px;color:#4c1d95;white-space:pre-wrap">
+                        <i class="fa-solid fa-circle-info" style="margin-left:4px"></i>
+                        {{ instaPayNote }}
+                    </div>
+                    <p style="margin:8px 0 0;font-size:13px;color:#6d28d9">
+                        {{ i18n.currentLang === 'ar' ? 'بعد إتمام الطلب هيظهرلك الغرض اللي هتحطه في التحويل.' : 'After placing the order, the purpose to include in the transfer will be shown.' }}
+                    </p>
+                </div>
+
+                <!-- Bank Info Block -->
+                <div *ngIf="showBankInfo && bankAccountNumber" class="payment-input-section" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px">
+                    <div style="font-weight:700;color:#1e40af;margin-bottom:10px">
+                        <i class="fa-solid fa-building-columns"></i>
+                        {{ i18n.currentLang === 'ar' ? 'حوّل على الحساب البنكي التالي' : 'Transfer to this bank account' }}
+                    </div>
+                    <div style="line-height:1.9;font-size:14px">
+                        <div><strong>{{ i18n.currentLang === 'ar' ? 'البنك:' : 'Bank:' }}</strong> {{ bankName }}</div>
+                        <div *ngIf="bankAccountHolder"><strong>{{ i18n.currentLang === 'ar' ? 'صاحب الحساب:' : 'Holder:' }}</strong> {{ bankAccountHolder }}</div>
+                        <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                            <strong>{{ i18n.currentLang === 'ar' ? 'رقم الحساب:' : 'Account #:' }}</strong>
+                            <input type="text" readonly [value]="bankAccountNumber"
+                                   style="flex:1;padding:6px 8px;border:1px solid #93c5fd;border-radius:8px;background:#fff;font-weight:700" />
+                            <button type="button" (click)="copyToClipboard(bankAccountNumber)"
+                                    style="padding:6px 10px;background:#0369a1;color:#fff;border:0;border-radius:8px;cursor:pointer">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="bankIBAN" style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                            <strong>IBAN:</strong>
+                            <input type="text" readonly [value]="bankIBAN"
+                                   style="flex:1;padding:6px 8px;border:1px solid #93c5fd;border-radius:8px;background:#fff" />
+                            <button type="button" (click)="copyToClipboard(bankIBAN)"
+                                    style="padding:6px 10px;background:#0369a1;color:#fff;border:0;border-radius:8px;cursor:pointer">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div *ngIf="bankNote" style="margin-top:10px;padding:10px;background:#fff;border-right:3px solid #0369a1;border-radius:6px;font-size:13px;color:#1e3a8a;white-space:pre-wrap">
+                        <i class="fa-solid fa-circle-info" style="margin-left:4px"></i>
+                        {{ bankNote }}
+                    </div>
+                    <p style="margin:10px 0 0;font-size:13px;color:#1e3a8a">
+                        {{ i18n.currentLang === 'ar' ? 'بعد إتمام الطلب هيظهرلك الغرض اللي هتحطه في التحويل.' : 'After placing the order, the purpose to include in the transfer will be shown.' }}
+                    </p>
                 </div>
 
                 <!-- Order Summary -->
@@ -342,9 +399,9 @@
                 </div>
 
                 <!-- Checkout Button -->
-                <button class="btn-checkout" 
+                <button class="btn-checkout"
                         (click)="proceedToPayment()"
-                        [disabled]="!selectedPaymentMethod || isProcessing">
+                        [disabled]="!canCheckout">
                     <i class="fa-solid" [ngClass]="isProcessing ? 'fa-spinner fa-spin' : 'fa-lock'"></i>
                     {{ isProcessing 
                     ? (i18n.currentLang === 'ar' ? 'جاري المعالجة...' : 'Processing...')
@@ -381,6 +438,23 @@
         </div>
 
         <div class="modal-body" [innerHTML]="instructionsModal.content"></div>
+
+        <!-- Purpose block (Angular-native so copy button works) -->
+        <div *ngIf="purposeText" style="margin:0 20px 12px;padding:12px;background:#fef3c7;border:1px dashed #f59e0b;border-radius:10px">
+            <div style="font-size:13px;color:#92400e;margin-bottom:6px;font-weight:700">
+                {{ i18n.currentLang === 'ar' ? 'الغرض من التحويل (انسخه بالظبط):' : 'Transfer purpose (copy exactly):' }}
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" readonly [value]="purposeText"
+                       style="flex:1;padding:8px 10px;border:1px solid #f59e0b;border-radius:8px;background:#fff;font-weight:700;color:#78350f"
+                       (click)="$any($event.target).select()" />
+                <button type="button" (click)="copyToClipboard(purposeText)"
+                        style="padding:8px 12px;background:#f59e0b;color:#fff;border:0;border-radius:8px;cursor:pointer;font-weight:700">
+                    <i class="fa-solid fa-copy"></i>
+                    {{ i18n.currentLang === 'ar' ? 'نسخ' : 'Copy' }}
+                </button>
+            </div>
+        </div>
 
         <div class="modal-footer">
             <button class="btn-whatsapp" (click)="openWhatsApp()">

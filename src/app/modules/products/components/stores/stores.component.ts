@@ -4,6 +4,9 @@ import { I18nService } from '../../../../core/services/i18n.service';
 import { ProductsService } from '../../services/products.service';
 import { Store } from '../../../../models/products';
 import { environment } from '../../../../../environment';
+import { ChatService } from '../../../chat/services/chat.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-stores',
@@ -17,12 +20,43 @@ export class StoresComponent implements OnInit {
   isLoading = true;
   search = '';
 
+  chattingVendorId: string | null = null;
+
   constructor(
     public i18n: I18nService,
     private productService: ProductsService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private chatService: ChatService,
+    private authService: AuthService,
+    private toastr: ToastrService
   ) {}
+
+  chatWithVendor(store: Store, event: Event): void {
+    event.stopPropagation();
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    if (this.chattingVendorId === store.vendorId) return;
+    this.chattingVendorId = store.vendorId;
+    this.chatService.startSessionWithVendor(store.vendorId).subscribe({
+      next: (res: any) => {
+        this.chattingVendorId = null;
+        if (res.success) {
+          this.router.navigate(['/chat'], { queryParams: { sessionId: res.data.id } });
+        } else {
+          this.toastr.error(res.message || 'Error');
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.chattingVendorId = null;
+        this.toastr.error(err?.error?.message || (this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error'));
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.productService.getStores().subscribe({

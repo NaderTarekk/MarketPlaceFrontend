@@ -13,6 +13,7 @@ import { ComplaintsService } from '../../../complaints/services/complaints.servi
 import { ToastrComponent } from '../../../../shared/components/toastr/toastr.component';
 import { ToastrService } from 'ngx-toastr';
 import { PromotionService } from '../../../../services/promotion.service';
+import { ChatService } from '../../../chat/services/chat.service';
 
 @Component({
   selector: 'app-product-details',
@@ -93,8 +94,34 @@ export class ProductDetailsComponent implements OnInit {
     private complaintsService: ComplaintsService,
     private toastr: ToastrService,
     private governorateService: GovernorateService,
-    private promotionService: PromotionService
+    private promotionService: PromotionService,
+    private chatService: ChatService
   ) { }
+
+  isStartingChat = false;
+  chatWithVendor(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    const vendorId = (this.product as any)?.vendorId;
+    if (!vendorId || this.isStartingChat) return;
+    this.isStartingChat = true;
+    this.chatService.startSessionWithVendor(vendorId).subscribe({
+      next: (res: any) => {
+        this.isStartingChat = false;
+        if (res.success) {
+          this.router.navigate(['/chat'], { queryParams: { sessionId: res.data.id } });
+        } else {
+          this.toastr.error(res.message || 'Error');
+        }
+      },
+      error: (err) => {
+        this.isStartingChat = false;
+        this.toastr.error(err?.error?.message || (this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error'));
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(qp => {

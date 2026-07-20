@@ -8,12 +8,33 @@
   min-height: 100vh;
   background: #f8f9fa;
   padding-bottom: 40px;
+  overflow-x: hidden;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.product-details-page img,
+.product-details-page video {
+  max-width: 100%;
+}
+
+.product-details-page .gallery-section,
+.product-details-page .info-section {
+  min-width: 0;
+}
+
+.product-details-page .short-description,
+.product-details-page .description-content,
+.product-details-page .product-title,
+.product-details-page .spec-row {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Loading */

@@ -350,7 +350,7 @@ export class ProfileComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.showToast(
-            this.i18n.currentLang === 'ar' ? 'تم رفع لوجو المتجر' : 'Store logo uploaded',
+            this.i18n.currentLang === 'ar' ? 'تم إرسال الشعار للمراجعة من الإدارة' : 'Logo submitted for admin review',
             'success'
           );
           this.loadProfile();

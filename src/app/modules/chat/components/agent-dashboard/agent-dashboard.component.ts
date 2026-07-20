@@ -1,5 +1,6 @@
 // agent-dashboard.component.ts
 import { ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ChatHubMessage, ChatMessage, ChatService, ChatSession, ChatStatus, ChatType, MessageSenderType } from '../../services/chat.service';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -25,11 +26,72 @@ export class AgentDashboardComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  private pendingSessionId: number | null = null;
+
+  // Transfer
+  showTransferModal = false;
+  transferAgents: any[] = [];
+  transferSearch = '';
+  transferSelectedAgentId: string | null = null;
+  isTransferring = false;
+
   constructor(private chatService: ChatService, private cdr: ChangeDetectorRef,
-    private ngZone: NgZone) { }
+    private ngZone: NgZone, private route: ActivatedRoute) { }
+
+  openTransferModal(): void {
+    this.showTransferModal = true;
+    this.transferSelectedAgentId = null;
+    this.transferSearch = '';
+    if (this.transferAgents.length === 0) {
+      this.chatService.getCsAgents().subscribe({
+        next: (res: any) => {
+          if (res.success) this.transferAgents = res.data || [];
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+
+  closeTransferModal(): void {
+    this.showTransferModal = false;
+    this.transferSelectedAgentId = null;
+  }
+
+  get filteredTransferAgents() {
+    const q = (this.transferSearch || '').trim().toLowerCase();
+    // exclude self
+    const currentId = this.currentSession?.agentId as any;
+    return this.transferAgents.filter(a => {
+      if (a.id === currentId) return false;
+      if (!q) return true;
+      return (a.fullName || '').toLowerCase().includes(q) ||
+             (a.email || '').toLowerCase().includes(q) ||
+             (a.departmentNames || []).some((n: string) => (n || '').toLowerCase().includes(q));
+    });
+  }
+
+  doTransfer(): void {
+    if (!this.currentSession || !this.transferSelectedAgentId || this.isTransferring) return;
+    this.isTransferring = true;
+    this.chatService.transferSession(this.currentSession.id, this.transferSelectedAgentId).subscribe({
+      next: (res: any) => {
+        this.isTransferring = false;
+        if (res.success) {
+          // remove from active list (no longer belongs to me)
+          this.activeSessions = this.activeSessions.filter(s => s.id !== this.currentSession!.id);
+          this.currentSession = null;
+          this.closeTransferModal();
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isTransferring = false; this.cdr.detectChanges(); }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     this.isLoading = true;
+    const sid = this.route.snapshot.queryParamMap.get('sessionId');
+    if (sid) this.pendingSessionId = parseInt(sid, 10);
     await this.chatService.startConnection();
 
     this.chatService.connectionStatus
@@ -148,6 +210,14 @@ export class AgentDashboardComponent implements OnInit, OnDestroy {
           );
           this.cdr.detectChanges();
           this.isLoading = false;
+
+          if (this.pendingSessionId) {
+            const target = this.activeSessions.find(s => s.id === this.pendingSessionId);
+            if (target) {
+              this.selectSession(target);
+              this.pendingSessionId = null;
+            }
+          }
         }
       }
     });

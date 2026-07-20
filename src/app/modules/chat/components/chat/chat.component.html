@@ -37,14 +37,41 @@
   </div>
   }
 
+  <!-- Department Picker Modal -->
+  @if (showDepartmentPicker) {
+  <div class="dept-overlay" (click)="cancelDepartmentPicker()">
+    <div class="dept-modal" (click)="$event.stopPropagation()">
+      <h3>اختر القسم المناسب</h3>
+      <p class="dept-hint">اختر تخصص الموظف اللي تحب تتواصل معاه</p>
+
+      @if (departments.length === 0) {
+        <div class="dept-empty">لا توجد أقسام متاحة</div>
+      }
+
+      <div class="dept-list">
+        @for (d of departments; track d.id) {
+          <label class="dept-item" [class.selected]="selectedDepartmentId === d.id">
+            <input type="radio" name="dept" [value]="d.id" [(ngModel)]="selectedDepartmentId" />
+            <span>{{ d.nameAr }}</span>
+          </label>
+        }
+      </div>
+
+      <div class="dept-actions">
+        <button class="btn-cancel" (click)="cancelDepartmentPicker()">إلغاء</button>
+        <button class="btn-start" (click)="confirmDepartmentAndStart()">
+          بدء المحادثة
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
   <!-- Chat View -->
   @if (currentView === 'chat' && session) {
   <div class="chat-window">
     <!-- Header -->
     <div class="chat-header">
-      <button class="back-btn" (click)="backToSelection()">
-        <i class="fa fa-arrow-right"></i>
-      </button>
       <div class="chat-info">
         <div class="avatar">
           {{ session.type === ChatType.Bot ? '🤖' : '👨‍💼' }}
@@ -63,9 +90,6 @@
           </span>
         </div>
       </div>
-      <button class="close-btn" (click)="closeChat()" title="إنهاء المحادثة">
-        <i class="fa fa-times"></i>
-      </button>
     </div>
 
     <!-- Connection Warning -->

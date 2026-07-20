@@ -112,8 +112,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService
   ) {
     this.notificationService.unreadCount.subscribe(count => {
+      const prev = this.unreadNotificationsCount;
       this.unreadNotificationsCount = count;
       this.cdr.detectChanges();
+      if (this.hasSeenInitialCount && count > prev) {
+        this.checkForChatNotification();
+      }
+      this.hasSeenInitialCount = true;
+    });
+  }
+
+  private hasSeenInitialCount = false;
+
+  private checkForChatNotification(): void {
+    this.notificationService.getAll().subscribe({
+      next: (res: any) => {
+        if (!res.success || !res.data?.length) return;
+        this.notifications = res.data;
+        const latest = res.data.find((n: any) => !n.isRead);
+        if (!latest) return;
+        const title = ((latest.titleAr || '') + ' ' + (latest.titleEn || '')).toLowerCase();
+        const isChat = latest.relatedType === 'chat' || title.includes('رسالة') || title.includes('message');
+        if (isChat) {
+          const t = this.i18n.currentLang === 'ar' ? (latest.titleAr || 'رسالة جديدة') : (latest.titleEn || 'New message');
+          const m = this.i18n.currentLang === 'ar' ? (latest.messageAr || 'اضغط لفتح الشات') : (latest.messageEn || 'Click to open chat');
+          const ref = this.toastr.info(m, t, { timeOut: 8000, closeButton: true, tapToDismiss: false });
+          ref.onTap.subscribe(() => this.router.navigate(['/chat']));
+        }
+      }
     });
   }
 
@@ -150,10 +176,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.notificationService.markAsRead(n.id).subscribe();
       n.isRead = true;
     }
+    const title = ((n.titleAr || '') + ' ' + (n.titleEn || '')).toLowerCase();
+    const looksLikeChat = n.relatedType === 'chat' || title.includes('رسالة') || title.includes('message');
+
     if (n.relatedType === 'product' && n.relatedId) {
       this.router.navigate(['/products', n.relatedId]);
     } else if (n.relatedType === 'order' && n.relatedId) {
       this.router.navigate(['/cart/my-orders']);
+    } else if (looksLikeChat) {
+      this.router.navigate(['/chat'], n.relatedId ? { queryParams: { sessionId: n.relatedId } } : undefined);
     }
     this.isNotificationsOpen = false;
   }

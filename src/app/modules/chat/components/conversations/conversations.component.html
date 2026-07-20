@@ -1,0 +1,69 @@
+<div class="conv-page">
+  <div class="conv-sidebar">
+    <div class="conv-sidebar-header">
+      <h3>
+        <i class="fa-solid fa-comments"></i>
+        {{ isMonitor ? (i18n.currentLang === 'ar' ? 'مراقبة الشاتات' : 'Chat Monitor') : (i18n.currentLang === 'ar' ? 'محادثات العملاء' : 'Customer Chats') }}
+      </h3>
+      <input type="text" [(ngModel)]="search"
+             [placeholder]="i18n.currentLang === 'ar' ? 'بحث...' : 'Search...'" class="conv-search" />
+    </div>
+
+    <div *ngIf="isLoading" class="conv-loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+    </div>
+
+    <div *ngIf="!isLoading && filtered.length === 0" class="conv-empty">
+      {{ i18n.currentLang === 'ar' ? 'لا توجد محادثات' : 'No chats' }}
+    </div>
+
+    <div *ngFor="let s of filtered"
+         class="conv-item"
+         [class.active]="currentSession?.id === s.id"
+         (click)="select(s)">
+      <div class="conv-avatar">{{ (otherPartyName(s) || '?').charAt(0) }}</div>
+      <div class="conv-item-info">
+        <div class="conv-item-name">{{ otherPartyName(s) }}</div>
+        <div class="conv-item-code">{{ s.sessionCode }}</div>
+      </div>
+      <div class="conv-item-time">{{ formatTime(s.lastMessageAt) }}</div>
+    </div>
+  </div>
+
+  <div class="conv-main">
+    <div *ngIf="!currentSession" class="conv-placeholder">
+      <i class="fa-solid fa-comment-dots"></i>
+      <p>{{ i18n.currentLang === 'ar' ? 'اختر محادثة من القائمة' : 'Select a conversation from the list' }}</p>
+    </div>
+
+    <div *ngIf="currentSession" class="conv-window">
+      <div class="conv-header">
+        <div class="conv-avatar">{{ (otherPartyName(currentSession) || '?').charAt(0) }}</div>
+        <div>
+          <h4>{{ otherPartyName(currentSession) }}</h4>
+          <small>{{ currentSession.sessionCode }}</small>
+        </div>
+      </div>
+
+      <div class="conv-messages" #messagesContainer>
+        <div *ngFor="let m of currentSession.messages"
+             class="msg-row"
+             [class.mine]="isMyMessage(m)">
+          <div class="msg-bubble">
+            <div class="msg-sender">{{ senderLabel(m, currentSession) }}</div>
+            <div class="msg-content">{{ m.content }}</div>
+            <div class="msg-time">{{ formatTime(m.createdAt) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="conv-composer">
+        <input type="text" [(ngModel)]="newMessage" (keydown)="onKey($event)"
+               [placeholder]="i18n.currentLang === 'ar' ? 'اكتب رسالتك...' : 'Type a message...'" />
+        <button (click)="send()" [disabled]="!newMessage.trim() || !isConnected">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -252,7 +252,31 @@ export class AdminReportsService {
     return this.http.post(`${environment.siteSettingsUrl}/toggle-pickup`, {});
   }
 
-  updateVodafoneCash(number: string, name: string): Observable<any> {
-    return this.http.put(`${environment.siteSettingsUrl}/vodafone-cash`, { number, name });
+  updateVodafoneCash(number: string, name: string, note: string): Observable<any> {
+    return this.http.put(`${environment.siteSettingsUrl}/vodafone-cash`, { number, name, note });
+  }
+
+  updateInstaPay(handle: string, name: string, note: string): Observable<any> {
+    return this.http.put(`${environment.siteSettingsUrl}/instapay`, { handle, name, note });
+  }
+
+  updateBank(bankName: string, accountHolder: string, accountNumber: string, iban: string, note: string): Observable<any> {
+    return this.http.put(`${environment.siteSettingsUrl}/bank`, { bankName, accountHolder, accountNumber, iban, note });
+  }
+
+  togglePaymentMethod(method: 'cash' | 'vodafone' | 'instapay' | 'bank'): Observable<any> {
+    return this.http.post(`${environment.siteSettingsUrl}/toggle-payment/${method}`, {});
+  }
+
+  getAdminOrders(search: string, page: number, pageSize: number): Observable<any> {
+    let params = new HttpParams()
+      .set('page', String(page))
+      .set('pageSize', String(pageSize));
+    if (search?.trim()) params = params.set('search', search.trim());
+    return this.http.get(`${environment.adminUrl}/orders`, { params });
+  }
+
+  getAdminOrderDetails(id: number): Observable<any> {
+    return this.http.get(`${environment.adminUrl}/orders/${id}`);
   }
 }

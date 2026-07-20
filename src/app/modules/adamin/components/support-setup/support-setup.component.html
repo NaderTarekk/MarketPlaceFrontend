@@ -1,0 +1,123 @@
+<div class="support-setup">
+  <div class="section">
+    <div class="section-head">
+      <h3><i class="fa-solid fa-tags"></i> {{ i18n.currentLang === 'ar' ? 'أقسام الدعم' : 'Support Departments' }}</h3>
+      <button class="btn-primary" (click)="openNewDept()">
+        <i class="fa-solid fa-plus"></i> {{ i18n.currentLang === 'ar' ? 'إضافة قسم' : 'Add Department' }}
+      </button>
+    </div>
+
+    <div *ngIf="isLoadingDepts" class="loading"><i class="fa-solid fa-spinner fa-spin"></i></div>
+    <div *ngIf="!isLoadingDepts && departments.length === 0" class="empty">
+      {{ i18n.currentLang === 'ar' ? 'لا توجد أقسام' : 'No departments yet' }}
+    </div>
+
+    <table *ngIf="!isLoadingDepts && departments.length > 0" class="tbl">
+      <thead>
+        <tr>
+          <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic name' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English name' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'عدد الموظفين' : 'Members' }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of departments">
+          <td><strong>{{ d.nameAr }}</strong></td>
+          <td>{{ d.nameEn }}</td>
+          <td>
+            <span class="badge" [class.on]="d.isActive" [class.off]="!d.isActive">
+              {{ d.isActive ? (i18n.currentLang === 'ar' ? 'مفعّل' : 'Active') : (i18n.currentLang === 'ar' ? 'موقف' : 'Inactive') }}
+            </span>
+          </td>
+          <td>{{ d.membersCount || 0 }}</td>
+          <td class="actions">
+            <button (click)="openEditDept(d)" title="Edit"><i class="fa-solid fa-pen"></i></button>
+            <button (click)="deleteDept(d)" title="Delete" class="danger"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h3><i class="fa-solid fa-headset"></i> {{ i18n.currentLang === 'ar' ? 'موظفو الدعم الفني' : 'Customer Service Agents' }}</h3>
+    </div>
+
+    <div *ngIf="isLoadingAgents" class="loading"><i class="fa-solid fa-spinner fa-spin"></i></div>
+    <div *ngIf="!isLoadingAgents && agents.length === 0" class="empty">
+      {{ i18n.currentLang === 'ar' ? 'لا يوجد موظفون. أضف مستخدم بدور CustomerService أولاً' : 'No agents. Create a user with CustomerService role first.' }}
+    </div>
+
+    <table *ngIf="!isLoadingAgents && agents.length > 0" class="tbl">
+      <thead>
+        <tr>
+          <th>{{ i18n.currentLang === 'ar' ? 'الاسم' : 'Name' }}</th>
+          <th>{{ i18n.currentLang === 'ar' ? 'الأقسام' : 'Departments' }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of agents">
+          <td>
+            <div><strong>{{ a.fullName }}</strong></div>
+            <small style="color:#94a3b8">{{ a.email }}</small>
+          </td>
+          <td>
+            <ng-container *ngIf="editingAgentId !== a.id">
+              <span *ngFor="let n of a.departmentNames" class="chip">{{ n }}</span>
+              <span *ngIf="!a.departmentNames?.length" style="color:#94a3b8">
+                {{ i18n.currentLang === 'ar' ? '— لا يوجد' : '— none' }}
+              </span>
+            </ng-container>
+            <div *ngIf="editingAgentId === a.id" class="checks">
+              <label *ngFor="let d of departments" class="check">
+                <input type="checkbox" [checked]="editingAgentSelectedIds.has(d.id)" (change)="toggleAgentDept(d.id)" />
+                <span>{{ i18n.currentLang === 'ar' ? d.nameAr : d.nameEn }}</span>
+              </label>
+            </div>
+          </td>
+          <td class="actions">
+            <ng-container *ngIf="editingAgentId !== a.id">
+              <button (click)="startEditAgent(a)" title="Edit">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="editingAgentId === a.id">
+              <button class="save" (click)="saveAgentDepartments(a)"><i class="fa-solid fa-check"></i></button>
+              <button (click)="cancelEditAgent()"><i class="fa-solid fa-xmark"></i></button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Department Dialog -->
+<div *ngIf="showDeptDialog" class="modal-overlay" (click)="closeDeptDialog()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ editingDept ? (i18n.currentLang === 'ar' ? 'تعديل قسم' : 'Edit Department') : (i18n.currentLang === 'ar' ? 'إضافة قسم' : 'Add Department') }}</h3>
+      <button (click)="closeDeptDialog()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالعربي' : 'Arabic name' }} *</label>
+      <input type="text" [(ngModel)]="deptForm.nameAr" />
+
+      <label>{{ i18n.currentLang === 'ar' ? 'الاسم بالإنجليزي' : 'English name' }}</label>
+      <input type="text" [(ngModel)]="deptForm.nameEn" />
+
+      <label class="chk">
+        <input type="checkbox" [(ngModel)]="deptForm.isActive" />
+        <span>{{ i18n.currentLang === 'ar' ? 'مفعّل' : 'Active' }}</span>
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-secondary" (click)="closeDeptDialog()">{{ i18n.currentLang === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+      <button class="btn-primary" (click)="saveDept()">{{ i18n.currentLang === 'ar' ? 'حفظ' : 'Save' }}</button>
+    </div>
+  </div>
+</div>

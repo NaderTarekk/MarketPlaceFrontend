@@ -161,6 +161,41 @@
               <span class="total">{{ order.totalAmount.toFixed(2) }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP'
                 }}</span>
             </div>
+
+            <!-- Full financial breakdown -->
+            <div style="margin-top:8px;padding:10px;background:#f8fafc;border-radius:8px;font-size:0.88rem;line-height:1.7">
+              <div *ngIf="order.orderNumber" style="font-weight:700;color:#0369a1;margin-bottom:6px">
+                <i class="fa-solid fa-hashtag"></i> {{ order.orderNumber }}
+              </div>
+              <div style="display:flex;justify-content:space-between;color:#64748b">
+                <span>{{ i18n.currentLang === 'ar' ? 'المنتجات (نصيب هذا التاجر)' : 'Items (this vendor)' }}</span>
+                <span>{{ (order.totalAmount - (order.shippingCost || 0)) | number:'1.2-2' }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+              </div>
+              <div *ngIf="(order.shippingCost || 0) > 0" style="display:flex;justify-content:space-between;color:#64748b">
+                <span>{{ i18n.currentLang === 'ar' ? 'الشحن (نصيب هذا التاجر)' : 'Shipping (this vendor)' }}</span>
+                <span>{{ order.shippingCost | number:'1.2-2' }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+              </div>
+              <div *ngIf="(order.promoDiscount || 0) > 0" style="display:flex;justify-content:space-between;color:#dc2626">
+                <span>{{ i18n.currentLang === 'ar' ? 'خصم كود' : 'Promo discount' }}</span>
+                <span>-{{ order.promoDiscount | number:'1.2-2' }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+              </div>
+              <div *ngIf="order.customerTotal" style="display:flex;justify-content:space-between;padding-top:6px;margin-top:6px;border-top:1px dashed #cbd5e1;font-weight:700;color:#1e293b">
+                <span>{{ i18n.currentLang === 'ar' ? 'إجمالي الطلب الكامل للعميل' : 'Customer total (full order)' }}</span>
+                <span>{{ order.customerTotal | number:'1.2-2' }} {{ i18n.currentLang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+              </div>
+              <div *ngIf="order.paymentMethod" style="margin-top:6px;color:#475569;font-size:0.82rem">
+                <i class="fa-solid fa-credit-card"></i>
+                {{ order.paymentMethod }}
+                <span *ngIf="order.paymentStatus" style="margin-inline-start:6px;padding:1px 8px;border-radius:999px;font-size:0.72rem"
+                      [style.background]="order.paymentStatus === 'Paid' ? '#dcfce7' : '#fef3c7'"
+                      [style.color]="order.paymentStatus === 'Paid' ? '#166534' : '#92400e'">
+                  {{ order.paymentStatus }}
+                </span>
+              </div>
+              <div *ngIf="order.customerPhone" style="margin-top:4px;color:#475569;font-size:0.82rem">
+                <i class="fa-solid fa-phone"></i> {{ order.customerPhone }}
+              </div>
+            </div>
           </div>
 
           <div class="items-preview">

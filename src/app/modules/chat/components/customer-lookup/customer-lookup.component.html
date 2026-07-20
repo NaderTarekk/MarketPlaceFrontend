@@ -1,0 +1,94 @@
+<div class="cs-lookup-page">
+  <div class="cs-container">
+    <div class="cs-header">
+      <h2>
+        <i class="fa-solid fa-headset"></i>
+        {{ i18n.currentLang === 'ar' ? 'البحث عن عميل / بدء محادثة' : 'Customer Lookup / Start Chat' }}
+      </h2>
+      <p>{{ i18n.currentLang === 'ar' ? 'ابحث برقم الأوردر أو البريد الإلكتروني' : 'Search by order number or email' }}</p>
+    </div>
+
+    <div class="cs-search-box">
+      <input
+        type="text"
+        [(ngModel)]="query"
+        (keydown.enter)="search()"
+        [placeholder]="i18n.currentLang === 'ar' ? 'مثال: ORD-20250719-0001 أو customer@email.com' : 'e.g. ORD-20250719-0001 or customer@email.com'"
+      />
+      <button class="cs-search-btn" (click)="search()" [disabled]="isLoading">
+        <i class="fa-solid" [ngClass]="isLoading ? 'fa-spinner fa-spin' : 'fa-magnifying-glass'"></i>
+        {{ i18n.currentLang === 'ar' ? 'بحث' : 'Search' }}
+      </button>
+    </div>
+
+    <div *ngIf="errorMessage && !result" class="cs-empty">
+      <i class="fa-solid fa-user-slash"></i>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <div *ngIf="result" class="cs-result">
+      <div class="cs-customer-card">
+        <div class="cs-avatar">{{ (result.fullName || '?').charAt(0) }}</div>
+        <div class="cs-customer-info">
+          <h3>{{ result.fullName }}</h3>
+          <div class="cs-customer-meta">
+            <span *ngIf="result.email"><i class="fa-solid fa-envelope"></i> {{ result.email }}</span>
+            <span *ngIf="result.phoneNumber"><i class="fa-solid fa-phone"></i> {{ result.phoneNumber }}</span>
+            <span *ngIf="result.role"><i class="fa-solid fa-user-tag"></i> {{ result.role }}</span>
+            <span><i class="fa-solid fa-calendar"></i> {{ formatDate(result.createdAt) }}</span>
+          </div>
+        </div>
+        <button class="cs-chat-btn" (click)="startChat()" [disabled]="isStartingChat">
+          <i class="fa-solid" [ngClass]="isStartingChat ? 'fa-spinner fa-spin' : 'fa-comments'"></i>
+          {{ i18n.currentLang === 'ar' ? 'بدء محادثة' : 'Start Chat' }}
+        </button>
+      </div>
+
+      <div class="cs-orders-section">
+        <h3>
+          <i class="fa-solid fa-box"></i>
+          {{ i18n.currentLang === 'ar' ? 'طلبات العميل' : 'Customer Orders' }}
+          <span class="cs-badge">{{ result.orders.length }}</span>
+        </h3>
+
+        <div *ngIf="result.orders.length === 0" class="cs-empty-inline">
+          {{ i18n.currentLang === 'ar' ? 'لا توجد طلبات' : 'No orders' }}
+        </div>
+
+        <div *ngIf="result.orders.length > 0" class="cs-orders-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ i18n.currentLang === 'ar' ? 'رقم الأوردر' : 'Order #' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'عدد العناصر' : 'Items' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'الدفع' : 'Payment' }}</th>
+                <th>{{ i18n.currentLang === 'ar' ? 'التاريخ' : 'Date' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let o of result.orders">
+                <td><strong>{{ o.orderNumber }}</strong></td>
+                <td>{{ formatPrice(o.total) }}</td>
+                <td>{{ o.itemsCount }}</td>
+                <td>
+                  <span class="cs-status-badge" [style.background]="statusColor(o.status) + '22'" [style.color]="statusColor(o.status)">
+                    {{ o.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="cs-payment-cell">
+                    <span>{{ o.paymentMethod || '-' }}</span>
+                    <small *ngIf="o.paymentStatus">{{ o.paymentStatus }}</small>
+                  </div>
+                </td>
+                <td>{{ formatDate(o.createdAt) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

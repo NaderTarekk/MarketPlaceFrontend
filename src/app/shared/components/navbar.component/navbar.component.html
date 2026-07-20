@@ -223,6 +223,27 @@
           {{ 'chat' | translate }}
         </a>
 
+        <!-- CustomerService Lookup -->
+        <a routerLink="/chat/customer-lookup" *ngIf="role == 'CustomerService' || role == 'Admin'" routerLinkActive="active"
+          class="nav-link-ozon">
+          <i class="fa-solid fa-headset"></i>
+          {{ currentLang === 'ar' ? 'بحث عن عميل' : 'Customer Lookup' }}
+        </a>
+
+        <!-- Chat Monitor (Admin/CS) -->
+        <a routerLink="/chat/monitor" *ngIf="role == 'Admin' || role == 'CustomerService'" routerLinkActive="active"
+          class="nav-link-ozon">
+          <i class="fa-solid fa-user-shield"></i>
+          {{ currentLang === 'ar' ? 'مراقبة الشاتات' : 'Chat Monitor' }}
+        </a>
+
+        <!-- Vendor Customer Chats -->
+        <a routerLink="/chat/conversations" *ngIf="role == 'Vendor'" routerLinkActive="active"
+          class="nav-link-ozon">
+          <i class="fa-solid fa-comments"></i>
+          {{ currentLang === 'ar' ? 'محادثات العملاء' : 'Customer Chats' }}
+        </a>
+
         <!-- ✅ Shipping Employee -->
         <a *ngIf="isShippingEmployee" routerLink="/shipping/employee" routerLinkActive="active"
           class="nav-link-ozon shipping-link">

@@ -9,6 +9,7 @@ import { AdminBannersComponent } from './components/admin-banners/admin-banners.
 import { AdminReturnsComponent } from './components/admin-returns/admin-returns.component';
 import { AdminReturnDetailsComponent } from './components/admin-return-details/admin-return-details.component';
 import { AdminReturnStatisticsComponent } from './components/admin-return-statistics-component/admin-return-statistics-component.component';
+import { SupportSetupComponent } from './components/support-setup/support-setup.component';
 
 
 
@@ -20,7 +21,8 @@ import { AdminReturnStatisticsComponent } from './components/admin-return-statis
     AdminBannersComponent,
     AdminReturnsComponent,
     AdminReturnDetailsComponent,
-    AdminReturnStatisticsComponent
+    AdminReturnStatisticsComponent,
+    SupportSetupComponent
   ],
   imports: [
     CommonModule,

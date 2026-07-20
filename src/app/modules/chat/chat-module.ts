@@ -4,6 +4,8 @@ import { ChatComponent } from './components/chat/chat.component';
 import { FormsModule } from '@angular/forms';
 import { ChatRoutingModule } from '../../routing/chat-routing-module';
 import { AgentDashboardComponent } from './components/agent-dashboard/agent-dashboard.component';
+import { CustomerLookupComponent } from './components/customer-lookup/customer-lookup.component';
+import { ConversationsComponent } from './components/conversations/conversations.component';
 import { SharedModule } from '../../shared/shared-module';
 
 
@@ -11,7 +13,9 @@ import { SharedModule } from '../../shared/shared-module';
 @NgModule({
   declarations: [
     ChatComponent,
-    AgentDashboardComponent
+    AgentDashboardComponent,
+    CustomerLookupComponent,
+    ConversationsComponent
   ],
   imports: [
     CommonModule,

@@ -74,6 +74,19 @@ export class OrderComponent implements OnInit {
   isPickupAvailable = true;
   vodafoneCashNumber = '';
   vodafoneCashName = '';
+  vodafoneCashNote = '';
+  instaPayHandle = '';
+  instaPayName = '';
+  instaPayNote = '';
+  bankName = '';
+  bankAccountHolder = '';
+  bankAccountNumber = '';
+  bankIBAN = '';
+  bankNote = '';
+  cashOnDeliveryEnabled = true;
+  vodafoneCashEnabled = true;
+  instaPayEnabled = true;
+  bankEnabled = true;
   isDetectingLocation = false;
 
   // Pickup Points
@@ -98,17 +111,28 @@ export class OrderComponent implements OnInit {
       nameEn: 'Vodafone Cash',
       icon: 'fa-solid fa-mobile-screen-button',
       color: '#e60000'
+    },
+    {
+      id: 'instapay',
+      nameAr: 'إنستا باي',
+      nameEn: 'InstaPay',
+      icon: 'fa-solid fa-bolt',
+      color: '#7c3aed'
+    },
+    {
+      id: 'bank',
+      nameAr: 'تحويل بنكي',
+      nameEn: 'Bank Transfer',
+      icon: 'fa-solid fa-building-columns',
+      color: '#0369a1'
     }
   ];
   selectedPaymentMethod: string = '';
 
-  // Vodafone Cash Phone
-  vodafonePhone: string = '';
-  showVodafoneInput: boolean = false;
-
-  // InstaPay Phone
-  instapayPhone: string = '';
-  showInstapayInput: boolean = false;
+  // Payment method info visibility
+  showVodafoneInfo: boolean = false;
+  showInstapayInfo: boolean = false;
+  showBankInfo: boolean = false;
 
   form = {
     shippingName: '',
@@ -176,8 +200,24 @@ export class OrderComponent implements OnInit {
       next: (res: any) => {
         if (res?.success) {
           this.isPickupAvailable = res.data.isPickupAvailable ?? true;
+          if (!this.isPickupAvailable && this.deliveryType === 0) {
+            this.deliveryType = 1;
+          }
           this.vodafoneCashNumber = res.data.vodafoneCashNumber || '';
           this.vodafoneCashName = res.data.vodafoneCashName || '';
+          this.vodafoneCashNote = res.data.vodafoneCashNote || '';
+          this.instaPayHandle = res.data.instaPayHandle || '';
+          this.instaPayName = res.data.instaPayName || '';
+          this.instaPayNote = res.data.instaPayNote || '';
+          this.bankName = res.data.bankName || '';
+          this.bankAccountHolder = res.data.bankAccountHolder || '';
+          this.bankAccountNumber = res.data.bankAccountNumber || '';
+          this.bankIBAN = res.data.bankIBAN || '';
+          this.bankNote = res.data.bankNote || '';
+          this.cashOnDeliveryEnabled = res.data.cashOnDeliveryEnabled ?? true;
+          this.vodafoneCashEnabled = res.data.vodafoneCashEnabled ?? true;
+          this.instaPayEnabled = res.data.instaPayEnabled ?? true;
+          this.bankEnabled = res.data.bankEnabled ?? true;
         }
       },
       error: () => { /* keep defaults: pickup open */ }
@@ -277,10 +317,39 @@ export class OrderComponent implements OnInit {
 
   selectPaymentMethod(methodId: string): void {
     this.selectedPaymentMethod = methodId;
+    this.showVodafoneInfo = methodId === 'vodafone';
+    this.showInstapayInfo = methodId === 'instapay';
+    this.showBankInfo = methodId === 'bank';
+  }
 
-    // Show input fields for specific methods
-    this.showVodafoneInput = methodId === 'vodafone';
-    this.showInstapayInput = methodId === 'instapay';
+  get canCheckout(): boolean {
+    if (!this.selectedPaymentMethod || this.isProcessing) return false;
+    if (!this.form.shippingName?.trim() || !this.form.shippingPhone?.trim() || !this.form.shippingAddress?.trim()) return false;
+    if (this.deliveryType === 0) {
+      if (!this.isPickupAvailable) return false;
+      if (!this.selectedPickupPoint) return false;
+    } else if (this.deliveryType === 1) {
+      if (!this.selectedGovernorateId) return false;
+    }
+    return true;
+  }
+
+  get visiblePaymentMethods() {
+    const enabledMap: { [k: string]: boolean } = {
+      cash: this.cashOnDeliveryEnabled,
+      vodafone: this.vodafoneCashEnabled,
+      instapay: this.instaPayEnabled,
+      bank: this.bankEnabled
+    };
+    return this.paymentMethods.filter(m => enabledMap[m.id] !== false);
+  }
+
+  copyToClipboard(text: string): void {
+    if (!text) return;
+    navigator.clipboard?.writeText(text).then(
+      () => this.showToast(this.i18n.currentLang === 'ar' ? 'تم النسخ' : 'Copied', 'success'),
+      () => { }
+    );
   }
 
 
@@ -294,7 +363,22 @@ export class OrderComponent implements OnInit {
       return;
     }
 
-    if (this.deliveryType === 1) {
+    if (this.deliveryType === 0) {
+      if (!this.isPickupAvailable) {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'اختر نوع التوصيل — نقطة الاستلام مغلقة مؤقتاً' : 'Select delivery type — pickup is temporarily closed',
+          'error'
+        );
+        return;
+      }
+      if (!this.selectedPickupPoint) {
+        this.showToast(
+          this.i18n.currentLang === 'ar' ? 'اختر نقطة الاستلام' : 'Select a pickup point',
+          'error'
+        );
+        return;
+      }
+    } else if (this.deliveryType === 1) {
       if (!this.selectedGovernorateId) {
         this.showToast(
           this.i18n.currentLang === 'ar' ? 'اختر المحافظة' : 'Select governorate',
@@ -307,22 +391,6 @@ export class OrderComponent implements OnInit {
     if (!this.selectedPaymentMethod) {
       this.showToast(
         this.i18n.currentLang === 'ar' ? 'اختر طريقة الدفع' : 'Select payment method',
-        'error'
-      );
-      return;
-    }
-
-    if (this.selectedPaymentMethod === 'vodafone' && !this.vodafonePhone) {
-      this.showToast(
-        this.i18n.currentLang === 'ar' ? 'أدخل رقم فودافون كاش' : 'Enter Vodafone Cash number',
-        'error'
-      );
-      return;
-    }
-
-    if (this.selectedPaymentMethod === 'instapay' && !this.instapayPhone) {
-      this.showToast(
-        this.i18n.currentLang === 'ar' ? 'أدخل رقم الموبايل' : 'Enter phone number',
         'error'
       );
       return;
@@ -352,12 +420,6 @@ export class OrderComponent implements OnInit {
       dto.promoCode = this.promoCode.trim();
     }
 
-    if (this.selectedPaymentMethod === 'vodafone') {
-      dto.vodafonePhone = this.vodafonePhone;
-    } else if (this.selectedPaymentMethod === 'instapay') {
-      dto.instapayPhone = this.instapayPhone;
-    }
-
     console.log('📤 Sending DTO:', dto);
 
     this.orderService.createOrder(dto).subscribe({
@@ -379,11 +441,13 @@ export class OrderComponent implements OnInit {
             return;
           }
 
-          // If Vodafone/InstaPay, show instructions
+          // If Vodafone/InstaPay/Bank, show instructions
           if (this.selectedPaymentMethod === 'vodafone') {
             this.showVodafoneInstructions(res.data?.orderNumber || 'N/A');
           } else if (this.selectedPaymentMethod === 'instapay') {
             this.showInstapayInstructions(res.data?.orderNumber || 'N/A');
+          } else if (this.selectedPaymentMethod === 'bank') {
+            this.showBankInstructions(res.data?.orderNumber || 'N/A');
           } else {
             // ✅ Cash on Delivery - show success
             this.orderSuccess = true;
@@ -428,6 +492,7 @@ export class OrderComponent implements OnInit {
       'visa': 'CreditCard',
       'vodafone': 'VodafoneCash',
       'instapay': 'InstaPay',
+      'bank': 'BankTransfer',
       'cash': 'CashOnDelivery'
     };
     return mapping[method] || 'CashOnDelivery';
@@ -443,57 +508,6 @@ export class OrderComponent implements OnInit {
           this.showToast(res.message || 'Error', 'error');
           this.isProcessing = false;
         }
-      },
-      error: (err) => {
-        this.showToast(err.error?.message || 'Error', 'error');
-        this.isProcessing = false;
-      }
-    });
-  }
-
-  initiateVodafoneCash(): void {
-    this.isProcessing = true;
-
-    const orderData = {
-      ...this.getOrderData(),
-      paymentMethod: 'VodafoneCash',
-      vodafonePhone: this.vodafonePhone
-    };
-
-    this.orderService.placeOrder(orderData).subscribe({
-      next: (res) => {
-        if (res.success) {
-          // Show instructions
-          this.showVodafoneInstructions(res.data.orderNumber);
-        } else {
-          this.showToast(res.message || 'Error', 'error');
-        }
-        this.isProcessing = false;
-      },
-      error: (err) => {
-        this.showToast(err.error?.message || 'Error', 'error');
-        this.isProcessing = false;
-      }
-    });
-  }
-
-  initiateInstaPay(): void {
-    this.isProcessing = true;
-
-    const orderData = {
-      ...this.getOrderData(),
-      paymentMethod: 'InstaPay',
-      instapayPhone: this.instapayPhone
-    };
-
-    this.orderService.placeOrder(orderData).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.showInstapayInstructions(res.data.orderNumber);
-        } else {
-          this.showToast(res.message || 'Error', 'error');
-        }
-        this.isProcessing = false;
       },
       error: (err) => {
         this.showToast(err.error?.message || 'Error', 'error');
@@ -528,14 +542,19 @@ export class OrderComponent implements OnInit {
     });
   }
 
+  get purposeText(): string {
+    return this.instructionsModal.orderNumber ? `Order-${this.instructionsModal.orderNumber}` : '';
+  }
+
   showVodafoneInstructions(orderNumber: string): void {
     const num = this.vodafoneCashNumber || '01116770933';
     const name = this.vodafoneCashName || '';
     const waLink = 'https://wa.me/2' + num.replace(/^0/, '');
+    const isAr = this.i18n.currentLang === 'ar';
     this.instructionsModal = {
       show: true,
-      title: this.i18n.currentLang === 'ar' ? 'تعليمات الدفع - فودافون كاش' : 'Payment Instructions - Vodafone Cash',
-      content: this.i18n.currentLang === 'ar'
+      title: isAr ? 'تعليمات الدفع - فودافون كاش' : 'Payment Instructions - Vodafone Cash',
+      content: (isAr
         ? `<p>لإتمام الدفع عبر فودافون كاش:</p><ol>
             <li>افتح تطبيق فودافون كاش</li>
             <li>اختر "تحويل أموال"</li>
@@ -551,38 +570,65 @@ export class OrderComponent implements OnInit {
             <li>Enter amount: <strong>${this.total} EGP</strong></li>
             <li>Take a screenshot of the receipt</li>
             <li>Send on WhatsApp: <a href="${waLink}" target="_blank" style="color:#25d366"><strong>${num}</strong></a></li>
-            <li>Mention order number: <strong>${orderNumber}</strong></li></ol>`,
+            <li>Mention order number: <strong>${orderNumber}</strong></li></ol>`),
       orderNumber
     };
   }
 
-    showInstapayInstructions(orderNumber: string): void {
+  showInstapayInstructions(orderNumber: string): void {
+    const isAr = this.i18n.currentLang === 'ar';
+    const handle = this.instaPayHandle || '';
+    const name = this.instaPayName || '';
     this.instructionsModal = {
       show: true,
-      title: this.i18n.currentLang === 'ar' ? 'تعليمات الدفع' : 'Payment Instructions',
-      content: this.i18n.currentLang === 'ar'
-        ? `
-          <p>لإتمام الدفع:</p>
+      title: isAr ? 'تعليمات الدفع - إنستا باي' : 'Payment Instructions - InstaPay',
+      content: (isAr
+        ? `<p>لإتمام الدفع عبر إنستا باي:</p>
           <ol>
-            <li>افتح تطبيق البنك الخاص بك</li>
-            <li>اختر InstaPay</li>
-            <li>أدخل الرقم: <strong>01116770933</strong></li>
+            <li>افتح تطبيق البنك أو تطبيق InstaPay</li>
+            <li>اختر "تحويل InstaPay"</li>
+            <li>أدخل الحساب: <strong>${handle || '—'}</strong> ${name ? '(' + name + ')' : ''}</li>
             <li>أدخل المبلغ: <strong>${this.total} ج.م</strong></li>
-            <li>أرسل لقطة شاشة للتحويل عبر WhatsApp</li>
-          </ol>
-          <p>رقم الطلب: <strong>${orderNumber}</strong></p>
-        `
-        : `
-          <p>To complete payment:</p>
+            <li>اكتب في خانة الغرض/الوصف الغرض الموجود بالأسفل</li>
+            <li>خذ لقطة شاشة للإيصال وأرسلها لخدمة العملاء</li>
+          </ol>`
+        : `<p>Complete payment via InstaPay:</p>
           <ol>
-            <li>Open your banking app</li>
-            <li>Select InstaPay</li>
-            <li>Enter number: <strong>01116770933</strong></li>
+            <li>Open your bank / InstaPay app</li>
+            <li>Select "InstaPay Transfer"</li>
+            <li>Enter handle: <strong>${handle || '—'}</strong> ${name ? '(' + name + ')' : ''}</li>
             <li>Enter amount: <strong>${this.total} EGP</strong></li>
-            <li>Send screenshot via WhatsApp</li>
-          </ol>
-          <p>Order Number: <strong>${orderNumber}</strong></p>
-        `,
+            <li>Write the purpose shown below in the reference/purpose field</li>
+            <li>Take a screenshot and send to customer service</li>
+          </ol>`),
+      orderNumber
+    };
+  }
+
+  showBankInstructions(orderNumber: string): void {
+    const isAr = this.i18n.currentLang === 'ar';
+    this.instructionsModal = {
+      show: true,
+      title: isAr ? 'تعليمات الدفع - تحويل بنكي' : 'Payment Instructions - Bank Transfer',
+      content: (isAr
+        ? `<p>حوّل المبلغ على الحساب التالي:</p>
+          <ul style="list-style:none;padding:0;line-height:1.9">
+            <li><strong>اسم البنك:</strong> ${this.bankName || '—'}</li>
+            <li><strong>اسم صاحب الحساب:</strong> ${this.bankAccountHolder || '—'}</li>
+            <li><strong>رقم الحساب:</strong> ${this.bankAccountNumber || '—'}</li>
+            ${this.bankIBAN ? `<li><strong>IBAN:</strong> ${this.bankIBAN}</li>` : ''}
+            <li><strong>المبلغ:</strong> ${this.total} ج.م</li>
+          </ul>
+          <p style="margin-top:8px">اكتب في خانة "الغرض/سبب التحويل" النص الموجود بالأسفل وأرسل صورة الإيصال لخدمة العملاء.</p>`
+        : `<p>Transfer the amount to the following account:</p>
+          <ul style="list-style:none;padding:0;line-height:1.9">
+            <li><strong>Bank:</strong> ${this.bankName || '—'}</li>
+            <li><strong>Account holder:</strong> ${this.bankAccountHolder || '—'}</li>
+            <li><strong>Account number:</strong> ${this.bankAccountNumber || '—'}</li>
+            ${this.bankIBAN ? `<li><strong>IBAN:</strong> ${this.bankIBAN}</li>` : ''}
+            <li><strong>Amount:</strong> ${this.total} EGP</li>
+          </ul>
+          <p style="margin-top:8px">In the "Purpose/Reference" field write the text shown below, then send the receipt to customer service.</p>`),
       orderNumber
     };
   }
