@@ -7,15 +7,22 @@ import { AdminBannersComponent } from '../modules/adamin/components/admin-banner
 import { AdminReturnDetailsComponent } from '../modules/adamin/components/admin-return-details/admin-return-details.component';
 import { AdminReturnsComponent } from '../modules/adamin/components/admin-returns/admin-returns.component';
 import { AdminReturnStatisticsComponent } from '../modules/adamin/components/admin-return-statistics-component/admin-return-statistics-component.component';
+import { AdminLayoutComponent } from '../modules/adamin/components/admin-layout/admin-layout.component';
 
 const routes: Routes = [
-  { path: '', component: AdminComponent },
-  { path: 'complaints', component: AdminComplaintsComponent },
-  { path: 'governorates', component: GovernoratesComponent },
-  { path: 'banners', component: AdminBannersComponent },
-  { path: 'returns', component: AdminReturnsComponent },
-  { path: 'returns/:id', component: AdminReturnDetailsComponent },
-  { path: 'return-statistics', component: AdminReturnStatisticsComponent }
+  {
+    path: '',
+    component: AdminLayoutComponent,
+    children: [
+      { path: '', component: AdminComponent },
+      { path: 'complaints', component: AdminComplaintsComponent },
+      { path: 'governorates', component: GovernoratesComponent },
+      { path: 'banners', component: AdminBannersComponent },
+      { path: 'returns', component: AdminReturnsComponent },
+      { path: 'returns/:id', component: AdminReturnDetailsComponent },
+      { path: 'return-statistics', component: AdminReturnStatisticsComponent }
+    ]
+  }
 ];
 
 @NgModule({

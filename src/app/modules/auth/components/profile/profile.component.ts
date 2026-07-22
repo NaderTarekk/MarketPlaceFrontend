@@ -252,6 +252,7 @@ export class ProfileComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.showToast(this.t('profile_updated'), 'success');
+          this.fireConfetti();
           this.loadProfile();
           this.isEditing = false;
         } else {
@@ -450,6 +451,25 @@ export class ProfileComponent implements OnInit {
       'error_uploading': { ar: 'حدث خطأ في رفع الصورة', en: 'Error uploading image' }
     };
     return translations[key]?.[this.i18n.currentLang] || key;
+  }
+
+  fireConfetti(): void {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
+    const colors = ['#0ea5e9', '#6366f1', '#ef4444', '#f59e0b', '#10b981', '#ec4899'];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 200 + Math.random() * 300;
+      piece.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+      piece.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+      piece.style.animationDelay = (Math.random() * 0.15) + 's';
+      container.appendChild(piece);
+    }
+    setTimeout(() => container.remove(), 1800);
   }
 
   showToast(message: string, type: 'success' | 'error'): void {

@@ -1143,6 +1143,17 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/products', id]);
   }
 
+  toggleWishlist(product: ProductList): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    this.productService.toggle(product.id).subscribe({
+      next: () => {},
+      error: () => {}
+    });
+  }
+
   approveProduct(product: ProductList): void {
     this.isSubmitting = true;
 

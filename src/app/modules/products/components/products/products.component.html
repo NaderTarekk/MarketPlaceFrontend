@@ -219,8 +219,20 @@
         <div class="brands-bar">
             <div class="brands-bar-header">
                 <span class="brands-title">
-                    <i class="fa-solid fa-fire" style="color:#ef4444"></i>
+                    <i class="fa-solid fa-fire"></i>
                     {{ i18n.currentLang === 'ar' ? 'البراندات الأكثر شعبية' : 'Popular Brands' }}
+                </span>
+                <span class="brands-count-badge" *ngIf="brands?.length">
+                    {{ brands.length }} {{ i18n.currentLang === 'ar' ? 'براند' : 'brands' }}
+                </span>
+                <div class="brands-decoration">
+                    <span class="deco-dot"></span>
+                    <span class="deco-dot"></span>
+                    <span class="deco-dot"></span>
+                </div>
+                <span class="brands-tagline">
+                    <i class="fa-solid fa-sparkles"></i>
+                    {{ i18n.currentLang === 'ar' ? 'اكتشف أفضل الماركات' : 'Discover Top Brands' }}
                 </span>
             </div>
             <div class="brands-scroll-track">
@@ -542,10 +554,16 @@
                     </span>
                 </div>
 
-                <!-- Loading -->
-                <div *ngIf="isLoading" class="loading">
-                    <div class="spinner"></div>
-                    <p>{{ i18n.currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+                <!-- Skeleton Loading -->
+                <div *ngIf="isLoading" class="products-grid skeleton-grid">
+                    <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8,9]">
+                        <div class="sk-image"></div>
+                        <div class="sk-line sk-line-cat"></div>
+                        <div class="sk-line sk-line-title"></div>
+                        <div class="sk-line sk-line-title short"></div>
+                        <div class="sk-line sk-line-price"></div>
+                        <div class="sk-line sk-line-btn"></div>
+                    </div>
                 </div>
 
                 <!-- Empty -->
@@ -603,8 +621,13 @@
                         <div class="product-image" (click)="goToProduct(product.id)" [class.grayscale]="product.stock <= 0">
                             <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" loading="lazy" />
                             <div class="image-overlay">
-                                <button class="quick-view-btn" (click)="goToProduct(product.id)">
+                                <button class="quick-view-btn" (click)="$event.stopPropagation(); goToProduct(product.id)"
+                                        [title]="i18n.currentLang === 'ar' ? 'عرض سريع' : 'Quick View'">
                                     <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button class="wishlist-btn" (click)="$event.stopPropagation(); toggleWishlist(product)"
+                                        [title]="i18n.currentLang === 'ar' ? 'المفضلة' : 'Wishlist'">
+                                    <i class="fa-solid fa-heart"></i>
                                 </button>
                             </div>
                         </div>

@@ -38,6 +38,62 @@
   </div>
 </div>
 
+<!-- Scroll Progress Bar (top of page) -->
+<div class="scroll-progress-bar">
+  <div class="scroll-progress-fill" [style.width.%]="scrollProgress"></div>
+</div>
+
+<!-- Sticky Continue Shopping Bar -->
+<div class="continue-shopping-bar" *ngIf="showContinueShopping">
+  <button class="cs-close" (click)="dismissContinueShopping()">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <div class="cs-emoji">🛍️</div>
+  <div class="cs-info">
+    <div class="cs-title">{{ i18n.currentLang==='ar' ? 'استكمل تسوقك!' : 'Keep Shopping!' }}</div>
+    <div class="cs-desc">{{ i18n.currentLang==='ar' ? 'اكتشف عروضاً حصرية' : 'Discover exclusive offers' }}</div>
+  </div>
+  <a routerLink="/products" class="cs-btn" (click)="dismissContinueShopping()">
+    {{ i18n.currentLang==='ar' ? 'استعرض' : 'Browse' }}
+  </a>
+</div>
+
+<!-- Wishlist Preview FAB + Drawer -->
+<button class="wishlist-fab" (click)="toggleWishlistPreview()" [attr.aria-label]="i18n.currentLang==='ar' ? 'المفضلة' : 'Wishlist'">
+  <i class="fa-solid fa-heart"></i>
+</button>
+
+<div class="wishlist-preview-panel" *ngIf="showWishlistPreview">
+  <div class="wpp-header">
+    <div class="wpp-title">
+      <i class="fa-solid fa-heart"></i>
+      {{ i18n.currentLang==='ar' ? 'المفضلة' : 'Wishlist' }}
+    </div>
+    <button class="wpp-close" (click)="toggleWishlistPreview()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="wpp-body">
+    <ng-container *ngIf="wishlistPreview.length > 0; else emptyWl">
+      <a *ngFor="let p of wishlistPreview" [routerLink]="['/products', p.id]" (click)="toggleWishlistPreview()" class="wpp-item">
+        <img [src]="getProductImage(p.mainImage)" [alt]="getProductName(p)" (error)="handleImgError($event)" class="wpp-img" />
+        <div class="wpp-info">
+          <div class="wpp-name">{{ getProductName(p) }}</div>
+          <div class="wpp-price">{{ p.price | number:'1.0-0' }} {{ i18n.currentLang==='ar' ? 'ج.م' : 'EGP' }}</div>
+        </div>
+        <i class="fa-solid fa-chevron-left wpp-arrow"></i>
+      </a>
+    </ng-container>
+    <ng-template #emptyWl>
+      <div class="wpp-empty">
+        <i class="fa-regular fa-heart"></i>
+        <p>{{ i18n.currentLang==='ar' ? 'قائمتك المفضلة فارغة' : 'Your wishlist is empty' }}</p>
+        <a routerLink="/products" class="wpp-empty-btn" (click)="toggleWishlistPreview()">
+          {{ i18n.currentLang==='ar' ? 'تصفح المنتجات' : 'Browse products' }}
+        </a>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
 <section id="home" class="min-h-screen bg-[#f7f8fc]">
 
   <!-- ── Sidebar overlay (mobile) ──────────────────────────────── -->
@@ -215,6 +271,255 @@
           [class.opacity-100]="i === currentBannerIndex" [class.opacity-40]="i !== currentBannerIndex">
         </span>
       </div>
+
+      <!-- Typing badge (top-right corner of hero) -->
+      <div class="hero-typing-badge">
+        <i class="fa-solid fa-sparkles"></i>
+        <span class="hero-typing-label">{{ i18n.currentLang==='ar' ? 'اكتشف' : 'Discover' }}:</span>
+        <span class="hero-typing-text">{{ typingText }}<span class="hero-typing-caret"></span></span>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         CURRENCY / LOCATION WIDGET (floating)
+    ════════════════════════════════════════════════════════════ -->
+    <div class="currency-widget">
+      <div class="cw-item">
+        <span class="cw-flag">🇪🇬</span>
+        <span class="cw-text">EGP</span>
+      </div>
+      <span class="cw-divider"></span>
+      <div class="cw-item">
+        <i class="fa-solid fa-location-dot" style="color:#0ea5e9"></i>
+        <span class="cw-text">{{ i18n.currentLang==='ar' ? 'مصر' : 'Egypt' }}</span>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         LIVE SALES TICKER
+    ════════════════════════════════════════════════════════════ -->
+    <div class="live-ticker" *ngIf="liveTickerMessages.length > 0">
+      <div class="live-dot"></div>
+      <span class="live-label">{{ i18n.currentLang==='ar' ? 'مباشر' : 'LIVE' }}</span>
+      <div class="live-track">
+        <span class="live-msg" [attr.data-key]="currentTickerIndex">
+          <i class="fa-solid fa-cart-shopping"></i>
+          {{ liveTickerMessages[currentTickerIndex] }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         TRUST BAR
+    ════════════════════════════════════════════════════════════ -->
+    <div class="trust-bar-home">
+      <div class="trust-bar-item">
+        <div class="trust-bar-icon" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+          <i class="fa-solid fa-truck-fast"></i>
+        </div>
+        <div class="trust-bar-info">
+          <div class="trust-bar-title">{{ i18n.currentLang==='ar' ? 'شحن سريع' : 'Fast Shipping' }}</div>
+          <div class="trust-bar-desc">{{ i18n.currentLang==='ar' ? '2-5 أيام عمل' : '2-5 business days' }}</div>
+        </div>
+      </div>
+      <div class="trust-bar-item">
+        <div class="trust-bar-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="trust-bar-info">
+          <div class="trust-bar-title">{{ i18n.currentLang==='ar' ? 'دفع آمن' : 'Secure Payment' }}</div>
+          <div class="trust-bar-desc">{{ i18n.currentLang==='ar' ? '100% مضمون' : '100% guaranteed' }}</div>
+        </div>
+      </div>
+      <div class="trust-bar-item">
+        <div class="trust-bar-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <i class="fa-solid fa-rotate-left"></i>
+        </div>
+        <div class="trust-bar-info">
+          <div class="trust-bar-title">{{ i18n.currentLang==='ar' ? 'إمكانية الإرجاع' : 'Easy Returns' }}</div>
+          <div class="trust-bar-desc">{{ i18n.currentLang==='ar' ? 'خلال 14 يوم' : 'Within 14 days' }}</div>
+        </div>
+      </div>
+      <div class="trust-bar-item">
+        <div class="trust-bar-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+          <i class="fa-solid fa-headset"></i>
+        </div>
+        <div class="trust-bar-info">
+          <div class="trust-bar-title">{{ i18n.currentLang==='ar' ? 'دعم 24/7' : '24/7 Support' }}</div>
+          <div class="trust-bar-desc">{{ i18n.currentLang==='ar' ? 'دعم فني دائم' : 'Always available' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         FLASH SALE COUNTDOWN
+    ════════════════════════════════════════════════════════════ -->
+    <div class="flash-sale-bar" *ngIf="flashSaleCountdown">
+      <div class="flash-sale-content">
+        <div class="flash-sale-title">
+          <i class="fa-solid fa-bolt flash-icon"></i>
+          <div>
+            <div class="flash-sale-main">{{ i18n.currentLang==='ar' ? 'عروض البرق!' : 'Flash Sale!' }}</div>
+            <div class="flash-sale-sub">{{ i18n.currentLang==='ar' ? 'خصومات تصل إلى 50%' : 'Up to 50% OFF' }}</div>
+          </div>
+        </div>
+        <div class="countdown-boxes">
+          <div class="countdown-box">
+            <span class="cd-value">{{ flashSaleCountdown.hours }}</span>
+            <span class="cd-label">{{ i18n.currentLang==='ar' ? 'ساعة' : 'Hours' }}</span>
+          </div>
+          <span class="cd-sep">:</span>
+          <div class="countdown-box">
+            <span class="cd-value">{{ flashSaleCountdown.minutes }}</span>
+            <span class="cd-label">{{ i18n.currentLang==='ar' ? 'دقيقة' : 'Minutes' }}</span>
+          </div>
+          <span class="cd-sep">:</span>
+          <div class="countdown-box">
+            <span class="cd-value">{{ flashSaleCountdown.seconds }}</span>
+            <span class="cd-label">{{ i18n.currentLang==='ar' ? 'ثانية' : 'Seconds' }}</span>
+          </div>
+        </div>
+        <a routerLink="/products" class="flash-sale-cta">
+          {{ i18n.currentLang==='ar' ? 'تسوق الآن' : 'Shop Now' }}
+          <i class="fa-solid fa-arrow-left" *ngIf="i18n.currentLang==='ar'"></i>
+          <i class="fa-solid fa-arrow-right" *ngIf="i18n.currentLang!=='ar'"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         TRENDING STATS COUNTERS
+    ════════════════════════════════════════════════════════════ -->
+    <div class="trending-stats">
+      <div class="ts-card">
+        <div class="ts-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="ts-info">
+          <div class="ts-value counting">{{ statsCounters.customers }}</div>
+          <div class="ts-label">{{ i18n.currentLang==='ar' ? 'عميل سعيد' : 'Happy Customers' }}</div>
+        </div>
+      </div>
+      <div class="ts-card">
+        <div class="ts-icon" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+          <i class="fa-solid fa-box"></i>
+        </div>
+        <div class="ts-info">
+          <div class="ts-value counting">{{ statsCounters.products }}</div>
+          <div class="ts-label">{{ i18n.currentLang==='ar' ? 'منتج' : 'Products' }}</div>
+        </div>
+      </div>
+      <div class="ts-card">
+        <div class="ts-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+          <i class="fa-solid fa-store"></i>
+        </div>
+        <div class="ts-info">
+          <div class="ts-value counting">{{ statsCounters.vendors }}</div>
+          <div class="ts-label">{{ i18n.currentLang==='ar' ? 'متجر' : 'Vendors' }}</div>
+        </div>
+      </div>
+      <div class="ts-card">
+        <div class="ts-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <i class="fa-solid fa-truck-fast"></i>
+        </div>
+        <div class="ts-info">
+          <div class="ts-value counting">{{ statsCounters.orders }}</div>
+          <div class="ts-label">{{ i18n.currentLang==='ar' ? 'طلب مكتمل' : 'Orders Delivered' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         BEST SELLERS PODIUM (Top 3)
+    ════════════════════════════════════════════════════════════ -->
+    <div class="podium-section" *ngIf="fallbackProducts && fallbackProducts.length >= 3">
+      <h3 class="podium-title">
+        <i class="fa-solid fa-trophy"></i>
+        {{ i18n.currentLang==='ar' ? 'الأكثر مبيعاً هذا الأسبوع' : 'Top 3 This Week' }}
+      </h3>
+      <div class="podium">
+        <!-- 2nd place -->
+        <a [routerLink]="['/products', fallbackProducts[1].id]" class="podium-item second">
+          <div class="podium-rank">🥈</div>
+          <img [src]="getProductImage(fallbackProducts[1].mainImage)" [alt]="fallbackProducts[1].nameEn" class="podium-img" />
+          <div class="podium-name">{{ i18n.currentLang==='ar' ? fallbackProducts[1].nameAr : fallbackProducts[1].nameEn }}</div>
+          <div class="podium-price">{{ fallbackProducts[1].price | number:'1.0-0' }} {{ i18n.currentLang==='ar' ? 'ج.م' : 'EGP' }}</div>
+          <div class="podium-bar rank-2">2</div>
+        </a>
+        <!-- 1st place -->
+        <a [routerLink]="['/products', fallbackProducts[0].id]" class="podium-item first">
+          <div class="podium-crown">👑</div>
+          <div class="podium-rank">🥇</div>
+          <img [src]="getProductImage(fallbackProducts[0].mainImage)" [alt]="fallbackProducts[0].nameEn" class="podium-img" />
+          <div class="podium-name">{{ i18n.currentLang==='ar' ? fallbackProducts[0].nameAr : fallbackProducts[0].nameEn }}</div>
+          <div class="podium-price">{{ fallbackProducts[0].price | number:'1.0-0' }} {{ i18n.currentLang==='ar' ? 'ج.م' : 'EGP' }}</div>
+          <div class="podium-bar rank-1">1</div>
+        </a>
+        <!-- 3rd place -->
+        <a [routerLink]="['/products', fallbackProducts[2].id]" class="podium-item third">
+          <div class="podium-rank">🥉</div>
+          <img [src]="getProductImage(fallbackProducts[2].mainImage)" [alt]="fallbackProducts[2].nameEn" class="podium-img" />
+          <div class="podium-name">{{ i18n.currentLang==='ar' ? fallbackProducts[2].nameAr : fallbackProducts[2].nameEn }}</div>
+          <div class="podium-price">{{ fallbackProducts[2].price | number:'1.0-0' }} {{ i18n.currentLang==='ar' ? 'ج.م' : 'EGP' }}</div>
+          <div class="podium-bar rank-3">3</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         FEATURED VENDORS CAROUSEL
+    ════════════════════════════════════════════════════════════ -->
+    <div class="featured-vendors" *ngIf="allStores && allStores.length > 0">
+      <h3 class="fv-title">
+        <i class="fa-solid fa-store"></i>
+        {{ i18n.currentLang==='ar' ? 'أفضل المتاجر' : 'Featured Stores' }}
+        <a routerLink="/products/stores" class="fv-view-all">
+          {{ i18n.currentLang==='ar' ? 'عرض الكل' : 'View All' }}
+          <i class="fa-solid fa-arrow-left" *ngIf="i18n.currentLang==='ar'"></i>
+          <i class="fa-solid fa-arrow-right" *ngIf="i18n.currentLang!=='ar'"></i>
+        </a>
+      </h3>
+      <div class="fv-scroll">
+        <a *ngFor="let store of allStores.slice(0, 10); let i = index"
+           [routerLink]="['/products']"
+           [queryParams]="{vendorId: store.vendorId, storeName: store.vendorName}"
+           class="fv-card"
+           [style.animation-delay]="(i * 0.06) + 's'">
+          <div class="fv-logo">
+            <img *ngIf="store.storeLogo" [src]="getProductImage(store.storeLogo)" [alt]="store.vendorName" />
+            <span *ngIf="!store.storeLogo">{{ (store.vendorName || '?').charAt(0) }}</span>
+          </div>
+          <div class="fv-name">{{ store.vendorName }}</div>
+          <div class="fv-meta">
+            <span class="fv-rating" *ngIf="store.averageRating > 0">
+              <i class="fa-solid fa-star"></i>
+              {{ store.averageRating | number:'1.1-1' }}
+            </span>
+            <span class="fv-count">{{ store.productCount || 0 }} {{ i18n.currentLang==='ar' ? 'منتج' : 'products' }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         SEASON / THEME BANNER
+    ════════════════════════════════════════════════════════════ -->
+    <div class="season-banner">
+      <div class="season-illustration">
+        <span class="season-emoji">🎁</span>
+        <span class="season-sparkle sp-1">✨</span>
+        <span class="season-sparkle sp-2">⭐</span>
+        <span class="season-sparkle sp-3">💫</span>
+      </div>
+      <div class="season-text">
+        <h3>{{ i18n.currentLang==='ar' ? 'اكتشف مجموعتنا المميزة' : 'Discover Our Featured Collection' }}</h3>
+        <p>{{ i18n.currentLang==='ar' ? 'أفضل المنتجات بأسعار خاصة لفترة محدودة' : 'Top products at exclusive prices for a limited time' }}</p>
+        <a routerLink="/products" class="season-btn">
+          {{ i18n.currentLang==='ar' ? 'تسوق المجموعة' : 'Shop Collection' }}
+          <i class="fa-solid fa-arrow-left" *ngIf="i18n.currentLang==='ar'"></i>
+          <i class="fa-solid fa-arrow-right" *ngIf="i18n.currentLang!=='ar'"></i>
+        </a>
+      </div>
     </div>
 
     <!-- ════════════════════════════════════════════════════════════
@@ -340,6 +645,11 @@
               <span *ngIf="!p.isFeatured && p.originalPrice && p.originalPrice > p.price" class="absolute top-3 right-3 bg-red-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold z-10">
                 -{{ ((p.originalPrice - p.price) / p.originalPrice * 100).toFixed(0) }}%
               </span>
+
+              <!-- New Arrival Ribbon -->
+              <div *ngIf="isNewArrival(p) && p.stock > 0" class="new-arrival-ribbon">
+                <span>{{ i18n.currentLang === 'ar' ? 'جديد' : 'NEW' }}</span>
+              </div>
 
               <img [src]="getProductImage(p.mainImage)" [alt]="getProductName(p)" (error)="handleImgError($event)"
                 class="w-full h-[200px] lg:h-[240px] object-cover relative z-[1] group-hover:scale-110 transition-transform duration-500"
@@ -485,6 +795,11 @@
             <span *ngIf="p.stock <= 0" class="absolute top-3 left-3 bg-gray-800 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold z-10">
               {{ i18n.currentLang === 'ar' ? 'نفذ' : 'Sold Out' }}
             </span>
+
+            <!-- New Arrival Ribbon -->
+            <div *ngIf="isNewArrival(p) && p.stock > 0" class="new-arrival-ribbon">
+              <span>{{ i18n.currentLang === 'ar' ? 'جديد' : 'NEW' }}</span>
+            </div>
 
             <img [src]="getProductImage(p.mainImage)" [alt]="getProductName(p)" (error)="handleImgError($event)"
               class="w-full h-[200px] lg:h-[240px] object-cover relative z-[1] group-hover:scale-110 transition-transform duration-500"

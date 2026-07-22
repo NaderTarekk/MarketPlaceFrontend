@@ -191,12 +191,65 @@ export class MyOrdersComponent implements OnInit {
     this.activeFilter = filter;
   }
 
+  searchQuery = '';
+
   get filteredOrders(): OrderListItem[] {
-    if (this.activeFilter === 'all') {
-        return this.orders;
+    let list = this.orders;
+    if (this.activeFilter !== 'all') {
+      list = list.filter(o => o.status === this.activeFilter);
     }
-    return this.orders.filter(o => o.status === this.activeFilter);
-}
+    const q = (this.searchQuery || '').trim().toLowerCase();
+    if (q) {
+      list = list.filter(o => (o.orderNumber || '').toLowerCase().includes(q));
+    }
+    return list;
+  }
+
+  get activeOrdersCount(): number {
+    return this.orders.filter(o =>
+      o.status !== OrderStatus.Delivered &&
+      o.status !== OrderStatus.Cancelled
+    ).length;
+  }
+
+  get deliveredCount(): number {
+    return this.orders.filter(o => o.status === OrderStatus.Delivered).length;
+  }
+
+  get totalSpent(): number {
+    return this.orders
+      .filter(o => o.status !== OrderStatus.Cancelled)
+      .reduce((sum, o) => sum + (o.total || 0), 0);
+  }
+
+  isCancelled(status: OrderStatus): boolean {
+    return status === OrderStatus.Cancelled;
+  }
+
+  isStepDone(status: OrderStatus, step: number): boolean {
+    // 1 = Placed, 2 = Processing, 3 = Shipped, 4 = Delivered
+    const order: { [k in number]?: number } = {
+      [OrderStatus.Pending]: 1,
+      [OrderStatus.VendorSeen]: 1,
+      [OrderStatus.Confirmed]: 2,
+      [OrderStatus.Processing]: 2,
+      [OrderStatus.Shipped]: 3,
+      [OrderStatus.Delivered]: 4
+    };
+    const current = order[status as any] ?? 0;
+    return current >= step;
+  }
+
+  reorder(order: OrderListItem, event: Event): void {
+    event.stopPropagation();
+    this.router.navigate(['/products']);
+    this.showToast(
+      this.i18n.currentLang === 'ar'
+        ? 'استعرض المنتجات وأضف اللي عايزه للسلة'
+        : 'Browse products and add what you need to cart',
+      'info'
+    );
+  }
 
   // Helpers
   // my-orders.component.ts - FIX getStatusBadge

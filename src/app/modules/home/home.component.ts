@@ -206,6 +206,219 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // ══════════════ Flash Sale Countdown ══════════════
+  flashSaleCountdown: { hours: string; minutes: string; seconds: string } | null = null;
+  private flashSaleTimer: any;
+  private flashSaleEndsAt: number = 0;
+
+  // ══════════════ Scroll Progress ══════════════
+  scrollProgress = 0;
+
+  // ══════════════ Live Sales Ticker ══════════════
+  liveTickerMessages: string[] = [];
+  currentTickerIndex = 0;
+  private tickerTimer: any;
+
+  // ══════════════ Recently Viewed ══════════════
+  recentlyViewed: any[] = [];
+
+  // ══════════════ Trending Stats ══════════════
+  statsCounters = { customers: 0, products: 0, vendors: 0, orders: 0 };
+  private statsTargets = { customers: 12480, products: 3250, vendors: 148, orders: 45820 };
+  private statsAnimated = false;
+
+  private animateTrendingStats(): void {
+    if (this.statsAnimated) return;
+    this.statsAnimated = true;
+    const duration = 1600;
+    const start = performance.now();
+    const step = () => {
+      const now = performance.now();
+      const t = Math.min(1, (now - start) / duration);
+      const ease = 1 - Math.pow(1 - t, 3);
+      this.statsCounters = {
+        customers: Math.floor(this.statsTargets.customers * ease),
+        products: Math.floor(this.statsTargets.products * ease),
+        vendors: Math.floor(this.statsTargets.vendors * ease),
+        orders: Math.floor(this.statsTargets.orders * ease)
+      };
+      this.cdr.markForCheck();
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // ══════════════ Hero Typing Animation ══════════════
+  typingText = '';
+  private typingPhrasesAr = ['أفضل العروض 🔥', 'أسعار مذهلة 💰', 'تجار موثوقون ✨', 'شحن سريع 🚚', 'جودة عالية ⭐'];
+  private typingPhrasesEn = ['Amazing Deals 🔥', 'Best Prices 💰', 'Trusted Vendors ✨', 'Fast Shipping 🚚', 'Top Quality ⭐'];
+  private typingTimer: any;
+
+  private setupTypingAnimation(): void {
+    let phraseIdx = 0;
+    let charIdx = 0;
+    let deleting = false;
+    const tick = () => {
+      const phrases = this.i18n.currentLang === 'ar' ? this.typingPhrasesAr : this.typingPhrasesEn;
+      const current = phrases[phraseIdx % phrases.length];
+      if (!deleting) {
+        charIdx++;
+        this.typingText = current.slice(0, charIdx);
+        if (charIdx >= current.length) {
+          deleting = true;
+          this.cdr.markForCheck();
+          this.typingTimer = setTimeout(tick, 1500);
+          return;
+        }
+      } else {
+        charIdx--;
+        this.typingText = current.slice(0, charIdx);
+        if (charIdx <= 0) {
+          deleting = false;
+          phraseIdx++;
+        }
+      }
+      this.cdr.markForCheck();
+      this.typingTimer = setTimeout(tick, deleting ? 45 : 90);
+    };
+    this.typingTimer = setTimeout(tick, 400);
+  }
+
+  // ══════════════ Wishlist Preview ══════════════
+  wishlistPreview: any[] = [];
+  showWishlistPreview = false;
+
+  private loadWishlistPreview(): void {
+    this.productsService.getWishlist().subscribe({
+      next: (res: any) => this.ngZone.run(() => {
+        const items = (res?.data || []).slice(0, 4).map((w: any) => ({
+          id: w.productId,
+          mainImage: w.productImage,
+          nameAr: w.productNameAr,
+          nameEn: w.productNameEn,
+          price: w.price
+        }));
+        this.wishlistPreview = items;
+        this.cdr.markForCheck();
+      }),
+      error: () => this.ngZone.run(() => { this.wishlistPreview = []; this.cdr.markForCheck(); })
+    });
+  }
+
+  toggleWishlistPreview(): void {
+    this.showWishlistPreview = !this.showWishlistPreview;
+    if (this.showWishlistPreview) this.loadWishlistPreview();
+  }
+
+  // ══════════════ New Arrivals detection ══════════════
+  isNewArrival(product: any): boolean {
+    if (!product?.createdAt && !product?.createdOn) return false;
+    const created = new Date(product.createdAt || product.createdOn).getTime();
+    const week = 7 * 24 * 60 * 60 * 1000;
+    return (Date.now() - created) < week;
+  }
+
+  // ══════════════ Sticky Continue Shopping ══════════════
+  showContinueShopping = false;
+
+  private setupContinueShopping(): void {
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      // show when scrolled significantly + user is scrolling down
+      if (y > 800 && y > lastY && !this.showContinueShopping) {
+        this.showContinueShopping = true;
+        this.cdr.markForCheck();
+      }
+      lastY = y;
+    }, { passive: true });
+  }
+
+  dismissContinueShopping(): void {
+    this.showContinueShopping = false;
+  }
+
+  private setupScrollProgress(): void {
+    const update = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      this.scrollProgress = Math.min(100, Math.max(0, progress));
+      this.cdr.markForCheck();
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+
+  private setupLiveTicker(): void {
+    const names = ['أحمد', 'محمد', 'سارة', 'يوسف', 'ندى', 'عمر', 'رنا', 'خالد', 'مي', 'حسن'];
+    const namesEn = ['Ahmed', 'Mohamed', 'Sara', 'Yousef', 'Nada', 'Omar', 'Rana', 'Khaled', 'Mai', 'Hassan'];
+    const cities = ['القاهرة', 'الاسكندرية', 'الجيزة', 'المنصورة', 'طنطا', 'أسيوط'];
+    const citiesEn = ['Cairo', 'Alex', 'Giza', 'Mansoura', 'Tanta', 'Assiut'];
+    const build = () => {
+      const isAr = this.i18n.currentLang === 'ar';
+      const list = isAr ? names : namesEn;
+      const cityList = isAr ? cities : citiesEn;
+      const msgs: string[] = [];
+      for (let i = 0; i < 6; i++) {
+        const n = list[Math.floor(Math.random() * list.length)];
+        const c = cityList[Math.floor(Math.random() * cityList.length)];
+        const mins = Math.floor(Math.random() * 30) + 1;
+        msgs.push(isAr
+          ? `${n} من ${c} اشترى منتجاً منذ ${mins} دقيقة`
+          : `${n} from ${c} bought a product ${mins} min ago`
+        );
+      }
+      this.liveTickerMessages = msgs;
+    };
+    build();
+    this.tickerTimer = setInterval(() => {
+      this.currentTickerIndex = (this.currentTickerIndex + 1) % this.liveTickerMessages.length;
+      this.cdr.markForCheck();
+    }, 4000);
+  }
+
+  getCategoryIcon(idx: number): string {
+    const icons = ['fa-shirt', 'fa-mobile-screen', 'fa-house-chimney', 'fa-gamepad', 'fa-book', 'fa-baby', 'fa-shoe-prints', 'fa-headphones', 'fa-car', 'fa-utensils', 'fa-paw', 'fa-dumbbell'];
+    return icons[idx % icons.length];
+  }
+
+  private loadRecentlyViewed(): void {
+    try {
+      const ids: number[] = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+      if (!ids.length) return;
+      // Reuse topSelling or best sellers to hydrate; fallback empty
+      const products = (this as any).topSellingProducts || [];
+      this.recentlyViewed = ids
+        .map(id => products.find((p: any) => p.id === id))
+        .filter(Boolean)
+        .slice(0, 8);
+    } catch { }
+  }
+
+  private startFlashSaleCountdown(): void {
+    // 24-hour rolling flash sale (resets when it ends)
+    const now = Date.now();
+    if (!this.flashSaleEndsAt || this.flashSaleEndsAt < now) {
+      this.flashSaleEndsAt = now + 24 * 60 * 60 * 1000;
+    }
+    const update = () => {
+      const diff = Math.max(0, this.flashSaleEndsAt - Date.now());
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      this.flashSaleCountdown = {
+        hours: String(hours).padStart(2, '0'),
+        minutes: String(minutes).padStart(2, '0'),
+        seconds: String(seconds).padStart(2, '0')
+      };
+      this.cdr.markForCheck();
+    };
+    update();
+    this.flashSaleTimer = setInterval(update, 1000);
+  }
+
   ngOnInit(): void {
     this.loadCategories();
     this.loadBanners();
@@ -225,10 +438,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadTestimonials();
     this.setupSearch();
     this.startBannerAutoplay();
+    this.startFlashSaleCountdown();
+    this.setupScrollProgress();
+    this.setupLiveTicker();
+    this.setupContinueShopping();
+    this.setupTypingAnimation();
+    setTimeout(() => { this.loadRecentlyViewed(); this.animateTrendingStats(); }, 1000);
   }
 
   ngOnDestroy(): void {
     if (this.bannerTimer) clearInterval(this.bannerTimer);
+    if (this.flashSaleTimer) clearInterval(this.flashSaleTimer);
+    if (this.tickerTimer) clearInterval(this.tickerTimer);
+    if (this.typingTimer) clearTimeout(this.typingTimer);
     this.statTimers.forEach(t => clearInterval(t));
     this.scrollObserver?.disconnect();
     this.revealObserver?.disconnect();

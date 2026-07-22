@@ -1,270 +1,321 @@
-<footer class="relative bg-gradient-to-br from-stone-900 via-stone-900/20 to-stone-900 text-white overflow-hidden">
+<footer class="site-footer">
 
+    <!-- Decorative Wave Top Border -->
+    <div class="footer-wave" aria-hidden="true"></div>
 
-    <!-- Main Footer Content -->
-    <div class="relative container mx-auto px-4 py-2 lg:py-5">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+    <!-- Ambient glows -->
+    <div class="footer-glow footer-glow-1" aria-hidden="true"></div>
+    <div class="footer-glow footer-glow-2" aria-hidden="true"></div>
 
-            <!-- Brand Section -->
-            <div class="space-y-4">
-                <div class="flex items-center gap-2">
-                    <div
-                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center">
-                        <i class="fa-solid fa-location-dot text-white text-xl"></i>
+    <!-- Trust Bar -->
+    <div class="footer-trust-bar">
+        <div class="container mx-auto px-4">
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <div class="trust-icon" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+                        <i class="fa-solid fa-truck-fast"></i>
                     </div>
-                    <h3
-                        class="text-2xl font-bold bg-gradient-to-r from-teal-300 to-teal-600 bg-clip-text text-transparent">
-                        Wild Market
-                    </h3>
+                    <div class="trust-text">
+                        <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'شحن سريع' : 'Fast Shipping' }}</div>
+                        <div class="trust-sub">{{ i18n.currentLang === 'ar' ? 'خلال 48 ساعة' : 'Within 48h' }}</div>
+                    </div>
                 </div>
-                <p class="text-gray-400 text-sm leading-relaxed">
-                    {{ i18n.currentLang === 'ar' ? 'منصتك المتكاملة للتسوق الإلكتروني. نوفر لك أفضل المنتجات بأفضل
-                    الأسعار مع توصيل سريع وآمن.' : 'Your complete e-commerce platform. We provide you with the best
-                    products at the best prices with fast and secure delivery.' }}
-                </p>
-
-                <!-- Social Media -->
-                <div class="flex items-center gap-3 pt-2">
-                    <a href="https://www.facebook.com/share/1DcDKjXQYJ/?mibextid=wwXIfr" target="_blank"
-                        rel="noopener noreferrer"
-                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-teal-500 hover:to-teal-700 flex items-center justify-center transition-all duration-300 group">
-                        <i class="fab fa-facebook-f text-gray-400 group-hover:text-white transition-colors"></i>
-                    </a>
-                    <a href="https://www.instagram.com/wildmarket_eg" target="_blank" rel="noopener noreferrer"
-                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-teal-500 hover:to-teal-700 flex items-center justify-center transition-all duration-300 group">
-                        <i class="fab fa-instagram text-gray-400 group-hover:text-white transition-colors"></i>
-                    </a>
-                    <!-- <a href="#"
-                        class="w-10 h-10 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-teal-500 hover:to-teal-700 flex items-center justify-center transition-all duration-300 group">
-                        <i class="fab fa-linkedin-in text-gray-400 group-hover:text-white transition-colors"></i>
-                    </a> -->
+                <div class="trust-item">
+                    <div class="trust-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="trust-text">
+                        <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'دفع آمن' : 'Secure Payment' }}</div>
+                        <div class="trust-sub">{{ i18n.currentLang === 'ar' ? 'حماية كاملة' : '100% Protected' }}</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                    <div class="trust-text">
+                        <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'إرجاع سهل' : 'Easy Returns' }}</div>
+                        <div class="trust-sub">{{ i18n.currentLang === 'ar' ? '14 يوم' : '14 Days' }}</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon" style="background:linear-gradient(135deg,#e2c275,#c9a24c)">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div class="trust-text">
+                        <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'دعم 24/7' : '24/7 Support' }}</div>
+                        <div class="trust-sub">{{ i18n.currentLang === 'ar' ? 'دايماً معاك' : 'Always here' }}</div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Quick Links -->
-            <div class="space-y-4">
-                <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                    <div class="w-1 h-6 bg-gradient-to-b from-teal-500 to-teal-700 rounded-full"></div>
-                    {{ i18n.currentLang === 'ar' ? 'روابط سريعة' : 'Quick Links' }}
-                </h4>
-                <ul class="space-y-3">
-                    <li>
-                        <a [routerLink]="['/']"
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
-                            {{ i18n.currentLang === 'ar' ? 'الرئيسية' : 'Home' }}
-                        </a>
-                    </li>
-                    <li>
-                        <a [routerLink]="['/products']"
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
-                            {{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}
-                        </a>
-                    </li>
-                    <!-- <li>
-                        <a [routerLink]="['/about']"
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
-                            {{ i18n.currentLang === 'ar' ? 'من نحن' : 'About Us' }}
-                        </a>
-                    </li>
-                    <li>
-                        <a [routerLink]="['/contact']"
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
-                            {{ i18n.currentLang === 'ar' ? 'اتصل بنا' : 'Contact Us' }}
-                        </a>
-                    </li> -->
-                    <li>
-                        <a [routerLink]="['/auth/login']" *ngIf="!isLogged"
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-                            <i class="fa-solid fa-chevron-right text-xs text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                [class.fa-chevron-left]="i18n.currentLang === 'ar'"></i>
-                            {{ i18n.currentLang === 'ar' ? 'تسجيل الدخول' : 'Login' }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Customer Service -->
-            <div class="space-y-4">
-                <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                    <div class="w-1 h-6 bg-gradient-to-b from-teal-500 to-teal-700 rounded-full"></div>
-                    {{ i18n.currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Service' }}
-                </h4>
-                <ul class="space-y-3">
-                    <li>
-                        <a
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-
-                            {{ i18n.currentLang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy' }}
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-
-                            {{ i18n.currentLang === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions' }}
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-
-                            {{ i18n.currentLang === 'ar' ? 'سياسة الاسترجاع' : 'Return Policy' }}
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-
-                            {{ i18n.currentLang === 'ar' ? 'الأسئلة الشائعة' : 'FAQ' }}
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="text-gray-400 hover:text-teal-500 text-sm transition-colors duration-300 flex items-center gap-2 group">
-
-                            {{ i18n.currentLang === 'ar' ? 'الشحن والتوصيل' : 'Shipping & Delivery' }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Contact Info -->
-            <div class="space-y-4">
-                <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                    <div class="w-1 h-6 bg-gradient-to-b from-teal-500 to-teal-700 rounded-full"></div>
-                    {{ i18n.currentLang === 'ar' ? 'تواصل معنا' : 'Contact Us' }}
-                </h4>
-                <ul class="space-y-4">
-                    <li class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-location-dot text-teal-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address'
-                                }}</p>
-                            <p class="text-sm text-gray-300">
-                                {{ i18n.currentLang === 'ar'
-                                ? 'مصر'
-                                : 'Egypt' }}
-                            </p>
-                        </div>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-envelope text-teal-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' :
-                                'Email' }}</p>
-                            <a href="mailto:wildmarketceo@gmail.com"
-                                class="text-sm text-gray-300 hover:text-teal-500 transition-colors">
-                                wildmarketceo@gmail.com
-                            </a>
-                        </div>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-phone text-teal-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500 mb-1">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}
-                            </p>
-                            <a href="tel:+201090410585"
-                                class="text-sm text-gray-300 hover:text-teal-500 transition-colors" [dir]="'ltr'">
-                                +20 1090410585
-                            </a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
         </div>
     </div>
 
-    <!-- Newsletter Section -->
-    <!-- <div class="relative border-t border-white/10">
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="text-center md:text-start">
-                    <h4 class="text-lg font-bold text-white mb-2">
-                        {{ i18n.currentLang === 'ar' ? 'اشترك في النشرة البريدية' : 'Subscribe to Newsletter' }}
-                    </h4>
-                    <p class="text-sm text-gray-400">
-                        {{ i18n.currentLang === 'ar'
-                        ? 'احصل على آخر العروض والتحديثات'
-                        : 'Get the latest offers and updates' }}
-                    </p>
-                </div>
+    <!-- Main Footer Content -->
+    <div class="footer-main">
+        <div class="container mx-auto px-4 py-10 lg:py-14">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-14">
 
-                <div class="w-full md:w-auto">
-                    <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto md:mx-0">
-                        <input type="email"
-                            [placeholder]="i18n.currentLang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'"
-                            class="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-teal-600 focus:bg-white/10 transition-all text-sm">
-                        <button
-                            class="px-6 py-3 rounded-lg bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white font-medium text-sm transition-all duration-300 hover:shadow-lg hover:shadow-teal-600/50 whitespace-nowrap">
-                            {{ i18n.currentLang === 'ar' ? 'اشترك الآن' : 'Subscribe Now' }}
-                        </button>
+                <!-- Brand Section -->
+                <div class="brand-column">
+                    <div class="brand-header">
+                        <img src="wild-gold.png" alt="Wild Market" class="brand-logo" />
+                        <div>
+                            <h3 class="brand-name">Wild Market</h3>
+                            <span class="brand-est">{{ i18n.currentLang === 'ar' ? 'منذ 2024' : 'Est. 2024' }}</span>
+                        </div>
+                    </div>
+                    <p class="brand-description">
+                        {{ i18n.currentLang === 'ar'
+                            ? 'منصتك المتكاملة للتسوق الإلكتروني. نوفر لك أفضل المنتجات بأفضل الأسعار مع توصيل سريع وآمن.'
+                            : 'Your complete e-commerce platform. Best products at best prices with fast and secure delivery.' }}
+                    </p>
+
+                    <!-- App download / Newsletter mini -->
+                    <div class="newsletter-mini">
+                        <label class="newsletter-label">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                            {{ i18n.currentLang === 'ar' ? 'اشترك في النشرة' : 'Join our newsletter' }}
+                        </label>
+                        <div class="newsletter-row">
+                            <input type="email"
+                                [placeholder]="i18n.currentLang === 'ar' ? 'بريدك الإلكتروني' : 'Your email'"
+                                class="newsletter-input" />
+                            <button type="button" class="newsletter-btn">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Social Media -->
+                    <div class="social-row">
+                        <a href="https://www.facebook.com/share/1DcDKjXQYJ/?mibextid=wwXIfr" target="_blank"
+                            rel="noopener noreferrer" class="social-link facebook" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/wildmarket_eg" target="_blank" rel="noopener noreferrer"
+                            class="social-link instagram" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link whatsapp" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-link tiktok" aria-label="TikTok">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
                     </div>
                 </div>
+
+                <!-- Quick Links -->
+                <div class="link-column">
+                    <h4 class="footer-heading">
+                        <span class="heading-accent"></span>
+                        <i class="fa-solid fa-link heading-icon"></i>
+                        {{ i18n.currentLang === 'ar' ? 'روابط سريعة' : 'Quick Links' }}
+                    </h4>
+                    <ul class="footer-links">
+                        <li>
+                            <a [routerLink]="['/']" class="footer-link">
+                                <i class="fa-solid fa-house link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'الرئيسية' : 'Home' }}</span>
+                                <i class="fa-solid link-arrow"
+                                   [class.fa-arrow-right]="i18n.currentLang !== 'ar'"
+                                   [class.fa-arrow-left]="i18n.currentLang === 'ar'"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a [routerLink]="['/products']" class="footer-link">
+                                <i class="fa-solid fa-boxes-stacked link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'المنتجات' : 'Products' }}</span>
+                                <i class="fa-solid link-arrow"
+                                   [class.fa-arrow-right]="i18n.currentLang !== 'ar'"
+                                   [class.fa-arrow-left]="i18n.currentLang === 'ar'"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a [routerLink]="['/categories']" class="footer-link">
+                                <i class="fa-solid fa-shapes link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'الأقسام' : 'Categories' }}</span>
+                                <i class="fa-solid link-arrow"
+                                   [class.fa-arrow-right]="i18n.currentLang !== 'ar'"
+                                   [class.fa-arrow-left]="i18n.currentLang === 'ar'"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a [routerLink]="['/brands']" class="footer-link">
+                                <i class="fa-solid fa-copyright link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'الماركات' : 'Brands' }}</span>
+                                <i class="fa-solid link-arrow"
+                                   [class.fa-arrow-right]="i18n.currentLang !== 'ar'"
+                                   [class.fa-arrow-left]="i18n.currentLang === 'ar'"></i>
+                            </a>
+                        </li>
+                        <li *ngIf="!isLogged">
+                            <a [routerLink]="['/auth/login']" class="footer-link">
+                                <i class="fa-solid fa-right-to-bracket link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'تسجيل الدخول' : 'Login' }}</span>
+                                <i class="fa-solid link-arrow"
+                                   [class.fa-arrow-right]="i18n.currentLang !== 'ar'"
+                                   [class.fa-arrow-left]="i18n.currentLang === 'ar'"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Customer Service -->
+                <div class="link-column">
+                    <h4 class="footer-heading">
+                        <span class="heading-accent"></span>
+                        <i class="fa-solid fa-circle-question heading-icon"></i>
+                        {{ i18n.currentLang === 'ar' ? 'خدمة العملاء' : 'Customer Service' }}
+                    </h4>
+                    <ul class="footer-links">
+                        <li>
+                            <a class="footer-link">
+                                <i class="fa-solid fa-user-shield link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy' }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="footer-link">
+                                <i class="fa-solid fa-file-contract link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions' }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="footer-link">
+                                <i class="fa-solid fa-rotate-left link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'سياسة الاسترجاع' : 'Return Policy' }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="footer-link">
+                                <i class="fa-solid fa-comments link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'الأسئلة الشائعة' : 'FAQ' }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="footer-link">
+                                <i class="fa-solid fa-truck link-icon"></i>
+                                <span>{{ i18n.currentLang === 'ar' ? 'الشحن والتوصيل' : 'Shipping & Delivery' }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="contact-column">
+                    <h4 class="footer-heading">
+                        <span class="heading-accent"></span>
+                        <i class="fa-solid fa-address-book heading-icon"></i>
+                        {{ i18n.currentLang === 'ar' ? 'تواصل معنا' : 'Contact Us' }}
+                    </h4>
+                    <ul class="contact-list">
+                        <li class="contact-item">
+                            <div class="contact-icon" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div class="contact-body">
+                                <div class="contact-label">{{ i18n.currentLang === 'ar' ? 'العنوان' : 'Address' }}</div>
+                                <div class="contact-value">{{ i18n.currentLang === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt' }}</div>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="contact-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div class="contact-body">
+                                <div class="contact-label">{{ i18n.currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</div>
+                                <a href="mailto:wildmarketceo@gmail.com" class="contact-value contact-link">
+                                    wildmarketceo&#64;gmail.com
+                                </a>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="contact-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div class="contact-body">
+                                <div class="contact-label">{{ i18n.currentLang === 'ar' ? 'الهاتف' : 'Phone' }}</div>
+                                <a href="tel:+201090410585" class="contact-value contact-link" [dir]="'ltr'">
+                                    +20 109 041 0585
+                                </a>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="contact-icon" style="background:linear-gradient(135deg,#e2c275,#c9a24c)">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div class="contact-body">
+                                <div class="contact-label">{{ i18n.currentLang === 'ar' ? 'مواعيد العمل' : 'Working Hours' }}</div>
+                                <div class="contact-value">
+                                    <span [dir]="'ltr'">10:00 - 22:00</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
             </div>
         </div>
-    </div> -->
+    </div>
 
-    <!-- Developer Credit Section -->
-    <div class="relative border-t border-white/10">
+    <!-- Developer Credit + Payment Methods -->
+    <div class="footer-mid">
         <div class="container mx-auto px-4 py-6">
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <p class="text-sm text-gray-400" style="font-size: 10px;">
-                    {{ i18n.currentLang === 'ar' ? 'تم التطوير بواسطة' : 'Developed by' }}
-                </p>
-                <a href="https://nhcsolutions.runasp.net/" target="_blank" rel="noopener noreferrer"
-                    class="flex items-center gap-2 px-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-teal-600/50 transition-all duration-300 group">
-                    <img src="nhc.png" alt="Developer Company" class="w-15 h-15 rounded-lg object-contain">
-                    <!-- <span class="text-white font-semibold group-hover:text-teal-500 transition-colors text-xs">
-                        Nile Hash Code Solutions
-                    </span> -->
-                </a>
+            <div class="footer-mid-row">
+                <!-- Developer credit -->
+                <div class="dev-credit">
+                    <span class="dev-label">{{ i18n.currentLang === 'ar' ? 'تم التطوير بواسطة' : 'Developed by' }}</span>
+                    <a href="https://nhcsolutions.runasp.net/" target="_blank" rel="noopener noreferrer"
+                        class="dev-card">
+                        <img src="nhc.png" alt="NHC Solutions" class="dev-logo" />
+                    </a>
+                </div>
+
+                <!-- Payment methods -->
+                <div class="payment-methods">
+                    <span class="payment-label">
+                        <i class="fa-solid fa-credit-card"></i>
+                        {{ i18n.currentLang === 'ar' ? 'طرق الدفع الآمنة' : 'Secure Payments' }}
+                    </span>
+                    <div class="payment-icons">
+                        <div class="pay-card" title="Visa">
+                            <i class="fab fa-cc-visa" style="color:#1a1f71"></i>
+                        </div>
+                        <div class="pay-card" title="Mastercard">
+                            <i class="fab fa-cc-mastercard" style="color:#eb001b"></i>
+                        </div>
+                        <div class="pay-card" title="PayPal">
+                            <i class="fab fa-cc-paypal" style="color:#003087"></i>
+                        </div>
+                        <div class="pay-card" title="Apple Pay">
+                            <i class="fab fa-apple-pay" style="color:#000"></i>
+                        </div>
+                        <div class="pay-card" title="Cash">
+                            <i class="fa-solid fa-money-bill-wave" style="color:#10b981"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Bottom Bar -->
-    <div class="relative border-t border-white/10">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
-                <p class="text-center md:text-start">
+    <div class="footer-bottom">
+        <div class="container mx-auto px-4 py-5">
+            <div class="bottom-row">
+                <p class="copyright">
                     © {{ currentYear }}
-                    <span class="text-teal-500 font-semibold">Wild Market</span>.
+                    <span class="brand-highlight">Wild Market</span>.
                     {{ i18n.currentLang === 'ar' ? 'جميع الحقوق محفوظة' : 'All rights reserved' }}.
                 </p>
 
-                <!-- Payment Methods -->
-                <div class="flex items-center gap-3">
-                    <span class="text-xs text-gray-500">{{ i18n.currentLang === 'ar' ? 'طرق الدفع:' : 'Payment:'
-                        }}</span>
-                    <div class="flex items-center gap-2">
-                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
-                            <i class="fab fa-cc-visa text-teal-500 text-lg"></i>
-                        </div>
-                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
-                            <i class="fab fa-cc-mastercard text-red-400 text-lg"></i>
-                        </div>
-                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
-                            <i class="fab fa-cc-paypal text-teal-500 text-lg"></i>
-                        </div>
-                        <div class="w-10 h-7 rounded bg-white/10 flex items-center justify-center">
-                            <i class="fab fa-apple-pay text-white text-lg"></i>
-                        </div>
-                    </div>
+                <div class="badge-strip">
+                    <span class="mini-badge">
+                        <i class="fa-solid fa-heart" style="color:#ec4899"></i>
+                        {{ i18n.currentLang === 'ar' ? 'صُنع بحب في مصر' : 'Made with love in Egypt' }}
+                    </span>
                 </div>
             </div>
         </div>

@@ -88,6 +88,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   notifications: any[] = [];
   unreadNotificationsCount = 0;
 
+  // User avatar menu
+  isUserMenuOpen = false;
+  userDisplayName: string = '';
+  userInitial: string = '';
+
+  // Menu toggle (bottom nav panel)
+  isMenuOpen = false;
+
+  // Cart pulse
+  cartPulse = false;
+  private prevCartCount = 0;
+
+  showScrollTop = false;
+
   @HostListener('window:scroll')
   onScroll(): void {
     const currentScrollY = window.scrollY;
@@ -97,6 +111,32 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.isNavbarHidden = false;
     }
     this.lastScrollY = currentScrollY;
+
+    const shouldShow = currentScrollY > 400;
+    if (shouldShow !== this.showScrollTop) {
+      this.showScrollTop = shouldShow;
+      this.cdr.markForCheck();
+    }
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(_e: Event): void {
+    if (this.isUserMenuOpen) {
+      this.isUserMenuOpen = false;
+      this.cdr.markForCheck();
+    }
+    if (this.isMenuOpen) {
+      this.isMenuOpen = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  onLogout(): void {
+    this.logout();
   }
 
   constructor(
@@ -208,6 +248,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.isLogged = isLogged;
       this.role = role;
 
+      if (isLogged) {
+        try {
+          const info: any = this.authService.getUserInfo() || {};
+          const name = info.fullName || info.name || info.given_name || info.email || 'User';
+          this.userDisplayName = name;
+          this.userInitial = (name || 'U').trim().charAt(0).toUpperCase();
+        } catch { this.userInitial = 'U'; this.userDisplayName = ''; }
+      } else {
+        this.userDisplayName = '';
+        this.userInitial = '';
+      }
+
       this.isVendor = role === 'Vendor';
       this.isAdmin = role === 'Admin';
       this.isShippingEmployee = role === 'ShippingEmployee';
@@ -265,6 +317,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
 
     this.cartService.cartCount$.subscribe(count => {
+      if (count > this.prevCartCount && this.prevCartCount >= 0) {
+        this.cartPulse = true;
+        setTimeout(() => { this.cartPulse = false; this.cdr.detectChanges(); }, 600);
+      }
+      this.prevCartCount = count;
       this.cartCount = count;
       this.cdr.detectChanges();
     });

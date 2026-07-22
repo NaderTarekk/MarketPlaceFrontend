@@ -1,4 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 import { AdminDashboard, AdminUser, InventoryReport, SalesReportFilter, SalesReportSummary, UserFilter } from '../../../../models/adminDashboard';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { AdminReportsService } from '../../services/admin.service';
@@ -25,6 +27,54 @@ import * as L from 'leaflet';
 export class AdminComponent implements OnInit {
   // Active Tab
   activeTab: 'dashboard' | 'users' | 'inventory' | 'products' | 'vendors' | 'agents' | 'employees' | 'financial' | 'withdrawals' | 'settings' | 'pickupPoints' | 'promoCodes' | 'promotions' | 'orders' | 'support' = 'dashboard';
+
+  // CSV export helper — used by orders (and any other list)
+  private downloadCsv(rows: (string | number | null | undefined)[][], filename: string): void {
+    const escape = (v: any) => {
+      if (v == null) return '';
+      const s = String(v).replace(/"/g, '""');
+      return /[",\n\r]/.test(s) ? `"${s}"` : s;
+    };
+    const csv = rows.map(r => r.map(escape).join(',')).join('\r\n');
+    const bom = '﻿'; // Excel UTF-8 BOM (Arabic support)
+    const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  exportOrdersCsv(): void {
+    const isAr = this.i18n.currentLang === 'ar';
+    const list = (this as any).adminOrders || [];
+    if (!list.length) return;
+    const headers = isAr
+      ? ['رقم الأوردر', 'اسم العميل', 'الإيميل', 'التليفون', 'عدد المنتجات', 'الشحن', 'الخصم', 'الإجمالي', 'طريقة الدفع', 'الحالة', 'التاريخ']
+      : ['Order #', 'Customer', 'Email', 'Phone', 'Items', 'Shipping', 'Discount', 'Total', 'Payment', 'Status', 'Date'];
+    const rows: any[][] = [headers];
+    for (const o of list) {
+      rows.push([
+        o.orderNumber ?? o.id,
+        o.customerName ?? o.customer?.name ?? '',
+        o.customerEmail ?? o.customer?.email ?? '',
+        o.customerPhone ?? o.customer?.phone ?? '',
+        o.itemsCount ?? o.items?.length ?? '',
+        o.shippingCost ?? o.shipping ?? 0,
+        o.discountAmount ?? o.discount ?? 0,
+        o.totalAmount ?? o.total ?? 0,
+        o.paymentMethod ?? '',
+        o.status ?? o.orderStatus ?? '',
+        o.createdAt ?? o.orderDate ?? ''
+      ]);
+    }
+    const now = new Date();
+    const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+    this.downloadCsv(rows, `orders_${stamp}.csv`);
+  }
 
   siteSettings: any = {
     isPickupAvailable: true,
@@ -264,7 +314,9 @@ export class AdminComponent implements OnInit {
     private withdrawalService: WithdrawalService,
     private promotionService: PromotionService,
     private cdr: ChangeDetectorRef,
-    private translationService: TranslationService
+    private translationService: TranslationService,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   // ═══════════════════════════════════════════════
@@ -291,6 +343,21 @@ export class AdminComponent implements OnInit {
     this.loadPendingVendorRequests();
     this.loadPendingLogoRequests();
     this.loadSiteSettings();
+
+    // Sync activeTab with ?tab= query param (from sidebar layout)
+    this.route.queryParamMap.subscribe(params => {
+      const tab = params.get('tab');
+      if (tab && tab !== this.activeTab) {
+        this.switchTab(tab as any);
+      }
+    });
+    // Handle in-page navigations that update the query param
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
+      const tab = this.route.snapshot.queryParamMap.get('tab');
+      if (tab && tab !== this.activeTab) {
+        this.switchTab(tab as any);
+      }
+    });
   }
 
   loadSiteSettings(): void {
@@ -709,19 +776,30 @@ export class AdminComponent implements OnInit {
   }
 
   toggleVerification(vendor: VendorList): void {
+    // Optimistic UI update — flip immediately, revert if request fails
+    const previous = vendor.isVerified;
+    vendor.isVerified = !previous;
+    this.cdr.detectChanges();
+
     this.adminService.toggleVendorVerification(vendor.id).subscribe({
       next: (res) => {
         if (res.success) {
-          vendor.isVerified = !vendor.isVerified;
           this.showToast(
             this.i18n.currentLang === 'ar'
               ? (vendor.isVerified ? 'تم توثيق التاجر' : 'تم إلغاء توثيق التاجر')
               : (vendor.isVerified ? 'Vendor verified' : 'Vendor unverified'),
             'success'
           );
+        } else {
+          vendor.isVerified = previous;
         }
+        this.cdr.detectChanges();
       },
-      error: () => this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error')
+      error: () => {
+        vendor.isVerified = previous;
+        this.cdr.detectChanges();
+        this.showToast(this.i18n.currentLang === 'ar' ? 'حدث خطأ' : 'Error', 'error');
+      }
     });
   }
 

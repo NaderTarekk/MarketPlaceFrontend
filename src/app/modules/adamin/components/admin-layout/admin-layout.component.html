@@ -1,0 +1,169 @@
+<div class="admin-shell" [class.sidebar-collapsed]="sidebarCollapsed" [class.sidebar-mobile-open]="sidebarMobileOpen">
+
+  <!-- Backdrop (mobile) -->
+  <div class="sidebar-backdrop" (click)="sidebarMobileOpen = false"></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SIDEBAR                                         -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="fa-solid fa-crown"></i></div>
+      <div class="brand-text">
+        <div class="brand-title">{{ i18n.currentLang === 'ar' ? 'لوحة الأدمن' : 'Admin Panel' }}</div>
+        <div class="brand-sub">Wild Market</div>
+      </div>
+      <button class="sidebar-collapse-btn" (click)="toggleSidebar()">
+        <i class="fa-solid" [class.fa-angles-left]="!sidebarCollapsed" [class.fa-angles-right]="sidebarCollapsed"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- Overview -->
+      <div class="nav-group">
+        <div class="nav-group-title">{{ i18n.currentLang === 'ar' ? 'نظرة عامة' : 'Overview' }}</div>
+        <button class="nav-item" [class.active]="isTabActive('dashboard')" (click)="goToTab('dashboard')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'نظرة عامة' : 'Overview'">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'نظرة عامة' : 'Overview' }}</span>
+        </button>
+      </div>
+
+      <!-- Management -->
+      <div class="nav-group">
+        <div class="nav-group-title">{{ i18n.currentLang === 'ar' ? 'إدارة' : 'Management' }}</div>
+        <button class="nav-item" [class.active]="isTabActive('users')" (click)="goToTab('users')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'المستخدمين' : 'Users'">
+          <i class="fa-solid fa-users"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'المستخدمين' : 'Users' }}</span>
+        </button>
+        <button class="nav-item" [class.active]="isTabActive('vendors')" (click)="goToTab('vendors')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'التجار' : 'Vendors'">
+          <i class="fa-solid fa-store"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'التجار' : 'Vendors' }}</span>
+        </button>
+        <button class="nav-item" [class.active]="isTabActive('agents')" (click)="goToTab('agents')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'المناديب' : 'Delivery Agents'">
+          <i class="fa-solid fa-truck"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'المناديب' : 'Delivery Agents' }}</span>
+        </button>
+        <button class="nav-item" [class.active]="isTabActive('employees')" (click)="goToTab('employees')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'موظفي الشحن' : 'Shipping Employees'">
+          <i class="fa-solid fa-warehouse"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'موظفي الشحن' : 'Shipping Employees' }}</span>
+        </button>
+      </div>
+
+      <!-- Catalog -->
+      <div class="nav-group">
+        <div class="nav-group-title">{{ i18n.currentLang === 'ar' ? 'الكتالوج' : 'Catalog' }}</div>
+        <button class="nav-item" [class.active]="isTabActive('products')" (click)="goToTab('products')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'منتجات معلقة' : 'Pending Products'">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'منتجات معلقة' : 'Pending Products' }}</span>
+        </button>
+        <a routerLink="/categories" class="nav-item" [class.active]="isRouteActive('categories')" (click)="sidebarMobileOpen = false" [attr.data-tip]="i18n.currentLang === 'ar' ? 'الأقسام' : 'Categories'">
+          <i class="fa-solid fa-shapes"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'الأقسام' : 'Categories' }}</span>
+        </a>
+        <a routerLink="/brands" class="nav-item" [class.active]="isRouteActive('brands')" (click)="sidebarMobileOpen = false" [attr.data-tip]="i18n.currentLang === 'ar' ? 'الماركات' : 'Brands'">
+          <i class="fa-solid fa-copyright"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'الماركات' : 'Brands' }}</span>
+        </a>
+        <button class="nav-item" [class.active]="isTabActive('inventory')" (click)="goToTab('inventory')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'المخزون' : 'Inventory'">
+          <i class="fa-solid fa-box-archive"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'المخزون' : 'Inventory' }}</span>
+        </button>
+      </div>
+
+      <!-- Orders & Money -->
+      <div class="nav-group">
+        <div class="nav-group-title">{{ i18n.currentLang === 'ar' ? 'الطلبات والمال' : 'Orders & Money' }}</div>
+        <button class="nav-item" [class.active]="isTabActive('orders')" (click)="goToTab('orders')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders'">
+          <i class="fa-solid fa-receipt"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}</span>
+        </button>
+        <a routerLink="/admin/returns" class="nav-item" [class.active]="isRouteActive('returns') || isRouteActive('return-statistics')" (click)="sidebarMobileOpen = false" [attr.data-tip]="i18n.currentLang === 'ar' ? 'المرتجعات' : 'Returns'">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'المرتجعات' : 'Returns' }}</span>
+        </a>
+        <button class="nav-item" [class.active]="isTabActive('withdrawals')" (click)="goToTab('withdrawals')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'سحوبات التجار' : 'Withdrawals'">
+          <i class="fa-solid fa-money-bill-transfer"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'سحوبات التجار' : 'Withdrawals' }}</span>
+        </button>
+        <button class="nav-item" [class.active]="isTabActive('financial')" (click)="goToTab('financial')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'التقارير المالية' : 'Financial Reports'">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'التقارير المالية' : 'Financial Reports' }}</span>
+        </button>
+      </div>
+
+      <!-- Marketing -->
+      <div class="nav-group">
+        <div class="nav-group-title">{{ i18n.currentLang === 'ar' ? 'التسويق' : 'Marketing' }}</div>
+        <button class="nav-item" [class.active]="isTabActive('promotions')" (click)="goToTab('promotions')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'العروض' : 'Promotions'">
+          <i class="fa-solid fa-bullhorn"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'العروض' : 'Promotions' }}</span>
+        </button>
+        <button class="nav-item" [class.active]="isTabActive('promoCodes')" (click)="goToTab('promoCodes')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'أكواد الخصم' : 'Promo Codes'">
+          <i class="fa-solid fa-ticket"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'أكواد الخصم' : 'Promo Codes' }}</span>
+        </button>
+        <a routerLink="/admin/banners" class="nav-item" [class.active]="isRouteActive('banners')" (click)="sidebarMobileOpen = false" [attr.data-tip]="i18n.currentLang === 'ar' ? 'البنرات' : 'Banners'">
+          <i class="fa-solid fa-image"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'البنرات' : 'Banners' }}</span>
+        </a>
+      </div>
+
+      <!-- Support -->
+      <div class="nav-group">
+        <div class="nav-group-title">{{ i18n.currentLang === 'ar' ? 'الدعم' : 'Support' }}</div>
+        <button class="nav-item" [class.active]="isTabActive('support')" (click)="goToTab('support')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'الدعم الفني' : 'Support'">
+          <i class="fa-solid fa-headset"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'الدعم الفني' : 'Support' }}</span>
+        </button>
+        <a routerLink="/admin/complaints" class="nav-item" [class.active]="isRouteActive('complaints')" (click)="sidebarMobileOpen = false" [attr.data-tip]="i18n.currentLang === 'ar' ? 'الشكاوى' : 'Complaints'">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'الشكاوى' : 'Complaints' }}</span>
+        </a>
+      </div>
+
+      <!-- System -->
+      <div class="nav-group">
+        <div class="nav-group-title">{{ i18n.currentLang === 'ar' ? 'إعدادات النظام' : 'System' }}</div>
+        <button class="nav-item" [class.active]="isTabActive('settings')" (click)="goToTab('settings')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'الإعدادات' : 'Settings'">
+          <i class="fa-solid fa-gear"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'الإعدادات' : 'Settings' }}</span>
+        </button>
+        <button class="nav-item" [class.active]="isTabActive('pickupPoints')" (click)="goToTab('pickupPoints')" [attr.data-tip]="i18n.currentLang === 'ar' ? 'نقاط الاستلام' : 'Pickup Points'">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'نقاط الاستلام' : 'Pickup Points' }}</span>
+        </button>
+        <a routerLink="/admin/governorates" class="nav-item" [class.active]="isRouteActive('governorates')" (click)="sidebarMobileOpen = false" [attr.data-tip]="i18n.currentLang === 'ar' ? 'المحافظات' : 'Governorates'">
+          <i class="fa-solid fa-map-pin"></i>
+          <span>{{ i18n.currentLang === 'ar' ? 'المحافظات' : 'Governorates' }}</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MAIN CONTENT                                    -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="admin-content">
+    <header class="admin-topbar">
+      <button class="topbar-menu-btn" (click)="toggleSidebarMobile()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="topbar-title">
+        <i class="fa-solid" [ngClass]="topbarLabel.icon"></i>
+        <span>{{ i18n.currentLang === 'ar' ? topbarLabel.ar : topbarLabel.en }}</span>
+      </div>
+      <div class="topbar-actions">
+        <span class="topbar-crumb">
+          <i class="fa-solid fa-house"></i>
+          {{ i18n.currentLang === 'ar' ? 'الأدمن' : 'Admin' }}
+          <i class="fa-solid fa-chevron-right" style="font-size:9px;opacity:.5"></i>
+          <span>{{ i18n.currentLang === 'ar' ? topbarLabel.ar : topbarLabel.en }}</span>
+        </span>
+      </div>
+    </header>
+
+    <div class="admin-outlet">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

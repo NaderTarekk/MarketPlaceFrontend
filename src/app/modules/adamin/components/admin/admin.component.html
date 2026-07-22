@@ -1,102 +1,4 @@
 <div class="admin-reports">
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
-      <h1>
-        <i class="fa-solid fa-chart-line"></i>
-        {{ i18n.currentLang === 'ar' ? 'لوحة التحكم والتقارير' : 'Admin Dashboard & Reports' }}
-      </h1>
-      <p>{{ i18n.currentLang === 'ar' ? 'إدارة شاملة للموقع والمستخدمين والتقارير' : 'Comprehensive site, users &
-        reports management' }}</p>
-    </div>
-  </section>
-
-  <!-- Tabs -->
-  <div class="tabs-container">
-    <div class="tabs">
-      <button class="tab" [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">
-        <i class="fa-solid fa-gauge-high"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'نظرة عامة' : 'Overview' }}</span>
-      </button>
-
-      <button class="tab" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
-        <i class="fa-solid fa-users"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'المستخدمين' : 'Users' }}</span>
-      </button>
-
-      <button class="tab" [class.active]="activeTab === 'products'" (click)="switchTab('products')">
-        <i class="fa-solid fa-boxes-stacked"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'المنتجات المعلقة' : 'Pending Products' }}</span>
-        <span class="tab-badge" *ngIf="dashboard && dashboard.pendingProducts > 0">{{ dashboard.pendingProducts
-          }}</span>
-      </button>
-
-      <!-- ✅ NEW: Vendors Tab -->
-      <button class="tab" [class.active]="activeTab === 'vendors'" (click)="switchTab('vendors')">
-        <i class="fa-solid fa-store"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'التجار' : 'Vendors' }}</span>
-      </button>
-
-      <!-- ✅ NEW: Delivery Agents Tab -->
-      <button class="tab" [class.active]="activeTab === 'agents'" (click)="switchTab('agents')">
-        <i class="fa-solid fa-truck"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'المناديب' : 'Agents' }}</span>
-      </button>
-
-      <!-- ✅ NEW: Shipping Employees Tab -->
-      <button class="tab" [class.active]="activeTab === 'employees'" (click)="switchTab('employees')">
-        <i class="fa-solid fa-warehouse"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'موظفي الشحن' : 'Employees' }}</span>
-      </button>
-
-      <!-- ✅ NEW: Financial Tab -->
-      <button class="tab" [class.active]="activeTab === 'financial'" (click)="switchTab('financial')">
-        <i class="fa-solid fa-chart-pie"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'التقارير المالية' : 'Financial' }}</span>
-      </button>
-
-      <!-- <button class="tab" [class.active]="activeTab === 'sales'" (click)="switchTab('sales')">
-      <i class="fa-solid fa-coins"></i>
-      <span>{{ i18n.currentLang === 'ar' ? 'المبيعات' : 'Sales' }}</span>
-    </button> -->
-
-      <button class="tab" [class.active]="activeTab === 'inventory'" (click)="switchTab('inventory')">
-        <i class="fa-solid fa-warehouse"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'المخزون' : 'Inventory' }}</span>
-      </button>
-
-      <button class="tab" [class.active]="activeTab === 'withdrawals'" (click)="switchTab('withdrawals')">
-        <i class="fa-solid fa-money-bill-transfer"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'سحوبات التجار' : 'Withdrawals' }}</span>
-      </button>
-      <button class="tab" [class.active]="activeTab === 'orders'" (click)="switchTab('orders')">
-        <i class="fa-solid fa-receipt"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'الطلبات' : 'Orders' }}</span>
-      </button>
-      <button class="tab" [class.active]="activeTab === 'support'" (click)="switchTab('support')">
-        <i class="fa-solid fa-headset"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'الدعم الفني' : 'Support' }}</span>
-      </button>
-      <button class="tab" [class.active]="activeTab === 'settings'" (click)="switchTab('settings')">
-        <i class="fa-solid fa-gear"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'الإعدادات' : 'Settings' }}</span>
-      </button>
-      <button class="tab" [class.active]="activeTab === 'pickupPoints'" (click)="switchTab('pickupPoints')">
-        <i class="fa-solid fa-map-location-dot"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'نقاط الاستلام' : 'Pickup Points' }}</span>
-      </button>
-      <button class="tab" [class.active]="activeTab === 'promoCodes'" (click)="switchTab('promoCodes')">
-        <i class="fa-solid fa-ticket"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'أكواد الخصم' : 'Promo Codes' }}</span>
-      </button>
-      <button class="tab" [class.active]="activeTab === 'promotions'" (click)="switchTab('promotions')">
-        <i class="fa-solid fa-bullhorn"></i>
-        <span>{{ i18n.currentLang === 'ar' ? 'العروض' : 'Promotions' }}</span>
-      </button>
-    </div>
-  </div>
-
   <div class="main-container">
     <!-- ═══════════════════════════════════════════════ -->
     <!-- DASHBOARD TAB -->
@@ -1298,11 +1200,10 @@
                   <td class="px-4 py-4">
                     <div class="flex items-center justify-center gap-2">
                       <button (click)="toggleVerification(vendor)"
-                        class="p-2 rounded-lg transition-colors"
-                        [class.bg-stone-200]="!vendor.isVerified" [class.text-teal-700]="!vendor.isVerified" [class.hover:bg-teal-200]="!vendor.isVerified"
-                        [class.bg-green-100]="vendor.isVerified" [class.text-green-700]="vendor.isVerified" [class.hover:bg-green-200]="vendor.isVerified"
+                        class="verify-btn"
+                        [class.verified]="vendor.isVerified"
                         [title]="vendor.isVerified ? (i18n.currentLang === 'ar' ? 'إلغاء التوثيق' : 'Remove Verification') : (i18n.currentLang === 'ar' ? 'توثيق التاجر' : 'Verify Vendor')">
-                        <i class="fa-solid" [class.fa-badge-check]="vendor.isVerified" [class.fa-circle-check]="!vendor.isVerified"></i>
+                        <i class="fa-solid" [class.fa-shield-halved]="!vendor.isVerified" [class.fa-circle-check]="vendor.isVerified"></i>
                       </button>
                       <button (click)="openVendorModal(vendor)"
                         class="p-2 rounded-lg bg-stone-200 text-teal-800 hover:bg-teal-200 transition-colors"
@@ -2019,8 +1920,16 @@
 
     <!-- ORDERS TAB -->
     <div *ngIf="activeTab === 'orders'" class="tab-content">
-      <div class="section-header">
+      <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
         <h2><i class="fa-solid fa-receipt"></i> {{ i18n.currentLang === 'ar' ? 'كل الطلبات' : 'All Orders' }}</h2>
+        <button (click)="exportOrdersCsv()"
+                [disabled]="!adminOrders?.length"
+                class="csv-export-btn"
+                [attr.title]="i18n.currentLang === 'ar' ? 'تصدير CSV' : 'Export CSV'">
+          <i class="fa-solid fa-file-csv"></i>
+          {{ i18n.currentLang === 'ar' ? 'تصدير CSV' : 'Export CSV' }}
+          <span class="csv-count" *ngIf="adminOrders?.length">({{ adminOrders.length }})</span>
+        </button>
       </div>
 
       <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">

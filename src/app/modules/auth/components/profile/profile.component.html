@@ -9,12 +9,18 @@
         </div>
     </section>
 
-    <!-- Loading -->
-    <div *ngIf="isLoading" class="loading-container">
-        <div class="loader">
-            <div class="loader-ring"></div>
-            <div class="loader-ring"></div>
-            <div class="loader-ring"></div>
+    <!-- Skeleton Loading -->
+    <div *ngIf="isLoading" class="profile-container">
+        <div class="profile-card">
+            <div class="avatar-section">
+                <div class="sk-avatar"></div>
+                <div class="sk-line sk-line-lg"></div>
+                <div class="sk-line sk-line-md"></div>
+                <div class="sk-line sk-line-sm"></div>
+            </div>
+            <div class="stats-grid">
+                <div class="sk-stat" *ngFor="let i of [1,2,3,4]"></div>
+            </div>
         </div>
     </div>
 
@@ -55,8 +61,29 @@
                     </button>
                 </div>
 
-                <h1 class="profile-name">{{ profile.fullName }}</h1>
+                <h1 class="profile-name">
+                    {{ profile.fullName }}
+                    <span class="verified-tick" *ngIf="profile.isVerified" title="Verified Account">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </span>
+                </h1>
                 <p class="profile-email">{{ profile.email }}</p>
+
+                <!-- Achievement Badges -->
+                <div class="achievement-badges">
+                    <span class="achv-badge" *ngIf="stats.ordersCount >= 10" title="10+ Orders">
+                        <i class="fa-solid fa-medal"></i>
+                    </span>
+                    <span class="achv-badge silver" *ngIf="stats.ordersCount >= 5 && stats.ordersCount < 10" title="5+ Orders">
+                        <i class="fa-solid fa-award"></i>
+                    </span>
+                    <span class="achv-badge bronze" *ngIf="stats.ordersCount >= 1 && stats.ordersCount < 5" title="First Order">
+                        <i class="fa-solid fa-star"></i>
+                    </span>
+                    <span class="achv-badge review" *ngIf="stats.reviewsCount >= 3" title="Reviewer">
+                        <i class="fa-solid fa-comment-dots"></i>
+                    </span>
+                </div>
 
                 <!-- Member Since -->
                 <div class="member-since">
@@ -65,6 +92,22 @@
                         {{ i18n.currentLang === 'ar' ? 'عضو منذ' : 'Member for' }}
                         {{ getMemberSince() }}
                     </span>
+                </div>
+
+                <!-- Quick Actions Bar -->
+                <div class="quick-actions" *ngIf="!isEditing">
+                    <button class="qa-btn primary" (click)="toggleEdit()">
+                        <i class="fa-solid fa-pen"></i>
+                        <span>{{ i18n.currentLang === 'ar' ? 'تعديل' : 'Edit' }}</span>
+                    </button>
+                    <button class="qa-btn" routerLink="/cart/my-orders">
+                        <i class="fa-solid fa-box"></i>
+                        <span>{{ i18n.currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
+                    </button>
+                    <button class="qa-btn danger" (click)="logout()">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>{{ i18n.currentLang === 'ar' ? 'خروج' : 'Logout' }}</span>
+                    </button>
                 </div>
             </div>
 

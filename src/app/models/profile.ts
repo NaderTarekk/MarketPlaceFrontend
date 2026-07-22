@@ -20,6 +20,7 @@ export interface Profile {
   storeLogo: string | null;
   pendingStoreLogo: string | null;
   isApproved: boolean;
+  isVerified?: boolean;
 }
 
 export interface ProfileStats {

@@ -75,8 +75,41 @@
           </span>
         </div>
 
-        <!-- Title -->
-        <h1 class="product-title">{{ getName(product) }}</h1>
+        <!-- Title + Action Icons Row -->
+        <div class="title-row">
+          <h1 class="product-title">{{ getName(product) }}</h1>
+          <div class="title-actions">
+            <button class="icon-action wishlist-heart" (click)="toggleWishlist()"
+                    [class.active]="isInWishlist"
+                    [title]="i18n.currentLang === 'ar' ? 'إضافة للمفضلة' : 'Add to wishlist'">
+              <i class="fa-solid fa-heart"></i>
+            </button>
+            <div class="share-menu" (click)="$event.stopPropagation()">
+              <button class="icon-action" (click)="showShareMenu = !showShareMenu"
+                      [title]="i18n.currentLang === 'ar' ? 'مشاركة' : 'Share'">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
+              <div class="share-dropdown" *ngIf="showShareMenu">
+                <a [href]="'https://wa.me/?text=' + shareText()" target="_blank" class="share-item wa">
+                  <i class="fa-brands fa-whatsapp"></i>
+                  <span>WhatsApp</span>
+                </a>
+                <a [href]="'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl()" target="_blank" class="share-item fb">
+                  <i class="fa-brands fa-facebook-f"></i>
+                  <span>Facebook</span>
+                </a>
+                <a [href]="'https://twitter.com/intent/tweet?text=' + shareText()" target="_blank" class="share-item tw">
+                  <i class="fa-brands fa-x-twitter"></i>
+                  <span>X (Twitter)</span>
+                </a>
+                <button (click)="copyLink()" class="share-item link">
+                  <i class="fa-solid fa-link"></i>
+                  <span>{{ i18n.currentLang === 'ar' ? 'نسخ الرابط' : 'Copy Link' }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Rating -->
         <div class="rating-row">
@@ -135,9 +168,10 @@
             ? (i18n.currentLang === 'ar' ? 'متوفر في المخزون' : 'In Stock')
             : (i18n.currentLang === 'ar' ? 'غير متوفر' : 'Out of Stock') }}
           </span>
-          <span *ngIf="product.stock > 0 && product.stock <= 10" class="low-stock">
-            {{ i18n.currentLang === 'ar' ? 'باقي' : 'Only' }} {{ product.stock }} {{ i18n.currentLang === 'ar' ? 'فقط' :
-            'left' }}
+          <span *ngIf="product.stock > 0 && product.stock <= 10" class="low-stock urgency-alert">
+            <i class="fa-solid fa-fire"></i>
+            {{ i18n.currentLang === 'ar' ? 'باقي' : 'Only' }} {{ product.stock }} {{ i18n.currentLang === 'ar' ? 'قطعة فقط!' :
+            'left!' }}
           </span>
         </div>
 
@@ -222,6 +256,51 @@
               <i class="fa-solid fa-cart-plus"></i>
               {{ i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart' }}
             </button>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="trust-badges">
+            <div class="trust-item">
+              <i class="fa-solid fa-truck-fast"></i>
+              <div>
+                <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'شحن سريع' : 'Fast Shipping' }}</div>
+                <div class="trust-desc">{{ i18n.currentLang === 'ar' ? '2-5 أيام' : '2-5 days' }}</div>
+              </div>
+            </div>
+            <div class="trust-item">
+              <i class="fa-solid fa-shield-halved"></i>
+              <div>
+                <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'دفع آمن' : 'Secure Payment' }}</div>
+                <div class="trust-desc">{{ i18n.currentLang === 'ar' ? '100% مضمون' : '100% guaranteed' }}</div>
+              </div>
+            </div>
+            <div class="trust-item">
+              <i class="fa-solid fa-rotate-left"></i>
+              <div>
+                <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'إمكانية الإرجاع' : 'Easy Returns' }}</div>
+                <div class="trust-desc">{{ i18n.currentLang === 'ar' ? 'خلال 14 يوم' : 'Within 14 days' }}</div>
+              </div>
+            </div>
+            <div class="trust-item">
+              <i class="fa-solid fa-headset"></i>
+              <div>
+                <div class="trust-title">{{ i18n.currentLang === 'ar' ? 'دعم 24/7' : '24/7 Support' }}</div>
+                <div class="trust-desc">{{ i18n.currentLang === 'ar' ? 'دعم فني دائم' : 'Always available' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accepted Payments -->
+          <div class="payment-methods-strip">
+            <span class="pm-label">{{ i18n.currentLang === 'ar' ? 'طرق الدفع:' : 'We accept:' }}</span>
+            <div class="pm-icons">
+              <span class="pm-icon" title="Cash on Delivery"><i class="fa-solid fa-money-bill-wave"></i></span>
+              <span class="pm-icon" title="Vodafone Cash"><i class="fa-solid fa-mobile-screen-button"></i></span>
+              <span class="pm-icon" title="InstaPay"><i class="fa-solid fa-bolt"></i></span>
+              <span class="pm-icon" title="Bank Transfer"><i class="fa-solid fa-building-columns"></i></span>
+              <span class="pm-icon" title="Visa"><i class="fa-brands fa-cc-visa"></i></span>
+              <span class="pm-icon" title="Mastercard"><i class="fa-brands fa-cc-mastercard"></i></span>
+            </div>
           </div>
 
           <!-- Delivery Estimate -->
@@ -592,6 +671,26 @@
       <button class="btn-submit" (click)="submitReview()" [disabled]="isSubmittingReview">
         <i *ngIf="isSubmittingReview" class="fa-solid fa-spinner fa-spin"></i>
         <span *ngIf="!isSubmittingReview">{{ i18n.currentLang === 'ar' ? 'إرسال' : 'Submit' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Sticky Add-to-Cart Bar -->
+  <div class="sticky-add-bar" *ngIf="!isLoading && product && showStickyBar">
+    <div class="sticky-add-container">
+      <img [src]="getImageUrl(product.mainImage)" [alt]="getName(product)" class="sticky-img" />
+      <div class="sticky-info">
+        <div class="sticky-name">{{ getName(product) }}</div>
+        <div class="sticky-price">
+          <span class="sticky-current">{{ formatPrice(promoDiscount > 0 ? getPromoPrice() : product.price) }}</span>
+          <span class="sticky-original" *ngIf="product.originalPrice && product.originalPrice > product.price">
+            {{ formatPrice(product.originalPrice) }}
+          </span>
+        </div>
+      </div>
+      <button class="sticky-add-btn" (click)="addToCart()" [disabled]="product.stock <= 0">
+        <i class="fa-solid fa-cart-plus"></i>
+        <span>{{ product.stock > 0 ? (i18n.currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart') : (i18n.currentLang === 'ar' ? 'نفدت' : 'Sold Out') }}</span>
       </button>
     </div>
   </div>

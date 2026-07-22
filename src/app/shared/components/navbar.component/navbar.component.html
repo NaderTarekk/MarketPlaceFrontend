@@ -156,24 +156,59 @@
 
       <!-- Nav Icons - OZON Style -->
       <div class="nav-icons-ozon desktop-icons">
-        <button class="nav-icon-item" (click)="toggleLang()">
+        <button class="menu-toggle-btn" (click)="isMenuOpen = !isMenuOpen; $event.stopPropagation()" [class.open]="isMenuOpen"
+                [title]="currentLang === 'ar' ? 'القائمة' : 'Menu'">
+          <span class="mt-bar"></span>
+          <span class="mt-bar"></span>
+          <span class="mt-bar"></span>
+        </button>
+
+        <button class="lang-toggle" (click)="toggleLang()">
           <i class="fa-solid fa-globe"></i>
-          <span>{{ currentLang === 'ar' ? 'EN' : 'عربي' }}</span>
+          <span class="lang-code">{{ currentLang === 'ar' ? 'EN' : 'AR' }}</span>
         </button>
 
         <a *ngIf="!isLogged" routerLink="/auth/login" class="nav-icon-item">
           <i class="fa-solid fa-user"></i>
           <span>{{ 'login' | translate }}</span>
         </a>
-        <a *ngIf="isLogged" routerLink="/auth/profile" class="nav-icon-item">
-          <i class="fa-solid fa-user"></i>
-          <span>{{ 'profile' | translate }}</span>
-        </a>
 
-        <a *ngIf="isLogged" routerLink="/cart/my-orders" class="nav-icon-item">
-          <i class="fa-solid fa-box"></i>
-          <span>{{ currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
-        </a>
+        <!-- Logged-in user avatar dropdown -->
+        <div *ngIf="isLogged" class="user-menu-wrapper" (click)="$event.stopPropagation()">
+          <button class="user-avatar-btn" (click)="isUserMenuOpen = !isUserMenuOpen">
+            <div class="user-avatar-circle">
+              <span>{{ (userInitial || 'U') }}</span>
+            </div>
+            <span class="user-caret">
+              <i class="fa-solid" [ngClass]="isUserMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </span>
+          </button>
+
+          <div class="user-menu-dropdown" *ngIf="isUserMenuOpen">
+            <div class="user-menu-header">
+              <div class="user-avatar-circle big">{{ userInitial || 'U' }}</div>
+              <div>
+                <div class="user-name">{{ userDisplayName || (currentLang === 'ar' ? 'مستخدم' : 'User') }}</div>
+                <div class="user-role">{{ role }}</div>
+              </div>
+            </div>
+            <a routerLink="/auth/profile" (click)="isUserMenuOpen = false" class="user-menu-item">
+              <i class="fa-solid fa-user"></i>
+              <span>{{ currentLang === 'ar' ? 'الصفحة الشخصية' : 'Profile' }}</span>
+            </a>
+            <a routerLink="/cart/my-orders" (click)="isUserMenuOpen = false" class="user-menu-item">
+              <i class="fa-solid fa-box"></i>
+              <span>{{ currentLang === 'ar' ? 'طلباتي' : 'Orders' }}</span>
+            </a>
+            <div class="user-menu-divider"></div>
+            <button (click)="isUserMenuOpen = false; onLogout()" class="user-menu-item danger">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>{{ currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <span class="icon-divider" *ngIf="isLogged"></span>
 
         <!-- Notifications Bell -->
         <button *ngIf="isLogged" class="nav-icon-item" (click)="toggleNotifications($event)" style="position:relative">
@@ -189,10 +224,12 @@
           <span>{{ 'fav' | translate }}</span>
         </a> -->
 
+        <span class="icon-divider"></span>
+
         <a routerLink="/cart" class="nav-icon-item cart-item">
-          <div class="cart-icon-wrapper">
+          <div class="cart-icon-wrapper" [class.cart-bump]="cartPulse">
             <i class="fa-solid fa-cart-shopping"></i>
-            <span *ngIf="cartCount > 0" class="cart-badge-ozon">{{ cartCount }}</span>
+            <span *ngIf="cartCount > 0" class="cart-badge-ozon" [class.pulse]="cartPulse">{{ cartCount }}</span>
           </div>
           <span>{{ 'cart' | translate }}</span>
         </a>
@@ -203,7 +240,8 @@
   <!-- ═══════════════════════════════════════════════ -->
   <!-- BOTTOM ROW: Navigation Links -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div class="navbar-bottom desktop-nav" *ngIf="!isInLoginPage">
+  <div class="navbar-bottom desktop-nav menu-panel" *ngIf="!isInLoginPage && isMenuOpen"
+       (click)="$event.stopPropagation()">
     <div class="navbar-container">
       <nav class="nav-links-ozon">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link-ozon">
@@ -403,6 +441,12 @@
     <span>{{ 'login' | translate }}</span>
   </a>
 </nav>
+
+<!-- Scroll-to-top FAB -->
+<button class="scroll-top-fab" [class.visible]="showScrollTop" (click)="scrollToTop()"
+        [attr.aria-label]="currentLang === 'ar' ? 'العودة لأعلى' : 'Back to top'">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
 
 <!-- ✅ Categories Dropdown Popup -->
 <div class="categories-dropdown-overlay" [class.open]="isCategoriesDropdownOpen" (click)="closeCategoriesDropdown()">

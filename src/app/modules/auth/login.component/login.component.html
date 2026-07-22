@@ -1,11 +1,9 @@
 <app-loader-component *ngIf="isLoading"></app-loader-component>
 
-<div class="min-h-screen relative flex items-center justify-center px-4 py-12 overflow-hidden">
+<div class="login-shell">
 
   <!-- ═══ Animated Background ═══ -->
   <div class="animated-bg"></div>
-
-  <!-- ═══ Grid Pattern ═══ -->
   <div class="grid-pattern"></div>
 
   <!-- ═══ Floating Shapes ═══ -->
@@ -32,12 +30,91 @@
   <div class="sparkle sparkle-4"></div>
   <div class="sparkle sparkle-5"></div>
 
-  <!-- ═══ Main Card ═══ -->
-  <div class="relative z-10 w-full max-w-md anim-fadeUp">
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- HERO SIDE (Desktop only)                        -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <aside class="login-hero">
+    <div class="login-hero-content">
+      <div class="hero-brand cursor-pointer" (click)="GoHome()">
+        <img src="wild-gold.png" alt="Wild Market" class="hero-logo" />
+      </div>
 
-    <!-- ═══ Logo ═══ -->
-    <div class="flex justify-center cursor-pointer" (click)="GoHome()">
-      <img src="wild-gold.png" alt="Wild Market" style="height:260px;filter:drop-shadow(0 4px 12px rgba(55,139,203,0.4))" />
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="hero-badge-logo">
+            <img src="wild-gold.png" alt="Wild Market" />
+          </span>
+          <span>{{ i18n.currentLang === 'ar' ? 'مرحباً بك في' : 'Welcome to' }}</span>
+          <i class="fa-solid fa-star hero-badge-star"></i>
+        </div>
+        <h1 class="hero-title">
+          {{ i18n.currentLang === 'ar' ? 'وايلد ماركت' : 'Wild Market' }}
+        </h1>
+        <p class="hero-tagline">
+          {{ i18n.currentLang === 'ar'
+            ? 'وجهتك الأولى للتسوق الذكي — أفضل العروض، توصيل سريع، وأمان تام'
+            : 'Your smart shopping destination — best deals, fast delivery, total security' }}
+        </p>
+      </div>
+
+      <ul class="hero-benefits">
+        <li>
+          <div class="benefit-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">
+            <i class="fa-solid fa-truck-fast"></i>
+          </div>
+          <div class="benefit-text">
+            <div class="benefit-title">{{ i18n.currentLang === 'ar' ? 'شحن سريع' : 'Fast Shipping' }}</div>
+            <div class="benefit-sub">{{ i18n.currentLang === 'ar' ? 'توصيل خلال 48 ساعة' : 'Delivered within 48 hours' }}</div>
+          </div>
+        </li>
+        <li>
+          <div class="benefit-icon" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="benefit-text">
+            <div class="benefit-title">{{ i18n.currentLang === 'ar' ? 'دفع آمن' : 'Secure Payment' }}</div>
+            <div class="benefit-sub">{{ i18n.currentLang === 'ar' ? 'حماية كاملة لبياناتك' : 'Full data protection' }}</div>
+          </div>
+        </li>
+        <li>
+          <div class="benefit-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)">
+            <i class="fa-solid fa-headset"></i>
+          </div>
+          <div class="benefit-text">
+            <div class="benefit-title">{{ i18n.currentLang === 'ar' ? 'دعم 24/7' : '24/7 Support' }}</div>
+            <div class="benefit-sub">{{ i18n.currentLang === 'ar' ? 'خدمة عملاء طوال الأسبوع' : 'Customer service always ready' }}</div>
+          </div>
+        </li>
+        <li>
+          <div class="benefit-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+            <i class="fa-solid fa-rotate-left"></i>
+          </div>
+          <div class="benefit-text">
+            <div class="benefit-title">{{ i18n.currentLang === 'ar' ? 'إرجاع مجاني' : 'Free Returns' }}</div>
+            <div class="benefit-sub">{{ i18n.currentLang === 'ar' ? 'خلال 14 يوم' : 'Within 14 days' }}</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="hero-footer">
+        <div class="hero-stats">
+          <div class="hero-stat"><b>10K+</b><span>{{ i18n.currentLang === 'ar' ? 'عميل' : 'Customers' }}</span></div>
+          <div class="hero-stat"><b>3K+</b><span>{{ i18n.currentLang === 'ar' ? 'منتج' : 'Products' }}</span></div>
+          <div class="hero-stat"><b>4.9★</b><span>{{ i18n.currentLang === 'ar' ? 'تقييم' : 'Rating' }}</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- FORM SIDE                                       -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="login-form-side">
+    <div class="relative z-10 w-full max-w-md anim-fadeUp">
+
+    <!-- ═══ Mobile Logo (hidden on desktop where hero shows it) ═══ -->
+    <div class="lg:hidden flex justify-center cursor-pointer mb-4" (click)="GoHome()">
+      <img src="wild-gold.png" alt="Wild Market" style="height:120px;filter:drop-shadow(0 4px 12px rgba(55,139,203,0.4))" />
     </div>
 
 
@@ -551,6 +628,7 @@
           </button>
         </p>
       </div>
+    </div>
     </div>
   </div>
 

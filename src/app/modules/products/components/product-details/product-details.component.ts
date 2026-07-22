@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { Product, ProductList } from '../../../../models/products';
 import { I18nService } from '../../../../core/services/i18n.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -99,6 +99,34 @@ export class ProductDetailsComponent implements OnInit {
   ) { }
 
   isStartingChat = false;
+  showShareMenu = false;
+  showStickyBar = false;
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.showStickyBar = window.scrollY > 500;
+  }
+
+  @HostListener('document:click')
+  onDocClick(): void {
+    if (this.showShareMenu) { this.showShareMenu = false; this.cdr.detectChanges(); }
+  }
+
+  shareUrl(): string {
+    return encodeURIComponent(window.location.href);
+  }
+  shareText(): string {
+    const name = this.product ? this.getName(this.product) : 'Product';
+    return encodeURIComponent(`${name} - ${window.location.href}`);
+  }
+  copyLink(): void {
+    navigator.clipboard?.writeText(window.location.href).then(
+      () => this.toastr.success(this.i18n.currentLang === 'ar' ? 'تم نسخ الرابط' : 'Link copied'),
+      () => this.toastr.error(this.i18n.currentLang === 'ar' ? 'فشل النسخ' : 'Copy failed')
+    );
+    this.showShareMenu = false;
+  }
+
   chatWithVendor(): void {
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
